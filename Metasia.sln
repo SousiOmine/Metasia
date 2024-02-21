@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34511.84
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Metasia.Editor", "Metasia.Editor\Metasia.Editor.csproj", "{33EDA759-4E5F-473B-A3C5-42DA18EFF743}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Metasia.Core", "Metasia.Core\Metasia.Core.csproj", "{9E880F03-240D-4303-BBA1-B1F59D44CF0C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{33EDA759-4E5F-473B-A3C5-42DA18EFF743}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33EDA759-4E5F-473B-A3C5-42DA18EFF743}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33EDA759-4E5F-473B-A3C5-42DA18EFF743}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33EDA759-4E5F-473B-A3C5-42DA18EFF743}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E880F03-240D-4303-BBA1-B1F59D44CF0C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E880F03-240D-4303-BBA1-B1F59D44CF0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E880F03-240D-4303-BBA1-B1F59D44CF0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E880F03-240D-4303-BBA1-B1F59D44CF0C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F9F265EC-D60D-4287-BDC6-0EAE9B98D9D3}
+	EndGlobalSection
+EndGlobal
