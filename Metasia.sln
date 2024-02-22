@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34511.84
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Metasia.Editor", "Metasia.Editor\Metasia.Editor.csproj", "{33EDA759-4E5F-473B-A3C5-42DA18EFF743}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metasia.Editor", "Metasia.Editor\Metasia.Editor.csproj", "{33EDA759-4E5F-473B-A3C5-42DA18EFF743}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Metasia.Core", "Metasia.Core\Metasia.Core.csproj", "{9E880F03-240D-4303-BBA1-B1F59D44CF0C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metasia.Core", "Metasia.Core\Metasia.Core.csproj", "{9E880F03-240D-4303-BBA1-B1F59D44CF0C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{7855B90C-289D-482E-9A29-89C0F5AD2B54}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{9E880F03-240D-4303-BBA1-B1F59D44CF0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9E880F03-240D-4303-BBA1-B1F59D44CF0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9E880F03-240D-4303-BBA1-B1F59D44CF0C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7855B90C-289D-482E-9A29-89C0F5AD2B54}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7855B90C-289D-482E-9A29-89C0F5AD2B54}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7855B90C-289D-482E-9A29-89C0F5AD2B54}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7855B90C-289D-482E-9A29-89C0F5AD2B54}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
