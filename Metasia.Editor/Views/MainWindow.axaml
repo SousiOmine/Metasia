@@ -1,13 +1,14 @@
-<Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:vm="using:Metasia.Editor.ViewModels"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-        x:Class="Metasia.Editor.Views.MainWindow"
-        x:DataType="vm:MainWindowViewModel"
-        Icon="/Assets/avalonia-logo.ico"
-        Title="Metasia.Editor">
+<Window	xmlns="https://github.com/avaloniaui"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:vm="using:Metasia.Editor.ViewModels"
+		xmlns:views="clr-namespace:Metasia.Editor.Views"
+		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+		x:Class="Metasia.Editor.Views.MainWindow"
+		x:DataType="vm:MainWindowViewModel"
+		Icon="/Assets/avalonia-logo.ico"
+		Title="Metasia.Editor">
 
     <Design.DataContext>
         <!-- This only sets the DataContext for the previewer in an IDE,
@@ -63,6 +64,7 @@
 				</Grid.ColumnDefinitions>
 				<TextBlock Grid.Column="0" Text="プロジェクトのあるディレクトリの中身"/>
 				<GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" Background="Gray"/>
+				<views:PlayerView Grid.Column="2"/>
 				<GridSplitter Grid.Column="3" HorizontalAlignment="Stretch" Background="Gray"/>
 				<TextBlock Grid.Column="4" Text="オブジェクト編集画面"/>
 			</Grid>

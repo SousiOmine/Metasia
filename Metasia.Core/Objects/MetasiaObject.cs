@@ -25,12 +25,12 @@ namespace Metasia.Core.Objects
         /// <summary>
         /// オブジェクトの先頭フレーム
         /// </summary>
-        public int StartFrame;
+        public int StartFrame = 0;
 
         /// <summary>
         /// オブジェクトの終端フレーム
         /// </summary>
-        public int EndFrame;
+        public int EndFrame = 100;
 
         public virtual Coordinate Coord { get; } = new();
 

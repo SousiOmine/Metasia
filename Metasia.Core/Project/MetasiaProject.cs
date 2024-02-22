@@ -9,9 +9,11 @@ namespace Metasia.Core.Project
     {
         public ProjectInfo Info;
 
-        public List<ListObject> Timelines = new List<ListObject>();
+        public string mainTimelineId = "MainTimeline";
 
-        public MetasiaProject(ProjectInfo info)
+        public List<ListObject> Timelines = new();
+
+		public MetasiaProject(ProjectInfo info)
         {
             Info = info;
         }

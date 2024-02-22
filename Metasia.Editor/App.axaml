@@ -1,4 +1,5 @@
 <Application xmlns="https://github.com/avaloniaui"
+		    xmlns:labs="using:Avalonia.Labs.Controls"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="Metasia.Editor.App"
              xmlns:local="using:Metasia.Editor"
@@ -11,5 +12,6 @@
   
     <Application.Styles>
         <FluentTheme />
+	    <labs:ControlThemes/>
     </Application.Styles>
 </Application>

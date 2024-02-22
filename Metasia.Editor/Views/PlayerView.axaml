@@ -1,0 +1,28 @@
+<UserControl	xmlns="https://github.com/avaloniaui"
+			xmlns:labs="clr-namespace:Avalonia.Labs.Controls;assembly=Avalonia.Labs.Controls"
+			xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+			xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+			x:Class="Metasia.Editor.Views.PlayerView">
+	<DockPanel>
+		<TextBlock Text="100" DockPanel.Dock="Top"/>
+		
+		<StackPanel DockPanel.Dock="Bottom" Margin="4">
+			<Grid>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="*"/>
+					<ColumnDefinition Width="auto"/>
+				</Grid.ColumnDefinitions>
+				<Slider TickPlacement="BottomRight" Grid.Column="0" />
+				<StackPanel Grid.Column="1" Orientation="Horizontal">
+					<Button Content="play" Click="Button_Click"/>
+				</StackPanel>
+				
+			</Grid>
+
+		</StackPanel>
+
+		<labs:SKCanvasView Name="skiaCanvas" PaintSurface="SKCanvasView_PaintSurface"/>
+	</DockPanel>
+</UserControl>
