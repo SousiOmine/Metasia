@@ -16,7 +16,7 @@ namespace Metasia.Core.Project
 		/// 空のフォルダに空のMetasiaProjectを作成する
 		/// </summary>
 		/// <param name="folder_path">プロジェクトフォルダとするパス</param>
-		/// <returns></returns>
+		/// <returns>成功したらtrue 失敗したらfalse</returns>
 		public static bool CreateFromTemplate(string folder_path)
 		{
 			if (!Directory.Exists(folder_path))
@@ -42,7 +42,7 @@ namespace Metasia.Core.Project
 
 			var jsonString = JsonSerializer.Serialize(info, jsonoptions);
 
-			using (StreamWriter sw = new StreamWriter(Path.Combine(folder_path, "project.metasia")))
+			using (StreamWriter sw = new StreamWriter(Path.Combine(folder_path, "project.metasia ")))
 			{
 				sw.Write(jsonString);
 			}
