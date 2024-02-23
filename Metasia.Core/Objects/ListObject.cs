@@ -21,6 +21,8 @@ namespace Metasia.Core.Objects
 
 		public override void Expression(ref ExpresserArgs e, int frame)
 		{
+			if (e.bitmap is null) e.bitmap = new SKBitmap((int)e.targetSize.Width, (int)e.targetSize.Height);
+
 			//ここでObjectsを各Coordinate(座標とか)を考慮し描写する
 
 			foreach (var o in Objects)
@@ -31,7 +33,7 @@ namespace Metasia.Core.Objects
 				{
 					ExpresserArgs express = new()
 					{
-						bitmap = new(300, 300),
+						//bitmap = new(300, 300),
 						targetSize = e.targetSize,
 						ResolutionLevel = e.ResolutionLevel
 					};

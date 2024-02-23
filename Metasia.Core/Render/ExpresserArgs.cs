@@ -12,7 +12,7 @@ namespace Metasia.Core.Render
     /// </summary>
     public class ExpresserArgs : IDisposable
     {
-        public SKBitmap bitmap;
+        public SKBitmap? bitmap;
 
         /// <summary>
         /// レイアウトに使用するサイズ
@@ -27,7 +27,7 @@ namespace Metasia.Core.Render
 
         public ExpresserArgs()
         {
-            bitmap = new SKBitmap(1920, 1080);
+            //bitmap = new SKBitmap(1920, 1080);
         }
 
 		public void Dispose()

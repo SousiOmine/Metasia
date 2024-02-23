@@ -31,6 +31,7 @@ namespace Metasia.Core.Objects
 
 		public override void Expression(ref ExpresserArgs e, int frame)
 		{
+			e.bitmap = new SKBitmap(200, 200);
 
 
 			using (SKCanvas canvas = new SKCanvas(e.bitmap))
