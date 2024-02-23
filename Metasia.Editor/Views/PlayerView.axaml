@@ -14,15 +14,21 @@
 					<ColumnDefinition Width="*"/>
 					<ColumnDefinition Width="auto"/>
 				</Grid.ColumnDefinitions>
-				<Slider TickPlacement="BottomRight" Grid.Column="0" />
+				<Slider TickPlacement="None" Grid.Column="0" />
 				<StackPanel Grid.Column="1" Orientation="Horizontal">
 					<Button Content="play" Click="Button_Click"/>
+					<Button Content="＜"/>
+					<Button Content="＞"/>
 				</StackPanel>
 				
 			</Grid>
 
 		</StackPanel>
 
-		<labs:SKCanvasView Name="skiaCanvas" PaintSurface="SKCanvasView_PaintSurface"/>
+		<Panel>
+			<labs:SKCanvasView Name="skiaCanvas" PaintSurface="SKCanvasView_PaintSurface"
+							   VerticalAlignment="Stretch"
+							   HorizontalAlignment="Stretch"/>
+		</Panel>
 	</DockPanel>
 </UserControl>

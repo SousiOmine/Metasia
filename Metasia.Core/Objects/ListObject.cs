@@ -21,7 +21,7 @@ namespace Metasia.Core.Objects
 
 		public override void Expression(ref ExpresserArgs e, int frame)
 		{
-			//ここでObjectsを座標を考慮し描写する
+			//ここでObjectsを各Coordinate(座標とか)を考慮し描写する
 
 			foreach (var o in Objects)
 			{
@@ -29,9 +29,15 @@ namespace Metasia.Core.Objects
 
 				using (SKCanvas canvas = new SKCanvas(e.bitmap))
 				{
-					ExpresserArgs express = new();
+					ExpresserArgs express = new()
+					{
+						bitmap = new(300, 300),
+						targetSize = e.targetSize,
+						ResolutionLevel = e.ResolutionLevel
+					};
 					o.Expression(ref express, frame);
 					canvas.DrawBitmap(express.bitmap, 0, 0);
+					express.Dispose();
 				}
 
 			}

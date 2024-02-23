@@ -14,6 +14,17 @@ namespace Metasia.Core.Render
     {
         public SKBitmap bitmap;
 
+        /// <summary>
+        /// レイアウトに使用するサイズ
+        /// </summary>
+        public SKSize targetSize;
+
+		/// <summary>
+		/// targetSizeの値を1としたとき、実際にレンダリングする解像度の比率
+		/// たとえば、targetSizeが1920*1080の場合、ResolutionLevelが0.5であればレンダリング解像度は960*540になる
+		/// </summary>
+		public float ResolutionLevel;
+
         public ExpresserArgs()
         {
             bitmap = new SKBitmap(1920, 1080);

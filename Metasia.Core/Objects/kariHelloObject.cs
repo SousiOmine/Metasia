@@ -10,7 +10,7 @@ namespace Metasia.Core.Objects
 {
 	public class kariHelloObject : CoordObject
 	{
-		private SKBitmap myBitmap = new(400, 300);
+		private SKBitmap myBitmap = new(200, 200);
 
 		public kariHelloObject(string id) : base(id)
 		{
@@ -22,6 +22,7 @@ namespace Metasia.Core.Objects
 			};
 			using (SKCanvas canvas = new SKCanvas(myBitmap))
 			{
+				canvas.Clear(SKColors.Brown);
 				canvas.DrawText("Hello", 100, 100, skPaint);
 			}
 		}
@@ -33,7 +34,8 @@ namespace Metasia.Core.Objects
 
 			using (SKCanvas canvas = new SKCanvas(e.bitmap))
 			{
-				canvas.DrawBitmap(myBitmap, 0, 0);
+				
+				canvas.DrawBitmap(myBitmap, (e.bitmap.Width - myBitmap.Width) / 2, (e.bitmap.Height - myBitmap.Height) / 2);
 			}
 
 			base.Expression(ref e, frame);

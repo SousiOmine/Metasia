@@ -56,4 +56,6 @@ public partial class PlayerView : UserControl
 		frame++;
 		skiaCanvas.InvalidateSurface();
 	}
+
+	
 }

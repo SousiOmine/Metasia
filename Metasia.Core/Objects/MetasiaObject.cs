@@ -1,4 +1,5 @@
 ﻿using Metasia.Core.Render;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,7 +49,12 @@ namespace Metasia.Core.Objects
         public virtual void Expression(ref ExpresserArgs e, int frame)
         {
             if (frame < StartFrame || frame > EndFrame) return;
-            if (Child is not null) Child.Expression(ref e, frame);
+            if (Child is not null)
+            {
+                Child.StartFrame = this.StartFrame;
+				Child.EndFrame = this.EndFrame;
+				Child.Expression(ref e, frame);
+            }
         }
     }
 }
