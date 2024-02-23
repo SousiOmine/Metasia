@@ -36,7 +36,7 @@ namespace Metasia.Core.Objects
 						ResolutionLevel = e.ResolutionLevel
 					};
 					o.Expression(ref express, frame);
-					canvas.DrawBitmap(express.bitmap, 0, 0);
+					canvas.DrawBitmap(express.bitmap, (e.bitmap.Width - express.bitmap.Width) / 2 + o.X, (e.bitmap.Height - express.bitmap.Height) / 2 - o.Y);
 					express.Dispose();
 				}
 

@@ -25,6 +25,7 @@ namespace Metasia.Core.Objects
 				canvas.Clear(SKColors.Brown);
 				canvas.DrawText("Hello", 100, 100, skPaint);
 			}
+			SetX(100);
 		}
 
 
