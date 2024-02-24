@@ -32,7 +32,7 @@ namespace Metasia.Core.Render
 
 		public void Dispose()
 		{
-            bitmap.Dispose();
+            if (bitmap is not null) bitmap.Dispose();
 		}
 	}
 }

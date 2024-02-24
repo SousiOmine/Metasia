@@ -13,7 +13,7 @@ namespace Metasia.Core.Render
 	public class ProjectRenderer
 	{
 		MetasiaProject Project;
-		TimelineObject MainTimeline;
+		TimelineObject? RootTimeline;
 
 		public ProjectRenderer(MetasiaProject project) 
 		{
@@ -24,11 +24,10 @@ namespace Metasia.Core.Render
 		public void Render(ref SKCanvas canvas, int frame)
 		{
 			//Listの中からMainTimelineというIDを持つListObjectを取得する
-			MainTimeline = Project.Timelines.Find(x => x.Id == "MainTimeline");
-			if (MainTimeline is null) return;
+			RootTimeline = Project.Timelines.Find(x => x.Id == "RootTimeline");
+			if (RootTimeline is null) return;
 
 			var bmp = new SKBitmap(384, 216);
-			//var bmp = new SKBitmap(300, 150);
 
 			using (SKCanvas canvas2 = new SKCanvas(bmp))
 			{
@@ -42,9 +41,7 @@ namespace Metasia.Core.Render
 				ResolutionLevel = 0.1f
 			};
 
-			MainTimeline.Expression(ref args, frame);
-
-			SKRect rect = new SKRect(0,0, 480, 270);
+			RootTimeline.Expression(ref args, frame);
 
 			canvas.DrawBitmap(bmp, 0, 0);
 			bmp.Dispose();

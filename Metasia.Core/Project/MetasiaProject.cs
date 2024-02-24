@@ -9,7 +9,7 @@ namespace Metasia.Core.Project
     {
         public ProjectInfo Info;
 
-        public string mainTimelineId = "MainTimeline";
+        public string RootTimelineId = "RootTimeline";
 
         public List<TimelineObject> Timelines = new();
 

@@ -40,7 +40,7 @@ public partial class PlayerView : UserControl
 		LayerObject layer2 = new LayerObject("layer2");
 		layer2.Objects.Add(kariHello2);
 		kariHello2.SetX(-200);
-		TimelineObject mainTL = new TimelineObject("MainTimeline");
+		TimelineObject mainTL = new TimelineObject("RootTimeline");
 		mainTL.Layers.Add(layer);
 		mainTL.Layers.Add(layer2);
 		proj.Timelines.Add(mainTL);
