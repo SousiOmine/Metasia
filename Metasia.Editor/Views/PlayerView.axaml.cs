@@ -41,8 +41,8 @@ public partial class PlayerView : UserControl
 		layer2.Objects.Add(kariHello2);
 		kariHello2.SetX(-200);
 		TimelineObject mainTL = new TimelineObject("MainTimeline");
-		mainTL.Objects.Add(layer);
-		mainTL.Objects.Add(layer2);
+		mainTL.Layers.Add(layer);
+		mainTL.Layers.Add(layer2);
 		proj.Timelines.Add(mainTL);
 
 

@@ -11,8 +11,10 @@ namespace Metasia.Core.Objects
 	/// <summary>
 	/// レイヤー専用のオブジェクト ObjectsをResolutionLevelに沿った解像度で描画できる
 	/// </summary>
-	public class LayerObject : ListObject
+	public class LayerObject : MetasiaObject
 	{
+		public List<MetasiaObject> Objects { get; set; } = new();
+
 		public LayerObject(string id) : base(id)
 		{
 		}
@@ -27,13 +29,10 @@ namespace Metasia.Core.Objects
 			{
 				if (frame < o.StartFrame || frame > o.EndFrame) continue;
 
-
-
 				using (SKCanvas canvas = new SKCanvas(e.bitmap))
 				{
 					ExpresserArgs express = new()
 					{
-						//bitmap = new(300, 300),
 						targetSize = e.targetSize,
 						ResolutionLevel = e.ResolutionLevel
 					};
@@ -45,14 +44,14 @@ namespace Metasia.Core.Objects
 					float endy = ((e.targetSize.Height - express.bitmap.Height) / 2 - o.Y + express.bitmap.Height) * e.ResolutionLevel;
 
 					SKRect drawPos = new SKRect(startx, starty, endx, endy);
-					//SKRect drawPos = new SKRect(0, 0, 600, 300);
 
-					//canvas.DrawBitmap(express.bitmap, (e.bitmap.Width - express.bitmap.Width) / 2 + o.X, (e.bitmap.Height - express.bitmap.Height) / 2 - o.Y);
 					canvas.DrawBitmap(express.bitmap, drawPos);
 					express.Dispose();
 				}
 
 			}
+
+			base.Expression(ref e, frame);
 		}
 	}
 }

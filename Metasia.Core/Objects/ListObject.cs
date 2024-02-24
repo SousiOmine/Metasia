@@ -14,7 +14,7 @@ namespace Metasia.Core.Objects
     /// </summary>
     public class ListObject : MetasiaObject
 	{
-		public virtual List<MetasiaObject> Objects { get; set; } = new();
+		public List<MetasiaObject> Objects { get; set; } = new();
 
 		public ListObject(string id) : base(id)
 		{

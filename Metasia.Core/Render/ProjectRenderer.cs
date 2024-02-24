@@ -13,7 +13,7 @@ namespace Metasia.Core.Render
 	public class ProjectRenderer
 	{
 		MetasiaProject Project;
-		ListObject MainTimeline;
+		TimelineObject MainTimeline;
 
 		public ProjectRenderer(MetasiaProject project) 
 		{
