@@ -27,7 +27,8 @@ namespace Metasia.Core.Render
 			MainTimeline = Project.Timelines.Find(x => x.Id == "MainTimeline");
 			if (MainTimeline is null) return;
 
-			var bmp = new SKBitmap(300, 300);
+			var bmp = new SKBitmap(384, 216);
+			//var bmp = new SKBitmap(300, 150);
 
 			using (SKCanvas canvas2 = new SKCanvas(bmp))
 			{
@@ -37,13 +38,15 @@ namespace Metasia.Core.Render
 			ExpresserArgs args = new()
 			{
 				bitmap = bmp,
-				targetSize = new SKSize(300, 300),
-				ResolutionLevel = 1
+				targetSize = new SKSize(3840, 2160),
+				ResolutionLevel = 0.1f
 			};
 
 			MainTimeline.Expression(ref args, frame);
 
-			canvas.DrawBitmap(args.bitmap, 0, 0);
+			SKRect rect = new SKRect(0,0, 480, 270);
+
+			canvas.DrawBitmap(bmp, 0, 0);
 			bmp.Dispose();
 
 		}

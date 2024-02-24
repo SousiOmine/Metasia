@@ -30,10 +30,19 @@ public partial class PlayerView : UserControl
 		{ 
 			EndFrame = 10
 		};
-		ListObject layer = new ListObject("layer1");
+		kariHelloObject kariHello2 = new kariHelloObject("karihello2")
+		{
+			EndFrame = 10
+		};
+		LayerObject layer = new LayerObject("layer1");
 		layer.Objects.Add(kariHello);
-		ListObject mainTL = new ListObject("MainTimeline");
+		kariHello.SetX(100);
+		LayerObject layer2 = new LayerObject("layer2");
+		layer2.Objects.Add(kariHello2);
+		kariHello2.SetX(-200);
+		TimelineObject mainTL = new TimelineObject("MainTimeline");
 		mainTL.Objects.Add(layer);
+		mainTL.Objects.Add(layer2);
 		proj.Timelines.Add(mainTL);
 
 
