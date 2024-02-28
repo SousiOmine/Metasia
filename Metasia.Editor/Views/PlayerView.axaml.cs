@@ -36,10 +36,10 @@ public partial class PlayerView : UserControl
 		};
 		LayerObject layer = new LayerObject("layer1");
 		layer.Objects.Add(kariHello);
-		kariHello.SetX(100);
 		LayerObject layer2 = new LayerObject("layer2");
 		layer2.Objects.Add(kariHello2);
-		kariHello2.SetX(-200);
+		kariHello2.SetY(300);
+		kariHello2.SetRotation(45);
 		TimelineObject mainTL = new TimelineObject("RootTimeline");
 		mainTL.Layers.Add(layer);
 		mainTL.Layers.Add(layer2);

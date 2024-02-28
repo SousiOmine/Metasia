@@ -1,4 +1,5 @@
-﻿using Metasia.Core.Render;
+﻿using Metasia.Core.Graphics;
+using Metasia.Core.Render;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
@@ -38,6 +39,10 @@ namespace Metasia.Core.Objects
 					};
 					o.Expression(ref express, frame);
 
+					//回転
+					if (o.Rotation != 0) express.bitmap = MetasiaBitmap.Rotate(express.bitmap, o.Rotation);
+
+					//オブジェクト画像の大きさを指定して描写
 					float startx = ((e.targetSize.Width - express.bitmap.Width) / 2 + o.X) * e.ResolutionLevel;
 					float starty = ((e.targetSize.Height - express.bitmap.Height) / 2 - o.Y) * e.ResolutionLevel;
 					float endx = ((e.targetSize.Width - express.bitmap.Width) / 2 + o.X + express.bitmap.Width) * e.ResolutionLevel;
