@@ -32,6 +32,11 @@ namespace Metasia.Core.Objects
         /// オブジェクトの終端フレーム
         /// </summary>
         public int EndFrame = 100;
+
+        /// <summary>
+        /// オブジェクトが配置されるレイヤーの番号 大きいほど後に描画される
+        /// </summary>
+        public int Layer = 0;
       
         private float _x = 0;
 		private float _y = 0;

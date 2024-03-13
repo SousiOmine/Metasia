@@ -28,21 +28,19 @@ public partial class PlayerView : UserControl
 
 		kariHelloObject kariHello = new kariHelloObject("karihello")
 		{ 
-			EndFrame = 10
+			EndFrame = 10,
+			Layer = 1
 		};
 		kariHelloObject kariHello2 = new kariHelloObject("karihello2")
 		{
-			EndFrame = 10
+			EndFrame = 10,
+			Layer = 2
 		};
-		LayerObject layer = new LayerObject("layer1");
-		layer.Objects.Add(kariHello);
-		LayerObject layer2 = new LayerObject("layer2");
-		layer2.Objects.Add(kariHello2);
 		kariHello2.SetY(300);
 		kariHello2.SetRotation(45);
 		TimelineObject mainTL = new TimelineObject("RootTimeline");
-		mainTL.Layers.Add(layer);
-		mainTL.Layers.Add(layer2);
+		mainTL.Objects.Add(kariHello);
+		mainTL.Objects.Add(kariHello2);
 		proj.Timelines.Add(mainTL);
 
 
