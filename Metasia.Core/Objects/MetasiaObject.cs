@@ -41,7 +41,7 @@ namespace Metasia.Core.Objects
         private float _x = 0;
 		private float _y = 0;
 		private float _scale = 100;
-		private float _alpha = 0;
+		private float _alpha = 100;
 		private float _rotation = 0;
 
 		/// <summary>

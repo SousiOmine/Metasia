@@ -69,5 +69,24 @@ namespace Metasia.Core.Graphics
 			}
 			return rotatedBitmap;
 		}
+
+		/// <summary>
+		/// 画像を透過させる
+		/// </summary>
+		/// <param name="bitmap">元画像</param>
+		/// <param name="alpha">全ピクセルにこの値をかける。1で変更せず、0で完全に透明になる</param>
+		/// <returns></returns>
+		public static SKBitmap Transparency(SKBitmap bitmap, double alpha)
+		{
+			SKBitmap blendedBitmap = new(bitmap.Width, bitmap.Height);
+			using (var surface = new SKCanvas(blendedBitmap))
+			{
+				surface.Clear();	
+				SKPaint paint = new();
+				paint.Color = new SKColor(0, 0, 0, (byte)(255 * alpha));
+				surface.DrawBitmap(bitmap, 0, 0, paint);
+			}
+			return blendedBitmap;
+		}
 	}
 }

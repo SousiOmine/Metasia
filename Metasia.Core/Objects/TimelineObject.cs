@@ -46,6 +46,7 @@ namespace Metasia.Core.Objects
 					o.Expression(ref express, frame);
 
 					if (o.Rotation != 0) express.bitmap = MetasiaBitmap.Rotate(express.bitmap, o.Rotation);
+					if (o.Alpha != 100) express.bitmap = MetasiaBitmap.Transparency(express.bitmap, o.Alpha / 100);
 
 					//オブジェクト画像の大きさを指定して描写
 					float startx = ((e.targetSize.Width - express.bitmap.Width) / 2 + o.X) * e.ResolutionLevel;
