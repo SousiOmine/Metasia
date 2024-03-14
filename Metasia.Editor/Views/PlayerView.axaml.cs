@@ -33,9 +33,10 @@ public partial class PlayerView : UserControl
 
 	private void SKCanvasView_PaintSurface(object? sender, Avalonia.Labs.Controls.SKPaintSurfaceEventArgs e)
 	{
-		if (renderer is null && MetasiaProvider.MetasiaProject is not null)
+		if (renderer is null)
 		{
-			renderer = new ProjectRenderer(MetasiaProvider.MetasiaProject);
+			if (MetasiaProvider.MetasiaProject is null) return;
+			else renderer = new ProjectRenderer(MetasiaProvider.MetasiaProject);
 		}
 		SKImageInfo info = e.Info;
 		SKSurface surface = e.Surface;
