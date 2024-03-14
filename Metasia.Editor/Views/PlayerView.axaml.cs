@@ -39,6 +39,7 @@ public partial class PlayerView : UserControl
 		kariHello2.SetY(300);
 		kariHello2.SetRotation(45);
 		kariHello2.SetAlpha(50);
+		kariHello2.SetScale(150);
 		TimelineObject mainTL = new TimelineObject("RootTimeline");
 		mainTL.Objects.Add(kariHello);
 		mainTL.Objects.Add(kariHello2);

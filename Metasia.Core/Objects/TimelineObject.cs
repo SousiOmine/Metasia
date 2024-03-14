@@ -47,15 +47,18 @@ namespace Metasia.Core.Objects
 
 					if (o.Rotation != 0) express.bitmap = MetasiaBitmap.Rotate(express.bitmap, o.Rotation);
 					if (o.Alpha != 100) express.bitmap = MetasiaBitmap.Transparency(express.bitmap, o.Alpha / 100);
-
-					//オブジェクト画像の大きさを指定して描写
-					float startx = ((e.targetSize.Width - express.bitmap.Width) / 2 + o.X) * e.ResolutionLevel;
-					float starty = ((e.targetSize.Height - express.bitmap.Height) / 2 - o.Y) * e.ResolutionLevel;
-					float endx = ((e.targetSize.Width - express.bitmap.Width) / 2 + o.X + express.bitmap.Width) * e.ResolutionLevel;
-					float endy = ((e.targetSize.Height - express.bitmap.Height) / 2 - o.Y + express.bitmap.Height) * e.ResolutionLevel;
-
-					SKRect drawPos = new SKRect(startx, starty, endx, endy);
-
+					
+					
+					// オブジェクト画像の大きさを指定して描写
+					float width = express.bitmap.Width * (o.Scale / 100f);
+					float height = express.bitmap.Height * (o.Scale / 100f);
+					SKRect drawPos = new SKRect(
+						((e.targetSize.Width - width) / 2 + o.X) * e.ResolutionLevel, 
+						((e.targetSize.Height - height) / 2 - o.Y) * e.ResolutionLevel, 
+						((e.targetSize.Width - width) / 2 + o.X) * e.ResolutionLevel + width * e.ResolutionLevel, 
+						((e.targetSize.Height - height) / 2 - o.Y) * e.ResolutionLevel + height * e.ResolutionLevel
+					);
+					
 					canvas.DrawBitmap(express.bitmap, drawPos);
 
 					express.Dispose();
