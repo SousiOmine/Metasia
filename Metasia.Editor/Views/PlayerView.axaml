@@ -1,10 +1,13 @@
 <UserControl	xmlns="https://github.com/avaloniaui"
 			xmlns:labs="clr-namespace:Avalonia.Labs.Controls;assembly=Avalonia.Labs.Controls"
 			xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			xmlns:vm="using:Metasia.Editor.ViewModels"
+			xmlns:views="clr-namespace:Metasia.Editor.Views"
 			xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 			xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 			mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-			x:Class="Metasia.Editor.Views.PlayerView">
+			x:Class="Metasia.Editor.Views.PlayerView"
+			x:DataType="vm:PlayerViewModel">
 	<DockPanel>
 		<TextBlock Text="100" DockPanel.Dock="Top"/>
 		
@@ -16,9 +19,9 @@
 				</Grid.ColumnDefinitions>
 				<Slider TickPlacement="None" Grid.Column="0" />
 				<StackPanel Grid.Column="1" Orientation="Horizontal">
-					<Button Content="play" Click="Button_Click"/>
-					<Button Content="＜"/>
-					<Button Content="＞"/>
+					<Button Content="play"/>
+					<Button Content="＜" Command="{Binding PreviousFrame}"/>
+					<Button Content="＞" Command="{Binding NextFrame}"/>
 				</StackPanel>
 				
 			</Grid>
