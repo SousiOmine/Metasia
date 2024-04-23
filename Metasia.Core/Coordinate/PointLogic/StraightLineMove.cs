@@ -9,6 +9,7 @@ namespace Metasia.Core.Coordinate.PointLogic
     {
         public float GetBetweenPoint(float StartValue, float EndValue, float NowFrame, float StartFrame, float EndFrame)
         {
+            if(StartValue == EndValue) return StartValue;
             return StartValue + (EndValue - StartValue) * (NowFrame - StartFrame) / (EndFrame - StartFrame);
         }
     }

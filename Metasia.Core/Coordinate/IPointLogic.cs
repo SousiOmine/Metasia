@@ -8,9 +8,9 @@ namespace Metasia.Core.Coordinate
         /// </summary>
         /// <param name="StartValue">開始点</param>
         /// <param name="EndValue">終了点</param>
-        /// <param name="NowFrame">現在のフレーム</param>
-        /// <param name="StartFrame">開始点のあるフレーム</param>
-        /// <param name="EndFrame">終了点のあるフレーム</param>
+        /// <param name="NowFrame">現在の相対フレーム</param>
+        /// <param name="StartFrame">開始点のある相対フレーム</param>
+        /// <param name="EndFrame">終了点のある相対フレーム</param>
         /// <returns></returns>
         public float GetBetweenPoint(float StartValue, float EndValue, float NowFrame, float StartFrame, float EndFrame);
     }
