@@ -47,17 +47,12 @@ namespace Metasia.Editor.ViewModels
 	    		EndFrame = 10,
 	    		Layer = 2
 	    	};
-	    	//kariHello2.SetY(300);
+
 			kariHello2.Y_Points[0].Value = 300;
-	    	//kariHello2.SetRotation(45);
 			kariHello2.Rotation_Points[0].Value = 45;
-	    	//kariHello2.SetAlpha(50);
 			kariHello2.Alpha_Points[0].Value = 50;
-	    	//kariHello2.SetScale(50);
 			kariHello2.Scale_Points[0].Value = 50;
 			kariHello.Rotation_Points.Add(new CoordPoint(){Value = 90, Frame = 10});
-			kariHello.Alpha_Points.Add(new CoordPoint(){Value = 100, Frame = 10});
-			kariHello.Scale_Points.Add(new CoordPoint(){Value = 100, Frame = 10});
 	    	TimelineObject mainTL = new TimelineObject("RootTimeline");
 	    	mainTL.Objects.Add(kariHello);
 	    	mainTL.Objects.Add(kariHello2);

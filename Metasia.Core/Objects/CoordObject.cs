@@ -25,38 +25,14 @@ namespace Metasia.Core.Objects
 			if (Rotation_Points.Count == 0) Rotation_Points.Add(new CoordPoint(){Value = Rotation});
 		}
 
-		public void SetX(float x)
-		{
-			X = x;
-		}
-
 		public List<CoordPoint> X_Points = new();
-	
-		public void SetY(float y)
-		{
-			Y = y;
-		}
 
 		public List<CoordPoint> Y_Points = new();
 
-		public void SetScale(float scale)
-		{
-			Scale = scale;
-		}
-
 		public List<CoordPoint> Scale_Points = new();
 
-		public void SetAlpha(float alpha)
-		{
-			Alpha = alpha;
-		}
 
 		public List<CoordPoint> Alpha_Points = new();
-
-		public void SetRotation(float rotation)
-		{
-			Rotation = rotation;
-		}
 
 		public List<CoordPoint> Rotation_Points = new();
 
