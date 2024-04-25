@@ -31,7 +31,6 @@ namespace Metasia.Core.Objects
 
 		public List<CoordPoint> Scale_Points = new();
 
-
 		public List<CoordPoint> Alpha_Points = new();
 
 		public List<CoordPoint> Rotation_Points = new();

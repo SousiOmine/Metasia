@@ -31,40 +31,8 @@ namespace Metasia.Core.Objects
 				if (frame < o.StartFrame || frame > o.EndFrame) continue;
 				ApplicateObjects.Add(o);
 			}
-			ApplicateObjects = ApplicateObjects.OrderBy(o => o.Layer).ToList();
 
-			//ここでObjectsを各座標とかを考慮し描写する
-			foreach (var o in ApplicateObjects)
-			{
-				using (SKCanvas canvas = new SKCanvas(e.bitmap))
-				{
-					ExpresserArgs express = new()
-					{
-						targetSize = e.targetSize,
-						ResolutionLevel = e.ResolutionLevel
-					};
-					o.Expression(ref express, frame);
-
-					if (o.Rotation != 0) express.bitmap = MetasiaBitmap.Rotate(express.bitmap, o.Rotation);
-					if (o.Alpha != 100) express.bitmap = MetasiaBitmap.Transparency(express.bitmap, o.Alpha / 100);
-					
-					
-					// オブジェクト画像の大きさを指定して描写
-					float width = express.bitmap.Width * (o.Scale / 100f);
-					float height = express.bitmap.Height * (o.Scale / 100f);
-					SKRect drawPos = new SKRect(
-						((e.targetSize.Width - width) / 2 + o.X) * e.ResolutionLevel, 
-						((e.targetSize.Height - height) / 2 - o.Y) * e.ResolutionLevel, 
-						((e.targetSize.Width - width) / 2 + o.X) * e.ResolutionLevel + width * e.ResolutionLevel, 
-						((e.targetSize.Height - height) / 2 - o.Y) * e.ResolutionLevel + height * e.ResolutionLevel
-					);
-					
-					canvas.DrawBitmap(express.bitmap, drawPos);
-
-					express.Dispose();
-				}
-
-			}
+			LayoutsExpresser.DrawObjects(ApplicateObjects, ref e, frame);
 
 			base.Expression(ref e, frame);
 		}
