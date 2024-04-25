@@ -49,6 +49,7 @@ namespace Metasia.Core.Graphics
 		/// <returns></returns>
 		public static MetasiaBitmap Rotate(SKBitmap bitmap, double angle)
 		{
+			//リンク先のDatch氏の解答をそのまま利用 https://stackoverflow.com/questions/45077047/rotate-photo-with-skiasharp
 			double radians = Math.PI * angle / 180;
 			float sine = (float)Math.Abs(Math.Sin(radians));
 			float cosine = (float)Math.Abs(Math.Cos(radians));
