@@ -79,8 +79,9 @@ namespace Metasia.Core.Objects
 			frame -= StartFrame;
 			//pointsをFrameの昇順に並べ替え
 			points.Sort((a, b) => a.Frame - b.Frame);
-			CoordPoint endPoint = new();
-			CoordPoint startPoint = endPoint;
+			CoordPoint startPoint = points.Last();
+			CoordPoint endPoint = startPoint;
+
 			//frameを含む前後２つのポイントを取得
 			for(int i = 0; i < points.Count; i++)
 			{
@@ -92,7 +93,7 @@ namespace Metasia.Core.Objects
 					break;
 				}
 			}
-			float midValue = endPoint.PointLogic.GetBetweenPoint(startPoint.Value, endPoint.Value, frame, startPoint.Frame, endPoint.Frame);
+			float midValue = startPoint.PointLogic.GetBetweenPoint(startPoint.Value, endPoint.Value, frame, startPoint.Frame, endPoint.Frame);
 			
 			return midValue;
 		}

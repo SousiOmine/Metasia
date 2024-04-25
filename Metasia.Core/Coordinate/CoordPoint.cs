@@ -3,7 +3,7 @@
 namespace Metasia.Core.Coordinate
 {
     /// <summary>
-    /// AviUtlでいう中間点みたいなやつ。終点になる。
+    /// AviUtlでいう中間点みたいなやつ。始点になる。
     /// </summary>
     public class CoordPoint
     {
