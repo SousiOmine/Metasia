@@ -65,9 +65,7 @@ namespace Metasia.Core.Objects
 			X = CalculateMidValue(X_Points, frame);
 			Y = CalculateMidValue(Y_Points, frame);
 			Scale = CalculateMidValue(Scale_Points, frame);
-			Console.WriteLine("Scale: " + Scale);
 			Alpha = CalculateMidValue(Alpha_Points, frame);
-			Console.WriteLine("Alpha: " + Alpha);
 			Rotation = CalculateMidValue(Rotation_Points, frame);
 
 			base.Expression(ref e, frame);
