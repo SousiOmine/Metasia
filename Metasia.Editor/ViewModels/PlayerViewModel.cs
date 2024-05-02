@@ -1,4 +1,5 @@
 using System;
+using System.Timers;
 using System.Windows.Input;
 using Metasia.Core.Coordinate;
 using Metasia.Core.Objects;
@@ -15,6 +16,7 @@ namespace Metasia.Editor.ViewModels
 
 		public int frame { get; set; } = 0;
 		public int audioVolume { get; set; } = 100;
+		private Timer timer;
 
 		public bool IsPlaying 
 		{ 
@@ -43,10 +45,15 @@ namespace Metasia.Editor.ViewModels
             });
 			Play = ReactiveCommand.Create(() =>
 			{
+				if(MetasiaProvider.MetasiaProject is null) return;
+				timer = new Timer(1000 / MetasiaProvider.MetasiaProject.Info.Framerate);
+				timer.Elapsed += Timer_Elapsed;
+				timer.Start();
 				IsPlaying = true;
 			});
 			Pause = ReactiveCommand.Create(() =>
 			{
+				if(timer is not null) timer.Stop();
 				IsPlaying = false;
 			});
 
@@ -60,7 +67,7 @@ namespace Metasia.Editor.ViewModels
 
 	    	kariHelloObject kariHello = new kariHelloObject("karihello")
 	    	{ 
-	    		EndFrame = 10,
+	    		EndFrame = 120,
 	    		Layer = 1
 	    	};
 	    	kariHelloObject kariHello2 = new kariHelloObject("karihello2")
@@ -73,11 +80,18 @@ namespace Metasia.Editor.ViewModels
 			kariHello2.Rotation_Points[0].Value = 45;
 			kariHello2.Alpha_Points[0].Value = 50;
 			kariHello2.Scale_Points[0].Value = 50;
-			kariHello.Rotation_Points.Add(new CoordPoint(){Value = 90, Frame = 10});
+			kariHello.Rotation_Points.Add(new CoordPoint(){Value = 90, Frame = 120});
 	    	TimelineObject mainTL = new TimelineObject("RootTimeline");
 	    	mainTL.Objects.Add(kariHello);
 	    	mainTL.Objects.Add(kariHello2);
 	    	MetasiaProvider.MetasiaProject.Timelines.Add(mainTL);
         }
-    }
+
+		private void Timer_Elapsed(object? sender, ElapsedEventArgs e)
+		{
+			frame++;
+			ViewPaintRequest?.Invoke();
+		}
+
+	}
 }
