@@ -12,6 +12,9 @@ namespace Metasia.Core.Render
     /// </summary>
     public class ExpresserArgs : IDisposable
     {
+        /// <summary>
+        /// 描写結果が格納されるSKBitmap
+        /// </summary>
         public SKBitmap? bitmap;
 
         /// <summary>

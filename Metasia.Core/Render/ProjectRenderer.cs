@@ -21,31 +21,20 @@ namespace Metasia.Core.Render
 			
 		}
 
-		public void Render(ref SKCanvas canvas, int frame)
+		public void Render(ref ExpresserArgs args, int frame)
 		{
 			//Listの中からMainTimelineというIDを持つListObjectを取得する
 			RootTimeline = Project.Timelines.Find(x => x.Id == "RootTimeline");
 			if (RootTimeline is null) return;
 
-			var bmp = new SKBitmap(384, 216);
-
-			using (SKCanvas canvas2 = new SKCanvas(bmp))
+			//下地は黒で塗りつぶす
+			using (SKCanvas canvas = new SKCanvas(args.bitmap))
 			{
-				canvas2.Clear(SKColors.Black);
+				canvas.Clear(SKColors.Black);
 			}
 
-			ExpresserArgs args = new()
-			{
-				bitmap = bmp,
-				targetSize = new SKSize(3840, 2160),
-				ResolutionLevel = 0.1f
-			};
-
 			RootTimeline.Expression(ref args, frame);
-
-			canvas.DrawBitmap(bmp, 0, 0);
-			bmp.Dispose();
-
 		}
+
 	}
 }

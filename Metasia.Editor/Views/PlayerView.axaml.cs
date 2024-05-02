@@ -42,8 +42,18 @@ public partial class PlayerView : UserControl
 		SKSurface surface = e.Surface;
 		SKCanvas canvas = surface.Canvas;
 		canvas.Clear(SKColors.Green);
-		renderer.Render(ref canvas, VM.frame);
-        
+
+		
+		ExpresserArgs exp = new()
+		{
+			bitmap = new SKBitmap(384, 216),
+			targetSize = new SKSize(3840, 2160),
+			ResolutionLevel = 0.1f
+		};
+		renderer.Render(ref exp, VM.frame);
+		canvas.DrawBitmap(exp.bitmap, 0, 0);
+
+
 	}
 	
 }
