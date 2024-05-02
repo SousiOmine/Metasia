@@ -11,12 +11,24 @@ namespace Metasia.Editor.ViewModels
 {
     public class PlayerViewModel : ViewModelBase
     {
-        public int frame { get; set; } = 0;
-        public Action ViewPaintRequest;
+		private bool _isPlaying = false;
+
+		public int frame { get; set; } = 0;
+		public int audioVolume { get; set; } = 100;
+
+		public bool IsPlaying 
+		{ 
+			get => _isPlaying;
+			set => this.RaiseAndSetIfChanged(ref _isPlaying, value); 
+		}
+
+		public Action ViewPaintRequest;
 
         public ICommand NextFrame { get; }
         public ICommand PreviousFrame { get; }
-        public PlayerViewModel()
+		public ICommand Play { get; }
+		public ICommand Pause { get; }
+		public PlayerViewModel()
         {
 
             NextFrame = ReactiveCommand.Create(() =>
@@ -29,8 +41,17 @@ namespace Metasia.Editor.ViewModels
                 frame--;
                 ViewPaintRequest?.Invoke();
             });
-            
-            ProjectInfo info = new ProjectInfo()
+			Play = ReactiveCommand.Create(() =>
+			{
+				IsPlaying = true;
+			});
+			Pause = ReactiveCommand.Create(() =>
+			{
+				IsPlaying = false;
+			});
+
+
+			ProjectInfo info = new ProjectInfo()
 		    {
 	    	    Framerate = 60,
 	    		Size = new SKSize(500, 300),

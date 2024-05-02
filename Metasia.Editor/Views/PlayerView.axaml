@@ -19,9 +19,16 @@
 				</Grid.ColumnDefinitions>
 				<Slider TickPlacement="None" Grid.Column="0" />
 				<StackPanel Grid.Column="1" Orientation="Horizontal">
-					<Button Content="play"/>
-					<Button Content="＜" Command="{Binding PreviousFrame}"/>
-					<Button Content="＞" Command="{Binding NextFrame}"/>
+					<Button Height="32" IsVisible="{Binding !IsPlaying}"
+							Command="{Binding Play}">
+						<PathIcon Data="{StaticResource play_regular}" />
+					</Button>
+					<Button Height="32" IsVisible="{Binding IsPlaying}"
+							Command="{Binding Pause}">
+						<PathIcon Data="{StaticResource pause_regular}" />
+					</Button>
+					<Button Height="32" Content="＜" Command="{Binding PreviousFrame}"/>
+					<Button Height="32" Content="＞" Command="{Binding NextFrame}"/>
 				</StackPanel>
 				
 			</Grid>

@@ -12,6 +12,7 @@
   
     <Application.Styles>
         <FluentTheme />
-	    <labs:ControlThemes/>
+        <StyleInclude Source="avares://Metasia.Editor/Icons.axaml" />
+        <labs:ControlThemes/>
     </Application.Styles>
 </Application>
