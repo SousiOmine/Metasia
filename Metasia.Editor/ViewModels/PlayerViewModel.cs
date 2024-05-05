@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Timers;
 using System.Windows.Input;
 using Metasia.Core.Coordinate;
@@ -14,9 +15,11 @@ namespace Metasia.Editor.ViewModels
     {
 		private bool _isPlaying = false;
 
-		public int frame { get; set; } = 0;
+		private int frame = 0;
 		public int audioVolume { get; set; } = 100;
-		private Timer timer;
+		private int sliderMaximum = 100;
+		private int sliderMinimum = 0;
+		private System.Timers.Timer? timer;
 
 		public bool IsPlaying 
 		{ 
@@ -24,7 +27,28 @@ namespace Metasia.Editor.ViewModels
 			set => this.RaiseAndSetIfChanged(ref _isPlaying, value); 
 		}
 
-		public Action ViewPaintRequest;
+		public int Frame
+		{
+			get => frame;
+			set {
+				this.RaiseAndSetIfChanged(ref frame, value);
+				ViewPaintRequest?.Invoke();
+			}
+		}
+
+		public int SliderMaximum
+		{
+			get => sliderMaximum;
+			set => this.RaiseAndSetIfChanged(ref sliderMaximum, value);
+		}
+
+		public int SliderMinimum
+		{
+			get => sliderMinimum;
+			set => this.RaiseAndSetIfChanged(ref sliderMinimum, value);
+		}
+
+		public Action? ViewPaintRequest;
 
         public ICommand NextFrame { get; }
         public ICommand PreviousFrame { get; }
@@ -35,18 +59,16 @@ namespace Metasia.Editor.ViewModels
 
             NextFrame = ReactiveCommand.Create(() =>
             {
-                frame++;
-                ViewPaintRequest?.Invoke();
+                Frame++;
             });
             PreviousFrame = ReactiveCommand.Create(() =>
             {
-                frame--;
-                ViewPaintRequest?.Invoke();
+                Frame--;
             });
 			Play = ReactiveCommand.Create(() =>
 			{
 				if(MetasiaProvider.MetasiaProject is null) return;
-				timer = new Timer(1000 / MetasiaProvider.MetasiaProject.Info.Framerate);
+				timer = new System.Timers.Timer(1000 / MetasiaProvider.MetasiaProject.Info.Framerate);
 				timer.Elapsed += Timer_Elapsed;
 				timer.Start();
 				IsPlaying = true;
@@ -61,11 +83,12 @@ namespace Metasia.Editor.ViewModels
 			ProjectInfo info = new ProjectInfo()
 		    {
 	    	    Framerate = 60,
-	    		Size = new SKSize(500, 300),
+	    		Size = new SKSize(3840, 2160),
 	    	};
 	    	MetasiaProvider.MetasiaProject = new MetasiaProject(info);
+			MetasiaProvider.MetasiaProject.LastFrame = 120;
 
-	    	kariHelloObject kariHello = new kariHelloObject("karihello")
+			kariHelloObject kariHello = new kariHelloObject("karihello")
 	    	{ 
 	    		EndFrame = 120,
 	    		Layer = 1
@@ -85,12 +108,28 @@ namespace Metasia.Editor.ViewModels
 	    	mainTL.Objects.Add(kariHello);
 	    	mainTL.Objects.Add(kariHello2);
 	    	MetasiaProvider.MetasiaProject.Timelines.Add(mainTL);
-        }
+
+			NotifyProjectChanged();
+		}
 
 		private void Timer_Elapsed(object? sender, ElapsedEventArgs e)
 		{
-			frame++;
-			ViewPaintRequest?.Invoke();
+			Frame++;
+		}
+
+		/// <summary>
+		/// プロジェクトに変更が加わったらこれを呼び出す
+		/// </summary>
+		public void NotifyProjectChanged()
+		{
+			//再生されてなければ再描写する
+			if(IsPlaying == false) ViewPaintRequest?.Invoke();
+
+			if(MetasiaProvider.MetasiaProject is not null)
+			{
+				//スライダーの最大値を変更
+				SliderMaximum = MetasiaProvider.MetasiaProject.LastFrame;
+			}
 		}
 
 	}

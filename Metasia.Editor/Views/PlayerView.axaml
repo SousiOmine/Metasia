@@ -17,7 +17,8 @@
 					<ColumnDefinition Width="*"/>
 					<ColumnDefinition Width="auto"/>
 				</Grid.ColumnDefinitions>
-				<Slider TickPlacement="None" Grid.Column="0" />
+				<Slider TickPlacement="None" Grid.Column="0" 
+						Value="{Binding Frame}" Minimum="{Binding SliderMinimum}" Maximum="{Binding SliderMaximum}"/>
 				<StackPanel Grid.Column="1" Orientation="Horizontal">
 					<Button Height="32" IsVisible="{Binding !IsPlaying}"
 							Command="{Binding Play}">

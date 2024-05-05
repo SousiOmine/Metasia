@@ -11,7 +11,9 @@ namespace Metasia.Core.Project
 
         public string RootTimelineId = "RootTimeline";
 
-        public List<TimelineObject> Timelines = new();
+        public int LastFrame = 100;
+
+		public List<TimelineObject> Timelines = new();
 
 		public MetasiaProject(ProjectInfo info)
         {

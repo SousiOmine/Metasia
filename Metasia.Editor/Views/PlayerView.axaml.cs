@@ -27,12 +27,13 @@ public partial class PlayerView : UserControl
 		
 		this.DataContextChanged += (s, e) =>
 		{
-			VM.ViewPaintRequest = () => { skiaCanvas.InvalidateSurface(); };
+			if (VM is not null) VM.ViewPaintRequest = () => { skiaCanvas.InvalidateSurface(); };
 		};
 	}
 
 	private void SKCanvasView_PaintSurface(object? sender, Avalonia.Labs.Controls.SKPaintSurfaceEventArgs e)
 	{
+		if (VM is null) return;
 		if (renderer is null)
 		{
 			if (MetasiaProvider.MetasiaProject is null) return;
@@ -50,7 +51,7 @@ public partial class PlayerView : UserControl
 			targetSize = new SKSize(3840, 2160),
 			ResolutionLevel = 0.1f
 		};
-		renderer.Render(ref exp, VM.frame);
+		renderer.Render(ref exp, VM.Frame);
 		canvas.DrawBitmap(exp.bitmap, 0, 0);
 
 
