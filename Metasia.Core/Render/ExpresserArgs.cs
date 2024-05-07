@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Metasia.Core.Sounds;
 
 namespace Metasia.Core.Render
 {
@@ -16,6 +17,11 @@ namespace Metasia.Core.Render
         /// 描写結果が格納されるSKBitmap
         /// </summary>
         public SKBitmap? bitmap;
+        
+        /// <summary>
+        /// 音声データが格納される
+        /// </summary>
+        public MetasiaSound? sound;
 
         /// <summary>
         /// レイアウトに使用するサイズ
@@ -28,6 +34,12 @@ namespace Metasia.Core.Render
 		/// </summary>
 		public float ResolutionLevel;
 
+		public byte SoundChannel;
+		
+		public uint SoundSampleRate;
+
+		public ushort Fps;
+
         public ExpresserArgs()
         {
             //bitmap = new SKBitmap(1920, 1080);
@@ -36,6 +48,7 @@ namespace Metasia.Core.Render
 		public void Dispose()
 		{
             if (bitmap is not null) bitmap.Dispose();
+            if (sound is not null) sound.Dispose();
 		}
 	}
 }
