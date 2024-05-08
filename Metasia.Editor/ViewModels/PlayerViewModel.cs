@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Threading;
 using System.Timers;
 using System.Windows.Input;
@@ -118,16 +118,16 @@ namespace Metasia.Editor.ViewModels
 		}
 
 		/// <summary>
-		/// ƒvƒƒWƒFƒNƒg‚É•ÏX‚ª‰Á‚í‚Á‚½‚ç‚±‚ê‚ğŒÄ‚Ño‚·
+		/// ãƒ—ãƒ­ã‚¸ã‚§ã‚¯ãƒˆã«å¤‰æ›´ãŒåŠ ã‚ã£ãŸã‚‰ã“ã‚Œã‚’å‘¼ã³å‡ºã™
 		/// </summary>
 		public void NotifyProjectChanged()
 		{
-			//Ä¶‚³‚ê‚Ä‚È‚¯‚ê‚ÎÄ•`Ê‚·‚é
+			//å†ç”Ÿã•ã‚Œã¦ãªã‘ã‚Œã°å†æå†™ã™ã‚‹
 			if(IsPlaying == false) ViewPaintRequest?.Invoke();
 
 			if(MetasiaProvider.MetasiaProject is not null)
 			{
-				//ƒXƒ‰ƒCƒ_[‚ÌÅ‘å’l‚ğ•ÏX
+				//ã‚¹ãƒ©ã‚¤ãƒ€ãƒ¼ã®æœ€å¤§å€¤ã‚’å¤‰æ›´
 				SliderMaximum = MetasiaProvider.MetasiaProject.LastFrame;
 			}
 		}
