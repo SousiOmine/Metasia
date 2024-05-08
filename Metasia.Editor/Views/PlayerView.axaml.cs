@@ -81,7 +81,7 @@ public partial class PlayerView : UserControl
 		{
 			audioBuffer.BufferData(exp.sound.Pulse, audioFormat);
 			audioSource.QueueBuffer(audioBuffer);
-			//audioSource.Play();
+			audioSource.Play();
 		}
 		
 		exp.Dispose();

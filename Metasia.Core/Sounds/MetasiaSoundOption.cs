@@ -6,7 +6,7 @@ public struct MetasiaSoundOption
     {
     }
 
-    public byte Channel { get; set; } = 1;
+    public byte Channel { get; set; } = 2;
     
     public uint SampleRate { get; set; } = 44100;
     

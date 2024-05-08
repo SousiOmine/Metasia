@@ -98,6 +98,11 @@ namespace Metasia.Editor.ViewModels
 	    		EndFrame = 10,
 	    		Layer = 2
 	    	};
+			BeepObject beep = new BeepObject("beep")
+			{
+				EndFrame = 120,
+				Layer = 3
+			};
 
 			kariHello2.Y_Points[0].Value = 300;
 			kariHello2.Rotation_Points[0].Value = 45;
@@ -107,7 +112,8 @@ namespace Metasia.Editor.ViewModels
 	    	TimelineObject mainTL = new TimelineObject("RootTimeline");
 	    	mainTL.Objects.Add(kariHello);
 	    	mainTL.Objects.Add(kariHello2);
-	    	MetasiaProvider.MetasiaProject.Timelines.Add(mainTL);
+			mainTL.Objects.Add(beep);
+			MetasiaProvider.MetasiaProject.Timelines.Add(mainTL);
 
 			NotifyProjectChanged();
 		}
