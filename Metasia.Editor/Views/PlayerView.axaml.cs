@@ -20,8 +20,10 @@ public partial class PlayerView : UserControl
 
 	ProjectRenderer? renderer;
 
+	object renderLock = new object();
 
-    public PlayerView()
+
+	public PlayerView()
     {
         InitializeComponent();
 		
@@ -33,26 +35,30 @@ public partial class PlayerView : UserControl
 
 	private void SKCanvasView_PaintSurface(object? sender, Avalonia.Labs.Controls.SKPaintSurfaceEventArgs e)
 	{
-		if (VM is null) return;
-		if (renderer is null)
+		lock (renderLock)
 		{
-			if (MetasiaProvider.MetasiaProject is null) return;
-			else renderer = new ProjectRenderer(MetasiaProvider.MetasiaProject);
-		}
-		SKImageInfo info = e.Info;
-		SKSurface surface = e.Surface;
-		SKCanvas canvas = surface.Canvas;
-		canvas.Clear(SKColors.Green);
+			if (VM is null) return;
+			if (renderer is null)
+			{
+				if (MetasiaProvider.MetasiaProject is null) return;
+				else renderer = new ProjectRenderer(MetasiaProvider.MetasiaProject);
+			}
+			SKImageInfo info = e.Info;
+			SKSurface surface = e.Surface;
+			SKCanvas canvas = surface.Canvas;
+			canvas.Clear(SKColors.Green);
 
+
+			ExpresserArgs exp = new()
+			{
+				bitmap = new SKBitmap(384, 216),
+				targetSize = new SKSize(3840, 2160),
+				ResolutionLevel = 0.1f
+			};
+			renderer.Render(ref exp, VM.Frame);
+			canvas.DrawBitmap(exp.bitmap, 0, 0);
+		}
 		
-		ExpresserArgs exp = new()
-		{
-			bitmap = new SKBitmap(384, 216),
-			targetSize = new SKSize(3840, 2160),
-			ResolutionLevel = 0.1f
-		};
-		renderer.Render(ref exp, VM.Frame);
-		canvas.DrawBitmap(exp.bitmap, 0, 0);
 
 
 	}
