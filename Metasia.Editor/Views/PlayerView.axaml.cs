@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Avalonia;
 using Avalonia.Controls;
@@ -19,7 +20,7 @@ namespace Metasia.Editor.Views;
 public partial class PlayerView : UserControl
 {
 	private static Action<IntPtr, double>? write_sample;
-	static Queue<double> soundQueue = new Queue<double>();
+	private static ConcurrentQueue<double> soundQueue = new ConcurrentQueue<double>();
 	private static SoundIO soundIo;
 	static SoundIODevice device;
 	static SoundIOOutStream outStream;
@@ -85,6 +86,10 @@ public partial class PlayerView : UserControl
 		outStream.Open();
 		outStream.Start();
 		
+		Console.WriteLine("device: " + device.Name);
+		Console.WriteLine(("sample rate: " + outStream.SampleRate));
+		Console.WriteLine(("write_sample: " + outStream.Format.ToString()));
+		
     }
 	
 	private static void write_callback(SoundIOOutStream outstream, int frame_count_min, int frame_count_max)
@@ -116,7 +121,8 @@ public partial class PlayerView : UserControl
 				int count = soundQueue.Count;
 				for (int frame = 0; frame < frame_count && frame < count; frame += 1)
 				{
-					double sample = soundQueue.Dequeue();
+					double sample = 0;
+					soundQueue.TryDequeue(out sample);
 						
 					for (int channel = 0; channel < layout.ChannelCount; channel += 1)
 					{
@@ -197,17 +203,20 @@ public partial class PlayerView : UserControl
 			ExpresserArgs exp = new()
 			{
 				bitmap = new SKBitmap(384, 216),
-				sound = new MetasiaSound(2, 44100, 60),
+				sound = new MetasiaSound(1, 44100, 60),
 				targetSize = new SKSize(3840, 2160),
 				ResolutionLevel = 0.1f,
-				AudioChannel = 2
+				AudioChannel = 1
 			};
 			renderer.Render(ref exp, VM.Frame);
 			
 			for(int i = 0; i < exp.sound.Pulse.Length; i++)
 			{
 				soundQueue.Enqueue(exp.sound.Pulse[i]);
+				if(soundQueue.Count > 1000000 ) soundQueue.Clear();
+				//Console.WriteLine(exp.sound.Pulse[i]);
 			}
+			
 			
 			canvas.DrawBitmap(exp.bitmap, 0, 0);
 		}

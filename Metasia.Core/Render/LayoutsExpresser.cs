@@ -55,8 +55,10 @@ namespace Metasia.Core.Render
 					if (express.sound is not null)
 					{
 						if(o.AudioVolume != 100) express.sound = MetasiaSound.VolumeChange(express.sound, o.AudioVolume / 100);
-						express.sound = MetasiaSound.SynthesisPulse(e.AudioChannel, e.sound, express.sound);
+						e.sound = MetasiaSound.SynthesisPulse(e.AudioChannel, e.sound, express.sound);
 					}
+
+					
 
 					
 
