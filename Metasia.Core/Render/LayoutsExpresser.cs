@@ -27,6 +27,7 @@ namespace Metasia.Core.Render
 					{
 						targetSize = e.targetSize,
 						ResolutionLevel = e.ResolutionLevel,
+						AudioChannel = e.AudioChannel,
 						SoundSampleRate = e.SoundSampleRate,
 						FPS = e.FPS
 					};
@@ -54,7 +55,7 @@ namespace Metasia.Core.Render
 					if (express.sound is not null)
 					{
 						if(o.AudioVolume != 100) express.sound = MetasiaSound.VolumeChange(express.sound, o.AudioVolume / 100);
-						express.sound = MetasiaSound.SynthesisPulse(e.sound.Channel, e.sound, express.sound);
+						express.sound = MetasiaSound.SynthesisPulse(e.AudioChannel, e.sound, express.sound);
 					}
 
 					

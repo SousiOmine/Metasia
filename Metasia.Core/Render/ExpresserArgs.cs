@@ -31,6 +31,8 @@ namespace Metasia.Core.Render
 		/// </summary>
 		public float ResolutionLevel;
 		
+		public byte AudioChannel;
+		
 		public uint SoundSampleRate;
 
 		public ushort FPS;
