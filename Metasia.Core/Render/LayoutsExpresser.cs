@@ -1,6 +1,7 @@
 using System;
 using Metasia.Core.Graphics;
 using Metasia.Core.Objects;
+using Metasia.Core.Sounds;
 using SkiaSharp;
 
 namespace Metasia.Core.Render
@@ -25,25 +26,38 @@ namespace Metasia.Core.Render
 					ExpresserArgs express = new()
 					{
 						targetSize = e.targetSize,
-						ResolutionLevel = e.ResolutionLevel
+						ResolutionLevel = e.ResolutionLevel,
+						SoundSampleRate = e.SoundSampleRate,
+						FPS = e.FPS
 					};
 					o.Expression(ref express, frame);
 
-					if (o.Rotation != 0) express.bitmap = MetasiaBitmap.Rotate(express.bitmap, o.Rotation);
-					if (o.Alpha != 100) express.bitmap = MetasiaBitmap.Transparency(express.bitmap, o.Alpha / 100);
+					if (express.bitmap is not null)
+					{
+						if (o.Rotation != 0) express.bitmap = MetasiaBitmap.Rotate(express.bitmap, o.Rotation);
+						if (o.Alpha != 100) express.bitmap = MetasiaBitmap.Transparency(express.bitmap, o.Alpha / 100);
 					
 					
-					// オブジェクト画像の大きさを指定して描写
-					float width = express.bitmap.Width * (o.Scale / 100f);
-					float height = express.bitmap.Height * (o.Scale / 100f);
-					SKRect drawPos = new SKRect(
-						((e.targetSize.Width - width) / 2 + o.X) * e.ResolutionLevel, 
-						((e.targetSize.Height - height) / 2 - o.Y) * e.ResolutionLevel, 
-						((e.targetSize.Width - width) / 2 + o.X) * e.ResolutionLevel + width * e.ResolutionLevel, 
-						((e.targetSize.Height - height) / 2 - o.Y) * e.ResolutionLevel + height * e.ResolutionLevel
-					);
+						// オブジェクト画像の大きさを指定して描写
+						float width = express.bitmap.Width * (o.Scale / 100f);
+						float height = express.bitmap.Height * (o.Scale / 100f);
+						SKRect drawPos = new SKRect(
+							((e.targetSize.Width - width) / 2 + o.X) * e.ResolutionLevel, 
+							((e.targetSize.Height - height) / 2 - o.Y) * e.ResolutionLevel, 
+							((e.targetSize.Width - width) / 2 + o.X) * e.ResolutionLevel + width * e.ResolutionLevel, 
+							((e.targetSize.Height - height) / 2 - o.Y) * e.ResolutionLevel + height * e.ResolutionLevel
+						);
 					
-					canvas.DrawBitmap(express.bitmap, drawPos);
+						canvas.DrawBitmap(express.bitmap, drawPos);
+					}
+					
+					if (express.sound is not null)
+					{
+						if(o.AudioVolume != 100) express.sound = MetasiaSound.VolumeChange(express.sound, o.AudioVolume / 100);
+						express.sound = MetasiaSound.SynthesisPulse(e.sound.Channel, e.sound, express.sound);
+					}
+
+					
 
 					express.Dispose();
 				}

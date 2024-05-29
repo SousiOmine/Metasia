@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Metasia.Core.Sounds;
 
 namespace Metasia.Core.Render
 {
@@ -17,6 +18,8 @@ namespace Metasia.Core.Render
         /// </summary>
         public SKBitmap? bitmap;
 
+        public MetasiaSound? sound;
+
         /// <summary>
         /// レイアウトに使用するサイズ
         /// </summary>
@@ -27,6 +30,10 @@ namespace Metasia.Core.Render
 		/// たとえば、targetSizeが1920*1080の場合、ResolutionLevelが0.5であればレンダリング解像度は960*540になる
 		/// </summary>
 		public float ResolutionLevel;
+		
+		public uint SoundSampleRate;
+
+		public ushort FPS;
 
         public ExpresserArgs()
         {
@@ -36,6 +43,7 @@ namespace Metasia.Core.Render
 		public void Dispose()
 		{
             if (bitmap is not null) bitmap.Dispose();
+            if (sound is not null) sound.Dispose();
 		}
 	}
 }

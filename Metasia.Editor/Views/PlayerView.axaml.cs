@@ -4,6 +4,7 @@ using Avalonia.Markup.Xaml;
 using Metasia.Core.Objects;
 using Metasia.Core.Project;
 using Metasia.Core.Render;
+using Metasia.Core.Sounds;
 using Metasia.Editor.Models;
 using Metasia.Editor.ViewModels;
 using SkiaSharp;
@@ -52,6 +53,7 @@ public partial class PlayerView : UserControl
 			ExpresserArgs exp = new()
 			{
 				bitmap = new SKBitmap(384, 216),
+				sound = new MetasiaSound(2, 44100, 60),
 				targetSize = new SKSize(3840, 2160),
 				ResolutionLevel = 0.1f
 			};

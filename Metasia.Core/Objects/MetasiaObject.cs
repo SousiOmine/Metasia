@@ -43,6 +43,7 @@ namespace Metasia.Core.Objects
 		private float _scale = 100;
 		private float _alpha = 100;
 		private float _rotation = 0;
+		private float _audioVolume = 100;
 
 		/// <summary>
 		/// 中央を0としたX座標
@@ -69,6 +70,12 @@ namespace Metasia.Core.Objects
 		/// </summary>
 		public virtual float Rotation { get { return _rotation; } protected set { _rotation = value; } }
 
+		public virtual float AudioVolume { get { return _audioVolume; } protected set { _audioVolume = value; } }
+
+		/// <summary>
+		/// オブジェクトの初期化
+		/// </summary>
+		/// <param name="id">オブジェクト固有のID</param>
 
 		public MetasiaObject(string id)
         {
