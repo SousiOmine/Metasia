@@ -36,12 +36,12 @@ namespace Metasia.Core.Objects
 			e.bitmap = new SKBitmap(200, 200);
 
 			MetasiaSound sound = new(1, 44100, 60);
-			for (int i = 0; i < sound.Pulse.Length - 1; i+=2)
+			audio_offset = frame * sound.Pulse.Length;
+			for (int i = 0; i < sound.Pulse.Length; i++)
 			{
 				sound.Pulse[i] = Math.Sin(((i + audio_offset) * (1.0 / 44100)) * (440.0 * 2.0 * Math.PI));
-				sound.Pulse[i + 1] = Math.Sin(((i + audio_offset) * (1.0 / 44100)) * (440.0 * 2.0 * Math.PI));
 			}
-			audio_offset += sound.Pulse.Length;
+			//audio_offset += sound.Pulse.Length;
 			
 			e.sound = sound;
 

@@ -186,39 +186,44 @@ public partial class PlayerView : UserControl
 	}
 	private void SKCanvasView_PaintSurface(object? sender, Avalonia.Labs.Controls.SKPaintSurfaceEventArgs e)
 	{
+		if (VM is null) return;
+		if (renderer is null)
+		{
+			if (MetasiaProvider.MetasiaProject is null) return;
+			else renderer = new ProjectRenderer(MetasiaProvider.MetasiaProject);
+		}
+		ExpresserArgs exp = new()
+		{
+			bitmap = new SKBitmap(384, 216),
+			sound = new MetasiaSound(1, 44100, 60),
+			targetSize = new SKSize(3840, 2160),
+			ResolutionLevel = 0.1f,
+			AudioChannel = 1
+		};
+		renderer.Render(ref exp, VM.Frame);
+
 		lock (renderLock)
 		{
-			if (VM is null) return;
-			if (renderer is null)
-			{
-				if (MetasiaProvider.MetasiaProject is null) return;
-				else renderer = new ProjectRenderer(MetasiaProvider.MetasiaProject);
-			}
+			
 			SKImageInfo info = e.Info;
 			SKSurface surface = e.Surface;
 			SKCanvas canvas = surface.Canvas;
 			canvas.Clear(SKColors.Green);
 
 
-			ExpresserArgs exp = new()
-			{
-				bitmap = new SKBitmap(384, 216),
-				sound = new MetasiaSound(1, 44100, 60),
-				targetSize = new SKSize(3840, 2160),
-				ResolutionLevel = 0.1f,
-				AudioChannel = 1
-			};
-			renderer.Render(ref exp, VM.Frame);
 			
-			for(int i = 0; i < exp.sound.Pulse.Length; i++)
-			{
-				soundQueue.Enqueue(exp.sound.Pulse[i]);
-				if(soundQueue.Count > 1000000 ) soundQueue.Clear();
-				//Console.WriteLine(exp.sound.Pulse[i]);
-			}
+			//Console.WriteLine(soundQueue.Count);
+			
 			
 			
 			canvas.DrawBitmap(exp.bitmap, 0, 0);
+		}
+
+		for(int i = 0; i < exp.sound.Pulse.Length; i++)
+		{
+			soundQueue.Enqueue(exp.sound.Pulse[i]);
+			if(soundQueue.Count > 1000000 ) soundQueue.Clear();
+			//Console.WriteLine(exp.sound.Pulse[i]);
 		}
 		
 
