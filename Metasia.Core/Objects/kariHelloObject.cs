@@ -39,7 +39,7 @@ namespace Metasia.Core.Objects
 			audio_offset = frame * sound.Pulse.Length;
 			for (int i = 0; i < sound.Pulse.Length; i++)
 			{
-				sound.Pulse[i] = Math.Sin(((i + audio_offset) * (1.0 / 44100)) * (440.0 * 2.0 * Math.PI));
+				sound.Pulse[i] = Math.Sin(((i + audio_offset) * (1.0 / 44100)) * (440.0 * 2.0 * Math.PI)) * 0.5;
 			}
 			//audio_offset += sound.Pulse.Length;
 			

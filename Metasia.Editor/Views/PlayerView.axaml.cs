@@ -43,6 +43,7 @@ public partial class PlayerView : UserControl
 		this.DataContextChanged += (s, e) =>
 		{
 			if (VM is not null) VM.ViewPaintRequest = () => { skiaCanvas.InvalidateSurface(); };
+			if (VM is not null) VM.PlayStart = PlayStart;
 		};
 		
 		soundIo = new SoundIO();
@@ -202,6 +203,13 @@ public partial class PlayerView : UserControl
 		};
 		renderer.Render(ref exp, VM.Frame);
 
+		for (int i = 0; i < exp.sound.Pulse.Length; i++)
+		{
+			soundQueue.Enqueue(exp.sound.Pulse[i]);
+			if (soundQueue.Count > 1000000) soundQueue.Clear();
+			//Console.WriteLine(exp.sound.Pulse[i]);
+		}
+
 		lock (renderLock)
 		{
 			
@@ -219,15 +227,15 @@ public partial class PlayerView : UserControl
 			canvas.DrawBitmap(exp.bitmap, 0, 0);
 		}
 
-		for(int i = 0; i < exp.sound.Pulse.Length; i++)
-		{
-			soundQueue.Enqueue(exp.sound.Pulse[i]);
-			if(soundQueue.Count > 1000000 ) soundQueue.Clear();
-			//Console.WriteLine(exp.sound.Pulse[i]);
-		}
-		
-
-
 	}
-	
+
+	private void PlayStart()
+	{
+		int audio_offset = 0;
+		for (int i = 0; i < 5000; i++)
+		{
+			soundQueue.Enqueue(0);			
+		}
+	}
+
 }

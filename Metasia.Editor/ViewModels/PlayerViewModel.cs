@@ -49,6 +49,7 @@ namespace Metasia.Editor.ViewModels
 		}
 
 		public Action? ViewPaintRequest;
+		public Action? PlayStart;
 
         public ICommand NextFrame { get; }
         public ICommand PreviousFrame { get; }
@@ -72,6 +73,7 @@ namespace Metasia.Editor.ViewModels
 				timer.Elapsed += Timer_Elapsed;
 				timer.Start();
 				IsPlaying = true;
+				PlayStart?.Invoke();
 			});
 			Pause = ReactiveCommand.Create(() =>
 			{
