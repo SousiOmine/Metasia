@@ -66,6 +66,11 @@ public class SoundIOService : IAudioService
         }
     }
 
+    public void ClearQueue()
+	{
+		soundQueue.Clear();
+	}
+
     public void Dispose()
     {
         outStream.Dispose();
