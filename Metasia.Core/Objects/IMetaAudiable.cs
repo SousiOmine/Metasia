@@ -9,6 +9,6 @@ namespace Metasia.Core.Objects
 {
 	internal interface IMetaAudiable
 	{
-		public void AudioExpresser(ref AudioExpresserArgs e, int frame);
+		public void AudioExpresser(ref AudioExpresserArgs e, ulong frame);
 	}
 }

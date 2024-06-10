@@ -9,6 +9,6 @@ namespace Metasia.Core.Objects
 {
 	internal interface IMetaDrawable
 	{
-		public void DrawExpresser(ref DrawExpresserArgs e, int frame);
+		public void DrawExpresser(ref DrawExpresserArgs e, ulong frame);
 	}
 }
