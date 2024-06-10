@@ -7,7 +7,7 @@ using Metasia.Core.Render;
 
 namespace Metasia.Core.Objects
 {
-	internal interface IMetaDrawable
+	public interface IMetaDrawable
 	{
 		public void DrawExpresser(ref DrawExpresserArgs e, ulong frame);
 	}

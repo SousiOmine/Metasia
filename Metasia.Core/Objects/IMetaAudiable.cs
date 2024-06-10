@@ -7,7 +7,7 @@ using Metasia.Core.Render;
 
 namespace Metasia.Core.Objects
 {
-	internal interface IMetaAudiable
+	public interface IMetaAudiable
 	{
 		public void AudioExpresser(ref AudioExpresserArgs e, ulong frame);
 	}
