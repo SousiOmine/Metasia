@@ -38,7 +38,7 @@ namespace Metasia.Core.Objects
         /// </summary>
         public int Layer = 0;
       
-        private float _x = 0;
+        /*private float _x = 0;
 		private float _y = 0;
 		private float _scale = 100;
 		private float _alpha = 100;
@@ -70,7 +70,7 @@ namespace Metasia.Core.Objects
 		/// </summary>
 		public virtual float Rotation { get { return _rotation; } protected set { _rotation = value; } }
 
-		public virtual float AudioVolume { get { return _audioVolume; } protected set { _audioVolume = value; } }
+		public virtual float AudioVolume { get { return _audioVolume; } protected set { _audioVolume = value; } }*/
 
 		/// <summary>
 		/// オブジェクトの初期化
@@ -87,7 +87,7 @@ namespace Metasia.Core.Objects
         /// </summary>
         /// <param name="e"></param>
         /// <param name="frame">要求するフレーム</param>
-        public virtual void Expression(ref ExpresserArgs e, int frame)
+        /*public virtual void Expression(ref ExpresserArgs e, int frame)
         {
             if (frame < StartFrame || frame > EndFrame) return;
             if (Child is not null)
@@ -96,6 +96,6 @@ namespace Metasia.Core.Objects
 				Child.EndFrame = this.EndFrame;
 				Child.Expression(ref e, frame);
             }
-        }
+        }*/
     }
 }

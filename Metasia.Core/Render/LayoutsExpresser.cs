@@ -14,7 +14,7 @@ namespace Metasia.Core.Render
         /// <param name="objects">描写したいオブジェクトのリスト</param>
         /// <param name="e">描写先のExpresserArgs</param>
         /// <param name="frame">描写するフレーム</param>
-        public static void DrawObjects(List<MetasiaObject> objects, ref ExpresserArgs e, int frame)
+        /*public static void DrawObjects(List<MetasiaObject> objects, ref ExpresserArgs e, int frame)
         {
             //Layerの昇順に並び替える
             objects = objects.OrderBy(o => o.Layer).ToList();
@@ -66,6 +66,6 @@ namespace Metasia.Core.Render
 				}
 
 			}
-        }
+        }*/
     }
 }

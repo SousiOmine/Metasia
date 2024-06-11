@@ -11,7 +11,7 @@ public class AudioExpresserArgs : IDisposable
     
     public uint SoundSampleRate;
 
-    public ushort FPS;
+    public int FPS;
     
     public void Dispose()
     {

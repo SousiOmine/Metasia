@@ -5,13 +5,13 @@ namespace Metasia.Core.Render;
 
 public class DrawExpresserArgs : IDisposable
 {
-    public MetasiaBitmap? Bitmap;
+    public SKBitmap? Bitmap;
     
     public SKSize TargetSize;
     
     public float ResolutionLevel;
     
-    public ushort FPS;
+    public int FPS;
     
     public void Dispose()
     {

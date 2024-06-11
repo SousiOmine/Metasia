@@ -12,14 +12,14 @@ namespace Metasia.Core.Project
     /// </summary>
     public class ProjectInfo
     {
-        private float _framerate;
+        private int _framerate;
         private SKSize _size;
 
 
         /// <summary>
         /// 一秒間に何フレームを含むかの値
         /// </summary>
-        public float Framerate
+        public int Framerate
         {
             get => _framerate;
             set => _framerate = value;

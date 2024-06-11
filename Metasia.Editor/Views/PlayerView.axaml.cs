@@ -52,17 +52,40 @@ public partial class PlayerView : UserControl
 			if (MetasiaProvider.MetasiaProject is null) return;
 			else renderer = new ProjectRenderer(MetasiaProvider.MetasiaProject);
 		}
-		ExpresserArgs exp = new()
+		/*ExpresserArgs exp = new()
 		{
 			bitmap = new SKBitmap(384, 216),
 			sound = new MetasiaSound(2, 44100, 60),
 			targetSize = new SKSize(3840, 2160),
 			ResolutionLevel = 0.1f,
 			AudioChannel = 2
+		};*/
+		DrawExpresserArgs drawExp = new()
+		{
+			Bitmap = new SKBitmap(384, 216),
+			TargetSize = new SKSize(3840, 2160),
+			ResolutionLevel = 0.1f,
+			FPS = MetasiaProvider.MetasiaProject.Info.Framerate
 		};
-		renderer.Render(ref exp, VM.Frame);
+		//renderer.Render(ref exp, VM.Frame);
+		renderer.BitmapRender(ref drawExp, VM.Frame);
 
-		audioService.InsertQueue(exp.sound.Pulse, 2);
+		AudioExpresserArgs audioExp = new()
+		{
+			Sound = new MetasiaSound(2, 44100, 60),
+			AudioChannel = 2,
+			SoundSampleRate = 44100,
+			FPS = MetasiaProvider.MetasiaProject.Info.Framerate
+		};
+
+		renderer.AudioRender(ref audioExp, VM.Frame);
+
+		foreach (var val in audioExp.Sound.Pulse)
+		{
+			//Console.WriteLine(val);
+		}
+
+		audioService.InsertQueue(audioExp.Sound.Pulse, 2);
 
 		lock (renderLock)
 		{
@@ -78,7 +101,7 @@ public partial class PlayerView : UserControl
 			
 			
 			
-			canvas.DrawBitmap(exp.bitmap, 0, 0);
+			canvas.DrawBitmap(drawExp.Bitmap, 0, 0);
 		}
 
 	}

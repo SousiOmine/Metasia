@@ -63,7 +63,8 @@ public class MetasiaSound : IDisposable
         for(int i = 0; i < sound.Pulse.Length; i++)
         {
             sound.Pulse[i] *= volume;
+            Console.WriteLine(volume);
         }
-        return null;
+        return sound;
     }
 }

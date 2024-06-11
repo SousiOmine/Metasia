@@ -9,7 +9,7 @@ using Metasia.Core.Sounds;
 
 namespace Metasia.Core.Objects
 {
-	public class kariHelloObject : CoordObject
+	public class kariHelloObject : CoordObject, IMetaAudiable
 	{
 		private SKBitmap myBitmap = new(200, 200);
 		
@@ -31,10 +31,25 @@ namespace Metasia.Core.Objects
 		}
 
 
-		public override void Expression(ref ExpresserArgs e, int frame)
+		public override void DrawExpresser(ref DrawExpresserArgs e, int frame)
 		{
-			e.bitmap = new SKBitmap(200, 200);
+			e.Bitmap = new SKBitmap(200, 200);
 
+			
+
+			using (SKCanvas canvas = new SKCanvas(e.Bitmap))
+			{
+				
+				canvas.DrawBitmap(myBitmap, (e.Bitmap.Width - myBitmap.Width) / 2, (e.Bitmap.Height - myBitmap.Height) / 2);
+			}
+
+			base.DrawExpresser(ref e, frame);
+		}
+
+
+		public float Volume { get; set; } = 100;
+		public void AudioExpresser(ref AudioExpresserArgs e, int frame)
+		{
 			MetasiaSound sound = new(e.AudioChannel, 44100, 60);
 			audio_offset = frame * sound.Pulse.Length;
 			for (int i = 0; i < sound.Pulse.Length; i+=2)
@@ -44,15 +59,7 @@ namespace Metasia.Core.Objects
 			}
 			//audio_offset += sound.Pulse.Length;
 			
-			e.sound = sound;
-
-			using (SKCanvas canvas = new SKCanvas(e.bitmap))
-			{
-				
-				canvas.DrawBitmap(myBitmap, (e.bitmap.Width - myBitmap.Width) / 2, (e.bitmap.Height - myBitmap.Height) / 2);
-			}
-
-			base.Expression(ref e, frame);
+			e.Sound = sound;
 		}
 	}
 }

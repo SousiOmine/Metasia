@@ -12,30 +12,25 @@ namespace Metasia.Core.Objects
     /// <summary>
     /// 座標とか拡大率とかを書き換え可能なオブジェクト
     /// </summary>
-    public class CoordObject : MetasiaObject
+    public class CoordObject : MetasiaObject, IMetaCoordable
 	{
 		//public new Coordinate Coord { get; set; } = new();
 
 		public CoordObject(string id) : base(id)
 		{
-			if (X_Points.Count == 0) X_Points.Add(new CoordPoint(){Value = X});
-			if (Y_Points.Count == 0) Y_Points.Add(new CoordPoint(){Value = Y});
-			if (Scale_Points.Count == 0) Scale_Points.Add(new CoordPoint(){Value = Scale});
-			if (Alpha_Points.Count == 0) Alpha_Points.Add(new CoordPoint(){Value = Alpha});
-			if (Rotation_Points.Count == 0) Rotation_Points.Add(new CoordPoint(){Value = Rotation});
+			X_Points = new();
+			Y_Points = new();
+			Scale_Points = new();
+			Alpha_Points = new();
+			Rotation_Points = new();
+			X_Points.Add(new CoordPoint(){Value = X});
+			Y_Points.Add(new CoordPoint(){Value = Y});
+			Scale_Points.Add(new CoordPoint(){Value = Scale});
+			Alpha_Points.Add(new CoordPoint(){Value = Alpha});
+			Rotation_Points.Add(new CoordPoint(){Value = Rotation});
 		}
 
-		public List<CoordPoint> X_Points = new();
-
-		public List<CoordPoint> Y_Points = new();
-
-		public List<CoordPoint> Scale_Points = new();
-
-		public List<CoordPoint> Alpha_Points = new();
-
-		public List<CoordPoint> Rotation_Points = new();
-
-		public override void Expression(ref ExpresserArgs e, int frame)
+		/*public override void Expression(ref ExpresserArgs e, int frame)
 		{
 			X = CalculateMidValue(X_Points, frame);
 			Y = CalculateMidValue(Y_Points, frame);
@@ -44,7 +39,7 @@ namespace Metasia.Core.Objects
 			Rotation = CalculateMidValue(Rotation_Points, frame);
 
 			base.Expression(ref e, frame);
-		}
+		}*/
 
 		protected float CalculateMidValue(List<CoordPoint> points, int frame)
 		{
@@ -70,5 +65,34 @@ namespace Metasia.Core.Objects
 			
 			return midValue;
 		}
+
+		public virtual void DrawExpresser(ref DrawExpresserArgs e, int frame)
+		{
+			X = CalculateMidValue(X_Points, frame);
+			Y = CalculateMidValue(Y_Points, frame);
+			Scale = CalculateMidValue(Scale_Points, frame);
+			Alpha = CalculateMidValue(Alpha_Points, frame);
+			Rotation = CalculateMidValue(Rotation_Points, frame);
+			
+			if (frame < StartFrame || frame > EndFrame) return;
+			if (Child is not null && Child is IMetaDrawable)
+			{
+				IMetaDrawable drawChild = (IMetaDrawable)Child;
+				Child.StartFrame = this.StartFrame;
+				Child.EndFrame = this.EndFrame;
+				drawChild.DrawExpresser(ref e, frame);
+			}
+		}
+
+		public List<CoordPoint> X_Points { get; set; }
+		public List<CoordPoint> Y_Points { get; set; }
+		public List<CoordPoint> Scale_Points { get; set; }
+		public List<CoordPoint> Alpha_Points { get; set; }
+		public List<CoordPoint> Rotation_Points { get; set; }
+		public float X { get; set; } = 0;
+		public float Y { get; set; } = 0;
+		public float Scale { get; set; } = 100;
+		public float Alpha { get; set; } = 100;
+		public float Rotation { get; set; } = 0;
 	}
 }
