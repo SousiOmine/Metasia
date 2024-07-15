@@ -9,7 +9,7 @@ public class DrawExpresserArgs : IDisposable
     
     public SKSize TargetSize;
     
-    public float ResolutionLevel;
+    public double ResolutionLevel;
     
     public int FPS;
     

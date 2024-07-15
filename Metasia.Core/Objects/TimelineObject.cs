@@ -18,29 +18,12 @@ namespace Metasia.Core.Objects
 	{
 		public List<MetasiaObject> Objects { get; protected set; } = new();
 
-		public float Volume { get; set; }
+		public double Volume { get; set; }
 		
 		public TimelineObject(string id) : base(id)
 		{
 			Volume = 100;
 		}
-
-		/*public override void Expression(ref ExpresserArgs e, int frame)
-		{
-			if (e.bitmap is null) e.bitmap = new SKBitmap((int)(e.targetSize.Width * e.ResolutionLevel), (int)(e.targetSize.Height * e.ResolutionLevel));
-
-			//描写対象のオブジェクトを抽出し、Layerの昇順に並び替える
-			List<MetasiaObject> ApplicateObjects = new();
-			foreach (var o in Objects)
-			{
-				if (frame < o.StartFrame || frame > o.EndFrame) continue;
-				ApplicateObjects.Add(o);
-			}
-
-			LayoutsExpresser.DrawObjects(ApplicateObjects, ref e, frame);
-
-			base.Expression(ref e, frame);
-		}*/
 
 		public void DrawExpresser(ref DrawExpresserArgs e, int frame)
 		{
@@ -91,8 +74,8 @@ namespace Metasia.Core.Objects
 						double height = express.Bitmap.Height * (scale / 100f);
 						SKRect drawPos = new SKRect()
 						{
-							Left = (float)((e.TargetSize.Width - width) / 2 + x) * e.ResolutionLevel,
-							Top = (float)((e.TargetSize.Height - height) / 2 - y) * e.ResolutionLevel,
+							Left = (float)(((e.TargetSize.Width - width) / 2 + x) * e.ResolutionLevel),
+							Top = (float)(((e.TargetSize.Height - height) / 2 - y) * e.ResolutionLevel),
 							Right = (float)(((e.TargetSize.Width - width) / 2 + x) * e.ResolutionLevel + width * e.ResolutionLevel),
 							Bottom = (float)(((e.TargetSize.Height - height) / 2 - y) * e.ResolutionLevel + height * e.ResolutionLevel)
 						};

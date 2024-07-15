@@ -58,7 +58,7 @@ public class MetasiaSound : IDisposable
         return result;
     }
     
-    public static MetasiaSound VolumeChange(MetasiaSound sound, float volume)
+    public static MetasiaSound VolumeChange(MetasiaSound sound, double volume)
     {
         for(int i = 0; i < sound.Pulse.Length; i++)
         {

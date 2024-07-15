@@ -5,12 +5,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Metasia.Core.Coordinate;
 using Metasia.Core.Sounds;
 
 namespace Metasia.Core.Objects
 {
-	public class kariHelloObject : CoordObject, IMetaAudiable
+	public class kariHelloObject : MetasiaObject, IMetaCoordable, IMetaAudiable
 	{
+		public MetaDoubleParam X { get; set; }
+		public MetaDoubleParam Y { get; set; }
+		public MetaDoubleParam Scale { get; set; }
+		public MetaDoubleParam Alpha { get; set; }
+		public MetaDoubleParam Rotation { get; set; }
+		
 		private SKBitmap myBitmap = new(200, 200);
 		
 		private int audio_offset = 0;
@@ -28,26 +35,37 @@ namespace Metasia.Core.Objects
 				canvas.Clear(SKColors.Brown);
 				canvas.DrawText("Hello", 100, 100, skPaint);
 			}
+			X = new MetaDoubleParam(this, 0);
+			Y = new MetaDoubleParam(this, 0);
+			Scale = new MetaDoubleParam(this, 100);
+			Alpha = new MetaDoubleParam(this, 100);
+			Rotation = new MetaDoubleParam(this, 0);
 		}
 
 
-		public override void DrawExpresser(ref DrawExpresserArgs e, int frame)
+		public void DrawExpresser(ref DrawExpresserArgs e, int frame)
 		{
-			e.Bitmap = new SKBitmap(200, 200);
-
+			if (frame < StartFrame || frame > EndFrame) return;
 			
-
+			e.Bitmap = new SKBitmap(200, 200);
+			
 			using (SKCanvas canvas = new SKCanvas(e.Bitmap))
 			{
 				
 				canvas.DrawBitmap(myBitmap, (e.Bitmap.Width - myBitmap.Width) / 2, (e.Bitmap.Height - myBitmap.Height) / 2);
 			}
-
-			base.DrawExpresser(ref e, frame);
+			
+			if (Child is not null && Child is IMetaDrawable)
+			{
+				IMetaDrawable drawChild = (IMetaDrawable)Child;
+				Child.StartFrame = this.StartFrame;
+				Child.EndFrame = this.EndFrame;
+				drawChild.DrawExpresser(ref e, frame);
+			}
 		}
 
 
-		public float Volume { get; set; } = 100;
+		public double Volume { get; set; } = 100;
 		public void AudioExpresser(ref AudioExpresserArgs e, int frame)
 		{
 			MetasiaSound sound = new(e.AudioChannel, 44100, 60);
@@ -61,5 +79,6 @@ namespace Metasia.Core.Objects
 			
 			e.Sound = sound;
 		}
+
 	}
 }
