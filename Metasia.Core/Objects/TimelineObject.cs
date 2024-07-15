@@ -66,35 +66,35 @@ namespace Metasia.Core.Objects
 
 				if (express.Bitmap is not null)
 				{
-					float x = 0;
-					float y = 0;
-					float rotate = 0;
-					float alpha = 0;
-					float scale = 100;
+					double x = 0;
+					double y = 0;
+					double rotate = 0;
+					double alpha = 0;
+					double scale = 100;
 					
 					using (SKCanvas canvas = new SKCanvas(e.Bitmap))
 					{
 						if (drawObject is IMetaCoordable)
 						{
 							IMetaCoordable coordObject = (IMetaCoordable)drawObject;
-							x = coordObject.X;
-							y = coordObject.Y;
-							rotate = coordObject.Rotation;
-							alpha = coordObject.Alpha;
-							scale = coordObject.Scale;
+							x = coordObject.X.Get(frame);
+							y = coordObject.Y.Get(frame);
+							rotate = coordObject.Rotation.Get(frame);
+							alpha = coordObject.Alpha.Get(frame);
+							scale = coordObject.Scale.Get(frame);
 						}
 						
 						if(rotate != 0) express.Bitmap = MetasiaBitmap.Rotate(express.Bitmap, rotate);
 						if(alpha != 100) express.Bitmap = MetasiaBitmap.Transparency(express.Bitmap, alpha / 100);
 						
-						float width = express.Bitmap.Width * (scale / 100f);
-						float height = express.Bitmap.Height * (scale / 100f);
+						double width = express.Bitmap.Width * (scale / 100f);
+						double height = express.Bitmap.Height * (scale / 100f);
 						SKRect drawPos = new SKRect()
 						{
-							Left = ((e.TargetSize.Width - width) / 2 + x) * e.ResolutionLevel,
-							Top = ((e.TargetSize.Height - height) / 2 - y) * e.ResolutionLevel,
-							Right = ((e.TargetSize.Width - width) / 2 + x) * e.ResolutionLevel + width * e.ResolutionLevel,
-							Bottom = ((e.TargetSize.Height - height) / 2 - y) * e.ResolutionLevel + height * e.ResolutionLevel
+							Left = (float)((e.TargetSize.Width - width) / 2 + x) * e.ResolutionLevel,
+							Top = (float)((e.TargetSize.Height - height) / 2 - y) * e.ResolutionLevel,
+							Right = (float)(((e.TargetSize.Width - width) / 2 + x) * e.ResolutionLevel + width * e.ResolutionLevel),
+							Bottom = (float)(((e.TargetSize.Height - height) / 2 - y) * e.ResolutionLevel + height * e.ResolutionLevel)
 						};
 						
 						canvas.DrawBitmap(express.Bitmap, drawPos);

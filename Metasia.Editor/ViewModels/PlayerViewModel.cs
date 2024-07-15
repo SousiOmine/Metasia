@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Timers;
 using System.Windows.Input;
+using DynamicData;
 using Metasia.Core.Coordinate;
 using Metasia.Core.Objects;
 using Metasia.Core.Project;
@@ -100,12 +101,13 @@ namespace Metasia.Editor.ViewModels
 	    		EndFrame = 10,
 	    		Layer = 2
 	    	};
-
-			kariHello2.Y_Points[0].Value = 300;
-			kariHello2.Rotation_Points[0].Value = 45;
-			kariHello2.Alpha_Points[0].Value = 50;
-			kariHello2.Scale_Points[0].Value = 50;
-			kariHello.Rotation_Points.Add(new CoordPoint(){Value = 90, Frame = 120});
+		    
+			kariHello2.Y.Params[0].Value = 300;
+			kariHello2.Rotation.Params[0].Value = 45;
+			kariHello2.Alpha.Params[0].Value = 50;
+			kariHello2.Scale.Params[0].Value = 50;
+			kariHello2.X.Params.Add(new CoordPoint(){Value = 1000, Frame = 10});
+			kariHello.Rotation.Params.Add(new CoordPoint(){Value = 90, Frame = 120});
 	    	TimelineObject mainTL = new TimelineObject("RootTimeline");
 	    	mainTL.Objects.Add(kariHello);
 	    	mainTL.Objects.Add(kariHello2);
