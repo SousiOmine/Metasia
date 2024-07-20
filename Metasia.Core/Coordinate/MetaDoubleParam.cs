@@ -2,9 +2,16 @@ using Metasia.Core.Objects;
 
 namespace Metasia.Core.Coordinate;
 
+/// <summary>
+/// double型の中間値を持つパラメータ
+/// </summary>
 public class MetaDoubleParam
 {
     private MetasiaObject ownerObject;
+
+    /// <summary>
+    /// 中間値CoordPointを格納するリスト
+    /// </summary>
     public List<CoordPoint> Params { get; protected set; }
 
     public MetaDoubleParam(MetasiaObject owner, float initialValue)
@@ -14,6 +21,11 @@ public class MetaDoubleParam
         Params.Add(new CoordPoint(){Value = initialValue});
     }
     
+    /// <summary>
+    /// フレームから値を取得する
+    /// </summary>
+    /// <param name="frame"></param>
+    /// <returns></returns>
     public float Get(int frame)
     {
         return CalculateMidValue(frame);

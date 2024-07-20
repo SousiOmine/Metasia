@@ -27,9 +27,11 @@ namespace Metasia.Core.Objects
 
 		public void DrawExpresser(ref DrawExpresserArgs e, int frame)
 		{
+			//DrawExpresserArgsのSKBitmapのインスタンスがなかったら生成
 			if (e.Bitmap is null) e.Bitmap = new SKBitmap((int)(e.TargetSize.Width * e.ResolutionLevel), (int)(e.TargetSize.Height * e.ResolutionLevel));
 			
 			List<MetasiaObject> ApplicateObjects = new();
+			//frameのときに描画するオブジェクトだけ抽出
 			foreach (var o in Objects)
 			{
 				if (frame < o.StartFrame || frame > o.EndFrame) continue;
@@ -57,6 +59,7 @@ namespace Metasia.Core.Objects
 					
 					using (SKCanvas canvas = new SKCanvas(e.Bitmap))
 					{
+						//座標持ってたら反映
 						if (drawObject is IMetaCoordable)
 						{
 							IMetaCoordable coordObject = (IMetaCoordable)drawObject;
@@ -70,6 +73,7 @@ namespace Metasia.Core.Objects
 						if(rotate != 0) express.Bitmap = MetasiaBitmap.Rotate(express.Bitmap, rotate);
 						if(alpha != 100) express.Bitmap = MetasiaBitmap.Transparency(express.Bitmap, alpha / 100);
 						
+						//中央を座標0,0とするために位置調整
 						double width = express.Bitmap.Width * (scale / 100f);
 						double height = express.Bitmap.Height * (scale / 100f);
 						SKRect drawPos = new SKRect()
@@ -92,6 +96,7 @@ namespace Metasia.Core.Objects
 
 		public void AudioExpresser(ref AudioExpresserArgs e, int frame)
 		{
+			//AudioExpresserArgsのMetasiaSoundのインスタンスがなかったら生成
 			if (e.Sound is null) e.Sound = new MetasiaSound(e.AudioChannel, e.SoundSampleRate, (ushort)e.FPS);
 			
 			List<MetasiaObject> ApplicateObjects = new();
@@ -118,11 +123,6 @@ namespace Metasia.Core.Objects
 					if (audiableObject.Volume != 100)
 					{
 						express.Sound = MetasiaSound.VolumeChange(express.Sound, audiableObject.Volume / 100);
-					}
-					
-					foreach (var val in express.Sound.Pulse)
-					{
-						//Console.WriteLine(val);
 					}
 
 					e.Sound = MetasiaSound.SynthesisPulse(e.AudioChannel, e.Sound, express.Sound);

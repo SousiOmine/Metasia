@@ -22,12 +22,18 @@ namespace Metasia.Editor.ViewModels
 		private int sliderMinimum = 0;
 		private System.Timers.Timer? timer;
 
+		/// <summary>
+		/// 再生中であるか否か
+		/// </summary>
 		public bool IsPlaying 
 		{ 
 			get => _isPlaying;
 			set => this.RaiseAndSetIfChanged(ref _isPlaying, value); 
 		}
 
+		/// <summary>
+		/// 現在表示しているフレーム 変更すると再描写する
+		/// </summary>
 		public int Frame
 		{
 			get => frame;
@@ -37,12 +43,18 @@ namespace Metasia.Editor.ViewModels
 			}
 		}
 
+		/// <summary>
+		/// 再生バーの最大値
+		/// </summary>
 		public int SliderMaximum
 		{
 			get => sliderMaximum;
 			set => this.RaiseAndSetIfChanged(ref sliderMaximum, value);
 		}
 
+		/// <summary>
+		/// 再生バーの最小値
+		/// </summary>
 		public int SliderMinimum
 		{
 			get => sliderMinimum;

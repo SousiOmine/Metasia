@@ -46,7 +46,7 @@ namespace Metasia.Core.Graphics
 		/// </summary>
 		/// <param name="bitmap">元画像</param>
 		/// <param name="angle">回転角（度数法）</param>
-		/// <returns></returns>
+		/// <returns>回転後の画像</returns>
 		public static MetasiaBitmap Rotate(SKBitmap bitmap, double angle)
 		{
 			//リンク先のDatch氏の解答をそのまま利用 https://stackoverflow.com/questions/45077047/rotate-photo-with-skiasharp
@@ -75,8 +75,8 @@ namespace Metasia.Core.Graphics
 		/// 画像を透過させる
 		/// </summary>
 		/// <param name="bitmap">元画像</param>
-		/// <param name="alpha">全ピクセルにこの値をかける。1で変更せず、0で完全に透明になる</param>
-		/// <returns></returns>
+		/// <param name="alpha">全ピクセルにこの値をかける。1.0で変更せず、0.0で完全に透明になる</param>
+		/// <returns>透過後の画像</returns>
 		public static SKBitmap Transparency(SKBitmap bitmap, double alpha)
 		{
 			SKBitmap blendedBitmap = new(bitmap.Width, bitmap.Height);

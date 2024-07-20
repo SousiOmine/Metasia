@@ -7,6 +7,9 @@ using Metasia.Core.Render;
 
 namespace Metasia.Core.Objects
 {
+	/// <summary>
+	/// 音声を持つオブジェクト用のインターフェース
+	/// </summary>
 	public interface IMetaAudiable
 	{
 		public double Volume { get; set; }

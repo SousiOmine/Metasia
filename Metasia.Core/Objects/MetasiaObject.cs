@@ -37,40 +37,6 @@ namespace Metasia.Core.Objects
         /// オブジェクトが配置されるレイヤーの番号 大きいほど後に描画される
         /// </summary>
         public int Layer = 0;
-      
-        /*private float _x = 0;
-		private float _y = 0;
-		private float _scale = 100;
-		private float _alpha = 100;
-		private float _rotation = 0;
-		private float _audioVolume = 100;
-
-		/// <summary>
-		/// 中央を0としたX座標
-		/// </summary>
-		public virtual float X { get { return _x; } protected set { _x = value; } }
-
-		/// <summary>
-		/// 中央を0としたY座標
-		/// </summary>
-		public virtual float Y { get { return _y; } protected set { _y = value; } }
-
-		/// <summary>
-		/// 100を等倍とした拡大率
-		/// </summary>
-		public virtual float Scale { get { return _scale; } protected set { _scale = value; } }
-
-		/// <summary>
-		/// 0で不透過、100で透明になる透明度
-		/// </summary>
-		public virtual float Alpha { get { return _alpha; } protected set { _alpha = value; } }
-
-		/// <summary>
-		/// 数字が増えると時計回りに回転する回転角
-		/// </summary>
-		public virtual float Rotation { get { return _rotation; } protected set { _rotation = value; } }
-
-		public virtual float AudioVolume { get { return _audioVolume; } protected set { _audioVolume = value; } }*/
 
 		/// <summary>
 		/// オブジェクトの初期化
@@ -81,21 +47,5 @@ namespace Metasia.Core.Objects
         {
             Id = id;
         }
-
-        /// <summary>
-        /// 動画や音声の表現はこのメソッドでオブジェクトごとに行う
-        /// </summary>
-        /// <param name="e"></param>
-        /// <param name="frame">要求するフレーム</param>
-        /*public virtual void Expression(ref ExpresserArgs e, int frame)
-        {
-            if (frame < StartFrame || frame > EndFrame) return;
-            if (Child is not null)
-            {
-                Child.StartFrame = this.StartFrame;
-				Child.EndFrame = this.EndFrame;
-				Child.Expression(ref e, frame);
-            }
-        }*/
     }
 }
