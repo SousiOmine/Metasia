@@ -15,7 +15,7 @@ namespace Metasia.Core.Coordinate
         /// <summary>
         /// 保持する値
         /// </summary>
-        public float Value = 0f;
+        public double Value = 0f;
 
         /// <summary>
         /// ポイント間の移動方法

@@ -14,7 +14,7 @@ public class MetaDoubleParam
     /// </summary>
     public List<CoordPoint> Params { get; protected set; }
 
-    public MetaDoubleParam(MetasiaObject owner, float initialValue)
+    public MetaDoubleParam(MetasiaObject owner, double initialValue)
     {
         ownerObject = owner;
         Params = new();
@@ -26,12 +26,12 @@ public class MetaDoubleParam
     /// </summary>
     /// <param name="frame"></param>
     /// <returns></returns>
-    public float Get(int frame)
+    public double Get(int frame)
     {
         return CalculateMidValue(frame);
     }
     
-    protected float CalculateMidValue(int frame)
+    protected double CalculateMidValue(int frame)
     {
         //CoordPointのFrameはオブジェクトの始点基準なので合わせる
         frame -= ownerObject.StartFrame;
@@ -51,7 +51,7 @@ public class MetaDoubleParam
                 break;
             }
         }
-        float midValue = startPoint.PointLogic.GetBetweenPoint(startPoint.Value, endPoint.Value, frame, startPoint.Frame, endPoint.Frame);
+        double midValue = startPoint.PointLogic.GetBetweenPoint(startPoint.Value, endPoint.Value, frame, startPoint.Frame, endPoint.Frame);
 			
         return midValue;
     }

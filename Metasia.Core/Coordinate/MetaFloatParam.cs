@@ -39,7 +39,7 @@ public class MetaFloatParam
                 break;
             }
         }
-        float midValue = startPoint.PointLogic.GetBetweenPoint(startPoint.Value, endPoint.Value, frame, startPoint.Frame, endPoint.Frame);
+        float midValue = (float)startPoint.PointLogic.GetBetweenPoint(startPoint.Value, endPoint.Value, frame, startPoint.Frame, endPoint.Frame);
 			
         return midValue;
     }

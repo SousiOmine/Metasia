@@ -12,6 +12,6 @@ namespace Metasia.Core.Coordinate
         /// <param name="StartFrame">開始点のある相対フレーム</param>
         /// <param name="EndFrame">終了点のある相対フレーム</param>
         /// <returns>現在フレームの計算結果</returns>
-        public float GetBetweenPoint(float StartValue, float EndValue, float NowFrame, float StartFrame, float EndFrame);
+        public double GetBetweenPoint(double StartValue, double EndValue, double NowFrame, double StartFrame, double EndFrame);
     }
 }

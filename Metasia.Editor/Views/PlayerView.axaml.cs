@@ -52,14 +52,7 @@ public partial class PlayerView : UserControl
 			if (MetasiaProvider.MetasiaProject is null) return;
 			else renderer = new ProjectRenderer(MetasiaProvider.MetasiaProject);
 		}
-		/*ExpresserArgs exp = new()
-		{
-			bitmap = new SKBitmap(384, 216),
-			sound = new MetasiaSound(2, 44100, 60),
-			targetSize = new SKSize(3840, 2160),
-			ResolutionLevel = 0.1f,
-			AudioChannel = 2
-		};*/
+
 		DrawExpresserArgs drawExp = new()
 		{
 			Bitmap = new SKBitmap(384, 216),
