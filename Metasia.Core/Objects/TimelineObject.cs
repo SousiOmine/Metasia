@@ -38,6 +38,9 @@ namespace Metasia.Core.Objects
 				if(o is IMetaDrawable) ApplicateObjects.Add(o);
 			}
 
+			//オブジェクトをレイヤー番号が若い順にソート
+			ApplicateObjects.Sort((x, y) => x.Layer.CompareTo(y.Layer));
+
 			foreach (var o in ApplicateObjects)
 			{
 				IMetaDrawable drawObject = (IMetaDrawable)o;
