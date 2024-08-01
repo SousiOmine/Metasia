@@ -113,6 +113,13 @@ namespace Metasia.Editor.ViewModels
 	    		EndFrame = 10,
 	    		Layer = 2
 	    	};
+			Text text = new Text("konnichiwa")
+			{
+                EndFrame = 120,
+				TypefaceName = "LINE Seed JP_TTF",
+                Contents = "こんにちは Hello",
+				Layer = 3
+			};
 		    
 			kariHello2.Y.Params[0].Value = 300;
 			kariHello2.Rotation.Params[0].Value = 45;
@@ -120,9 +127,11 @@ namespace Metasia.Editor.ViewModels
 			kariHello2.Scale.Params[0].Value = 50;
 			kariHello2.X.Params.Add(new CoordPoint(){Value = 1000, Frame = 10});
 			kariHello.Rotation.Params.Add(new CoordPoint(){Value = 90, Frame = 120});
+			text.TextSize.Params[0].Value = 400;
 	    	TimelineObject mainTL = new TimelineObject("RootTimeline");
 	    	mainTL.Objects.Add(kariHello);
 	    	mainTL.Objects.Add(kariHello2);
+			mainTL.Objects.Add(text);
 	    	MetasiaProvider.MetasiaProject.Timelines.Add(mainTL);
 
 			NotifyProjectChanged();
