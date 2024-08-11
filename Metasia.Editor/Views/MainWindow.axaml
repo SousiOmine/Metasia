@@ -69,7 +69,7 @@
 				<TextBlock Grid.Column="4" Text="オブジェクト編集画面"/>
 			</Grid>
 			<GridSplitter Grid.Row="1" HorizontalAlignment="Stretch" Background="Gray"/>
-			<TextBlock Grid.Row="2" Text="タイムライン"/>
+			<views:TimelineTabsView DataContext="{Binding timelineTabsViewModel}" Grid.Row="2"/>
 		</Grid>
 	</DockPanel>
 
