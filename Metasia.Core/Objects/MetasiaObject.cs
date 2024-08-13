@@ -34,9 +34,9 @@ namespace Metasia.Core.Objects
         public int EndFrame = 100;
 
         /// <summary>
-        /// オブジェクトが配置されるレイヤーの番号 大きいほど後に描画される
+        /// オブジェクトを有効にするか
         /// </summary>
-        public int Layer = 0;
+        public bool IsActive = true;
 
 		/// <summary>
 		/// オブジェクトの初期化
@@ -46,6 +46,17 @@ namespace Metasia.Core.Objects
 		public MetasiaObject(string id)
         {
             Id = id;
+        }
+
+        /// <summary>
+        /// 指定したフレームにオブジェクトが存在するか否か
+        /// </summary>
+        /// <param name="frame">気になるフレーム</param>
+        /// <returns>存在すればtrue</returns>
+        public bool IsExistFromFrame(int frame)
+        {
+            if(frame >= StartFrame && frame <= EndFrame) return true;
+            else return false;
         }
     }
 }

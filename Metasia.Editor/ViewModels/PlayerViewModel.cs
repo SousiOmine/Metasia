@@ -106,20 +106,22 @@ namespace Metasia.Editor.ViewModels
 			kariHelloObject kariHello = new kariHelloObject("karihello")
 	    	{ 
 	    		EndFrame = 120,
-	    		Layer = 1
 	    	};
 	    	kariHelloObject kariHello2 = new kariHelloObject("karihello2")
 	    	{
 	    		EndFrame = 10,
-	    		Layer = 2
 	    	};
 			Text text = new Text("konnichiwa")
 			{
                 EndFrame = 120,
 				TypefaceName = "LINE Seed JP_TTF",
                 Contents = "こんにちは Hello",
-				Layer = 3
 			};
+
+			LayerObject layer1 = new LayerObject("layer1", "Layer 1");
+			LayerObject layer2 = new LayerObject("layer2", "Layer 2");
+			LayerObject layer3 = new LayerObject("layer3", "Layer 3");
+			LayerObject layer_empty = new LayerObject("layerempty", "Layer 4");
 		    
 			kariHello2.Y.Params[0].Value = 300;
 			kariHello2.Rotation.Params[0].Value = 45;
@@ -129,9 +131,15 @@ namespace Metasia.Editor.ViewModels
 			kariHello.Rotation.Params.Add(new CoordPoint(){Value = 90, Frame = 120});
 			text.TextSize.Params[0].Value = 400;
 	    	TimelineObject mainTL = new TimelineObject("RootTimeline");
-	    	mainTL.Objects.Add(kariHello);
-	    	mainTL.Objects.Add(kariHello2);
-			mainTL.Objects.Add(text);
+
+			layer1.Objects.Add(kariHello);
+			layer2.Objects.Add(kariHello2);
+			layer3.Objects.Add(text);
+			mainTL.Layers.Add(layer1);
+			mainTL.Layers.Add(layer2);
+			mainTL.Layers.Add(layer3);
+			mainTL.Layers.Add(layer_empty);
+
 	    	MetasiaProvider.MetasiaProject.Timelines.Add(mainTL);
 
 			NotifyProjectChanged();
