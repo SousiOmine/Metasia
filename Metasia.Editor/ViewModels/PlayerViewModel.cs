@@ -121,6 +121,7 @@ namespace Metasia.Editor.ViewModels
 			LayerObject layer1 = new LayerObject("layer1", "Layer 1");
 			LayerObject layer2 = new LayerObject("layer2", "Layer 2");
 			LayerObject layer3 = new LayerObject("layer3", "Layer 3");
+			LayerObject layer_empty = new LayerObject("layerempty", "Layer 4");
 		    
 			kariHello2.Y.Params[0].Value = 300;
 			kariHello2.Rotation.Params[0].Value = 45;
@@ -130,9 +131,6 @@ namespace Metasia.Editor.ViewModels
 			kariHello.Rotation.Params.Add(new CoordPoint(){Value = 90, Frame = 120});
 			text.TextSize.Params[0].Value = 400;
 	    	TimelineObject mainTL = new TimelineObject("RootTimeline");
-			/*mainTL.Objects.Add(kariHello);
-	    	mainTL.Objects.Add(kariHello2);
-			mainTL.Objects.Add(text);*/
 
 			layer1.Objects.Add(kariHello);
 			layer2.Objects.Add(kariHello2);
@@ -140,6 +138,7 @@ namespace Metasia.Editor.ViewModels
 			mainTL.Layers.Add(layer1);
 			mainTL.Layers.Add(layer2);
 			mainTL.Layers.Add(layer3);
+			mainTL.Layers.Add(layer_empty);
 
 	    	MetasiaProvider.MetasiaProject.Timelines.Add(mainTL);
 

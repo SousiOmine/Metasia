@@ -33,6 +33,11 @@ namespace Metasia.Core.Objects
         /// </summary>
         public int EndFrame = 100;
 
+        /// <summary>
+        /// オブジェクトを有効にするか
+        /// </summary>
+        public bool IsActive = true;
+
 		/// <summary>
 		/// オブジェクトの初期化
 		/// </summary>

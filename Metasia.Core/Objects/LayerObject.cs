@@ -13,18 +13,21 @@ namespace Metasia.Core.Objects
 {
     public class LayerObject : MetasiaObject, IMetaDrawable, IMetaAudiable
     {
+        /// <summary>
+        /// レイヤーに属するオブジェクト 原則同じフレームに2個以上オブジェクトがあってはならない
+        /// </summary>
         public ObservableCollection<MetasiaObject> Objects { get; protected set; } = new();
         public double Volume { get; set; }
 
+        /// <summary>
+        /// レイヤー名
+        /// </summary>
         public string Name { get; set; }
-
-        public bool IsActive { get; set; }
 
         public LayerObject(string id, string LayerName) : base(id)
         {
             Volume = 100;
             Name = LayerName;
-            IsActive = true;
             StartFrame = 0;
             EndFrame = int.MaxValue;
         }
@@ -34,7 +37,7 @@ namespace Metasia.Core.Objects
             List<MetasiaObject> ApplicateObjects = new();
             foreach (var obj in Objects) 
             {
-                if(obj.IsExistFromFrame(frame) && obj is IMetaDrawable)
+                if(obj.IsExistFromFrame(frame) && obj is IMetaDrawable && obj.IsActive)
                 {
                     ApplicateObjects.Add(obj);
                 }
@@ -103,7 +106,7 @@ namespace Metasia.Core.Objects
             List<MetasiaObject> ApplicateObjects = new();
             foreach (var obj in Objects)
             {
-                if (obj.IsExistFromFrame(frame) && obj is IMetaAudiable)
+                if (obj.IsExistFromFrame(frame) && obj is IMetaAudiable && obj.IsActive)
                 {
                     ApplicateObjects.Add(obj);
                 }

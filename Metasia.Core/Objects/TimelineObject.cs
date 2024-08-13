@@ -16,7 +16,9 @@ namespace Metasia.Core.Objects
 	/// </summary>
 	public class TimelineObject : MetasiaObject, IMetaDrawable, IMetaAudiable
 	{
-		//public List<MetasiaObject> Objects { get; protected set; } = new();
+		/// <summary>
+		/// タイムラインに属するレイヤー 格納順に描画される
+		/// </summary>
 		public List<LayerObject> Layers { get; protected set; } = new();
 
 		public double Volume { get; set; }
