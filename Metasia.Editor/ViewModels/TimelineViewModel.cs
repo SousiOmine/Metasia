@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Metasia.Core.Objects;
+using ReactiveUI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,5 +10,21 @@ namespace Metasia.Editor.ViewModels
 {
     public class TimelineViewModel : ViewModelBase
     {
+        public TimelineObject Timeline
+        {
+            get => _timeline;
+            set => this.RaiseAndSetIfChanged(ref _timeline, value);
+        }
+
+        public int Target_Frame;
+
+        public MetasiaObject Target_Object;
+
+        private TimelineObject _timeline;
+
+        public TimelineViewModel()
+        {
+
+        }
     }
 }
