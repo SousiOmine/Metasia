@@ -6,5 +6,30 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Metasia.Editor.Views.TimelineView"
 			 x:DataType="vm:TimelineViewModel">
-    This is Timeline View
+	<Grid Grid.Column="0" ColumnDefinitions="100,1,*">
+		<Grid RowDefinitions="50,1,*">
+			<GridSplitter Grid.Row="1" Background="Gray"/>
+			<ScrollViewer x:Name="LayerButtonScroll"
+				Grid.Row="2" AllowAutoHide="True" VerticalScrollBarVisibility="Hidden">
+				<ItemsControl ItemsSource="{Binding LayerButtons}"/>
+			</ScrollViewer>
+		</Grid>
+		<GridSplitter Grid.Column="1" Background="Gray"/>
+		<Grid Grid.Column="2" RowDefinitions="50,1,*">
+			<ScrollViewer x:Name="TimescaleScroll"
+				HorizontalScrollBarVisibility="Visible"
+				Grid.Row="0">
+				<TextBlock FontSize="40">
+					0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+				</TextBlock>
+			</ScrollViewer>
+			<GridSplitter Grid.Row="1" Background="Gray"/>
+			<ScrollViewer x:Name="LinesScroll"
+				VerticalScrollBarVisibility="Hidden"
+				HorizontalScrollBarVisibility="Hidden"
+				Grid.Row="2">
+				<TextBlock Text="タイムライン" FontSize="500"/>
+			</ScrollViewer>
+		</Grid>
+	</Grid>
 </UserControl>
