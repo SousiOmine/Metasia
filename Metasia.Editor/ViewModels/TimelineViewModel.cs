@@ -19,42 +19,33 @@ namespace Metasia.Editor.ViewModels
             set => this.RaiseAndSetIfChanged(ref _timeline, value);
         }
 
+        public double Frame_Per_DIP
+        {
+            get => _frame_per_DIP;
+            set => this.RaiseAndSetIfChanged(ref _frame_per_DIP, value);
+        }
+
         public ObservableCollection<LayerButtonViewModel> LayerButtons { get; } = new();
+
+        public ObservableCollection<LayerCanvasViewModel> LayerCanvas { get; } = new();
+
+        public ObservableCollection<MetasiaObject> SelectClip { get; } = new();
 
         public int Target_Frame;
 
-        public MetasiaObject Target_Object;
-
         private TimelineObject _timeline;
+        private double _frame_per_DIP;
 
-        public TimelineViewModel()
+        public TimelineViewModel(TimelineObject targetTimeline)
         {
-            LayerButtons.Add(new LayerButtonViewModel());
-            LayerButtons.Add(new LayerButtonViewModel());
-            LayerButtons.Add(new LayerButtonViewModel());
-            LayerButtons.Add(new LayerButtonViewModel());
-            LayerButtons.Add(new LayerButtonViewModel());
-            LayerButtons.Add(new LayerButtonViewModel());
-            LayerButtons.Add(new LayerButtonViewModel());
-            LayerButtons.Add(new LayerButtonViewModel());
-            LayerButtons.Add(new LayerButtonViewModel());
-            LayerButtons.Add(new LayerButtonViewModel());
-            LayerButtons.Add(new LayerButtonViewModel());
-            LayerButtons.Add(new LayerButtonViewModel());
-            LayerButtons.Add(new LayerButtonViewModel());
-            LayerButtons.Add(new LayerButtonViewModel());
-            LayerButtons.Add(new LayerButtonViewModel());
-            LayerButtons.Add(new LayerButtonViewModel());
-            LayerButtons.Add(new LayerButtonViewModel());
-            LayerButtons.Add(new LayerButtonViewModel());
-            LayerButtons.Add(new LayerButtonViewModel());
-            LayerButtons.Add(new LayerButtonViewModel());
+            Frame_Per_DIP = 3;
+            _timeline = targetTimeline;
 
-        }
-
-        private void ScrollSync()
-        {
-
+            foreach (var layer in Timeline.Layers)
+            {
+                LayerButtons.Add(new LayerButtonViewModel(layer));
+                LayerCanvas.Add(new LayerCanvasViewModel(this, layer));
+            }
         }
     }
 }

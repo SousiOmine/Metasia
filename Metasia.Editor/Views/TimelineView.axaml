@@ -28,7 +28,7 @@
 				VerticalScrollBarVisibility="Hidden"
 				HorizontalScrollBarVisibility="Hidden"
 				Grid.Row="2">
-				<TextBlock Text="タイムライン" FontSize="500"/>
+				<ItemsControl ItemsSource="{Binding LayerCanvas}" />
 			</ScrollViewer>
 		</Grid>
 	</Grid>

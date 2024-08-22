@@ -1,0 +1,15 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:vm="using:Metasia.Editor.ViewModels.Controls"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="200" d:DesignHeight="50"
+             x:Class="Metasia.Editor.Views.Controls.ClipView"
+			 x:DataType="vm:ClipViewModel"
+			 Width="{Binding Width}">
+	<Border BorderBrush="DarkGray" Background="Pink" BorderThickness="1" CornerRadius="10" ClipToBounds="True">
+		<RelativePanel>
+			<TextBlock Text="オブジェクト" Padding="5" RelativePanel.AlignVerticalCenterWithPanel="True"/>
+		</RelativePanel>
+	</Border>
+</UserControl>

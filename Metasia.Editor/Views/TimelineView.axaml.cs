@@ -8,6 +8,7 @@ namespace Metasia.Editor.Views;
 
 public partial class TimelineView : UserControl
 {
+    public double Frame_Per_DIP = 1.0;
     public TimelineView()
     {
         InitializeComponent();

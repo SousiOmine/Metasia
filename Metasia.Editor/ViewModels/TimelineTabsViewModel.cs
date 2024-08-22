@@ -30,8 +30,7 @@ namespace Metasia.Editor.ViewModels
 
             foreach(var timeline in _projectTimelines)
             {
-                TimelineViewModel timelineViewModel = new TimelineViewModel();
-                timelineViewModel.Timeline = timeline;
+                TimelineViewModel timelineViewModel = new TimelineViewModel(timeline);
                 Tabs.Add(new TabItem { Header = timeline.Id, Content = timelineViewModel});
             }
         }

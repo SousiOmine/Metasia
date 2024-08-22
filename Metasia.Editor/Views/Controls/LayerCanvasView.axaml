@@ -1,0 +1,21 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:vm="using:Metasia.Editor.ViewModels.Controls"
+			 xmlns:views="clr-namespace:Metasia.Editor.Views"
+			 xmlns:views_controls="clr-namespace:Metasia.Editor.Views.Controls"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="50"
+             x:Class="Metasia.Editor.Views.Controls.LayerCanvasView"
+			 x:DataType="vm:LayerCanvasViewModel">
+	
+	<ItemsControl ItemsSource="{Binding ClipsAndBlanks}">
+		<ItemsControl.ItemsPanel>
+			<ItemsPanelTemplate>
+				<StackPanel Orientation="Horizontal" />
+			</ItemsPanelTemplate>
+		</ItemsControl.ItemsPanel>
+		
+	</ItemsControl>
+	
+</UserControl>
