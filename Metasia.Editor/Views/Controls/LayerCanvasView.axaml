@@ -7,15 +7,27 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="50"
              x:Class="Metasia.Editor.Views.Controls.LayerCanvasView"
-			 x:DataType="vm:LayerCanvasViewModel">
+			 x:DataType="vm:LayerCanvasViewModel"
+			 Height="50">
 	
-	<ItemsControl ItemsSource="{Binding ClipsAndBlanks}">
+	<ItemsControl ItemsSource="{Binding ClipsAndBlanks}" >
 		<ItemsControl.ItemsPanel>
 			<ItemsPanelTemplate>
-				<StackPanel Orientation="Horizontal" />
+				<Canvas/>
 			</ItemsPanelTemplate>
 		</ItemsControl.ItemsPanel>
-		
+
+		<ItemsControl.ItemContainerTheme>
+			<ControlTheme x:DataType="vm:ClipViewModel" TargetType="ContentPresenter">
+				<Setter Property="Canvas.Left" Value="{Binding StartFrame}" />
+			</ControlTheme>
+		</ItemsControl.ItemContainerTheme>
+
+		<ItemsControl.ItemTemplate>
+			<DataTemplate DataType="vm:ClipViewModel">
+				<views_controls:ClipView Height="50"/>
+			</DataTemplate>
+		</ItemsControl.ItemTemplate>
 	</ItemsControl>
 	
 </UserControl>

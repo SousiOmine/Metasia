@@ -6,7 +6,7 @@
              mc:Ignorable="d" d:DesignWidth="200" d:DesignHeight="50"
              x:Class="Metasia.Editor.Views.Controls.ClipView"
 			 x:DataType="vm:ClipViewModel"
-			 Width="{Binding Width}">
+			 Width="{Binding Width}" VerticalAlignment="Stretch">
 	<Border BorderBrush="DarkGray" Background="Pink" BorderThickness="1" CornerRadius="10" ClipToBounds="True">
 		<RelativePanel>
 			<TextBlock Text="オブジェクト" Padding="5" RelativePanel.AlignVerticalCenterWithPanel="True"/>

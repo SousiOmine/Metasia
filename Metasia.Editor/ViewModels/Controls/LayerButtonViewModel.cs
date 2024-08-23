@@ -5,11 +5,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace Metasia.Editor.ViewModels.Controls
 {
     public class LayerButtonViewModel : ViewModelBase
     {
+        public ICommand ButtonClick { get; }
         public string ButtonText
         {
             get => _buttonText;
@@ -22,6 +24,11 @@ namespace Metasia.Editor.ViewModels.Controls
         public LayerButtonViewModel(LayerObject targetLayerObject) 
         {
             this.targetLayerObject = targetLayerObject;
+
+            ButtonClick = ReactiveCommand.Create(() =>
+            {
+                targetLayerObject.IsActive = !targetLayerObject.IsActive;
+            });
 
             ButtonText = targetLayerObject.Name;
         }

@@ -12,7 +12,7 @@ namespace Metasia.Editor.ViewModels.Controls
 {
     public class LayerCanvasViewModel : ViewModelBase
     {
-        public ObservableCollection<IClip> ClipsAndBlanks { get; set; } = new();
+        public ObservableCollection<ClipViewModel> ClipsAndBlanks { get; set; } = new();
 
         public double Frame_Per_DIP
         {
@@ -40,7 +40,9 @@ namespace Metasia.Editor.ViewModels.Controls
 
             foreach(var obj in targetLayer.Objects)
             {
-                ClipsAndBlanks.Add(new ClipViewModel(obj));
+                var clipvm = new ClipViewModel(obj);
+                ClipsAndBlanks.Add(clipvm);
+                
             }
 
             ChangeFramePerDIP();
@@ -50,7 +52,7 @@ namespace Metasia.Editor.ViewModels.Controls
         {
             foreach (var clip in ClipsAndBlanks)
             {
-                clip.Width = clip.FrameCount() * Frame_Per_DIP;
+                clip.Frame_Per_DIP = Frame_Per_DIP;
             }
         }
     }
