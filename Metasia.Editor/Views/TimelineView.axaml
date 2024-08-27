@@ -6,35 +6,44 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Metasia.Editor.Views.TimelineView"
 			 x:DataType="vm:TimelineViewModel">
-	<Grid Grid.Column="0" ColumnDefinitions="100,1,*">
-		<Grid RowDefinitions="50,1,*">
-			<GridSplitter Grid.Row="1" Background="Gray"/>
-			<ScrollViewer x:Name="LayerButtonScroll"
-				Grid.Row="2" AllowAutoHide="True" VerticalScrollBarVisibility="Hidden">
-				<ItemsControl ItemsSource="{Binding LayerButtons}"/>
-			</ScrollViewer>
-		</Grid>
-		<GridSplitter Grid.Column="1" Background="Gray"/>
-		<Grid Grid.Column="2" RowDefinitions="50,1,*">
-			<ScrollViewer x:Name="TimescaleScroll"
-				HorizontalScrollBarVisibility="Visible"
-				Grid.Row="0">
-				<TextBlock FontSize="40">
-					0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
-				</TextBlock>
-			</ScrollViewer>
-			<GridSplitter Grid.Row="1" Background="Gray"/>
-			<ScrollViewer x:Name="LinesScroll"
-				VerticalScrollBarVisibility="Hidden"
-				HorizontalScrollBarVisibility="Hidden"
-				Grid.Row="2">
+	<Grid RowDefinitions="*, 1, 50">
+		<Grid Grid.Row="0" ColumnDefinitions="100,1,*">
+			<Grid Grid.Column="0" RowDefinitions="50,1,*">
+				<GridSplitter Grid.Row="1" Background="Gray"/>
+				<ScrollViewer x:Name="LayerButtonScroll"
+				              Grid.Row="2" AllowAutoHide="True" VerticalScrollBarVisibility="Hidden">
+					<ItemsControl ItemsSource="{Binding LayerButtons}"/>
+				</ScrollViewer>
+			</Grid>
+			<GridSplitter Grid.Column="1" Background="Gray"/>
+			<Grid Grid.Column="2" RowDefinitions="50,1,*">
+				<ScrollViewer x:Name="TimescaleScroll"
+				              HorizontalScrollBarVisibility="Visible"
+				              Grid.Row="0">
+					<TextBlock FontSize="40">
+						0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+					</TextBlock>
+				</ScrollViewer>
+				<GridSplitter Grid.Row="1" Background="Gray"/>
+				<ScrollViewer x:Name="LinesScroll"
+				              VerticalScrollBarVisibility="Hidden"
+				              HorizontalScrollBarVisibility="Hidden"
+				              Grid.Row="2">
 				
-				<ItemsControl ItemsSource="{Binding LayerCanvas}" />
+					<ItemsControl ItemsSource="{Binding LayerCanvas}" />
 				
-				<!--
+					<!--
 				<TextBlock FontSize="500">タイムラインです</TextBlock>
 				-->
-			</ScrollViewer>
+				</ScrollViewer>
+			</Grid>
 		</Grid>
+		<Border Grid.Row="1" Background="White"/>
+		<StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+			<Slider Width="100" DockPanel.Dock="Right" 
+			        Minimum="0.1" Maximum="30"
+			        Value="{Binding Frame_Per_DIP}"/>
+		</StackPanel>
 	</Grid>
+	
 </UserControl>
