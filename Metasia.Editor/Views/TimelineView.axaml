@@ -20,21 +20,23 @@
 				<ScrollViewer x:Name="TimescaleScroll"
 				              HorizontalScrollBarVisibility="Visible"
 				              Grid.Row="0">
-					<TextBlock FontSize="40">
-						0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
-					</TextBlock>
+					<Canvas>
+						<TextBlock FontSize="40">
+							0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+						</TextBlock>
+					</Canvas>
+					
 				</ScrollViewer>
 				<GridSplitter Grid.Row="1" Background="Gray"/>
 				<ScrollViewer x:Name="LinesScroll"
 				              VerticalScrollBarVisibility="Hidden"
 				              HorizontalScrollBarVisibility="Hidden"
 				              Grid.Row="2">
-				
-					<ItemsControl ItemsSource="{Binding LayerCanvas}" />
-				
-					<!--
-				<TextBlock FontSize="500">タイムラインです</TextBlock>
-				-->
+					<Canvas Width="{Binding ElementName=TimelineScroll, Path=Bounds.Width}">
+						<Rectangle Canvas.Left="{Binding CursorLeft}" Fill="Green" Width="3" Height="500"/>
+						<ItemsControl x:Name="TimelineScroll" ItemsSource="{Binding LayerCanvas}" />
+					</Canvas>
+					
 				</ScrollViewer>
 			</Grid>
 		</Grid>

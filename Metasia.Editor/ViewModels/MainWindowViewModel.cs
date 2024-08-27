@@ -6,6 +6,11 @@
 
 		public PlayerViewModel playerViewModel { get; } = new();
 
-		public TimelineTabsViewModel timelineTabsViewModel { get; } = new();
+		public TimelineTabsViewModel timelineTabsViewModel { get; }
+
+		public MainWindowViewModel()
+		{
+			timelineTabsViewModel = new TimelineTabsViewModel(playerViewModel);
+		}
 	}
 }
