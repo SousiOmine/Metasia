@@ -34,33 +34,29 @@ namespace Metasia.Editor.ViewModels
         public ObservableCollection<LayerCanvasViewModel> LayerCanvas { get; } = new();
 
         public ObservableCollection<MetasiaObject> SelectClip { get; } = new();
-
-        public PlayerViewModel TargetPlayer;
-
+        
         public int Frame
         {
-            get => frame;
-            set => this.RaiseAndSetIfChanged(ref frame, value);
+            get => _frame;
+            set => this.RaiseAndSetIfChanged(ref _frame, value);
         }
 
         public double CursorLeft
         {
-            get => cursorLeft;
-            set => this.RaiseAndSetIfChanged(ref cursorLeft, value);
+            get => _cursorLeft;
+            set => this.RaiseAndSetIfChanged(ref _cursorLeft, value);
         }
 
         private TimelineObject _timeline;
         private double _frame_per_DIP;
-        private int frame;
-        private double cursorLeft;
+        private int _frame;
+        private double _cursorLeft;
 
         public TimelineViewModel(TimelineObject targetTimeline, PlayerViewModel playerViewModel)
         {
             Frame_Per_DIP = 3;
             _timeline = targetTimeline;
             
-            TargetPlayer = playerViewModel;
-
             playerViewModel.WhenAnyValue(x => x.Frame).Subscribe
                 (Frame =>
                 {

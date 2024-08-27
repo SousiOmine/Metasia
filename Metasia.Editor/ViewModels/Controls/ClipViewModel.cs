@@ -49,7 +49,7 @@ namespace Metasia.Editor.ViewModels.Controls
 
         private void ChangeFramePerDIP()
         {
-            Width = (TargetObject.EndFrame - TargetObject.StartFrame) * Frame_Per_DIP;
+            Width = (TargetObject.EndFrame - TargetObject.StartFrame + 1) * Frame_Per_DIP;
             StartFrame = TargetObject.StartFrame * Frame_Per_DIP;
         }
     }
