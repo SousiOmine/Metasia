@@ -38,7 +38,7 @@ namespace Metasia.Editor.ViewModels
 
         public TimelineViewModel(TimelineObject targetTimeline)
         {
-            Frame_Per_DIP = 30;
+            Frame_Per_DIP = 3;
             _timeline = targetTimeline;
 
             foreach (var layer in Timeline.Layers)
