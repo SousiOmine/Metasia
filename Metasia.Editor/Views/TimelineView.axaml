@@ -32,7 +32,8 @@
 				              VerticalScrollBarVisibility="Hidden"
 				              HorizontalScrollBarVisibility="Hidden"
 				              Grid.Row="2">
-					<Canvas Width="{Binding ElementName=TimelineScroll, Path=Bounds.Width}" 
+					<Canvas VerticalAlignment="Top"
+							Width="{Binding ElementName=TimelineScroll, Path=Bounds.Width}" 
 					        Height="{Binding ElementName=TimelineScroll, Path=Bounds.Height}">
 						<Rectangle Canvas.Left="{Binding CursorLeft}" Fill="Green" Width="3" Height="500" ZIndex="1"/>
 						<ItemsControl x:Name="TimelineScroll" ItemsSource="{Binding LayerCanvas}" />
