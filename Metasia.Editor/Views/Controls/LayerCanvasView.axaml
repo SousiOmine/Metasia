@@ -8,6 +8,7 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="50"
              x:Class="Metasia.Editor.Views.Controls.LayerCanvasView"
 			 x:DataType="vm:LayerCanvasViewModel"
+             Width="{Binding Width}"
 			 Height="50">
 	
 	<ItemsControl ItemsSource="{Binding ClipsAndBlanks}" >

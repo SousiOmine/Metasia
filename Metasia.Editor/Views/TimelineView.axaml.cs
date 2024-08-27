@@ -1,3 +1,4 @@
+using System;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -42,7 +43,7 @@ public partial class TimelineView : UserControl
 
             LinesScroll.Offset = new Vector(TimescaleScroll.Offset.X, LinesScroll.Offset.Y);
             
-            // マウスホイールのイベントを無効にする
+            // 繝槭え繧ｹ繝帙う繝ｼ繝ｫ縺ｮ繧､繝吶Φ繝医ｒ辟｡蜉ｹ縺ｫ縺吶ｋ
             e.Handled = true;
         }, Avalonia.Interactivity.RoutingStrategies.Tunnel);
 
@@ -60,7 +61,7 @@ public partial class TimelineView : UserControl
 
             TimescaleScroll.Offset = new Vector(LinesScroll.Offset.X, 0);
 
-            // マウスホイールのイベントを無効にする
+            // 繝槭え繧ｹ繝帙う繝ｼ繝ｫ縺ｮ繧､繝吶Φ繝医ｒ辟｡蜉ｹ縺ｫ縺吶ｋ
             e.Handled = true;
         }, Avalonia.Interactivity.RoutingStrategies.Tunnel);
     }

@@ -20,16 +20,25 @@ namespace Metasia.Editor.ViewModels.Controls
             set => this.RaiseAndSetIfChanged(ref _frame_per_DIP, value);
         }
 
+        public double Width
+        {
+            get => width;
+            set => this.RaiseAndSetIfChanged(ref width, value);
+        }
+
         private TimelineViewModel parentTimeline;
 
         private LayerObject targetLayer;
 
         private double _frame_per_DIP;
+        private double width;
 
         public LayerCanvasViewModel(TimelineViewModel parentTimeline, LayerObject targetLayer) 
         {
             this.parentTimeline = parentTimeline;
             this.targetLayer = targetLayer;
+
+            
 
             parentTimeline.WhenAnyValue(x => x.Frame_Per_DIP).Subscribe
                 (Frame_Per_DIP =>
@@ -54,6 +63,7 @@ namespace Metasia.Editor.ViewModels.Controls
             {
                 clip.Frame_Per_DIP = Frame_Per_DIP;
             }
+            Width = targetLayer.EndFrame * Frame_Per_DIP;
         }
     }
 }
