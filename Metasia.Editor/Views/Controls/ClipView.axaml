@@ -6,8 +6,14 @@
              mc:Ignorable="d" d:DesignWidth="200" d:DesignHeight="50"
              x:Class="Metasia.Editor.Views.Controls.ClipView"
 			 x:DataType="vm:ClipViewModel"
+             xmlns:converter="clr-namespace:Metasia.Editor.Views.BindingConverter"
 			 Width="{Binding Width}" VerticalAlignment="Stretch">
-	<Border BorderBrush="DarkGray" Background="Pink" BorderThickness="1" CornerRadius="10" ClipToBounds="True">
+	<UserControl.Resources>
+		<converter:ClipSelectConverter x:Key="ClipConverter"/>
+	</UserControl.Resources>
+	<Border x:Name="Clip" Tapped="Clip_OnTapped"
+			BorderBrush="DarkGray" Background="Pink" BorderThickness="1" CornerRadius="10" ClipToBounds="True"
+	        Opacity="{Binding IsSelecting, Converter={StaticResource ClipConverter}}">
 		<RelativePanel>
 			<TextBlock Text="オブジェクト" Padding="5" RelativePanel.AlignVerticalCenterWithPanel="True"/>
 		</RelativePanel>

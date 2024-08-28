@@ -16,6 +16,12 @@ namespace Metasia.Editor.ViewModels.Controls
             get;
             set;
         }
+        
+        public bool IsSelecting
+        {
+            get => isSelecting;
+            set => this.RaiseAndSetIfChanged(ref isSelecting, value);
+        }
         public double Width
         {
             get => width;
@@ -41,10 +47,17 @@ namespace Metasia.Editor.ViewModels.Controls
         private double width;
         private double _frame_per_DIP;
         private double startFrame;
+        private bool isSelecting;
 
         public ClipViewModel(MetasiaObject targetObject)
         {
             TargetObject = targetObject;
+            IsSelecting = false;
+        }
+
+        public void ClipClick()
+        {
+            IsSelecting = !IsSelecting;
         }
 
         private void ChangeFramePerDIP()
