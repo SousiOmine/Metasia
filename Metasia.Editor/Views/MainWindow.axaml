@@ -66,7 +66,7 @@
 				<GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" Background="Gray"/>
 				<views:PlayerView DataContext="{Binding playerViewModel}" Grid.Column="2"/>
 				<GridSplitter Grid.Column="3" HorizontalAlignment="Stretch" Background="Gray"/>
-				<TextBlock Grid.Column="4" Text="オブジェクト編集画面"/>
+				<views:InspectorView DataContext="{Binding inspectorViewModel}" Grid.Column="4"/>
 			</Grid>
 			<GridSplitter Grid.Row="1" HorizontalAlignment="Stretch" Background="Gray"/>
 			<views:TimelineTabsView DataContext="{Binding timelineTabsViewModel}" Grid.Row="2"/>

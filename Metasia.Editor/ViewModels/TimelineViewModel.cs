@@ -33,7 +33,7 @@ namespace Metasia.Editor.ViewModels
 
         public ObservableCollection<LayerCanvasViewModel> LayerCanvas { get; } = new();
 
-        public ObservableCollection<MetasiaObject> SelectClip { get; } = new();
+        public ObservableCollection<ClipViewModel> SelectClip { get; } = new();
         
         public int Frame
         {
@@ -69,6 +69,24 @@ namespace Metasia.Editor.ViewModels
                 LayerButtons.Add(new LayerButtonViewModel(layer));
                 LayerCanvas.Add(new LayerCanvasViewModel(this, layer));
             }
+
+            SelectClip.CollectionChanged += ((sender, args) =>
+            {
+                foreach (var layerCanvas in LayerCanvas)
+                {
+                    layerCanvas.ResetSelectedClip();
+                }
+                foreach (var targetClip in SelectClip)
+                {
+                    targetClip.IsSelecting = true;
+                }
+            });
+        }
+
+        public void ClipSelect(ClipViewModel clip)
+        {
+            SelectClip.Clear();
+            SelectClip.Add(clip);
         }
         
         private void ChangeFramePerDIP()

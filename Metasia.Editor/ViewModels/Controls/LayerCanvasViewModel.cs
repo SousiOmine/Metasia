@@ -49,12 +49,20 @@ namespace Metasia.Editor.ViewModels.Controls
 
             foreach(var obj in targetLayer.Objects)
             {
-                var clipvm = new ClipViewModel(obj);
+                var clipvm = new ClipViewModel(obj, parentTimeline);
                 ClipsAndBlanks.Add(clipvm);
                 
             }
 
             ChangeFramePerDIP();
+        }
+
+        public void ResetSelectedClip()
+        {
+            foreach (var clip in ClipsAndBlanks)
+            {
+                clip.IsSelecting = false;
+            }
         }
 
         private void ChangeFramePerDIP()

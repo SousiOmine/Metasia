@@ -48,16 +48,19 @@ namespace Metasia.Editor.ViewModels.Controls
         private double _frame_per_DIP;
         private double startFrame;
         private bool isSelecting;
+        
+        private TimelineViewModel parentTimeline;
 
-        public ClipViewModel(MetasiaObject targetObject)
+        public ClipViewModel(MetasiaObject targetObject, TimelineViewModel parentTimeline)
         {
             TargetObject = targetObject;
+            this.parentTimeline = parentTimeline;
             IsSelecting = false;
         }
 
         public void ClipClick()
         {
-            IsSelecting = !IsSelecting;
+            parentTimeline.ClipSelect(this);
         }
 
         private void ChangeFramePerDIP()

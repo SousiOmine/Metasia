@@ -6,6 +6,8 @@
 
 		public PlayerViewModel playerViewModel { get; } = new();
 
+		public InspectorViewModel inspectorViewModel { get; } = new();
+
 		public TimelineTabsViewModel timelineTabsViewModel { get; }
 
 		public MainWindowViewModel()
