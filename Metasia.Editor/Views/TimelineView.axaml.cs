@@ -25,7 +25,7 @@ public partial class TimelineView : UserControl
 
         TimescaleScroll.AddHandler(InputElement.PointerWheelChangedEvent, (sender, e) =>
         {
-            TimescaleScroll.Offset += new Vector(-10 * e.Delta.Y, 0);
+            TimescaleScroll.Offset += new Vector((-10 * e.Delta.Y) + (-10 * e.Delta.X), 0);
 
             LinesScroll.Offset = new Vector(TimescaleScroll.Offset.X, LinesScroll.Offset.Y);
             
@@ -36,7 +36,7 @@ public partial class TimelineView : UserControl
 
         LinesScroll.AddHandler(InputElement.PointerWheelChangedEvent, (sender, e) =>
         {
-            LinesScroll.Offset += new Vector(-10 * e.Delta.Y, 0);
+            LinesScroll.Offset += new Vector((-10 * e.Delta.Y) + (-10 * e.Delta.X), 0);
 
             TimescaleScroll.Offset = new Vector(LinesScroll.Offset.X, 0);
 
