@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Threading;
 using System.Timers;
 using System.Windows.Input;
@@ -60,6 +62,8 @@ namespace Metasia.Editor.ViewModels
 			get => sliderMinimum;
 			set => this.RaiseAndSetIfChanged(ref sliderMinimum, value);
 		}
+		
+		public ObservableCollection<MetasiaObject> TargetObjects = new();
 
 		public Action? ViewPaintRequest;
 		public Action? PlayStart;

@@ -76,9 +76,11 @@ namespace Metasia.Editor.ViewModels
                 {
                     layerCanvas.ResetSelectedClip();
                 }
+                playerViewModel.TargetObjects.Clear();
                 foreach (var targetClip in SelectClip)
                 {
                     targetClip.IsSelecting = true;
+                    playerViewModel.TargetObjects.Add(targetClip.TargetObject);
                 }
             });
         }
