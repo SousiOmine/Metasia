@@ -7,7 +7,7 @@ namespace Metasia.Editor.ViewModels
 	{
 		public string Greeting => "Welcome to Avalonia!";
 
-		public PlayerViewModel playerViewModel { get; } = new();
+		public PlayerViewModel playerViewModel { get; }
 
 		public InspectorViewModel inspectorViewModel { get; }
 
@@ -17,7 +17,8 @@ namespace Metasia.Editor.ViewModels
 
 		public MainWindowViewModel()
 		{
-			timelineTabsViewModel = new TimelineTabsViewModel(playerViewModel);
+            playerViewModel = new PlayerViewModel();
+            timelineTabsViewModel = new TimelineTabsViewModel(playerViewModel);
 			inspectorViewModel = new InspectorViewModel(playerViewModel);
 		}
 	}

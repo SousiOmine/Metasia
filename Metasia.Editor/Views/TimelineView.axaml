@@ -20,10 +20,12 @@
 				<ScrollViewer x:Name="TimescaleScroll"
 				              HorizontalScrollBarVisibility="Hidden"
 				              Grid.Row="0">
-					<Canvas Width="5000">
+					<Canvas x:Name="TimecodeCanvas" Width="5000" 
+							PointerPressed="TimecodeCanvas_PointerPressed">
 						<TextBlock FontSize="40">
 							0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
 						</TextBlock>
+						<Rectangle Canvas.Left="{Binding CursorLeft}" Fill="Green" Width="3" Height="500"/>
 					</Canvas>
 					
 				</ScrollViewer>

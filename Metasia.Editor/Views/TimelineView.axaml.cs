@@ -4,12 +4,20 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Markup.Xaml;
 using System.Diagnostics;
+using Metasia.Editor.ViewModels;
 
 namespace Metasia.Editor.Views;
 
 public partial class TimelineView : UserControl
 {
     public double Frame_Per_DIP = 1.0;
+
+    private TimelineViewModel? VM
+    {
+        get { return this.DataContext as TimelineViewModel; }
+
+    }
+
     public TimelineView()
     {
         InitializeComponent();
@@ -43,5 +51,11 @@ public partial class TimelineView : UserControl
             // マウスホイールのイベントを無効にする
             e.Handled = true;
         }, Avalonia.Interactivity.RoutingStrategies.Tunnel);
+    }
+
+    private void TimecodeCanvas_PointerPressed(object? sender, Avalonia.Input.PointerPressedEventArgs e)
+    {
+        var point = e.GetCurrentPoint(sender as Control);
+        VM.SetFrameFromPosition(point.Position.X);
     }
 }
