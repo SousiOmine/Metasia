@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using Metasia.Core.Sounds;
+using System.Diagnostics;
 
 namespace Metasia.Core.Objects
 {
@@ -33,7 +34,7 @@ namespace Metasia.Core.Objects
 			//DrawExpresserArgsのSKBitmapのインスタンスがなかったら生成
 			if (e.Bitmap is null) e.Bitmap = new SKBitmap((int)(e.TargetSize.Width * e.ResolutionLevel), (int)(e.TargetSize.Height * e.ResolutionLevel));
 
-			foreach (var layer in Layers)
+            foreach (var layer in Layers)
 			{
 				if (!layer.IsActive) continue;
                 DrawExpresserArgs express = new()
@@ -52,7 +53,7 @@ namespace Metasia.Core.Objects
 
 				express.Dispose();
             }
-		}
+        }
 		
 
 		public void AudioExpresser(ref AudioExpresserArgs e, int frame)

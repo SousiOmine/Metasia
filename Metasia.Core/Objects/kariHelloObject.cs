@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Metasia.Core.Coordinate;
 using Metasia.Core.Sounds;
+using System.Diagnostics;
 
 namespace Metasia.Core.Objects
 {
@@ -38,14 +39,14 @@ namespace Metasia.Core.Objects
 			X = new MetaDoubleParam(this, 0);
 			Y = new MetaDoubleParam(this, 0);
 			Scale = new MetaDoubleParam(this, 100);
-			Alpha = new MetaDoubleParam(this, 100);
+			Alpha = new MetaDoubleParam(this, 0);
 			Rotation = new MetaDoubleParam(this, 0);
 		}
 
 
 		public void DrawExpresser(ref DrawExpresserArgs e, int frame)
 		{
-			if (frame < StartFrame || frame > EndFrame) return;
+            if (frame < StartFrame || frame > EndFrame) return;
 			
 			e.Bitmap = new SKBitmap(200, 200);
 			

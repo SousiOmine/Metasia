@@ -40,7 +40,7 @@ namespace Metasia.Core.Objects
             X = new MetaDoubleParam(this, 0);
             Y = new MetaDoubleParam(this, 0);
             Scale = new MetaDoubleParam(this, 100);
-            Alpha = new MetaDoubleParam(this, 100);
+            Alpha = new MetaDoubleParam(this, 0);
             Rotation = new MetaDoubleParam(this, 0);
             TextSize = new MetaFloatParam(this, 100);
             LoadTypeface();

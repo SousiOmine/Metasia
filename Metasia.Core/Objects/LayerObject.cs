@@ -5,6 +5,7 @@ using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -34,6 +35,7 @@ namespace Metasia.Core.Objects
 
         public void DrawExpresser(ref DrawExpresserArgs e, int frame)
         {
+            
             List<MetasiaObject> ApplicateObjects = new();
             foreach (var obj in Objects) 
             {
@@ -47,6 +49,8 @@ namespace Metasia.Core.Objects
 
             if (e.Bitmap is null) e.Bitmap = new SKBitmap((int)(e.TargetSize.Width * e.ResolutionLevel), (int)(e.TargetSize.Height * e.ResolutionLevel));
 
+            
+
             foreach (var obj in ApplicateObjects)
             {
                 IMetaDrawable drawObject = (IMetaDrawable)obj;
@@ -57,6 +61,7 @@ namespace Metasia.Core.Objects
                     FPS = e.FPS
                 };
                 drawObject.DrawExpresser(ref express, frame);
+
 
                 if (express.Bitmap is not null)
                 {
@@ -80,7 +85,25 @@ namespace Metasia.Core.Objects
                         }
 
                         if (rotate != 0) express.Bitmap = MetasiaBitmap.Rotate(express.Bitmap, rotate);
-                        if (alpha != 100) express.Bitmap = MetasiaBitmap.Transparency(express.Bitmap, alpha / 100);
+                        if (alpha != 0.0) express.Bitmap = MetasiaBitmap.Transparency(express.Bitmap, (100 - alpha) / 100);
+
+                        /*if (express.Bitmap is not null && obj.Id == "SecondTimeline")
+                        {
+                            Debug.WriteLine("SecondTimeline:" + express.ToString());
+                            using (var image = SKImage.FromBitmap(express.Bitmap))
+                            using (var data = image.Encode(SKEncodedImageFormat.Png, 100))
+                            {
+                                // 各オブジェクトの描画結果を保存（フレーム番号とオブジェクトインデックスを使用して一意のファイル名を作成）
+                                string fileName = $"output_frame_{frame}_object_SecondTimeline_immediate.png";
+                                using (var stream = File.OpenWrite(fileName))
+                                {
+                                    data.SaveTo(stream);
+                                }
+                            }
+                        }*/
+
+
+                        
 
                         //中央を座標0,0とするために位置調整
                         double width = express.Bitmap.Width * (scale / 100f);

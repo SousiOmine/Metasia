@@ -167,11 +167,30 @@ namespace Metasia.Editor.ViewModels
 			LayerObject layer2 = new LayerObject("layer2", "Layer 2");
 			LayerObject layer3 = new LayerObject("layer3", "Layer 3");
 			LayerObject layer4 = new LayerObject("layer4", "Layer 4");
-		    
-			
-			
-			
-	    	TimelineObject mainTL = new TimelineObject("RootTimeline");
+            LayerObject layer5 = new LayerObject("layer5", "Layer 5");
+
+			TimelineObject secondTL = new TimelineObject("SecondTimeline")
+			{
+                StartFrame = 60,
+                EndFrame = 119,
+            };
+			LayerObject secLayer = new LayerObject("secLayer", "Layer 1");
+            secondTL.Layers.Add(secLayer);
+
+            kariHelloObject karisec = new kariHelloObject("karihello3")
+            {
+                EndFrame = 1200,
+            };
+            karisec.Scale.Params[0].Value = 300;
+
+            secLayer.Objects.Add(karisec);
+
+
+            layer5.Objects.Add(secondTL);
+
+
+
+            TimelineObject mainTL = new TimelineObject("RootTimeline");
 
 			layer1.Objects.Add(kariHello);
 			layer2.Objects.Add(kariHello2);
@@ -183,10 +202,12 @@ namespace Metasia.Editor.ViewModels
 			mainTL.Layers.Add(layer2);
 			mainTL.Layers.Add(layer3);
 			mainTL.Layers.Add(layer4);
+            mainTL.Layers.Add(layer5);
 
-	    	MetasiaProvider.MetasiaProject.Timelines.Add(mainTL);
+            MetasiaProvider.MetasiaProject.Timelines.Add(mainTL);
+			MetasiaProvider.MetasiaProject.Timelines.Add(secondTL);
 
-			NotifyProjectChanged();
+            NotifyProjectChanged();
 		}
 
 		private void Timer_Elapsed(object? sender, ElapsedEventArgs e)
