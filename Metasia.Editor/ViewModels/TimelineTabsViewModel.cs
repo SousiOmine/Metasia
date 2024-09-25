@@ -12,19 +12,20 @@ namespace Metasia.Editor.ViewModels
 {
     public class TimelineTabsViewModel : ViewModelBase
     {
+        /// <summary>
+        /// タイムラインのタブに入れるアイテム
+        /// </summary>
         public ObservableCollection<TabItem> Tabs { get; } = new();
 
-        public TimelineViewModel FocusTimelineViewModel;
-
+        /// <summary>
+        /// 現在読み込んでいるプロジェクトのタイムライン
+        /// </summary>
         private ObservableCollection<TimelineObject> _projectTimelines = new();
 
         public TimelineTabsViewModel(PlayerViewModel playerViewModel)
         {
             foreach (var timeline in MetasiaProvider.MetasiaProject.Timelines)
             {
-                //Tabs.Add(new TabItem { Header = timeline.Id, Content = new TimelineViewModel()});
-                //Tabs.Add(new TabItem { Header = "タブその2" } );
-                //Tabs.Add(new TabItem { Header = "タブその3" } );
                 _projectTimelines.Add(timeline);
             }
 

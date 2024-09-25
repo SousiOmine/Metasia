@@ -13,12 +13,18 @@ namespace Metasia.Editor.ViewModels
 {
     public class TimelineViewModel : ViewModelBase
     {
+        /// <summary>
+        /// 表示するタイムラインオブジェクト
+        /// </summary>
         public TimelineObject Timeline
         {
             get => _timeline;
             set => this.RaiseAndSetIfChanged(ref _timeline, value);
         }
 
+        /// <summary>
+        /// 横方向の表示幅の倍率
+        /// </summary>
         public double Frame_Per_DIP
         {
             get => _frame_per_DIP;
@@ -29,18 +35,33 @@ namespace Metasia.Editor.ViewModels
             } 
         }
 
+        /// <summary>
+        /// 左のレイヤーごとのボタンのViewModelら
+        /// </summary>
         public ObservableCollection<LayerButtonViewModel> LayerButtons { get; } = new();
 
+        /// <summary>
+        /// 各レイヤーのViewModel
+        /// </summary>
         public ObservableCollection<LayerCanvasViewModel> LayerCanvas { get; } = new();
 
+        /// <summary>
+        /// 選択しているクリップ
+        /// </summary>
         public ObservableCollection<ClipViewModel> SelectClip { get; } = new();
         
+        /// <summary>
+        /// 現在表示しているフレーム PlayerViewModelと連動する
+        /// </summary>
         public int Frame
         {
             get => playerViewModel.Frame;
             set => playerViewModel.Frame = value;
         }
 
+        /// <summary>
+        /// タイムラインのカーソルの位置
+        /// </summary>
         public double CursorLeft
         {
             get => _cursorLeft;
@@ -49,7 +70,7 @@ namespace Metasia.Editor.ViewModels
 
         private TimelineObject _timeline;
         private double _frame_per_DIP;
-        //private int _frame;
+
         private double _cursorLeft;
 
         private PlayerViewModel playerViewModel;
@@ -58,17 +79,18 @@ namespace Metasia.Editor.ViewModels
         {
             this.playerViewModel = playerViewModel;
 
+            //横方向の拡大率は初期３で固定
             Frame_Per_DIP = 3;
             _timeline = targetTimeline;
 
-            
-
+            //PlayerViewModel側からフレームの変更があればカーソルの描画位置を反映
             playerViewModel.WhenAnyValue(x => x.Frame).Subscribe
                 (Frame =>
                 {
                     CursorLeft = Frame * Frame_Per_DIP;
                 });
 
+            
             foreach (var layer in Timeline.Layers)
             {
                 LayerButtons.Add(new LayerButtonViewModel(layer));
