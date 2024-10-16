@@ -61,7 +61,6 @@ namespace Metasia.Core.Objects
             ;
             
             e.ActualSize = new SKSize(e.Bitmap.Width, e.Bitmap.Height);
-			//e.TargetSize = new SKSize(e.Bitmap.Width / (float)resolution_level_x, e.Bitmap.Height / (float)resolution_level_y);
 			e.TargetSize = e.TargetResolution;
 		}
 		

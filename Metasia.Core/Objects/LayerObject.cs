@@ -87,20 +87,18 @@ namespace Metasia.Core.Objects
                             scale = coordObject.Scale.Get(frame);
                         }
 
-                        if (rotate != 0) express.Bitmap = MetasiaBitmap.Rotate(express.Bitmap, rotate);
-                        if (alpha != 0.0) express.Bitmap = MetasiaBitmap.Transparency(express.Bitmap, (100 - alpha) / 100);
-
-
-                        //中央を座標0,0とするために位置調整
-                        /*double width = express.Bitmap.Width * (scale / 100f);
-                        double height = express.Bitmap.Height * (scale / 100f);
-                        SKRect drawPos = new SKRect()
+                        if (rotate != 0)
                         {
-                            Left = (float)(((e.TargetResolution.Width - width) / 2 + x) * e.ResolutionLevel),
-                            Top = (float)(((e.TargetResolution.Height - height) / 2 - y) * e.ResolutionLevel),
-                            Right = (float)(((e.TargetResolution.Width - width) / 2 + x) * e.ResolutionLevel + width * e.ResolutionLevel),
-                            Bottom = (float)(((e.TargetResolution.Height - height) / 2 - y) * e.ResolutionLevel + height * e.ResolutionLevel)
-                        };*/
+                            express.Bitmap = MetasiaBitmap.Rotate(express.Bitmap, rotate);
+                            express.TargetSize = new SKSize(
+                                (int)(express.TargetSize.Value.Width *
+                                      (express.Bitmap.Width / express.ActualSize.Value.Width)),
+                                (int)(express.TargetSize.Value.Height *
+                                      (express.Bitmap.Height / express.ActualSize.Value.Height))
+                            );
+                            express.ActualSize = new SKSize(express.Bitmap.Width, express.Bitmap.Height);
+                        }
+                        if (alpha != 0.0) express.Bitmap = MetasiaBitmap.Transparency(express.Bitmap, (100 - alpha) / 100);
 
                         double width = express.TargetSize.Value.Width * (scale / 100f);
                         double height = express.TargetSize.Value.Height * (scale / 100f);
@@ -121,7 +119,6 @@ namespace Metasia.Core.Objects
             }
             
             e.ActualSize = new SKSize(e.Bitmap.Width, e.Bitmap.Height);
-            //e.TargetSize = new SKSize(e.Bitmap.Width / (float)resolution_level_x, e.Bitmap.Height / (float)resolution_level_y);
             e.TargetSize = e.TargetResolution;
         }
 
