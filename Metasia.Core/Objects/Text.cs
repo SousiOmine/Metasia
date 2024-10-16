@@ -75,6 +75,9 @@ namespace Metasia.Core.Objects
                 Child.EndFrame = this.EndFrame;
                 drawChild.DrawExpresser(ref e, frame);
             }
+            
+            e.ActualSize = new SKSize(e.Bitmap.Width, e.Bitmap.Height);
+            e.TargetSize = new SKSize(e.Bitmap.Width, e.Bitmap.Height);
         }
 
         private bool LoadTypeface()

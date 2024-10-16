@@ -35,6 +35,8 @@ namespace Metasia.Core.Objects
 
         public void DrawExpresser(ref DrawExpresserArgs e, int frame)
         {
+            double resolution_level_x = e.ActualResolution.Width / e.TargetResolution.Width;
+            double resolution_level_y = e.ActualResolution.Height / e.TargetResolution.Height;
             
             List<MetasiaObject> ApplicateObjects = new();
             foreach (var obj in Objects) 
@@ -47,7 +49,7 @@ namespace Metasia.Core.Objects
 
             if (ApplicateObjects.Count == 0) return;
 
-            if (e.Bitmap is null) e.Bitmap = new SKBitmap((int)(e.TargetSize.Width * e.ResolutionLevel), (int)(e.TargetSize.Height * e.ResolutionLevel));
+            if (e.Bitmap is null) e.Bitmap = new SKBitmap((int)(e.ActualResolution.Width), (int)(e.ActualResolution.Height));
 
             
 
@@ -56,7 +58,8 @@ namespace Metasia.Core.Objects
                 IMetaDrawable drawObject = (IMetaDrawable)obj;
                 DrawExpresserArgs express = new()
                 {
-                    TargetSize = e.TargetSize,
+                    ActualResolution = e.ActualResolution,
+                    TargetResolution = e.TargetResolution,
                     ResolutionLevel = e.ResolutionLevel,
                     FPS = e.FPS
                 };
@@ -89,14 +92,25 @@ namespace Metasia.Core.Objects
 
 
                         //中央を座標0,0とするために位置調整
-                        double width = express.Bitmap.Width * (scale / 100f);
+                        /*double width = express.Bitmap.Width * (scale / 100f);
                         double height = express.Bitmap.Height * (scale / 100f);
                         SKRect drawPos = new SKRect()
                         {
-                            Left = (float)(((e.TargetSize.Width - width) / 2 + x) * e.ResolutionLevel),
-                            Top = (float)(((e.TargetSize.Height - height) / 2 - y) * e.ResolutionLevel),
-                            Right = (float)(((e.TargetSize.Width - width) / 2 + x) * e.ResolutionLevel + width * e.ResolutionLevel),
-                            Bottom = (float)(((e.TargetSize.Height - height) / 2 - y) * e.ResolutionLevel + height * e.ResolutionLevel)
+                            Left = (float)(((e.TargetResolution.Width - width) / 2 + x) * e.ResolutionLevel),
+                            Top = (float)(((e.TargetResolution.Height - height) / 2 - y) * e.ResolutionLevel),
+                            Right = (float)(((e.TargetResolution.Width - width) / 2 + x) * e.ResolutionLevel + width * e.ResolutionLevel),
+                            Bottom = (float)(((e.TargetResolution.Height - height) / 2 - y) * e.ResolutionLevel + height * e.ResolutionLevel)
+                        };*/
+
+                        double width = express.TargetSize.Value.Width * (scale / 100f);
+                        double height = express.TargetSize.Value.Height * (scale / 100f);
+                        
+                        SKRect drawPos = new SKRect()
+                        {
+                            Left = (float)((e.TargetResolution.Width - width) / 2 + x) * (e.ActualResolution.Width / e.TargetResolution.Width),
+                            Top = (float)((e.TargetResolution.Height - height) / 2 - y) * (e.ActualResolution.Height / e.TargetResolution.Height),
+                            Right = (float)(((e.TargetResolution.Width - width) / 2 + x + width) * (e.ActualResolution.Width / e.TargetResolution.Width)),
+                            Bottom = (float)(((e.TargetResolution.Height - height) / 2 - y + height) * (e.ActualResolution.Height / e.TargetResolution.Height)),
                         };
 
                         canvas.DrawBitmap(express.Bitmap, drawPos);
@@ -105,6 +119,10 @@ namespace Metasia.Core.Objects
 
                 express.Dispose();
             }
+            
+            e.ActualSize = new SKSize(e.Bitmap.Width, e.Bitmap.Height);
+            //e.TargetSize = new SKSize(e.Bitmap.Width / (float)resolution_level_x, e.Bitmap.Height / (float)resolution_level_y);
+            e.TargetSize = e.TargetResolution;
         }
 
         public void AudioExpresser(ref AudioExpresserArgs e, int frame)

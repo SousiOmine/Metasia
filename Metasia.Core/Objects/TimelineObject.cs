@@ -31,15 +31,19 @@ namespace Metasia.Core.Objects
 
 		public void DrawExpresser(ref DrawExpresserArgs e, int frame)
 		{
+			double resolution_level_x = e.ActualResolution.Width / e.TargetResolution.Width;
+			double resolution_level_y = e.ActualResolution.Height / e.TargetResolution.Height;
+			
 			//DrawExpresserArgsのSKBitmapのインスタンスがなかったら生成
-			if (e.Bitmap is null) e.Bitmap = new SKBitmap((int)(e.TargetSize.Width * e.ResolutionLevel), (int)(e.TargetSize.Height * e.ResolutionLevel));
+			if (e.Bitmap is null) e.Bitmap = new SKBitmap((int)(e.ActualResolution.Width), (int)(e.ActualResolution.Height));
 
             foreach (var layer in Layers)
 			{
 				if (!layer.IsActive) continue;
                 DrawExpresserArgs express = new()
                 {
-                    TargetSize = e.TargetSize,
+	                ActualResolution = e.ActualResolution,
+                    TargetResolution = e.TargetResolution,
                     ResolutionLevel = e.ResolutionLevel,
                     FPS = e.FPS
                 };
@@ -53,7 +57,13 @@ namespace Metasia.Core.Objects
 
 				express.Dispose();
             }
-        }
+            
+            ;
+            
+            e.ActualSize = new SKSize(e.Bitmap.Width, e.Bitmap.Height);
+			//e.TargetSize = new SKSize(e.Bitmap.Width / (float)resolution_level_x, e.Bitmap.Height / (float)resolution_level_y);
+			e.TargetSize = e.TargetResolution;
+		}
 		
 
 		public void AudioExpresser(ref AudioExpresserArgs e, int frame)

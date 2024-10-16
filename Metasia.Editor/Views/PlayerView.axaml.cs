@@ -56,7 +56,8 @@ public partial class PlayerView : UserControl
 		DrawExpresserArgs drawExp = new()
 		{
 			Bitmap = new SKBitmap(384, 216),
-			TargetSize = new SKSize(3840, 2160),
+			ActualResolution = new SKSize(384, 216),
+			TargetResolution = new SKSize(3840, 2160),
 			ResolutionLevel = 0.1f,
 			FPS = MetasiaProvider.MetasiaProject.Info.Framerate
 		};
