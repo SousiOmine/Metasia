@@ -44,7 +44,6 @@ namespace Metasia.Core.Objects
                 {
 	                ActualResolution = e.ActualResolution,
                     TargetResolution = e.TargetResolution,
-                    ResolutionLevel = e.ResolutionLevel,
                     FPS = e.FPS
                 };
 				layer.DrawExpresser(ref express, frame);

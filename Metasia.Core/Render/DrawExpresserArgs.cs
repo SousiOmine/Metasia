@@ -19,12 +19,6 @@ public class DrawExpresserArgs : IDisposable
 	/// レイアウトに使用する解像度
 	/// </summary>
 	public SKSize TargetResolution;
-	
-	/// <summary>
-	/// targetSizeの値を1としたとき、実際にレンダリングする解像度の比率
-	/// たとえば、targetSizeが1920*1080の場合、ResolutionLevelが0.5であればレンダリング解像度は960*540になる
-	/// </summary>
-	public double ResolutionLevel;
 
 	/// <summary>
 	/// 実際のSKBitmapのサイズ

@@ -58,7 +58,6 @@ public partial class PlayerView : UserControl
 			Bitmap = new SKBitmap(384, 216),
 			ActualResolution = new SKSize(384, 216),
 			TargetResolution = new SKSize(3840, 2160),
-			ResolutionLevel = 0.1f,
 			FPS = MetasiaProvider.MetasiaProject.Info.Framerate
 		};
 		//renderer.Render(ref exp, VM.Frame);
