@@ -25,7 +25,6 @@ public partial class PlayerView : UserControl
 		get { return this.DataContext as PlayerViewModel; }
 	}
 
-	ProjectRenderer? renderer;
 
 	object renderLock = new object();
 
@@ -47,11 +46,7 @@ public partial class PlayerView : UserControl
 	private void SKCanvasView_PaintSurface(object? sender, Avalonia.Labs.Controls.SKPaintSurfaceEventArgs e)
 	{
 		if (VM is null) return;
-		if (renderer is null)
-		{
-			if (MetasiaProvider.MetasiaProject is null) return;
-			else renderer = new ProjectRenderer(MetasiaProvider.MetasiaProject);
-		}
+		//if (VM.TargetTimeline is null) return;
 
 		DrawExpresserArgs drawExp = new()
 		{
@@ -61,7 +56,14 @@ public partial class PlayerView : UserControl
 			FPS = MetasiaProvider.MetasiaProject.Info.Framerate
 		};
 		//renderer.Render(ref exp, VM.Frame);
-		renderer.BitmapRender(ref drawExp, VM.Frame);
+		//renderer.BitmapRender(ref drawExp, VM.Frame);
+		
+		using (SKCanvas canvas = new SKCanvas(drawExp.Bitmap))
+		{
+			canvas.Clear(SKColors.Black);
+		}
+		
+		VM.TargetTimeline.DrawExpresser(ref drawExp, VM.Frame);
 
 		AudioExpresserArgs audioExp = new()
 		{
@@ -71,7 +73,7 @@ public partial class PlayerView : UserControl
 			FPS = MetasiaProvider.MetasiaProject.Info.Framerate
 		};
 
-		renderer.AudioRender(ref audioExp, VM.Frame);
+		VM.TargetTimeline.AudioExpresser(ref audioExp, VM.Frame);
 
 		foreach (var val in audioExp.Sound.Pulse)
 		{

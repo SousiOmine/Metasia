@@ -24,6 +24,9 @@ namespace Metasia.Editor.ViewModels
 		private int sliderMinimum = 0;
 		private System.Timers.Timer? timer;
 
+
+		public TimelineObject TargetTimeline;
+
 		/// <summary>
 		/// 再生中であるか否か
 		/// </summary>
@@ -72,8 +75,9 @@ namespace Metasia.Editor.ViewModels
         public ICommand PreviousFrame { get; }
 		public ICommand Play { get; }
 		public ICommand Pause { get; }
-		public PlayerViewModel()
-        {
+		public PlayerViewModel(TimelineObject targetTimeline)
+		{
+			TargetTimeline = targetTimeline;
 
             NextFrame = ReactiveCommand.Create(() =>
             {

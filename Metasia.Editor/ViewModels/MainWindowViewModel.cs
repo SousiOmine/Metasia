@@ -129,7 +129,7 @@ namespace Metasia.Editor.ViewModels
             MetasiaProvider.MetasiaProject.Timelines.Add(mainTL);
 			MetasiaProvider.MetasiaProject.Timelines.Add(secondTL);
 			
-			playerViewModel = new PlayerViewModel();
+			playerViewModel = new PlayerViewModel(mainTL);
 			timelineTabsViewModel = new TimelineTabsViewModel(playerViewModel);
 			inspectorViewModel = new InspectorViewModel(playerViewModel);
 
