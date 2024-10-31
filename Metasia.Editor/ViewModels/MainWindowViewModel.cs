@@ -11,7 +11,9 @@ namespace Metasia.Editor.ViewModels
 	{
 		public string Greeting => "Welcome to Avalonia!";
 
-		public PlayerViewModel playerViewModel { get; }
+		//public PlayerViewModel playerViewModel { get; }
+		
+		public PlayerParentViewModel PlayerParentVM { get; }
 
 		public InspectorViewModel inspectorViewModel { get; }
 
@@ -129,10 +131,13 @@ namespace Metasia.Editor.ViewModels
             MetasiaProvider.MetasiaProject.Timelines.Add(mainTL);
 			MetasiaProvider.MetasiaProject.Timelines.Add(secondTL);
 			
-			playerViewModel = new PlayerViewModel(mainTL);
-			timelineTabsViewModel = new TimelineTabsViewModel(playerViewModel);
-			inspectorViewModel = new InspectorViewModel(playerViewModel);
+			PlayerParentVM = new PlayerParentViewModel();
+			//playerViewModel = new PlayerViewModel(mainTL);
+			//timelineTabsViewModel = new TimelineTabsViewModel(playerViewModel);
+			//inspectorViewModel = new InspectorViewModel(playerViewModel);
 
+			
+			PlayerParentVM.CurrentProject = MetasiaProvider.MetasiaProject;
 
 		}
 	}

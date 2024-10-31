@@ -64,7 +64,8 @@
 				</Grid.ColumnDefinitions>
 				<TextBlock Grid.Column="0" Text="プロジェクトのあるディレクトリの中身"/>
 				<GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" Background="Gray"/>
-				<views:PlayerView DataContext="{Binding playerViewModel}" Grid.Column="2"/>
+				<!--<views:PlayerView DataContext="{Binding playerViewModel}" Grid.Column="2"/>-->
+				<views:PlayerParentView DataContext="{Binding PlayerParentVM}" Grid.Column="2" />
 				<GridSplitter Grid.Column="3" HorizontalAlignment="Stretch" Background="Gray"/>
 				<views:InspectorView DataContext="{Binding inspectorViewModel}" Grid.Column="4"/>
 			</Grid>
