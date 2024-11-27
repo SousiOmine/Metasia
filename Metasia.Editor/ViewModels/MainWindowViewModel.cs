@@ -16,7 +16,8 @@ namespace Metasia.Editor.ViewModels
 
 		public InspectorViewModel inspectorViewModel { get; }
 
-		public TimelineTabsViewModel timelineTabsViewModel { get; }
+		//public TimelineTabsViewModel timelineTabsViewModel { get; }
+		public TimelineParentViewModel TimelineParentVM { get; }
 
 
 
@@ -136,11 +137,13 @@ namespace Metasia.Editor.ViewModels
 			// MetasiaProvider.MetasiaProject.Timelines.Add(secondTL);
 			
 			PlayerParentVM = new PlayerParentViewModel(kariProject);
+
+			TimelineParentVM = new TimelineParentViewModel(PlayerParentVM);
 			//playerViewModel = new PlayerViewModel(mainTL);
 			//timelineTabsViewModel = new TimelineTabsViewModel(playerViewModel);
 			//inspectorViewModel = new InspectorViewModel(playerViewModel);
 
-			
+
 			//PlayerParentVM.CurrentProject = MetasiaProvider.MetasiaProject;
 
 		}

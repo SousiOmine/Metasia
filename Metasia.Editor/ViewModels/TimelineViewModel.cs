@@ -75,13 +75,13 @@ namespace Metasia.Editor.ViewModels
 
         private PlayerViewModel playerViewModel;
 
-        public TimelineViewModel(TimelineObject targetTimeline, PlayerViewModel playerViewModel)
+        public TimelineViewModel(PlayerViewModel playerViewModel)
         {
             this.playerViewModel = playerViewModel;
 
             //横方向の拡大率は初期３で固定
             Frame_Per_DIP = 3;
-            _timeline = targetTimeline;
+            _timeline = playerViewModel.TargetTimeline;
 
             //PlayerViewModel側からフレームの変更があればカーソルの描画位置を反映
             playerViewModel.WhenAnyValue(x => x.Frame).Subscribe

@@ -4,9 +4,9 @@ using Avalonia.Markup.Xaml;
 
 namespace Metasia.Editor.Views;
 
-public partial class TimelineTabsView : UserControl
+public partial class TimelineParentView : UserControl
 {
-    public TimelineTabsView()
+    public TimelineParentView()
     {
         InitializeComponent();
     }

@@ -1,13 +1,11 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-			 xmlns:vm="using:Metasia.Editor.ViewModels"
+             xmlns:vm="using:Metasia.Editor.ViewModels"
+             xmlns:views="clr-namespace:Metasia.Editor.Views"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="Metasia.Editor.Views.TimelineTabsView"
-			 x:DataType="vm:TimelineTabsViewModel">
-	<TabControl ItemsSource="{Binding Tabs}">
-		
-	</TabControl>
-	
+             x:Class="Metasia.Editor.Views.TimelineParentView"
+             x:DataType="vm:TimelineParentViewModel">
+    <views:TimelineView DataContext="{Binding CurrentTimelineViewModel}"/>
 </UserControl>

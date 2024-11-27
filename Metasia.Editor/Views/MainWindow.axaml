@@ -70,7 +70,7 @@
 				<views:InspectorView DataContext="{Binding inspectorViewModel}" Grid.Column="4"/>
 			</Grid>
 			<GridSplitter Grid.Row="1" HorizontalAlignment="Stretch" Background="Gray"/>
-			<views:TimelineTabsView DataContext="{Binding timelineTabsViewModel}" Grid.Row="2"/>
+			<views:TimelineParentView DataContext="{Binding TimelineParentVM}" Grid.Row="2"/>
 		</Grid>
 	</DockPanel>
 
