@@ -66,7 +66,7 @@ namespace Metasia.Editor.ViewModels
 			set => this.RaiseAndSetIfChanged(ref sliderMinimum, value);
 		}
 		
-		public ObservableCollection<MetasiaObject> TargetObjects = new();
+		public ObservableCollection<MetasiaObject> SelectingObjects = new();
 
 		public Action? ViewPaintRequest;
 		public Action? PlayStart;

@@ -133,19 +133,12 @@ namespace Metasia.Editor.ViewModels
 
             kariProject.Timelines.Add(mainTL);
             kariProject.Timelines.Add(secondTL);
-   //          MetasiaProvider.MetasiaProject.Timelines.Add(mainTL);
-			// MetasiaProvider.MetasiaProject.Timelines.Add(secondTL);
 			
 			PlayerParentVM = new PlayerParentViewModel(kariProject);
 
 			TimelineParentVM = new TimelineParentViewModel(PlayerParentVM);
-			//playerViewModel = new PlayerViewModel(mainTL);
-			//timelineTabsViewModel = new TimelineTabsViewModel(playerViewModel);
-			//inspectorViewModel = new InspectorViewModel(playerViewModel);
 
-
-			//PlayerParentVM.CurrentProject = MetasiaProvider.MetasiaProject;
-
+			inspectorViewModel = new InspectorViewModel(PlayerParentVM);
 		}
 	}
 }

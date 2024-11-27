@@ -11,15 +11,21 @@ namespace Metasia.Editor.ViewModels
             set => this.RaiseAndSetIfChanged(ref _testCharacters, value);
         }
 
+        private PlayerParentViewModel _playerParentViewModel;
         private string _testCharacters = String.Empty;
-        public InspectorViewModel(PlayerViewModel playerViewModel)
+        public InspectorViewModel(PlayerParentViewModel playerParentViewModel)
         {
-            
-            playerViewModel.TargetObjects.CollectionChanged += (sender, args) =>
+            _playerParentViewModel = playerParentViewModel;
+            PlayerChanged();
+        }
+
+        public void PlayerChanged()
+        {
+            _playerParentViewModel.TargetPlayerViewModel.SelectingObjects.CollectionChanged += (sender, args) =>
             {
-                if (playerViewModel.TargetObjects.Count > 0)
+                if (_playerParentViewModel.TargetPlayerViewModel.SelectingObjects.Count > 0)
                 {
-                    TestCharacters = playerViewModel.TargetObjects[0].Id;
+                    TestCharacters = _playerParentViewModel.TargetPlayerViewModel.SelectingObjects[0].Id;
                 }
                 else
                 {

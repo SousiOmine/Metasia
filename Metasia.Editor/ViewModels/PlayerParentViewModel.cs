@@ -25,10 +25,6 @@ public class PlayerParentViewModel : ViewModelBase
     private MetasiaProject? currentProject;
     private PlayerViewModel? _targetPlayerViewModel;
     
-    public PlayerParentViewModel()
-    {
-        //TargetPlayerViewModel = new PlayerViewModel(null);
-    }
     
     public PlayerParentViewModel(MetasiaProject project)
     {

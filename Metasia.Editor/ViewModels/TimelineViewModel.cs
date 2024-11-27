@@ -103,11 +103,11 @@ namespace Metasia.Editor.ViewModels
                 {
                     layerCanvas.ResetSelectedClip();
                 }
-                playerViewModel.TargetObjects.Clear();
+                playerViewModel.SelectingObjects.Clear();
                 foreach (var targetClip in SelectClip)
                 {
                     targetClip.IsSelecting = true;
-                    playerViewModel.TargetObjects.Add(targetClip.TargetObject);
+                    playerViewModel.SelectingObjects.Add(targetClip.TargetObject);
                 }
             });
         }
