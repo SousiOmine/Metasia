@@ -19,11 +19,25 @@ public class PlayerParentViewModel : ViewModelBase
     public PlayerViewModel TargetPlayerViewModel
     {
         get => _targetPlayerViewModel;
-        set => this.RaiseAndSetIfChanged(ref _targetPlayerViewModel, value);
+        set
+        {
+            this.RaiseAndSetIfChanged(ref _targetPlayerViewModel, value);
+            if (value is not null)
+            {
+                TargetTimelineName = value.TargetTimeline.Id;
+            }
+        } 
+    }
+
+    public string TargetTimelineName
+    {
+        get => _targetTimelineName;
+        set => this.RaiseAndSetIfChanged(ref _targetTimelineName, value);
     }
 
     private MetasiaProject? currentProject;
     private PlayerViewModel? _targetPlayerViewModel;
+    private string _targetTimelineName;
     
     
     public PlayerParentViewModel(MetasiaProject project)

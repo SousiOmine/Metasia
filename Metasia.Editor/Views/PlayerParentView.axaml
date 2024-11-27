@@ -8,7 +8,7 @@
              x:Class="Metasia.Editor.Views.PlayerParentView"
              x:DataType="vm:PlayerParentViewModel">
     <DockPanel>
-        <TextBlock Text="読み込んでいるタイムライン名を表示する" DockPanel.Dock="Top" HorizontalAlignment="Center"/>
+        <TextBlock Text="{Binding TargetTimelineName}" DockPanel.Dock="Top" HorizontalAlignment="Center"/>
         <views:PlayerView VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                           DataContext="{Binding TargetPlayerViewModel}"/>
     </DockPanel>
