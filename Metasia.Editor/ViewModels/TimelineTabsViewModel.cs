@@ -1,6 +1,5 @@
 ﻿using Avalonia.Controls;
 using Metasia.Core.Objects;
-using Metasia.Editor.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -24,7 +23,7 @@ namespace Metasia.Editor.ViewModels
 
         public TimelineTabsViewModel(PlayerViewModel playerViewModel)
         {
-            foreach (var timeline in MetasiaProvider.MetasiaProject.Timelines)
+            /*foreach (var timeline in MetasiaProvider.MetasiaProject.Timelines)
             {
                 _projectTimelines.Add(timeline);
             }
@@ -33,7 +32,7 @@ namespace Metasia.Editor.ViewModels
             {
                 TimelineViewModel timelineViewModel = new TimelineViewModel(timeline, playerViewModel);
                 Tabs.Add(new TabItem { Header = timeline.Id, Content = timelineViewModel});
-            }
+            }*/
         }
     }
 }

@@ -8,7 +8,6 @@ using DynamicData;
 using Metasia.Core.Coordinate;
 using Metasia.Core.Objects;
 using Metasia.Core.Project;
-using Metasia.Editor.Models;
 using ReactiveUI;
 using SkiaSharp;
 
@@ -23,9 +22,10 @@ namespace Metasia.Editor.ViewModels
 		private int sliderMaximum = 100;
 		private int sliderMinimum = 0;
 		private System.Timers.Timer? timer;
-
-
-		public TimelineObject TargetTimeline;
+		
+		public ProjectInfo TargetProjectInfo { get; private set; }
+		
+		public TimelineObject TargetTimeline { get; private set; }
 
 		/// <summary>
 		/// 再生中であるか否か
@@ -75,9 +75,10 @@ namespace Metasia.Editor.ViewModels
         public ICommand PreviousFrame { get; }
 		public ICommand Play { get; }
 		public ICommand Pause { get; }
-		public PlayerViewModel(TimelineObject targetTimeline)
+		public PlayerViewModel(TimelineObject targetTimeline, ProjectInfo projectInfo)
 		{
 			TargetTimeline = targetTimeline;
+			TargetProjectInfo = projectInfo;
 
             NextFrame = ReactiveCommand.Create(() =>
             {
@@ -89,8 +90,7 @@ namespace Metasia.Editor.ViewModels
             });
 			Play = ReactiveCommand.Create(() =>
 			{
-				if(MetasiaProvider.MetasiaProject is null) return;
-				timer = new System.Timers.Timer(1000 / MetasiaProvider.MetasiaProject.Info.Framerate);
+				timer = new System.Timers.Timer(1000.0 / projectInfo.Framerate);
 				timer.Elapsed += Timer_Elapsed;
 				timer.Start();
 				IsPlaying = true;
@@ -120,11 +120,7 @@ namespace Metasia.Editor.ViewModels
 			//再生されてなければ再描写する
 			if(IsPlaying == false) ViewPaintRequest?.Invoke();
 
-			if(MetasiaProvider.MetasiaProject is not null)
-			{
-				//スライダーの最大値を変更
-				SliderMaximum = MetasiaProvider.MetasiaProject.LastFrame;
-			}
+			SliderMaximum = TargetTimeline.EndFrame;
 		}
 
 	}

@@ -29,10 +29,15 @@ public class PlayerParentViewModel : ViewModelBase
     {
         //TargetPlayerViewModel = new PlayerViewModel(null);
     }
+    
+    public PlayerParentViewModel(MetasiaProject project)
+    {
+        CurrentProject = project;
+    }
 
     private void LoadProject()
     {
-        TargetPlayerViewModel = new PlayerViewModel(CurrentProject.Timelines[0]);
+        TargetPlayerViewModel = new PlayerViewModel(CurrentProject.Timelines[0], CurrentProject.Info);
         
     }
 }

@@ -9,7 +9,6 @@ using Metasia.Core.Objects;
 using Metasia.Core.Project;
 using Metasia.Core.Render;
 using Metasia.Core.Sounds;
-using Metasia.Editor.Models;
 using Metasia.Editor.Services;
 using Metasia.Editor.ViewModels;
 using SkiaSharp;
@@ -53,10 +52,8 @@ public partial class PlayerView : UserControl
 			Bitmap = new SKBitmap(384, 216),
 			ActualResolution = new SKSize(384, 216),
 			TargetResolution = new SKSize(3840, 2160),
-			FPS = MetasiaProvider.MetasiaProject.Info.Framerate
+			FPS = VM.TargetProjectInfo.Framerate,
 		};
-		//renderer.Render(ref exp, VM.Frame);
-		//renderer.BitmapRender(ref drawExp, VM.Frame);
 		
 		using (SKCanvas canvas = new SKCanvas(drawExp.Bitmap))
 		{
@@ -70,15 +67,11 @@ public partial class PlayerView : UserControl
 			Sound = new MetasiaSound(2, 44100, 60),
 			AudioChannel = 2,
 			SoundSampleRate = 44100,
-			FPS = MetasiaProvider.MetasiaProject.Info.Framerate
+			FPS = VM.TargetProjectInfo.Framerate,
 		};
 
 		VM.TargetTimeline.AudioExpresser(ref audioExp, VM.Frame);
 
-		foreach (var val in audioExp.Sound.Pulse)
-		{
-			//Console.WriteLine(val);
-		}
 
 		audioService.InsertQueue(audioExp.Sound.Pulse, 2);
 
@@ -90,12 +83,6 @@ public partial class PlayerView : UserControl
 			SKCanvas canvas = surface.Canvas;
 			canvas.Clear(SKColors.Green);
 
-
-			
-			//Console.WriteLine(soundQueue.Count);
-			
-			
-			
 			canvas.DrawBitmap(drawExp.Bitmap, 0, 0);
 		}
 

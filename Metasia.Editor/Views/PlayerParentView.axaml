@@ -7,17 +7,9 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Metasia.Editor.Views.PlayerParentView"
              x:DataType="vm:PlayerParentViewModel">
-    <Grid RowDefinitions="Auto,*">
-        <!-- ComboBoxを1行目に配置し、サイズは自動設定 -->
-        <ComboBox SelectedIndex="0" Grid.Row="0">
-            <ComboBoxItem Content="MainTimeline"/>
-            <ComboBoxItem Content="Player 2"/>
-            <ComboBoxItem Content="Player 3"/>
-            <ComboBoxItem Content="Player 4"/>
-        </ComboBox>
-        
-        <!-- PlayerViewを2行目に配置し、残りのスペースを埋める -->
-        <views:PlayerView Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+    <DockPanel>
+        <TextBlock Text="読み込んでいるタイムライン名を表示する" DockPanel.Dock="Top" HorizontalAlignment="Center"/>
+        <views:PlayerView VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                           DataContext="{Binding TargetPlayerViewModel}"/>
-    </Grid>
+    </DockPanel>
 </UserControl>

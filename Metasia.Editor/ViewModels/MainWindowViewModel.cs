@@ -2,7 +2,6 @@
 using Metasia.Core.Coordinate;
 using Metasia.Core.Objects;
 using Metasia.Core.Project;
-using Metasia.Editor.Models;
 using SkiaSharp;
 
 namespace Metasia.Editor.ViewModels
@@ -23,13 +22,16 @@ namespace Metasia.Editor.ViewModels
 
 		public MainWindowViewModel()
 		{
+			
 			ProjectInfo info = new ProjectInfo()
 		    {
 	    	    Framerate = 60,
 	    		Size = new SKSize(3840, 2160),
 	    	};
-	    	MetasiaProvider.MetasiaProject = new MetasiaProject(info);
-			MetasiaProvider.MetasiaProject.LastFrame = 239;
+			MetasiaProject kariProject = new MetasiaProject(info);
+			kariProject.LastFrame = 239;
+	  //   	MetasiaProvider.MetasiaProject = new MetasiaProject(info);
+			// MetasiaProvider.MetasiaProject.LastFrame = 239;
 
 			kariHelloObject kariHello = new kariHelloObject("karihello")
 	    	{ 
@@ -128,16 +130,18 @@ namespace Metasia.Editor.ViewModels
 			mainTL.Layers.Add(layer4);
             mainTL.Layers.Add(layer5);
 
-            MetasiaProvider.MetasiaProject.Timelines.Add(mainTL);
-			MetasiaProvider.MetasiaProject.Timelines.Add(secondTL);
+            kariProject.Timelines.Add(mainTL);
+            kariProject.Timelines.Add(secondTL);
+   //          MetasiaProvider.MetasiaProject.Timelines.Add(mainTL);
+			// MetasiaProvider.MetasiaProject.Timelines.Add(secondTL);
 			
-			PlayerParentVM = new PlayerParentViewModel();
+			PlayerParentVM = new PlayerParentViewModel(kariProject);
 			//playerViewModel = new PlayerViewModel(mainTL);
 			//timelineTabsViewModel = new TimelineTabsViewModel(playerViewModel);
 			//inspectorViewModel = new InspectorViewModel(playerViewModel);
 
 			
-			PlayerParentVM.CurrentProject = MetasiaProvider.MetasiaProject;
+			//PlayerParentVM.CurrentProject = MetasiaProvider.MetasiaProject;
 
 		}
 	}
