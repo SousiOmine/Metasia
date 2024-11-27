@@ -15,14 +15,17 @@ namespace Metasia.Editor.ViewModels
 		public PlayerParentViewModel PlayerParentVM { get; }
 
 		public InspectorViewModel inspectorViewModel { get; }
-
-		//public TimelineTabsViewModel timelineTabsViewModel { get; }
+		
 		public TimelineParentViewModel TimelineParentVM { get; }
+		
+		public ToolsViewModel ToolsVM { get; }
 
 
 
 		public MainWindowViewModel()
 		{
+			
+			ToolsVM = new ToolsViewModel();
 			
 			ProjectInfo info = new ProjectInfo()
 		    {
@@ -31,8 +34,6 @@ namespace Metasia.Editor.ViewModels
 	    	};
 			MetasiaProject kariProject = new MetasiaProject(info);
 			kariProject.LastFrame = 239;
-	  //   	MetasiaProvider.MetasiaProject = new MetasiaProject(info);
-			// MetasiaProvider.MetasiaProject.LastFrame = 239;
 
 			kariHelloObject kariHello = new kariHelloObject("karihello")
 	    	{ 

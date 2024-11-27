@@ -62,7 +62,8 @@
 					<ColumnDefinition Width="5"/>
 					<ColumnDefinition Width="*"/>
 				</Grid.ColumnDefinitions>
-				<TextBlock Grid.Column="0" Text="プロジェクトのあるディレクトリの中身"/>
+				<!-- <TextBlock Grid.Column="0" Text="プロジェクトのあるディレクトリの中身"/> -->
+				<views:ToolsView Grid.Column="0" DataContext="{Binding ToolsVM}"/>
 				<GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" Background="Gray"/>
 				<!--<views:PlayerView DataContext="{Binding playerViewModel}" Grid.Column="2"/>-->
 				<views:PlayerParentView DataContext="{Binding PlayerParentVM}" Grid.Column="2" />
