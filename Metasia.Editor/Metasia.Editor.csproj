@@ -36,9 +36,4 @@
       <HintPath>lib\libsoundio-sharp.dll</HintPath>
     </Reference>
   </ItemGroup>
-
-
-  <ItemGroup>
-    <Folder Include="Models\" />
-  </ItemGroup>
 </Project>
