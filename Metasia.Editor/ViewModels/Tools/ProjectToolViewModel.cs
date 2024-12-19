@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Runtime.InteropServices.JavaScript;
 using DynamicData;
+using Metasia.Editor.Models.FileSystem;
 using Metasia.Editor.Models.Tools.ProjectTool;
 
 namespace Metasia.Editor.ViewModels.Tools
