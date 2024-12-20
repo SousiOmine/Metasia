@@ -25,8 +25,15 @@ namespace Metasia.Editor.Models.FileSystem
         
         public IEnumerable<IResourceEntity> GetSubordinates()
         {
-            string[] files = Directory.GetFiles(Path, "*");
+            string[] directories = Directory.GetDirectories(Path, "*");
+            string[] files = Directory.GetFiles(Path, "*", SearchOption.TopDirectoryOnly);
+
             var filesCollection = new Collection<IResourceEntity>();
+
+            foreach (string directory in directories)
+            {
+                filesCollection.Add(new DirectoryEntity(directory));
+            }
             foreach (string file in files)
             {
                 filesCollection.Add(new FileEntity(file));

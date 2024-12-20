@@ -1,5 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices.JavaScript;
 using DynamicData;
@@ -25,7 +26,7 @@ namespace Metasia.Editor.ViewModels.Tools
 
             Nodes = new ObservableCollection<FileTreeNode>()
             {
-                new FileTreeNode("Timelines", new ObservableCollection<FileTreeNode>
+                /*new FileTreeNode("Timelines", new ObservableCollection<FileTreeNode>
                 {
                     new FileTreeNode("RootTimeline.mtl"),
                     new FileTreeNode("Timeline2.mtl"),
@@ -35,9 +36,15 @@ namespace Metasia.Editor.ViewModels.Tools
                 {
                     new FileTreeNode("freimg"),
                 }),
-                new FileTreeNode("karimovie.mtpj"),
+                new FileTreeNode("karimovie.mtpj"),*/
                 
             };
+
+            var kari = new DirectoryEntity("./../");
+            foreach (var entity in kari.GetSubordinates())
+            {
+                Nodes.Add(new FileTreeNode(entity));
+            }
         }
     }
 }
