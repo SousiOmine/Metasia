@@ -15,7 +15,7 @@ namespace Metasia.Editor.Models.FileSystem
             if (Directory.Exists(path))
             {
                 Path = System.IO.Path.GetFullPath(path);
-                Name = System.IO.Path.GetDirectoryName(path);
+                Name = new DirectoryInfo(path).Name;
             }
             else
             {
