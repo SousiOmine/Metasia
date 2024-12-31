@@ -6,11 +6,20 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Metasia.Editor.Views.Tools.ProjectTool"
              x:DataType="vmTools:ProjectToolViewModel">
-    <TreeView ItemsSource="{Binding Nodes}">
+    <TreeView ItemsSource="{Binding Nodes}" SelectionMode="Multiple" SelectedItems="{Binding SelectedNodes}">
         <TreeView.ItemTemplate>
             <TreeDataTemplate ItemsSource="{Binding SubNodes}">
-                <TextBlock Text="{Binding Title}" />
+				<StackPanel Orientation="Horizontal">
+					<TextBlock Text="{Binding Title}" />
+				</StackPanel>
             </TreeDataTemplate>
         </TreeView.ItemTemplate>
+		<TreeView.ContextMenu>
+			<ContextMenu>
+				<MenuItem Header="開く" IsVisible="{Binding IsFileSelecting}"/>
+				<MenuItem Header="外部のアプリケーションで開く"/>
+				<MenuItem Header="削除"/>
+			</ContextMenu>
+		</TreeView.ContextMenu>
     </TreeView>
 </UserControl>
