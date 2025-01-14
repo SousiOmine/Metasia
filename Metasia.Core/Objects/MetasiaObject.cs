@@ -16,7 +16,7 @@ namespace Metasia.Core.Objects
         /// <summary>
         /// オブジェクト固有のID
         /// </summary>
-        public string Id { get; set; }
+        public string Id { get; set; } = String.Empty;
 
         /// <summary>
         /// 子オブジェクト１つ
@@ -46,6 +46,10 @@ namespace Metasia.Core.Objects
 		public MetasiaObject(string id)
         {
             Id = id;
+        }
+
+        public MetasiaObject()
+        {
         }
 
         /// <summary>

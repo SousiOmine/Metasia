@@ -23,6 +23,11 @@ namespace Metasia.Core.Objects
 		
 		private int audio_offset = 0;
 
+
+		public kariHelloObject()
+		{
+
+		}
 		public kariHelloObject(string id) : base(id)
 		{
 			var skPaint = new SKPaint()

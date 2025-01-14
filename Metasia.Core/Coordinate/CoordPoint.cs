@@ -1,5 +1,7 @@
 
 
+using Jint;
+
 namespace Metasia.Core.Coordinate
 {
     /// <summary>
@@ -25,6 +27,15 @@ namespace Metasia.Core.Coordinate
             get => pointLogic;
             set => pointLogic = value;
         }
+
+        public string JSLogic = """
+
+if(StartValue == EndValue) return StartValue;
+StartValue + (EndValue - StartValue) * (NowFrame - StartFrame) / (EndFrame - StartFrame)
+
+""";
+
+        
 
         /// <summary>
         /// PointLogicを指定しないコンストラクタ。PointLogicには直線移動が設定される。

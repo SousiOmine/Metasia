@@ -1,4 +1,6 @@
+using Jint;
 using Metasia.Core.Objects;
+using System.Diagnostics;
 
 namespace Metasia.Core.Coordinate;
 
@@ -14,13 +16,23 @@ public class MetaDoubleParam
     /// </summary>
     public List<CoordPoint> Params { get; protected set; }
 
+    public MetaDoubleParam()
+    {
+
+    }
+
     public MetaDoubleParam(MetasiaObject owner, double initialValue)
     {
         ownerObject = owner;
         Params = new();
         Params.Add(new CoordPoint(){Value = initialValue});
     }
-    
+
+    /// <summary>
+    /// 中間点の間の値を計算するためのJavaScriptエンジン
+    /// </summary>
+    private Engine jsEngine = new Engine();
+
     /// <summary>
     /// フレームから値を取得する
     /// </summary>
@@ -51,8 +63,21 @@ public class MetaDoubleParam
                 break;
             }
         }
-        double midValue = startPoint.PointLogic.GetBetweenPoint(startPoint.Value, endPoint.Value, frame, startPoint.Frame, endPoint.Frame);
-			
-        return midValue;
+
+        jsEngine.SetValue("StartValue", startPoint.Value)
+                .SetValue("EndValue", endPoint.Value)
+                .SetValue("NowFrame", frame)
+                .SetValue("StartFrame", startPoint.Frame)
+                .SetValue("EndFrame", endPoint.Frame);
+
+        try
+        {
+            double midValue = jsEngine.Evaluate(startPoint.JSLogic).AsNumber();
+            return midValue;
+        }
+        catch(Exception e)
+        {
+            return startPoint.Value;
+        }
     }
 }

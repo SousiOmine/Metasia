@@ -3,6 +3,9 @@ using Metasia.Core.Coordinate;
 using Metasia.Core.Objects;
 using Metasia.Core.Project;
 using SkiaSharp;
+using System.Xml.Serialization;
+using System.IO;
+using System;
 
 namespace Metasia.Editor.ViewModels
 {
@@ -140,6 +143,12 @@ namespace Metasia.Editor.ViewModels
 			TimelineParentVM = new TimelineParentViewModel(PlayerParentVM);
 
 			inspectorViewModel = new InspectorViewModel(PlayerParentVM);
-		}
+
+			//XmlSerializer serializer = new XmlSerializer(typeof(kariHelloObject));
+			//var writer = new StringWriter();
+   //         serializer.Serialize(writer, kariHello);
+
+			//Console.WriteLine(writer.ToString());
+        }
 	}
 }
