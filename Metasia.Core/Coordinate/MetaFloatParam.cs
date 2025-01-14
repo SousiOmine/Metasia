@@ -1,3 +1,4 @@
+using Jint;
 using Metasia.Core.Objects;
 
 namespace Metasia.Core.Coordinate;
@@ -6,6 +7,11 @@ public class MetaFloatParam
 {
     private MetasiaObject ownerObject;
     public List<CoordPoint> Params { get; protected set; }
+
+    /// <summary>
+    /// 中間点の間の値を計算するためのJavaScriptエンジン
+    /// </summary>
+    private Engine jsEngine = new Engine();
 
     public MetaFloatParam(MetasiaObject owner, float initialValue)
     {
@@ -39,8 +45,21 @@ public class MetaFloatParam
                 break;
             }
         }
-        float midValue = (float)startPoint.PointLogic.GetBetweenPoint(startPoint.Value, endPoint.Value, frame, startPoint.Frame, endPoint.Frame);
-			
-        return midValue;
+
+        jsEngine.SetValue("StartValue", startPoint.Value)
+                .SetValue("EndValue", endPoint.Value)
+                .SetValue("NowFrame", frame)
+                .SetValue("StartFrame", startPoint.Frame)
+                .SetValue("EndFrame", endPoint.Frame);
+
+        try
+        {
+            float midValue = (float)jsEngine.Evaluate(startPoint.JSLogic).AsNumber();
+            return midValue;
+        }
+        catch (Exception e)
+        {
+            return (float)startPoint.Value;
+        }
     }
 }

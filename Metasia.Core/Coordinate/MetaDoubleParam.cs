@@ -16,6 +16,11 @@ public class MetaDoubleParam
     /// </summary>
     public List<CoordPoint> Params { get; protected set; }
 
+    /// <summary>
+    /// 中間点の間の値を計算するためのJavaScriptエンジン
+    /// </summary>
+    private Engine jsEngine = new Engine();
+
     public MetaDoubleParam()
     {
 
@@ -28,10 +33,7 @@ public class MetaDoubleParam
         Params.Add(new CoordPoint(){Value = initialValue});
     }
 
-    /// <summary>
-    /// 中間点の間の値を計算するためのJavaScriptエンジン
-    /// </summary>
-    private Engine jsEngine = new Engine();
+    
 
     /// <summary>
     /// フレームから値を取得する

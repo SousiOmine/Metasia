@@ -20,14 +20,8 @@ namespace Metasia.Core.Coordinate
         public double Value = 0f;
 
         /// <summary>
-        /// ポイント間の移動方法
+        /// このポイントから次のポイントまでの値の変化を計算するためのJavaScriptコード
         /// </summary>
-        private IPointLogic pointLogic;
-        public IPointLogic PointLogic{
-            get => pointLogic;
-            set => pointLogic = value;
-        }
-
         public string JSLogic = """
 
 if(StartValue == EndValue) return StartValue;
@@ -42,12 +36,7 @@ StartValue + (EndValue - StartValue) * (NowFrame - StartFrame) / (EndFrame - Sta
         /// </summary>
         public CoordPoint()
         {
-            PointLogic = new PointLogic.StraightLineMove();
-        }
 
-        public CoordPoint(IPointLogic argPointLogic)
-        {
-            PointLogic = argPointLogic;
         }
 
     }
