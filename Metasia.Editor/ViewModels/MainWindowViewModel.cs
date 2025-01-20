@@ -3,11 +3,11 @@ using Metasia.Core.Coordinate;
 using Metasia.Core.Objects;
 using Metasia.Core.Project;
 using SkiaSharp;
-using System.Xml.Serialization;
 using System.IO;
 using System;
 using System.Diagnostics;
 using System.Text.Json;
+using Metasia.Core.Json;
 
 namespace Metasia.Editor.ViewModels
 {
@@ -148,9 +148,9 @@ namespace Metasia.Editor.ViewModels
 				Converters = { new MetasiaObjectJsonConverter() }
 			};
 
-			string jsonString = JsonSerializer.Serialize(kariProject, options);
+			string jsonString = ProjectSerializer.SerializeToMTPJ(kariProject);
 
-			MetasiaProject deserializedProject = JsonSerializer.Deserialize<MetasiaProject>(jsonString, options);
+			MetasiaProject deserializedProject = ProjectSerializer.DeserializeFromMTPJ(jsonString);
 
 			PlayerParentVM = new PlayerParentViewModel(deserializedProject);
 
