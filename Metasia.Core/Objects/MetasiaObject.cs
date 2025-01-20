@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Metasia.Core.Objects
@@ -11,6 +12,11 @@ namespace Metasia.Core.Objects
     /// <summary>
     ///	Metasiaのタイムラインや動画、音声といったオブジェクトの基底クラス
     /// </summary>
+    [JsonConverter(typeof(MetasiaObjectJsonConverter))]
+    // [JsonDerivedType(typeof(kariHelloObject), typeDiscriminator: "kariHelloObject")]
+    // [JsonDerivedType(typeof(Text), typeDiscriminator: "Text")]
+    // [JsonDerivedType(typeof(LayerObject), typeDiscriminator: "LayerObject")]
+    // [JsonDerivedType(typeof(TimelineObject), typeDiscriminator: "TimelineObject")]
     public class MetasiaObject
     {
         /// <summary>

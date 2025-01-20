@@ -18,7 +18,7 @@ namespace Metasia.Core.Objects
         /// レイヤーに属するオブジェクト 原則同じフレームに2個以上オブジェクトがあってはならない
         /// </summary>
         public ObservableCollection<MetasiaObject> Objects { get; protected set; } = new();
-        public double Volume { get; set; }
+        public double Volume { get; set; } = 100;
 
         /// <summary>
         /// レイヤー名
@@ -27,8 +27,13 @@ namespace Metasia.Core.Objects
 
         public LayerObject(string id, string LayerName) : base(id)
         {
-            Volume = 100;
             Name = LayerName;
+            StartFrame = 0;
+            EndFrame = int.MaxValue;
+        }
+
+        public LayerObject()
+        {
             StartFrame = 0;
             EndFrame = int.MaxValue;
         }

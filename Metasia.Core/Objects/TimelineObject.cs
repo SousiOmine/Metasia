@@ -22,14 +22,19 @@ namespace Metasia.Core.Objects
 		/// </summary>
 		public List<LayerObject> Layers { get; protected set; } = new();
 
-		public double Volume { get; set; }
-		
-		public TimelineObject(string id) : base(id)
+		public double Volume { get; set; } = 100;
+
+        public TimelineObject(string id) : base(id)
 		{
-			Volume = 100;
+
 		}
 
-		public void DrawExpresser(ref DrawExpresserArgs e, int frame)
+		public TimelineObject()
+        {
+
+        }
+
+        public void DrawExpresser(ref DrawExpresserArgs e, int frame)
 		{
 			double resolution_level_x = e.ActualResolution.Width / e.TargetResolution.Width;
 			double resolution_level_y = e.ActualResolution.Height / e.TargetResolution.Height;

@@ -6,6 +6,8 @@ using SkiaSharp;
 using System.Xml.Serialization;
 using System.IO;
 using System;
+using System.Diagnostics;
+using System.Text.Json;
 
 namespace Metasia.Editor.ViewModels
 {
@@ -144,11 +146,17 @@ namespace Metasia.Editor.ViewModels
 
 			inspectorViewModel = new InspectorViewModel(PlayerParentVM);
 
-			//XmlSerializer serializer = new XmlSerializer(typeof(kariHelloObject));
-			//var writer = new StringWriter();
-   //         serializer.Serialize(writer, kariHello);
-
-			//Console.WriteLine(writer.ToString());
-        }
+			// mainTLをJSONシリアライズする例
+			var options = new JsonSerializerOptions
+			{
+				WriteIndented = true,    // 整形されたJSONを出力
+				IncludeFields = true     // フィールドも含めてシリアライズ
+			};
+			
+			string jsonString = JsonSerializer.Serialize(kariProject, options);
+			// デバッグ用に出力する
+			Debug.WriteLine(jsonString);
+			
+		}
 	}
 }
