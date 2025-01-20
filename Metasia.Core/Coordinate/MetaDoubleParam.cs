@@ -1,6 +1,7 @@
 using Jint;
 using Metasia.Core.Objects;
 using System.Diagnostics;
+using System.Text.Json.Serialization;
 
 namespace Metasia.Core.Coordinate;
 
@@ -14,6 +15,7 @@ public class MetaDoubleParam
     /// <summary>
     /// 中間値CoordPointを格納するリスト
     /// </summary>
+    [JsonInclude]
     public List<CoordPoint> Params { get; protected set; }
 
     /// <summary>
@@ -21,9 +23,10 @@ public class MetaDoubleParam
     /// </summary>
     private Engine jsEngine = new Engine();
 
+    [JsonConstructor]
     public MetaDoubleParam()
     {
-
+        Params = new();
     }
 
     public MetaDoubleParam(MetasiaObject owner, double initialValue)
@@ -48,7 +51,7 @@ public class MetaDoubleParam
     protected double CalculateMidValue(int frame)
     {
         //CoordPointのFrameはオブジェクトの始点基準なので合わせる
-        frame -= ownerObject.StartFrame;
+        frame -= ownerObject?.StartFrame ?? 0;
         //pointsをFrameの昇順に並べ替え
         Params.Sort((a, b) => a.Frame - b.Frame);
         CoordPoint startPoint = Params.Last();

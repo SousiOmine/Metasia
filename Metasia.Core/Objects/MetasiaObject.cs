@@ -23,7 +23,7 @@ namespace Metasia.Core.Objects
         /// <summary>
         /// 子オブジェクト１つ
         /// </summary>
-        public MetasiaObject? Child;
+        public MetasiaObject? Child { get; set; }
 
         /// <summary>
         /// オブジェクトの先頭フレーム

@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Metasia.Core.Sounds;
 using System.Diagnostics;
+using System.Text.Json.Serialization;
 
 namespace Metasia.Core.Objects
 {
@@ -20,18 +21,19 @@ namespace Metasia.Core.Objects
 		/// <summary>
 		/// タイムラインに属するレイヤー 格納順に描画される
 		/// </summary>
-		public List<LayerObject> Layers { get; protected set; } = new();
+		[JsonInclude]
+		public List<LayerObject> Layers { get; private set; }
 
 		public double Volume { get; set; } = 100;
 
         public TimelineObject(string id) : base(id)
 		{
-
+			Layers = new();
 		}
 
 		public TimelineObject()
         {
-
+			Layers = new();
         }
 
         public void DrawExpresser(ref DrawExpresserArgs e, int frame)

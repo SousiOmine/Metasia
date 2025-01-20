@@ -1,17 +1,26 @@
 using Jint;
 using Metasia.Core.Objects;
+using System.Text.Json.Serialization;
 
 namespace Metasia.Core.Coordinate;
 
 public class MetaFloatParam
 {
     private MetasiaObject ownerObject;
+    
+    [JsonInclude]
     public List<CoordPoint> Params { get; protected set; }
 
     /// <summary>
     /// 中間点の間の値を計算するためのJavaScriptエンジン
     /// </summary>
     private Engine jsEngine = new Engine();
+
+    [JsonConstructor]
+    public MetaFloatParam()
+    {
+        Params = new();
+    }
 
     public MetaFloatParam(MetasiaObject owner, float initialValue)
     {
@@ -28,7 +37,7 @@ public class MetaFloatParam
     protected float CalculateMidValue(int frame)
     {
         //CoordPointのFrameはオブジェクトの始点基準なので合わせる
-        frame -= ownerObject.StartFrame;
+        frame -= ownerObject?.StartFrame ?? 0;
         //pointsをFrameの昇順に並べ替え
         Params.Sort((a, b) => a.Frame - b.Frame);
         CoordPoint startPoint = Params.Last();

@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
 namespace Metasia.Core.Objects
 {
@@ -17,7 +18,8 @@ namespace Metasia.Core.Objects
         /// <summary>
         /// レイヤーに属するオブジェクト 原則同じフレームに2個以上オブジェクトがあってはならない
         /// </summary>
-        public ObservableCollection<MetasiaObject> Objects { get; protected set; } = new();
+        [JsonInclude]
+        public ObservableCollection<MetasiaObject> Objects { get; private set; }
         public double Volume { get; set; } = 100;
 
         /// <summary>
@@ -30,12 +32,15 @@ namespace Metasia.Core.Objects
             Name = LayerName;
             StartFrame = 0;
             EndFrame = int.MaxValue;
+            Objects = new();
         }
 
         public LayerObject()
         {
+            Name = string.Empty;
             StartFrame = 0;
             EndFrame = int.MaxValue;
+            Objects = new();
         }
 
         public void DrawExpresser(ref DrawExpresserArgs e, int frame)

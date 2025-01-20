@@ -7,17 +7,20 @@ namespace Metasia.Core.Project
     /// </summary>
     public class MetasiaProject
     {
-        public ProjectInfo Info;
-
-        public string RootTimelineId = "RootTimeline";
-
-        public int LastFrame = 100;
-
-		public List<TimelineObject> Timelines = new();
-
-		public MetasiaProject(ProjectInfo info)
+        public ProjectInfo Info { get; set; }
+        public string RootTimelineId { get; set; } = "RootTimeline";
+        public int LastFrame { get; set; } = 100;
+        public List<TimelineObject> Timelines { get; set; } = new();
+        
+        public MetasiaProject(ProjectInfo info)
         {
             Info = info;
+        }
+        
+        // デシリアライズ用のデフォルトコンストラクタ
+        public MetasiaProject()
+        {
+            Info = new ProjectInfo();
         }
     }
 }

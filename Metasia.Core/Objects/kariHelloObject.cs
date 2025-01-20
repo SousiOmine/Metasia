@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Metasia.Core.Coordinate;
 using Metasia.Core.Sounds;
 using System.Diagnostics;
+using System.Text.Json.Serialization;
 
 namespace Metasia.Core.Objects
 {
@@ -20,15 +21,25 @@ namespace Metasia.Core.Objects
 		public MetaDoubleParam Rotation { get; set; }
 		
 		private SKBitmap myBitmap = new(200, 200);
-		
 		private int audio_offset = 0;
 
-
+		[JsonConstructor]
 		public kariHelloObject()
 		{
-
+			InitializeBitmap();
 		}
+
 		public kariHelloObject(string id) : base(id)
+		{
+			InitializeBitmap();
+			X = new MetaDoubleParam(this, 0);
+			Y = new MetaDoubleParam(this, 0);
+			Scale = new MetaDoubleParam(this, 100);
+			Alpha = new MetaDoubleParam(this, 0);
+			Rotation = new MetaDoubleParam(this, 0);
+		}
+
+		private void InitializeBitmap()
 		{
 			var skPaint = new SKPaint()
 			{
@@ -41,13 +52,7 @@ namespace Metasia.Core.Objects
 				canvas.Clear(SKColors.Brown);
 				canvas.DrawText("Hello", 100, 100, skPaint);
 			}
-			X = new MetaDoubleParam(this, 0);
-			Y = new MetaDoubleParam(this, 0);
-			Scale = new MetaDoubleParam(this, 100);
-			Alpha = new MetaDoubleParam(this, 0);
-			Rotation = new MetaDoubleParam(this, 0);
 		}
-
 
 		public void DrawExpresser(ref DrawExpresserArgs e, int frame)
 		{
@@ -57,7 +62,6 @@ namespace Metasia.Core.Objects
 			
 			using (SKCanvas canvas = new SKCanvas(e.Bitmap))
 			{
-				
 				canvas.DrawBitmap(myBitmap, (e.Bitmap.Width - myBitmap.Width) / 2, (e.Bitmap.Height - myBitmap.Height) / 2);
 			}
 			
@@ -72,7 +76,6 @@ namespace Metasia.Core.Objects
 			e.ActualSize = new SKSize(e.Bitmap.Width, e.Bitmap.Height);
 			e.TargetSize = new SKSize(200, 200);
 		}
-
 
 		public double Volume { get; set; } = 100;
 		public void AudioExpresser(ref AudioExpresserArgs e, int frame)

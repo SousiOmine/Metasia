@@ -137,26 +137,29 @@ namespace Metasia.Editor.ViewModels
 			mainTL.Layers.Add(layer4);
             mainTL.Layers.Add(layer5);
 
-            kariProject.Timelines.Add(mainTL);
-            kariProject.Timelines.Add(secondTL);
-			
-			PlayerParentVM = new PlayerParentViewModel(kariProject);
+			kariProject.Timelines.Add(mainTL);
+			kariProject.Timelines.Add(secondTL);
+
+			// mainTLをJSONシリアライズする例
+			var options = new JsonSerializerOptions
+			{
+				WriteIndented = true,
+				IncludeFields = true,
+				Converters = { new MetasiaObjectJsonConverter() }
+			};
+
+			string jsonString = JsonSerializer.Serialize(kariProject, options);
+
+			MetasiaProject deserializedProject = JsonSerializer.Deserialize<MetasiaProject>(jsonString, options);
+
+			PlayerParentVM = new PlayerParentViewModel(deserializedProject);
 
 			TimelineParentVM = new TimelineParentViewModel(PlayerParentVM);
 
 			inspectorViewModel = new InspectorViewModel(PlayerParentVM);
 
-			// mainTLをJSONシリアライズする例
-			var options = new JsonSerializerOptions
-			{
-				WriteIndented = true,    // 整形されたJSONを出力
-				IncludeFields = true     // フィールドも含めてシリアライズ
-			};
-			
-			string jsonString = JsonSerializer.Serialize(kariProject, options);
-			// デバッグ用に出力する
-			Debug.WriteLine(jsonString);
-			
+
+
 		}
 	}
 }
