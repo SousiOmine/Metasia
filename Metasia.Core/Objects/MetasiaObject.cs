@@ -13,10 +13,6 @@ namespace Metasia.Core.Objects
     ///	Metasiaのタイムラインや動画、音声といったオブジェクトの基底クラス
     /// </summary>
     [JsonConverter(typeof(MetasiaObjectJsonConverter))]
-    // [JsonDerivedType(typeof(kariHelloObject), typeDiscriminator: "kariHelloObject")]
-    // [JsonDerivedType(typeof(Text), typeDiscriminator: "Text")]
-    // [JsonDerivedType(typeof(LayerObject), typeDiscriminator: "LayerObject")]
-    // [JsonDerivedType(typeof(TimelineObject), typeDiscriminator: "TimelineObject")]
     public class MetasiaObject
     {
         /// <summary>
