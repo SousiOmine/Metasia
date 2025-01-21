@@ -8,6 +8,11 @@ using System;
 using System.Diagnostics;
 using System.Text.Json;
 using Metasia.Core.Json;
+using System.Windows.Input;
+using ReactiveUI;
+using Microsoft.Extensions.DependencyInjection;
+using Metasia.Editor.Services;
+using System.Threading.Tasks;
 
 namespace Metasia.Editor.ViewModels
 {
@@ -25,12 +30,16 @@ namespace Metasia.Editor.ViewModels
 		
 		public ToolsViewModel ToolsVM { get; }
 
+		public ICommand SaveEditingProject { get; }
+
 
 
 		public MainWindowViewModel()
 		{
 			
 			ToolsVM = new ToolsViewModel();
+
+			SaveEditingProject = ReactiveCommand.Create(SaveEditingProjectExecuteAsync);
 			
 			ProjectInfo info = new ProjectInfo()
 		    {
@@ -161,5 +170,21 @@ namespace Metasia.Editor.ViewModels
 
 
 		}
+
+		private async Task SaveEditingProjectExecuteAsync()
+		{
+			try
+			{
+				var fileDialogService = App.Current?.Services?.GetService<IFileDialogService>();
+				if(fileDialogService is null) throw new NullReferenceException("FileDialogService is not found");
+				var file = await fileDialogService.SaveFileDialogAsync();
+				if (file == null) return;
+			}
+			catch (Exception ex)
+			{
+
+			}
+		}
 	}
 }
+
