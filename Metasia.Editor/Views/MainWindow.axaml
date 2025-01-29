@@ -22,7 +22,7 @@
 				<MenuItem Header="開く"/>
 				<MenuItem Header="閉じる"/>
 				<Separator/>
-				<MenuItem Header="編集プロジェクトを開く"/>
+				<MenuItem Header="編集プロジェクトを開く" Command="{Binding LoadEditingProject}"/>
 				<MenuItem Header="編集プロジェクトの保存" Command="{Binding SaveEditingProject}"/>
 				<MenuItem Header="編集プロジェクトの上書き"/>
 				<Separator/>

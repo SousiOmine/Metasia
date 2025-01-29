@@ -13,6 +13,7 @@ using ReactiveUI;
 using Microsoft.Extensions.DependencyInjection;
 using Metasia.Editor.Services;
 using System.Threading.Tasks;
+using Metasia.Editor.Models;
 
 namespace Metasia.Editor.ViewModels
 {
@@ -31,7 +32,7 @@ namespace Metasia.Editor.ViewModels
 		public ToolsViewModel ToolsVM { get; }
 
 		public ICommand SaveEditingProject { get; }
-
+		public ICommand LoadEditingProject { get; }
 
 
 		public MainWindowViewModel()
@@ -40,7 +41,7 @@ namespace Metasia.Editor.ViewModels
 			ToolsVM = new ToolsViewModel();
 
 			SaveEditingProject = ReactiveCommand.Create(SaveEditingProjectExecuteAsync);
-			
+			LoadEditingProject = ReactiveCommand.Create(LoadEditingProjectExecuteAsync);
 			ProjectInfo info = new ProjectInfo()
 		    {
 	    	    Framerate = 60,
@@ -162,6 +163,7 @@ namespace Metasia.Editor.ViewModels
 			MetasiaProject deserializedProject = ProjectSerializer.DeserializeFromMTPJ(jsonString);
 
 			PlayerParentVM = new PlayerParentViewModel(deserializedProject);
+			PlayerParentVM.CurrentProjectStructureMethod = ProjectStructureMethod.MTPJ;
 
 			TimelineParentVM = new TimelineParentViewModel(PlayerParentVM);
 
@@ -179,11 +181,21 @@ namespace Metasia.Editor.ViewModels
 				if(fileDialogService is null) throw new NullReferenceException("FileDialogService is not found");
 				var file = await fileDialogService.SaveFileDialogAsync();
 				if (file == null) return;
+				PlayerParentVM.SaveCurrentProject(file.Path.LocalPath);
 			}
 			catch (Exception ex)
 			{
 
 			}
+		}
+
+		private async Task LoadEditingProjectExecuteAsync()
+		{
+			var fileDialogService = App.Current?.Services?.GetService<IFileDialogService>();
+			if(fileDialogService is null) throw new NullReferenceException("FileDialogService is not found");
+			var file = await fileDialogService.OpenFileDialogAsync();
+			if(file is null) return;
+			PlayerParentVM.LoadProjectFromFilePath(file.Path.LocalPath);
 		}
 	}
 }
