@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using CsToml;
@@ -8,6 +9,7 @@ using Metasia.Core.Project;
 using Metasia.Editor.Models;
 using Metasia.Editor.Models.Projects;
 using ReactiveUI;
+using SkiaSharp;
 
 namespace Metasia.Editor.ViewModels;
 
@@ -19,7 +21,9 @@ public class PlayerParentViewModel : ViewModelBase
         set
         {
             currentProject = value;
-            if(value is not null) LoadProject();
+            //if(value is not null) LoadProject();
+            TargetPlayerViewModel = new PlayerViewModel(CurrentProject.Timelines[0], CurrentProject.Info);
+            ProjectInstanceChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 
@@ -61,6 +65,8 @@ public class PlayerParentViewModel : ViewModelBase
     private PlayerViewModel? _targetPlayerViewModel;
     private string _targetTimelineName;
     private string _currentProjectFilePath;
+
+    private List<PlayerViewModel> _playerViewModels = new();
     
     public PlayerParentViewModel(MetasiaProject project)
     {
@@ -99,11 +105,24 @@ public class PlayerParentViewModel : ViewModelBase
 
     }
 
-    private void LoadProject(MetasiaEditorProject editorProject)
+    public void LoadProject(MetasiaEditorProject editorProject)
     {
-        // TargetPlayerViewModel = new PlayerViewModel(CurrentProject.Timelines[0], CurrentProject.Info);
-        // ProjectInstanceChanged?.Invoke(this, EventArgs.Empty);
 
-        
+
+        _playerViewModels.Clear();
+
+        ProjectInfo projectInfo = new ProjectInfo()
+        {
+            Framerate = editorProject.ProjectFile.Framerate,
+            Size = new SKSize(editorProject.ProjectFile.Resolution.Width, editorProject.ProjectFile.Resolution.Height),
+        };
+
+        foreach (TimelineFile timeline in editorProject.Timelines)
+        {
+            _playerViewModels.Add(new PlayerViewModel(timeline.Timeline, projectInfo));
+        }
+
+        TargetPlayerViewModel = _playerViewModels[0];
+        ProjectInstanceChanged?.Invoke(this, EventArgs.Empty);
     }
 }

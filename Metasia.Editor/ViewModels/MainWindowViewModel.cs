@@ -17,6 +17,7 @@ using Metasia.Editor.Models;
 using Metasia.Editor.Views;
 using Avalonia.Controls;
 using Metasia.Editor.Models.Projects;
+using Metasia.Editor.Models.FileSystem;
 namespace Metasia.Editor.ViewModels
 {
 	public class MainWindowViewModel : ViewModelBase
@@ -211,11 +212,13 @@ namespace Metasia.Editor.ViewModels
 
 		private async Task LoadEditingProjectExecuteAsync()
 		{
-			var fileDialogService = App.Current?.Services?.GetService<IFileDialogService>();
-			if(fileDialogService is null) throw new NullReferenceException("FileDialogService is not found");
-			var file = await fileDialogService.OpenFileDialogAsync();
-			if(file is null) return;
-			PlayerParentVM.LoadProjectFromFilePath(file.Path.LocalPath);
+			var folderDialogService = App.Current?.Services?.GetService<IFileDialogService>();
+			if (folderDialogService is null) throw new NullReferenceException("FileDialogService is not found");
+			var folder = await folderDialogService.OpenFolderDialogAsync();
+			if (folder is null) return;
+
+			MetasiaEditorProject editorProject = ProjectSaveLoadManager.Load(new DirectoryEntity(folder.Path.LocalPath));
+			PlayerParentVM.LoadProject(editorProject);
 		}
 	}
 }
