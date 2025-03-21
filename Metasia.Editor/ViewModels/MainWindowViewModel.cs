@@ -161,7 +161,6 @@ namespace Metasia.Editor.ViewModels
 			MetasiaProject deserializedProject = ProjectSerializer.DeserializeFromMTPJ(jsonString);
 
 			PlayerParentVM = new PlayerParentViewModel(deserializedProject);
-			PlayerParentVM.CurrentProjectStructureMethod = ProjectStructureMethod.MTPJ;
 
 			TimelineParentVM = new TimelineParentViewModel(PlayerParentVM);
 
@@ -201,15 +200,11 @@ namespace Metasia.Editor.ViewModels
 		{
 			try
 			{
-				var fileDialogService = App.Current?.Services?.GetService<IFileDialogService>();
-				if(fileDialogService is null) throw new NullReferenceException("FileDialogService is not found");
-				var file = await fileDialogService.SaveFileDialogAsync();
-				if (file == null) return;
-				PlayerParentVM.SaveCurrentProject(file.Path.LocalPath);
+				//別の場所に保存するやつを書く
 			}
 			catch (Exception ex)
 			{
-
+				Debug.WriteLine($"プロジェクト保存エラー: {ex.Message}");
 			}
 		}
 

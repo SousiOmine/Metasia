@@ -3,6 +3,9 @@ using Metasia.Editor.Models.FileSystem;
 
 namespace Metasia.Editor.Models.Projects;
 
+/// <summary>
+/// タイムラインを記録する.mttlファイルの情報を扱う
+/// </summary>
 public class TimelineFile
 {
     public FileEntity TimelineFilePath { get; set; }

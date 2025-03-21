@@ -2,6 +2,9 @@ using SkiaSharp;
 
 namespace Metasia.Editor.Models.Projects;
 
+/// <summary>
+/// metasia.jsonの中身
+/// </summary>
 public class MetasiaProjectFile
 {
     /// <summary>

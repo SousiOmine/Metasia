@@ -40,12 +40,6 @@ public class PlayerParentViewModel : ViewModelBase
 
     public event EventHandler? ProjectInstanceChanged;
 
-    public ProjectStructureMethod CurrentProjectStructureMethod
-    {
-        get => currentProjectStructureMethod;
-        set => this.RaiseAndSetIfChanged(ref currentProjectStructureMethod, value);
-    }
-
     public PlayerViewModel TargetPlayerViewModel
     {
         get => _targetPlayerViewModel;
@@ -66,9 +60,8 @@ public class PlayerParentViewModel : ViewModelBase
     }
 
     private MetasiaProject? currentProject;
-    private ProjectStructureMethod currentProjectStructureMethod;
     private PlayerViewModel? _targetPlayerViewModel;
-    private string _targetTimelineName;
+    private string _targetTimelineName = string.Empty;
     private MetasiaEditorProject? currentEditorProject;
 
     private List<PlayerViewModel> _playerViewModels = new();
@@ -76,37 +69,8 @@ public class PlayerParentViewModel : ViewModelBase
     public PlayerParentViewModel(MetasiaProject project)
     {
         CurrentProject = project;
-        CurrentProjectStructureMethod = ProjectStructureMethod.NONE_SAVED;
     }
 
-    public void LoadProjectFromFilePath(string filePath)
-    {
-        // ファイルの拡張子を確認
-        string extension = Path.GetExtension(filePath);
-        switch (extension)
-        {
-            case ".mtpj":
-                CurrentProject = ProjectLoader.LoadProjectFromMTPJ(filePath);
-                CurrentProjectStructureMethod = ProjectStructureMethod.MTPJ;
-                break;
-            default:
-                throw new Exception("サポートされていないファイル形式です。");
-        }
-    }
-
-    public void SaveCurrentProject(string filePath)
-    {
-        if(CurrentProject is null) return;
-
-        switch(CurrentProjectStructureMethod)
-        {
-            case ProjectStructureMethod.MTPJ:
-                string jsonString = ProjectSerializer.SerializeToMTPJ(CurrentProject);
-                File.WriteAllText(filePath, jsonString);
-                break;
-        }
-
-    }
 
     public void LoadProject(MetasiaEditorProject editorProject)
     {

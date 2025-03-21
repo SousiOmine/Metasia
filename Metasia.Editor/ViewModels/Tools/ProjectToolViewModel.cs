@@ -15,7 +15,7 @@ namespace Metasia.Editor.ViewModels.Tools
     {
         public string ProjectDir_Path { get; private set; } = String.Empty;
 
-        public ObservableCollection<FileTreeNode>? Nodes { get; private set; } = new ObservableCollection<FileTreeNode>();
+        public ObservableCollection<FileTreeNode> Nodes { get; private set; } = new ObservableCollection<FileTreeNode>();
 
         /// <summary>
         /// 選択中のノード（複数選択可能）
