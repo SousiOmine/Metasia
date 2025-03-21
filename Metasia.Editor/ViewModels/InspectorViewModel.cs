@@ -17,6 +17,12 @@ namespace Metasia.Editor.ViewModels
         {
             _playerParentViewModel = playerParentViewModel;
             PlayerChanged();
+
+            _playerParentViewModel.ProjectInstanceChanged += (sender, args) =>
+            {
+                TestCharacters = string.Empty;
+                PlayerChanged();
+            };
         }
 
         public void PlayerChanged()
@@ -29,7 +35,7 @@ namespace Metasia.Editor.ViewModels
                 }
                 else
                 {
-                    TestCharacters = String.Empty;
+                    TestCharacters = string.Empty;
                 }
             };
         }
