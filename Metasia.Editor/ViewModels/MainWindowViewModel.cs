@@ -18,6 +18,7 @@ using Metasia.Editor.Views;
 using Avalonia.Controls;
 using Metasia.Editor.Models.Projects;
 using Metasia.Editor.Models.FileSystem;
+using Metasia.Editor.Models.ProjectGenerate;
 namespace Metasia.Editor.ViewModels
 {
 	public class MainWindowViewModel : ViewModelBase
@@ -185,7 +186,7 @@ namespace Metasia.Editor.ViewModels
 
 				if (result)
 				{
-					ProjectGenerator.CreateProject(dialog.ProjectPath, dialog.ProjectInfo);
+					ProjectGenerator.CreateProject(dialog.ProjectPath, dialog.ProjectInfo, dialog.SelectedTemplate);
 				}
 			}
 			catch (Exception ex)

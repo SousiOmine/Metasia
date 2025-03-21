@@ -1,11 +1,14 @@
 using System;
 using System.IO;
+using System.Collections.Generic;
+using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Platform.Storage;
 using Metasia.Core.Project;
+using Metasia.Editor.Models.ProjectGenerate;
 using SkiaSharp;
 
 namespace Metasia.Editor.Views
@@ -15,10 +18,14 @@ namespace Metasia.Editor.Views
         public string ProjectName { get; private set; } = string.Empty;
         public string ProjectPath { get; private set; } = string.Empty;
         public ProjectInfo ProjectInfo { get; private set; }
+        public MetasiaProject? SelectedTemplate { get; private set; }
+        
+        private readonly List<IProjectTemplate> _availableTemplates = new();
         
         public NewProjectDialog()
         {
             InitializeComponent();
+            LoadTemplates();
 
             var browseButton = this.FindControl<Button>("BrowseButton");
             var folderPathTextBox = this.FindControl<TextBox>("FolderPathTextBox");
@@ -27,6 +34,9 @@ namespace Metasia.Editor.Views
             var createButton = this.FindControl<Button>("CreateButton");
             var framerateComboBox = this.FindControl<ComboBox>("FramerateComboBox");
             var resolutionComboBox = this.FindControl<ComboBox>("ResolutionComboBox");
+            var templateComboBox = this.FindControl<ComboBox>("TemplateComboBox");
+
+            templateComboBox.SelectedIndex = 0;
 
             browseButton.Click += async (sender, e) =>
             {
@@ -81,6 +91,16 @@ namespace Metasia.Editor.Views
                     Framerate = framerate,
                     Size = size
                 };
+
+                // テンプレートを取得
+                if (templateComboBox.SelectedIndex > 0)
+                {
+                    int templateIndex = templateComboBox.SelectedIndex - 1; // 最初の項目は「空のプロジェクト」
+                    if (templateIndex >= 0 && templateIndex < _availableTemplates.Count)
+                    {
+                        SelectedTemplate = _availableTemplates[templateIndex].Template;
+                    }
+                }
                 
                 // プロジェクトフォルダを作成
                 if (!Directory.Exists(ProjectPath))
@@ -90,6 +110,27 @@ namespace Metasia.Editor.Views
                 
                 Close(true);
             };
+        }
+
+        private void LoadTemplates()
+        {
+            // 利用可能なテンプレートをロード
+            _availableTemplates.Clear();
+            _availableTemplates.Add(new KariProjectTemplate());
+            
+            // 将来的に他のテンプレートを追加する場合はここに追加
+
+            // テンプレート選択コンボボックスにテンプレート名を追加
+            var templateComboBox = this.FindControl<ComboBox>("TemplateComboBox");
+            
+            // 空のプロジェクトオプションはコードで処理するため、ComboBoxのItemsコレクションをクリア
+            templateComboBox.Items.Clear();
+            templateComboBox.Items.Add(new ComboBoxItem { Content = "空のプロジェクト" });
+            
+            foreach (var template in _availableTemplates)
+            {
+                templateComboBox.Items.Add(new ComboBoxItem { Content = template.Name });
+            }
         }
 
         private void UpdateCreateButtonState()

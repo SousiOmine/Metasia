@@ -21,9 +21,11 @@ public class PlayerParentViewModel : ViewModelBase
         set
         {
             currentProject = value;
-            //if(value is not null) LoadProject();
-            TargetPlayerViewModel = new PlayerViewModel(CurrentProject.Timelines[0], CurrentProject.Info);
             ProjectInstanceChanged?.Invoke(this, EventArgs.Empty);
+            if (value is not null)
+            {
+                TargetPlayerViewModel = new PlayerViewModel(CurrentProject.Timelines[0], CurrentProject.Info);
+            }
         }
     }
 

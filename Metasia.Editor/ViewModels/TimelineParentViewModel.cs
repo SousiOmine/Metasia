@@ -17,12 +17,18 @@ namespace Metasia.Editor.ViewModels
         {
             _playerParentViewModel = playerParentViewModel;
 
-            CurrentTimelineViewModel = new TimelineViewModel(_playerParentViewModel.TargetPlayerViewModel);
-
             _playerParentViewModel.ProjectInstanceChanged += (sender, e) =>
             {
-                CurrentTimelineViewModel = new TimelineViewModel(_playerParentViewModel.TargetPlayerViewModel);
+                if (_playerParentViewModel.TargetPlayerViewModel is not null)
+                {
+                    CurrentTimelineViewModel = new TimelineViewModel(_playerParentViewModel.TargetPlayerViewModel);
+                }
             };
+
+            if (_playerParentViewModel.TargetPlayerViewModel is not null)
+            {
+                CurrentTimelineViewModel = new TimelineViewModel(_playerParentViewModel.TargetPlayerViewModel);
+            }
         }
     }
 }

@@ -5,7 +5,7 @@ using Metasia.Core.Project;
 using Metasia.Editor.Models.FileSystem;
 using Metasia.Editor.Models.Projects;
 
-namespace Metasia.Editor.Models;
+namespace Metasia.Editor.Models.ProjectGenerate;
 
 public class ProjectGenerator
 {
@@ -18,15 +18,8 @@ public class ProjectGenerator
         }
         else
         {
-            //空の新しいプロジェクトを作成
-            project = new MetasiaProject(projectInfo);
-            project.LastFrame = projectInfo.Framerate * 5;
-
-            LayerObject layer1 = new LayerObject("layer1", "Layer 1");
-
-            TimelineObject mainTL = new TimelineObject("RootTimeline");
-            mainTL.Layers.Add(layer1);
-            project.Timelines.Add(mainTL);
+            // 空のプロジェクトテンプレートを使用
+            project = new EmptyProjectTemplate(projectInfo).Template;
         }
 
         //プロジェクトフォルダが存在しない場合は作成
