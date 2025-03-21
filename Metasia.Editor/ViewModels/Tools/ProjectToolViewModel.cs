@@ -14,8 +14,8 @@ namespace Metasia.Editor.ViewModels.Tools
     public class ProjectToolViewModel : ViewModelBase
     {
         public string ProjectDir_Path { get; private set; } = String.Empty;
-        
-        public ObservableCollection<FileTreeNode>? Nodes { get; }
+
+        public ObservableCollection<FileTreeNode>? Nodes { get; private set; } = new ObservableCollection<FileTreeNode>();
 
         /// <summary>
         /// 選択中のノード（複数選択可能）
@@ -34,13 +34,23 @@ namespace Metasia.Editor.ViewModels.Tools
 
         private bool _isFileSelected;
 
-        public ProjectToolViewModel(string? ProjectDir_Path)
+        private PlayerParentViewModel _playerParentViewModel;
+
+        public ProjectToolViewModel(PlayerParentViewModel playerParentViewModel)
         {
-            this.ProjectDir_Path = ProjectDir_Path;
+            _playerParentViewModel = playerParentViewModel;
+            ProjectDir_Path = playerParentViewModel.CurrentEditorProject?.ProjectPath.Path ?? String.Empty;
+
+            _playerParentViewModel.ProjectInstanceChanged += (sender, args) =>
+            {
+                ProjectDir_Path = playerParentViewModel.CurrentEditorProject?.ProjectPath.Path ?? String.Empty;
+                LoadDirectory();
+            };
+
             //プロジェクトディレクトリなしで作成された時はファイルを開くとかの案内を表示したい
             if (String.IsNullOrEmpty(ProjectDir_Path))
             {
-                
+
             }
 
             OpenFileByExternalApp = ReactiveCommand.Create(() =>
@@ -66,25 +76,25 @@ namespace Metasia.Editor.ViewModels.Tools
                 }
             };
 
-
-            Nodes = new ObservableCollection<FileTreeNode>()
+            if (String.IsNullOrEmpty(ProjectDir_Path))
             {
-                /*new FileTreeNode("Timelines", new ObservableCollection<FileTreeNode>
+                var kari = new DirectoryEntity("./../");
+                foreach (var entity in kari.GetSubordinates())
                 {
-                    new FileTreeNode("RootTimeline.mtl"),
-                    new FileTreeNode("Timeline2.mtl"),
-                    new FileTreeNode("Timeline3.mtl"),
-                }),
-                new FileTreeNode("packages", new ObservableCollection<FileTreeNode>
-                {
-                    new FileTreeNode("freimg"),
-                }),
-                new FileTreeNode("karimovie.mtpj"),*/
-                
-            };
+                    Nodes.Add(new FileTreeNode(entity));
+                }
+            }
+            else
+            {
+                LoadDirectory();
+            }
+        }
 
-            var kari = new DirectoryEntity("./../");
-            foreach (var entity in kari.GetSubordinates())
+        public void LoadDirectory()
+        {
+            var projectDir = new DirectoryEntity(ProjectDir_Path);
+            Nodes.Clear();
+            foreach (var entity in projectDir.GetSubordinates())
             {
                 Nodes.Add(new FileTreeNode(entity));
             }

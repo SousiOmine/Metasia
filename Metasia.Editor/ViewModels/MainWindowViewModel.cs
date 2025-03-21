@@ -43,7 +43,7 @@ namespace Metasia.Editor.ViewModels
 		public MainWindowViewModel()
 		{
 			
-			ToolsVM = new ToolsViewModel();
+
 
 			SaveEditingProject = ReactiveCommand.Create(SaveEditingProjectExecuteAsync);
 			LoadEditingProject = ReactiveCommand.Create(LoadEditingProjectExecuteAsync);
@@ -166,6 +166,8 @@ namespace Metasia.Editor.ViewModels
 			TimelineParentVM = new TimelineParentViewModel(PlayerParentVM);
 
 			inspectorViewModel = new InspectorViewModel(PlayerParentVM);
+
+			ToolsVM = new ToolsViewModel(PlayerParentVM);
 
 
 

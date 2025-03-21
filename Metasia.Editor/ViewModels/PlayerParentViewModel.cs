@@ -29,13 +29,16 @@ public class PlayerParentViewModel : ViewModelBase
         }
     }
 
-    public event EventHandler? ProjectInstanceChanged;
-
-    public string CurrentProjectFilePath
+    public MetasiaEditorProject? CurrentEditorProject
     {
-        get => _currentProjectFilePath;
-        set => this.RaiseAndSetIfChanged(ref _currentProjectFilePath, value);
+        get => currentEditorProject;
+        set
+        {
+            currentEditorProject = value;
+        }
     }
+
+    public event EventHandler? ProjectInstanceChanged;
 
     public ProjectStructureMethod CurrentProjectStructureMethod
     {
@@ -66,7 +69,7 @@ public class PlayerParentViewModel : ViewModelBase
     private ProjectStructureMethod currentProjectStructureMethod;
     private PlayerViewModel? _targetPlayerViewModel;
     private string _targetTimelineName;
-    private string _currentProjectFilePath;
+    private MetasiaEditorProject? currentEditorProject;
 
     private List<PlayerViewModel> _playerViewModels = new();
     
@@ -89,7 +92,6 @@ public class PlayerParentViewModel : ViewModelBase
             default:
                 throw new Exception("サポートされていないファイル形式です。");
         }
-        CurrentProjectFilePath = filePath;
     }
 
     public void SaveCurrentProject(string filePath)
@@ -101,7 +103,6 @@ public class PlayerParentViewModel : ViewModelBase
             case ProjectStructureMethod.MTPJ:
                 string jsonString = ProjectSerializer.SerializeToMTPJ(CurrentProject);
                 File.WriteAllText(filePath, jsonString);
-                CurrentProjectFilePath = filePath;
                 break;
         }
 
@@ -109,7 +110,7 @@ public class PlayerParentViewModel : ViewModelBase
 
     public void LoadProject(MetasiaEditorProject editorProject)
     {
-
+        CurrentEditorProject = editorProject;
 
         _playerViewModels.Clear();
 

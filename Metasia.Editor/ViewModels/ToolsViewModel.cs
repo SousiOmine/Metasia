@@ -6,9 +6,9 @@ namespace Metasia.Editor.ViewModels
     {
         public ProjectToolViewModel ProjectToolVM { get; }
         
-        public ToolsViewModel()
+        public ToolsViewModel(PlayerParentViewModel playerParentViewModel)
         {
-            ProjectToolVM = new ProjectToolViewModel(null);
+            ProjectToolVM = new ProjectToolViewModel(playerParentViewModel);
         }
     }
 }
