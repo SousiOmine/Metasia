@@ -187,7 +187,8 @@ namespace Metasia.Editor.ViewModels
 
 				if (result)
 				{
-					ProjectGenerator.CreateProject(dialog.ProjectPath, dialog.ProjectInfo, dialog.SelectedTemplate);
+					MetasiaEditorProject editorProject = ProjectGenerator.CreateProject(dialog.ProjectPath, dialog.ProjectInfo, dialog.SelectedTemplate);
+					PlayerParentVM.LoadProject(editorProject);
 				}
 			}
 			catch (Exception ex)

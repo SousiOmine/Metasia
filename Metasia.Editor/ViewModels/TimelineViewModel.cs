@@ -90,6 +90,12 @@ namespace Metasia.Editor.ViewModels
                     CursorLeft = Frame * Frame_Per_DIP;
                 });
 
+            // ViewPaintRequestのハンドラを設定
+            playerViewModel.ViewPaintRequest += () =>
+            {
+                // タイムラインの更新が必要な場合はここで行う
+                CursorLeft = playerViewModel.Frame * Frame_Per_DIP;
+            };
             
             foreach (var layer in Timeline.Layers)
             {

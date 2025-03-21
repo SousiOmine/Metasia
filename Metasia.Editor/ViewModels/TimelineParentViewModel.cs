@@ -1,4 +1,5 @@
 using ReactiveUI;
+using System;
 
 namespace Metasia.Editor.ViewModels
 {
@@ -24,6 +25,15 @@ namespace Metasia.Editor.ViewModels
                     CurrentTimelineViewModel = new TimelineViewModel(_playerParentViewModel.TargetPlayerViewModel);
                 }
             };
+
+            _playerParentViewModel.WhenAnyValue(x => x.TargetPlayerViewModel)
+                .Subscribe(playerVM =>
+                {
+                    if (playerVM is not null)
+                    {
+                        CurrentTimelineViewModel = new TimelineViewModel(playerVM);
+                    }
+                });
 
             if (_playerParentViewModel.TargetPlayerViewModel is not null)
             {

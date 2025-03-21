@@ -37,6 +37,8 @@ public partial class PlayerView : UserControl
 		{
 			if (VM is not null) VM.ViewPaintRequest = () => { skiaCanvas.InvalidateSurface(); };
 			if (VM is not null) VM.PlayStart = PlayStart;
+
+			skiaCanvas.InvalidateSurface();
 		};
 		
 		audioService = new SoundIOService();

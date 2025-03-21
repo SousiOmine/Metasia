@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Metasia.Core.Project;
 using Metasia.Editor.Models.FileSystem;
+using SkiaSharp;
 
 namespace Metasia.Editor.Models.Projects;
 
@@ -19,6 +20,24 @@ public class MetasiaEditorProject
     {
         ProjectPath = projectPath;
         ProjectFile = projectFile;
+    }
+
+    public MetasiaProject CreateMetasiaProject()
+    {
+        ProjectInfo projectInfo = new ProjectInfo()
+        {
+            Framerate = ProjectFile.Framerate,
+            Size = new SKSize(ProjectFile.Resolution.Width, ProjectFile.Resolution.Height),
+        };
+
+        MetasiaProject project = new MetasiaProject(projectInfo);
+
+        foreach (TimelineFile timeline in Timelines)
+        {
+            project.Timelines.Add(timeline.Timeline);
+        }
+
+        return project;
     }
 }
 

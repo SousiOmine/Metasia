@@ -10,6 +10,7 @@ using Metasia.Editor.Models;
 using Metasia.Editor.Models.Projects;
 using ReactiveUI;
 using SkiaSharp;
+using System.Linq;
 
 namespace Metasia.Editor.ViewModels;
 
@@ -20,23 +21,36 @@ public class PlayerParentViewModel : ViewModelBase
         get { return currentProject;}
         set
         {
+
             currentProject = value;
-            ProjectInstanceChanged?.Invoke(this, EventArgs.Empty);
             if (value is not null)
             {
-                TargetPlayerViewModel = new PlayerViewModel(CurrentProject.Timelines[0], CurrentProject.Info);
+                // 新しいProjectがセットされたら、メインタイムラインのPlayerViewModelを作成
+                var mainTimeline = value.Timelines.FirstOrDefault();
+                if (mainTimeline != null)
+                {
+                    // 既存のPlayerViewModelsを確認
+                    var existingVM = _playerViewModels.FirstOrDefault(vm => vm.TargetTimeline.Id == mainTimeline.Id);
+                    
+                    if (existingVM != null)
+                    {
+                        // 既存のVMがあればそれを使用
+                        TargetPlayerViewModel = existingVM;
+                    }
+                    else
+                    {
+                        // なければ新しく作成
+                        var newVM = new PlayerViewModel(mainTimeline, value.Info);
+                        _playerViewModels.Add(newVM);
+                        TargetPlayerViewModel = newVM;
+                    }
+                }
             }
+            ProjectInstanceChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 
-    public MetasiaEditorProject? CurrentEditorProject
-    {
-        get => currentEditorProject;
-        set
-        {
-            currentEditorProject = value;
-        }
-    }
+    public MetasiaEditorProject? CurrentEditorProject { get; set; }
 
     public event EventHandler? ProjectInstanceChanged;
 
@@ -76,6 +90,7 @@ public class PlayerParentViewModel : ViewModelBase
     {
         CurrentEditorProject = editorProject;
 
+        // 既存のPlayerViewModelリストをクリア
         _playerViewModels.Clear();
 
         ProjectInfo projectInfo = new ProjectInfo()
@@ -84,12 +99,13 @@ public class PlayerParentViewModel : ViewModelBase
             Size = new SKSize(editorProject.ProjectFile.Resolution.Width, editorProject.ProjectFile.Resolution.Height),
         };
 
+        // タイムラインごとに新しいPlayerViewModelを作成
         foreach (TimelineFile timeline in editorProject.Timelines)
         {
             _playerViewModels.Add(new PlayerViewModel(timeline.Timeline, projectInfo));
         }
 
-        TargetPlayerViewModel = _playerViewModels[0];
-        ProjectInstanceChanged?.Invoke(this, EventArgs.Empty);
+        // CurrentProjectをセット (setterでPlayerViewModelも設定される)
+        CurrentProject = editorProject.CreateMetasiaProject();
     }
 }
