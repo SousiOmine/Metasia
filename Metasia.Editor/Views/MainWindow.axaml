@@ -19,6 +19,8 @@
 	<DockPanel>
 		<Menu DockPanel.Dock="Top">
 			<MenuItem Header="ファイル">
+				<MenuItem Header="新規プロジェクト作成" Command="{Binding CreateNewProject}"/>
+				<Separator/>
 				<MenuItem Header="開く"/>
 				<MenuItem Header="閉じる"/>
 				<Separator/>

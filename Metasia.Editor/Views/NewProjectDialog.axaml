@@ -1,0 +1,43 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="350"
+        x:Class="Metasia.Editor.Views.NewProjectDialog"
+        Title="新規プロジェクト作成"
+        Width="450" Height="350"
+        WindowStartupLocation="CenterOwner">
+    <StackPanel Margin="20">
+        <TextBlock Text="プロジェクト名:" Margin="0,0,0,5"/>
+        <TextBox x:Name="ProjectNameTextBox" Margin="0,0,0,15"/>
+        
+        <TextBlock Text="保存先フォルダ:" Margin="0,0,0,5"/>
+        <Grid Margin="0,0,0,15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBox x:Name="FolderPathTextBox" Grid.Column="0" IsReadOnly="True"/>
+            <Button x:Name="BrowseButton" Content="参照..." Grid.Column="1" Margin="5,0,0,0"/>
+        </Grid>
+        
+        <TextBlock Text="フレームレート:" Margin="0,0,0,5"/>
+        <ComboBox x:Name="FramerateComboBox" SelectedIndex="1" Margin="0,0,0,15">
+            <ComboBoxItem Content="24 fps"/>
+            <ComboBoxItem Content="30 fps"/>
+            <ComboBoxItem Content="60 fps"/>
+        </ComboBox>
+        
+        <TextBlock Text="解像度:" Margin="0,0,0,5"/>
+        <ComboBox x:Name="ResolutionComboBox" SelectedIndex="1" Margin="0,0,0,15">
+            <ComboBoxItem Content="HD (1280×720)"/>
+            <ComboBoxItem Content="Full HD (1920×1080)"/>
+            <ComboBoxItem Content="4K (3840×2160)"/>
+        </ComboBox>
+        
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button x:Name="CancelButton" Content="キャンセル" Margin="0,0,10,0" Width="80"/>
+            <Button x:Name="CreateButton" Content="作成" IsEnabled="False" Width="80"/>
+        </StackPanel>
+    </StackPanel>
+</Window> 

@@ -1,4 +1,5 @@
 using System;
+using System.Reactive.Joins;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
@@ -18,9 +19,16 @@ namespace Metasia.Editor.Services
 		public async Task<IStorageFile?> OpenFileDialogAsync()
 		{
 			var files = await _target.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions()
-			{
+            {
                 Title = "ファイルを開く",
-				AllowMultiple = false,
+                AllowMultiple = false,
+                FileTypeFilter = new FilePickerFileType[]
+                {
+                    new("Metasia Project File")
+                    {
+                        Patterns = new string[] { "*.mtpj" }
+                    }
+                }
 			});
 
             // filesの要素数が1以上の場合は最初の要素を返し、
@@ -33,6 +41,13 @@ namespace Metasia.Editor.Services
             return await _target.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions()
             {
                 Title = "ファイルを保存",
+                FileTypeChoices = new FilePickerFileType[]
+                {
+                    new("Metasia Project File")
+                    {
+                        Patterns = new string[] { "*.mtpj" }
+                    }
+                }
             });
         }
 	}

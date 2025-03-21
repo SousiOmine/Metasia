@@ -14,6 +14,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Metasia.Editor.Services;
 using System.Threading.Tasks;
 using Metasia.Editor.Models;
+using Metasia.Editor.Views;
+using Avalonia.Controls;
 
 namespace Metasia.Editor.ViewModels
 {
@@ -33,6 +35,7 @@ namespace Metasia.Editor.ViewModels
 
 		public ICommand SaveEditingProject { get; }
 		public ICommand LoadEditingProject { get; }
+		public ICommand CreateNewProject { get; }
 
 
 		public MainWindowViewModel()
@@ -42,6 +45,7 @@ namespace Metasia.Editor.ViewModels
 
 			SaveEditingProject = ReactiveCommand.Create(SaveEditingProjectExecuteAsync);
 			LoadEditingProject = ReactiveCommand.Create(LoadEditingProjectExecuteAsync);
+			CreateNewProject = ReactiveCommand.Create(CreateNewProjectExecuteAsync);
 			ProjectInfo info = new ProjectInfo()
 		    {
 	    	    Framerate = 60,
@@ -150,14 +154,6 @@ namespace Metasia.Editor.ViewModels
 			kariProject.Timelines.Add(mainTL);
 			kariProject.Timelines.Add(secondTL);
 
-			// mainTLをJSONシリアライズする例
-			var options = new JsonSerializerOptions
-			{
-				WriteIndented = true,
-				IncludeFields = true,
-				Converters = { new MetasiaObjectJsonConverter() }
-			};
-
 			string jsonString = ProjectSerializer.SerializeToMTPJ(kariProject);
 
 			MetasiaProject deserializedProject = ProjectSerializer.DeserializeFromMTPJ(jsonString);
@@ -171,6 +167,30 @@ namespace Metasia.Editor.ViewModels
 
 
 
+		}
+
+		private async Task CreateNewProjectExecuteAsync()
+		{
+			try
+			{
+				var window = App.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop
+					? desktop.MainWindow
+					: null;
+				
+				if (window == null) return;
+				
+				var dialog = new NewProjectDialog();
+				var result = await dialog.ShowDialog<bool>(window);
+				
+				if (result)
+				{
+					PlayerParentVM.CreateNewProject(dialog.ProjectName, dialog.ProjectPath, dialog.ProjectInfo);
+				}
+			}
+			catch (Exception ex)
+			{
+				Debug.WriteLine($"新規プロジェクト作成エラー: {ex.Message}");
+			}
 		}
 
 		private async Task SaveEditingProjectExecuteAsync()
