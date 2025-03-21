@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 using Metasia.Editor.Models;
 using Metasia.Editor.Views;
 using Avalonia.Controls;
-
+using Metasia.Editor.Models.Projects;
 namespace Metasia.Editor.ViewModels
 {
 	public class MainWindowViewModel : ViewModelBase
@@ -181,10 +181,10 @@ namespace Metasia.Editor.ViewModels
 				
 				var dialog = new NewProjectDialog();
 				var result = await dialog.ShowDialog<bool>(window);
-				
+
 				if (result)
 				{
-					PlayerParentVM.CreateNewProject(dialog.ProjectName, dialog.ProjectPath, dialog.ProjectInfo);
+					ProjectGenerator.CreateProject(dialog.ProjectPath, dialog.ProjectInfo);
 				}
 			}
 			catch (Exception ex)

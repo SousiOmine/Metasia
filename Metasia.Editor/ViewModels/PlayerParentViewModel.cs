@@ -1,9 +1,12 @@
 using System;
 using System.IO;
+using System.Text.Json;
+using CsToml;
 using Metasia.Core.Json;
 using Metasia.Core.Objects;
 using Metasia.Core.Project;
 using Metasia.Editor.Models;
+using Metasia.Editor.Models.Projects;
 using ReactiveUI;
 
 namespace Metasia.Editor.ViewModels;
@@ -96,44 +99,11 @@ public class PlayerParentViewModel : ViewModelBase
 
     }
 
-    private void LoadProject()
+    private void LoadProject(MetasiaEditorProject editorProject)
     {
-        TargetPlayerViewModel = new PlayerViewModel(CurrentProject.Timelines[0], CurrentProject.Info);
-        ProjectInstanceChanged?.Invoke(this, EventArgs.Empty);
-    }
+        // TargetPlayerViewModel = new PlayerViewModel(CurrentProject.Timelines[0], CurrentProject.Info);
+        // ProjectInstanceChanged?.Invoke(this, EventArgs.Empty);
 
-    public void CreateNewProject(string projectName, string projectPath, ProjectInfo projectInfo)
-    {
-        // プロジェクトフォルダが存在しない場合は作成
-        if (!Directory.Exists(projectPath))
-        {
-            Directory.CreateDirectory(projectPath);
-        }
-
-        // 新しいプロジェクトオブジェクトを作成
-        MetasiaProject newProject = new MetasiaProject(projectInfo);
-        newProject.LastFrame = 299; // デフォルト5秒（60fpsの場合）
-
-        // ルートタイムラインを作成
-        TimelineObject mainTL = new TimelineObject("RootTimeline");
         
-        // デフォルトのレイヤーを追加
-        LayerObject defaultLayer = new LayerObject("layer1", "レイヤー 1");
-        mainTL.Layers.Add(defaultLayer);
-        
-        // プロジェクトにタイムラインを追加
-        newProject.Timelines.Add(mainTL);
-        
-        // プロジェクトファイルのパスを設定
-        string projectFilePath = Path.Combine(projectPath, $"{projectName}.mtpj");
-        
-        // プロジェクトを現在のプロジェクトとして設定
-        CurrentProject = newProject;
-        CurrentProjectStructureMethod = ProjectStructureMethod.MTPJ;
-        CurrentProjectFilePath = projectFilePath;
-        
-        // プロジェクトをファイルに保存
-        string jsonString = ProjectSerializer.SerializeToMTPJ(newProject);
-        File.WriteAllText(projectFilePath, jsonString);
     }
 }
