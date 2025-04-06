@@ -1,12 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text.Json;
-using CsToml;
-using Metasia.Core.Json;
-using Metasia.Core.Objects;
 using Metasia.Core.Project;
-using Metasia.Editor.Models;
 using Metasia.Editor.Models.Projects;
 using ReactiveUI;
 using SkiaSharp;

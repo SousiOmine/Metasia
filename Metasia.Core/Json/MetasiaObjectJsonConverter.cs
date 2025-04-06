@@ -17,12 +17,6 @@ public class MetasiaObjectJsonConverter : JsonConverter<MetasiaObject>
             .GetTypes()
             .Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(MetasiaObject)))
             .ToDictionary(t => t.Name, t => t);
-
-        Debug.WriteLine("Registered types in MetasiaObjectJsonConverter:");
-        foreach (var type in _typeMap)
-        {
-            Debug.WriteLine($"- {type.Key}: {type.Value.FullName}");
-        }
     }
 
     public override MetasiaObject? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
@@ -44,7 +38,6 @@ public class MetasiaObjectJsonConverter : JsonConverter<MetasiaObject>
 
         // 型名を取得し、登録済みの型と照合
         var typeDiscriminator = typeProperty.GetString();
-        Debug.WriteLine($"Attempting to deserialize type: {typeDiscriminator}");
 
         if (string.IsNullOrEmpty(typeDiscriminator) || !_typeMap.TryGetValue(typeDiscriminator, out var type))
         {
@@ -70,14 +63,6 @@ public class MetasiaObjectJsonConverter : JsonConverter<MetasiaObject>
             {
                 Debug.WriteLine($"Failed to deserialize {typeDiscriminator} - result was null");
             }
-            else
-            {
-                Debug.WriteLine($"Successfully deserialized {typeDiscriminator}");
-                if (instance is TimelineObject timeline)
-                {
-                    Debug.WriteLine($"Timeline Layers count: {timeline.Layers?.Count ?? 0}");
-                }
-            }
             return instance;
         }
         catch (Exception ex)
@@ -89,8 +74,6 @@ public class MetasiaObjectJsonConverter : JsonConverter<MetasiaObject>
 
     public override void Write(Utf8JsonWriter writer, MetasiaObject value, JsonSerializerOptions options)
     {
-        Debug.WriteLine($"Serializing object of type: {value.GetType().Name}");
-
         // シリアライズ設定を構成
         var serializerOptions = new JsonSerializerOptions
         {
@@ -101,8 +84,6 @@ public class MetasiaObjectJsonConverter : JsonConverter<MetasiaObject>
 
         // オブジェクトをJSON文字列に変換
         var json = JsonSerializer.Serialize(value, value.GetType(), serializerOptions);
-        Debug.WriteLine($"Serialized JSON for {value.GetType().Name}:");
-        Debug.WriteLine(json);
 
         // JSON文字列をパースして再構築
         // $typeプロパティを追加しつつ、その他のプロパティを書き込む
