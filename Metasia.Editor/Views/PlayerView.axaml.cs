@@ -64,18 +64,24 @@ public partial class PlayerView : UserControl
 		
 		VM.TargetTimeline.DrawExpresser(ref drawExp, VM.Frame);
 
-		AudioExpresserArgs audioExp = new()
+		if(VM.IsPlaying)
 		{
-			Sound = new MetasiaSound(2, 44100, 60),
-			AudioChannel = 2,
-			SoundSampleRate = 44100,
-			FPS = VM.TargetProjectInfo.Framerate,
-		};
+            AudioExpresserArgs audioExp = new()
+            {
+                Sound = new MetasiaSound(2, 44100, 60),
+                AudioChannel = 2,
+                SoundSampleRate = 44100,
+                FPS = VM.TargetProjectInfo.Framerate,
+            };
 
-		VM.TargetTimeline.AudioExpresser(ref audioExp, VM.Frame);
+            VM.TargetTimeline.AudioExpresser(ref audioExp, VM.Frame);
 
 
-		audioService.InsertQueue(audioExp.Sound.Pulse, 2);
+            audioService.InsertQueue(audioExp.Sound.Pulse, 2);
+
+        }
+
+
 
 		lock (renderLock)
 		{
