@@ -2,6 +2,7 @@ using System;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Metasia.Editor.Models.EditCommands;
 using Metasia.Editor.Services;
 using Metasia.Editor.ViewModels;
 using Metasia.Editor.Views;
@@ -33,7 +34,8 @@ namespace Metasia.Editor
 
 				var services = new ServiceCollection();
 				services.AddSingleton<IFileDialogService>(new FileDialogService(desktop.MainWindow));
-				Services = services.BuildServiceProvider();
+                services.AddSingleton<IEditCommandManager>(new EditCommandManager());
+                Services = services.BuildServiceProvider();
 			}
 
 			base.OnFrameworkInitializationCompleted();

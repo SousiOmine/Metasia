@@ -19,6 +19,7 @@ using Avalonia.Controls;
 using Metasia.Editor.Models.Projects;
 using Metasia.Editor.Models.FileSystem;
 using Metasia.Editor.Models.ProjectGenerate;
+using Metasia.Editor.Models.EditCommands;
 namespace Metasia.Editor.ViewModels
 {
 	public class MainWindowViewModel : ViewModelBase
@@ -42,10 +43,10 @@ namespace Metasia.Editor.ViewModels
 
 		public MainWindowViewModel()
 		{
-			
 
 
-			SaveEditingProject = ReactiveCommand.Create(SaveEditingProjectExecuteAsync);
+
+            SaveEditingProject = ReactiveCommand.Create(SaveEditingProjectExecuteAsync);
 			LoadEditingProject = ReactiveCommand.Create(LoadEditingProjectExecuteAsync);
 			CreateNewProject = ReactiveCommand.Create(CreateNewProjectExecuteAsync);
 			
