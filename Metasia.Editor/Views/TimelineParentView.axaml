@@ -7,5 +7,7 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Metasia.Editor.Views.TimelineParentView"
              x:DataType="vm:TimelineParentViewModel">
-    <views:TimelineView DataContext="{Binding CurrentTimelineViewModel}"/>
+    <DockPanel IsVisible="{Binding IsTimelineShow}">
+        <views:TimelineView DataContext="{Binding CurrentTimelineViewModel}"/>
+    </DockPanel>
 </UserControl>

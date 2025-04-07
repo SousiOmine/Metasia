@@ -25,7 +25,7 @@ public class PlayerParentViewModel : ViewModelBase
                 {
                     // 既存のPlayerViewModelsを確認
                     var existingVM = _playerViewModels.FirstOrDefault(vm => vm.TargetTimeline.Id == mainTimeline.Id);
-                    
+
                     if (existingVM != null)
                     {
                         // 既存のVMがあればそれを使用
@@ -67,21 +67,30 @@ public class PlayerParentViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _targetTimelineName, value);
     }
 
+    public bool IsPlayerShow
+    {
+        get => _isPlayerShow;
+        set => this.RaiseAndSetIfChanged(ref _isPlayerShow, value);
+    }
+
     private MetasiaProject? currentProject;
     private PlayerViewModel? _targetPlayerViewModel;
     private string _targetTimelineName = string.Empty;
     private MetasiaEditorProject? currentEditorProject;
 
     private List<PlayerViewModel> _playerViewModels = new();
+
+    private bool _isPlayerShow = false;
     
     public PlayerParentViewModel(MetasiaProject project)
     {
-        CurrentProject = project;
+        //CurrentProject = project;
     }
 
 
     public void LoadProject(MetasiaEditorProject editorProject)
     {
+        IsPlayerShow = false;
         CurrentEditorProject = editorProject;
 
         // 既存のPlayerViewModelリストをクリア
@@ -101,5 +110,7 @@ public class PlayerParentViewModel : ViewModelBase
 
         // CurrentProjectをセット (setterでPlayerViewModelも設定される)
         CurrentProject = editorProject.CreateMetasiaProject();
+
+        IsPlayerShow = true;
     }
 }

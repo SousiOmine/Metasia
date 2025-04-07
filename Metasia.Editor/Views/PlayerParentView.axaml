@@ -7,9 +7,14 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Metasia.Editor.Views.PlayerParentView"
              x:DataType="vm:PlayerParentViewModel">
-    <DockPanel>
-        <TextBlock Text="{Binding TargetTimelineName}" DockPanel.Dock="Top" HorizontalAlignment="Center"/>
-        <views:PlayerView VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                          DataContext="{Binding TargetPlayerViewModel}"/>
-    </DockPanel>
+    <StackPanel>
+        <DockPanel IsVisible="{Binding IsPlayerShow}">
+            <TextBlock Text="{Binding TargetTimelineName}" DockPanel.Dock="Top" HorizontalAlignment="Center"/>
+            <views:PlayerView VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                            DataContext="{Binding TargetPlayerViewModel}"/>
+        </DockPanel>
+        <DockPanel IsVisible="{Binding !IsPlayerShow}">
+            <TextBlock Text="プロジェクトを読み込むか、新規に作成してください。" />
+        </DockPanel>
+    </StackPanel>
 </UserControl>

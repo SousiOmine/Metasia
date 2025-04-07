@@ -27,17 +27,20 @@ namespace Metasia.Editor.ViewModels
 
         public void PlayerChanged()
         {
-            _playerParentViewModel.TargetPlayerViewModel.SelectingObjects.CollectionChanged += (sender, args) =>
+            if (_playerParentViewModel.TargetPlayerViewModel is not null)
             {
-                if (_playerParentViewModel.TargetPlayerViewModel.SelectingObjects.Count > 0)
+                _playerParentViewModel.TargetPlayerViewModel.SelectingObjects.CollectionChanged += (sender, args) =>
                 {
-                    TestCharacters = _playerParentViewModel.TargetPlayerViewModel.SelectingObjects[0].Id;
-                }
-                else
-                {
-                    TestCharacters = string.Empty;
-                }
-            };
+                    if (_playerParentViewModel.TargetPlayerViewModel.SelectingObjects.Count > 0)
+                    {
+                        TestCharacters = _playerParentViewModel.TargetPlayerViewModel.SelectingObjects[0].Id;
+                    }
+                    else
+                    {
+                        TestCharacters = string.Empty;
+                    }
+                };
+            }
         }
     }
 }

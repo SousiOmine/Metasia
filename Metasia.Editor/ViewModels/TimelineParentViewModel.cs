@@ -11,8 +11,16 @@ namespace Metasia.Editor.ViewModels
             set { this.RaiseAndSetIfChanged(ref _timelineViewModel, value); }
         }
 
+        public bool IsTimelineShow
+        {
+            get { return _isTimelineShow; }
+            set { this.RaiseAndSetIfChanged(ref _isTimelineShow, value); }
+        }
+
         private TimelineViewModel? _timelineViewModel;
-        
+
+        private bool _isTimelineShow = false;
+
         PlayerParentViewModel _playerParentViewModel;
         public TimelineParentViewModel(PlayerParentViewModel playerParentViewModel)
         {
@@ -23,17 +31,13 @@ namespace Metasia.Editor.ViewModels
                 if (_playerParentViewModel.TargetPlayerViewModel is not null)
                 {
                     CurrentTimelineViewModel = new TimelineViewModel(_playerParentViewModel.TargetPlayerViewModel);
+                    IsTimelineShow = true;
+                }
+                else
+                {
+                    IsTimelineShow = false;
                 }
             };
-
-            _playerParentViewModel.WhenAnyValue(x => x.TargetPlayerViewModel)
-                .Subscribe(playerVM =>
-                {
-                    if (playerVM is not null)
-                    {
-                        CurrentTimelineViewModel = new TimelineViewModel(playerVM);
-                    }
-                });
 
             if (_playerParentViewModel.TargetPlayerViewModel is not null)
             {
