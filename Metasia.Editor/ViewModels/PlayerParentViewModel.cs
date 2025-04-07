@@ -81,10 +81,10 @@ public class PlayerParentViewModel : ViewModelBase
     private List<PlayerViewModel> _playerViewModels = new();
 
     private bool _isPlayerShow = false;
-    
-    public PlayerParentViewModel(MetasiaProject project)
+
+    public PlayerParentViewModel()
     {
-        //CurrentProject = project;
+        
     }
 
 
