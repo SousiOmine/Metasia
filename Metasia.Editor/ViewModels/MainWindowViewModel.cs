@@ -24,10 +24,6 @@ namespace Metasia.Editor.ViewModels
 {
 	public class MainWindowViewModel : ViewModelBase
 	{
-		public string Greeting => "Welcome to Avalonia!";
-
-		//public PlayerViewModel playerViewModel { get; }
-		
 		public PlayerParentViewModel PlayerParentVM { get; }
 
 		public InspectorViewModel inspectorViewModel { get; }
@@ -39,6 +35,25 @@ namespace Metasia.Editor.ViewModels
 		public ICommand SaveEditingProject { get; }
 		public ICommand LoadEditingProject { get; }
 		public ICommand CreateNewProject { get; }
+		
+		public ICommand Undo { get; }
+		
+		public ICommand Redo { get; }
+
+		public bool CanUndo
+		{
+			get => _canUndo;
+			set => this.RaiseAndSetIfChanged(ref _canUndo, value);
+		}
+		
+		public bool CanRedo
+		{
+			get => _canRedo;
+			set => this.RaiseAndSetIfChanged(ref _canRedo, value);
+		}
+		
+		private bool _canUndo = false;
+		private bool _canRedo = false;
 
 
 		public MainWindowViewModel()

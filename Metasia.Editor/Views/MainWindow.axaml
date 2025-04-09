@@ -41,7 +41,8 @@
 
 			</MenuItem>
 			<MenuItem Header="編集">
-
+				<MenuItem Header="元に戻す" IsEnabled="{Binding CanUndo}"/>
+				<MenuItem Header="やり直し" IsEnabled="{Binding CanRedo}"/>
 			</MenuItem>
 			<MenuItem Header="表示">
 
