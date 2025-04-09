@@ -8,6 +8,7 @@ using DynamicData;
 using Metasia.Core.Coordinate;
 using Metasia.Core.Objects;
 using Metasia.Core.Project;
+using Metasia.Editor.Models.EditCommands;
 using ReactiveUI;
 using SkiaSharp;
 
@@ -26,6 +27,8 @@ namespace Metasia.Editor.ViewModels
 		public ProjectInfo TargetProjectInfo { get; private set; }
 		
 		public TimelineObject TargetTimeline { get; private set; }
+		
+		public IEditCommandManager HistoryManager { get; private set; }
 
 		/// <summary>
 		/// 再生中であるか否か
@@ -75,10 +78,15 @@ namespace Metasia.Editor.ViewModels
         public ICommand PreviousFrame { get; }
 		public ICommand Play { get; }
 		public ICommand Pause { get; }
+		
+		public bool CanUndo => HistoryManager.CanUndo;
+		public bool CanRedo => HistoryManager.CanRedo;
+		
 		public PlayerViewModel(TimelineObject targetTimeline, ProjectInfo projectInfo)
 		{
 			TargetTimeline = targetTimeline;
 			TargetProjectInfo = projectInfo;
+			HistoryManager = new EditCommandManager();
 
             NextFrame = ReactiveCommand.Create(() =>
             {
@@ -106,10 +114,19 @@ namespace Metasia.Editor.ViewModels
 
             NotifyProjectChanged();
 		}
+		
+		
 
 		private void Timer_Elapsed(object? sender, ElapsedEventArgs e)
 		{
 			Frame++;
+		}
+		
+		public bool RunEditCommand(IEditCommand command)
+		{
+			HistoryManager.Execute(command);
+			NotifyProjectChanged();
+			return true;
 		}
 
 		/// <summary>

@@ -19,6 +19,21 @@ namespace Metasia.Editor.Models.EditCommands
         public bool CanRedo { get; }
 
         /// <summary>
+        /// コマンドが実行されたときに発火するイベント
+        /// </summary>
+        event EventHandler<IEditCommand> CommandExecuted;
+
+        /// <summary>
+        /// Undoが実行されたときに発火するイベント
+        /// </summary>
+        event EventHandler<IEditCommand> CommandUndone;
+
+        /// <summary>
+        /// Redoが実行されたときに発火するイベント
+        /// </summary>
+        event EventHandler<IEditCommand> CommandRedone;
+
+        /// <summary>
         /// コマンドを実行する
         /// </summary>
         /// <param name="command">実行するコマンド</param>
@@ -28,6 +43,7 @@ namespace Metasia.Editor.Models.EditCommands
         /// Undoを実行する
         /// </summary>
         public void Undo();
+        
 
         /// <summary>
         /// Undoしたコマンドを再実行(Redo)する

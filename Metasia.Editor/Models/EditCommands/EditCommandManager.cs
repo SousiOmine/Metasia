@@ -11,19 +11,23 @@ namespace Metasia.Editor.Models.EditCommands
     /// </summary>
     public class EditCommandManager : IEditCommandManager
     {
-        public bool CanUndo => undoStack.Count > 0;
+        private readonly Stack<IEditCommand> undoStack = new();
+        private readonly Stack<IEditCommand> redoStack = new();
 
+        public bool CanUndo => undoStack.Count > 0;
         public bool CanRedo => redoStack.Count > 0;
 
-
-        private Stack<IEditCommand> undoStack = new();
-        private Stack<IEditCommand> redoStack = new();
+        public event EventHandler<IEditCommand> CommandExecuted = delegate { };
+        public event EventHandler<IEditCommand> CommandUndone = delegate { };
+        public event EventHandler<IEditCommand> CommandRedone = delegate { };
 
         public void Execute(IEditCommand command)
         {
             command.Execute();
             undoStack.Push(command);
-            redoStack.Clear();  //redoは新しいコマンド実行時にクリアしちゃう
+            redoStack.Clear();
+            
+            CommandExecuted?.Invoke(this, command);
         }
 
         public void Undo()
@@ -33,6 +37,8 @@ namespace Metasia.Editor.Models.EditCommands
                 var command = undoStack.Pop();
                 command.Undo();
                 redoStack.Push(command);
+                
+                CommandUndone?.Invoke(this, command);
             }
         }
 
@@ -43,6 +49,8 @@ namespace Metasia.Editor.Models.EditCommands
                 var command = redoStack.Pop();
                 command.Execute();
                 undoStack.Push(command);
+                
+                CommandRedone?.Invoke(this, command);
             }
         }
 

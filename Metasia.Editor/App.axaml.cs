@@ -34,7 +34,6 @@ namespace Metasia.Editor
 
 				var services = new ServiceCollection();
 				services.AddSingleton<IFileDialogService>(new FileDialogService(desktop.MainWindow));
-                services.AddSingleton<IEditCommandManager>(new EditCommandManager());
                 Services = services.BuildServiceProvider();
 			}
 

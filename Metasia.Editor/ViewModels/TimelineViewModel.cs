@@ -8,6 +8,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Metasia.Editor.Models.EditCommands;
 
 namespace Metasia.Editor.ViewModels
 {
@@ -99,7 +100,7 @@ namespace Metasia.Editor.ViewModels
             
             foreach (var layer in Timeline.Layers)
             {
-                LayerButtons.Add(new LayerButtonViewModel(layer));
+                LayerButtons.Add(new LayerButtonViewModel(this, layer));
                 LayerCanvas.Add(new LayerCanvasViewModel(this, layer));
             }
 
@@ -116,6 +117,11 @@ namespace Metasia.Editor.ViewModels
                     playerViewModel.SelectingObjects.Add(targetClip.TargetObject);
                 }
             });
+        }
+
+        public bool RunEditCommand(IEditCommand command)
+        {
+            return playerViewModel.RunEditCommand(command);
         }
 
         public void SetFrameFromPosition(double position)

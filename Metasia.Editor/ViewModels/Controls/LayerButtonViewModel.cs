@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Metasia.Editor.Models.EditCommands.Commands;
 
 namespace Metasia.Editor.ViewModels.Controls
 {
@@ -18,16 +19,19 @@ namespace Metasia.Editor.ViewModels.Controls
             set => this.RaiseAndSetIfChanged(ref _buttonText, value);
         }
 
+        private TimelineViewModel _parentTimelineViewModel;
         private LayerObject targetLayerObject;
 
         private string _buttonText = "Layer";
-        public LayerButtonViewModel(LayerObject targetLayerObject) 
+        public LayerButtonViewModel(TimelineViewModel parentTimelineViewModel, LayerObject targetLayerObject) 
         {
+            _parentTimelineViewModel = parentTimelineViewModel;
             this.targetLayerObject = targetLayerObject;
 
             ButtonClick = ReactiveCommand.Create(() =>
             {
-                targetLayerObject.IsActive = !targetLayerObject.IsActive;
+                var command = new LayerIsActiveChangeCommand(targetLayerObject, !targetLayerObject.IsActive);
+                _parentTimelineViewModel.RunEditCommand(command);
             });
 
             ButtonText = targetLayerObject.Name;
