@@ -30,6 +30,8 @@ namespace Metasia.Editor.ViewModels
 		
 		public IEditCommandManager HistoryManager { get; private set; }
 
+		public event EventHandler? ProjectChanged;
+
 		/// <summary>
 		/// 再生中であるか否か
 		/// </summary>
@@ -150,7 +152,9 @@ namespace Metasia.Editor.ViewModels
 			if(IsPlaying == false) ViewPaintRequest?.Invoke();
 
 			SliderMaximum = TargetTimeline.EndFrame;
-		}
+
+            ProjectChanged?.Invoke(this, EventArgs.Empty);
+        }
 
 	}
 }

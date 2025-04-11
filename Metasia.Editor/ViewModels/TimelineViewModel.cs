@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Metasia.Editor.Models.EditCommands;
+using Avalonia.Layout;
 
 namespace Metasia.Editor.ViewModels
 {
@@ -97,7 +98,17 @@ namespace Metasia.Editor.ViewModels
                 // タイムラインの更新が必要な場合はここで行う
                 CursorLeft = playerViewModel.Frame * Frame_Per_DIP;
             };
-            
+
+            //プロジェクトに変更が加えられたときの動作
+            playerViewModel.ProjectChanged += (sender, args) =>
+            {
+                //レイヤーにあるクリップのサイズを再計算
+                foreach (var layer in LayerCanvas)
+                {
+                    layer.RecalculateSize();
+                }
+            };
+
             foreach (var layer in Timeline.Layers)
             {
                 LayerButtons.Add(new LayerButtonViewModel(this, layer));

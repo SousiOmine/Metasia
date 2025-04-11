@@ -37,7 +37,7 @@ namespace Metasia.Editor.ViewModels.Controls
             set 
             {
                 this.RaiseAndSetIfChanged(ref _frame_per_DIP, value);
-                ChangeFramePerDIP();
+                RecalculateSize();
             } 
         }
 
@@ -79,6 +79,15 @@ namespace Metasia.Editor.ViewModels.Controls
             TargetObject = targetObject;
             this.parentTimeline = parentTimeline;
             IsSelecting = false;
+        }
+
+        /// <summary>
+        /// クリップのサイズを再計算する
+        /// </summary>
+        public void RecalculateSize()
+        {
+            Width = (TargetObject.EndFrame - TargetObject.StartFrame + 1) * Frame_Per_DIP;
+            StartFrame = TargetObject.StartFrame * Frame_Per_DIP;
         }
 
         public void ClipClick()
@@ -148,19 +157,13 @@ namespace Metasia.Editor.ViewModels.Controls
                 }
                 parentTimeline.RunEditCommand(command);
 
-                ChangeFramePerDIP();
+                RecalculateSize();
             }
 
             _isDragging = false;
             _dragHandleName = string.Empty;
 
             Console.WriteLine(pointerPositionXOnCanvas);
-        }
-
-        private void ChangeFramePerDIP()
-        {
-            Width = (TargetObject.EndFrame - TargetObject.StartFrame + 1) * Frame_Per_DIP;
-            StartFrame = TargetObject.StartFrame * Frame_Per_DIP;
         }
     }
 }

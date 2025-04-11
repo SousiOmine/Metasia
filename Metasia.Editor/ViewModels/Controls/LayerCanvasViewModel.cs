@@ -65,6 +65,17 @@ namespace Metasia.Editor.ViewModels.Controls
             }
         }
 
+        /// <summary>
+        /// レイヤーにあるクリップの大きさを再計算する
+        /// </summary>
+        public void RecalculateSize()
+        {
+            foreach (var clip in ClipsAndBlanks)
+            {
+                clip.RecalculateSize();
+            }
+        }
+
         private void ChangeFramePerDIP()
         {
             foreach (var clip in ClipsAndBlanks)
