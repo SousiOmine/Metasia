@@ -31,7 +31,8 @@ public partial class ClipView : UserControl
 
     private void Handle_PointerPressed(object? sender, PointerPressedEventArgs e)
     {
-        if(VM is null || sender is not Border handle) return;
+        //ViewModelがnullか、Borderからのイベントであれば何もしない
+        if (VM is null || sender is not Border handle) return;
         if (handle.Name != "StartHandle" && handle.Name != "EndHandle")
         {
             return;
@@ -39,7 +40,10 @@ public partial class ClipView : UserControl
 
         var parentCanvas = this.Parent as Control;
         var position = e.GetCurrentPoint(parentCanvas).Position;
+
+        //ViewModelでドラッグ開始処理
         VM.StartDrag(handle.Name, position.X);
+
         e.Pointer.Capture(handle);
 
         e.Handled = true;

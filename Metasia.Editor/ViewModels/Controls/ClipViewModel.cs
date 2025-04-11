@@ -52,10 +52,25 @@ namespace Metasia.Editor.ViewModels.Controls
         private double startFrame;
         private bool isSelecting;
 
+        /// <summary>
+        /// ドラッグ中かどうかを示すフラグ
+        /// </summary>
         private bool _isDragging = false;
+
+        /// <summary>
+        /// ドラッグされているのが始端か終端かを示す
+        /// </summary>
         private string _dragHandleName = string.Empty;  // "StartHandle" または "EndHandle"
+
+        /// <summary>
+        /// ドラッグ開始時のポインタ位置
+        /// </summary>
         private double _dragStartX = 0;
-        private int _initialDragFrame = 0; // ドラッグ開始時の始端あるいは終端のフレーム
+
+        /// <summary>
+        /// ドラッグ開始時の始端あるいは終端のフレーム
+        /// </summary>
+        private int _initialDragFrame = 0;
 
         private TimelineViewModel parentTimeline;
 
@@ -71,6 +86,11 @@ namespace Metasia.Editor.ViewModels.Controls
             parentTimeline.ClipSelect(this);
         }
 
+        /// <summary>
+        /// ドラッグ開始時の処理
+        /// </summary>
+        /// <param name="handleName">StartHandle あるいは EndHandle</param>
+        /// <param name="pointerPositionXOnCanvas">ポインタの初期位置</param>
         public void StartDrag(string handleName, double pointerPositionXOnCanvas)
         {
             _isDragging = true;
@@ -86,6 +106,10 @@ namespace Metasia.Editor.ViewModels.Controls
             //ドラッグ中になにかするならここに書く
         }
 
+        /// <summary>
+        /// ドラッグ終了時の処理
+        /// </summary>
+        /// <param name="pointerPositionXOnCanvas">ポインタの最後の位置</param>
         public void EndDrag(double pointerPositionXOnCanvas)
         {
             if (!_isDragging || string.IsNullOrEmpty(_dragHandleName))
@@ -99,6 +123,8 @@ namespace Metasia.Editor.ViewModels.Controls
 
             int finalNewFrame = _initialDragFrame + frameChange;
 
+            // ドラッグが始端か終端かによって、新しいフレームを計算する
+            // オブジェクトの長さが1未満にならないように制限する
             if (_dragHandleName == "StartHandle")
             {
                 finalNewFrame = Math.Min(finalNewFrame, TargetObject.EndFrame - 1);
@@ -108,6 +134,7 @@ namespace Metasia.Editor.ViewModels.Controls
                 finalNewFrame = Math.Max(finalNewFrame, TargetObject.StartFrame + 1);
             }
 
+            //もしフレームが変わっていたらコマンドを実行
             if (finalNewFrame != _initialDragFrame)
             {
                 IEditCommand command;
