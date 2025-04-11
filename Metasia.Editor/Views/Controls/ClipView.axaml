@@ -14,8 +14,15 @@
 	<Border x:Name="Clip" Tapped="Clip_OnTapped"
 			BorderBrush="DarkGray" Background="Pink" BorderThickness="1" CornerRadius="10" ClipToBounds="True"
 	        Opacity="{Binding IsSelecting, Converter={StaticResource ClipConverter}}">
-		<RelativePanel>
-			<TextBlock Text="オブジェクト" Padding="5" RelativePanel.AlignVerticalCenterWithPanel="True"/>
-		</RelativePanel>
+		<Grid ColumnDefinitions="Auto,*,Auto">
+			<Border Grid.Column="0" x:Name="StartHandle" Width="10" Background="Blue" Cursor="SizeWestEast" VerticalAlignment="Stretch" HorizontalAlignment="Left"
+					PointerPressed="Handle_PointerPressed" PointerMoved="Handle_PointerMoved" PointerReleased="Handle_PointerReleased"/>
+			<RelativePanel Grid.Column="1">
+				<TextBlock Text="オブジェクト" Padding="5" RelativePanel.AlignVerticalCenterWithPanel="True"/>
+			</RelativePanel>
+			<Border Grid.Column="2" x:Name="EndHandle" Width="10" Background="Green" Cursor="SizeWestEast" VerticalAlignment="Stretch" HorizontalAlignment="Right"
+                    PointerPressed="Handle_PointerPressed" PointerMoved="Handle_PointerMoved" PointerReleased="Handle_PointerReleased"/>
+		</Grid>
+
 	</Border>
 </UserControl>

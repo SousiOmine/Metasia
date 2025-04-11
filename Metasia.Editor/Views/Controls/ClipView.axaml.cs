@@ -28,4 +28,51 @@ public partial class ClipView : UserControl
     {
         VM.ClipClick();
     }
+
+    private void Handle_PointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if(VM is null || sender is not Border handle) return;
+        if (handle.Name != "StartHandle" && handle.Name != "EndHandle")
+        {
+            return;
+        }
+
+        var parentCanvas = this.Parent as Control;
+        var position = e.GetCurrentPoint(parentCanvas).Position;
+        VM.StartDrag(handle.Name, position.X);
+        e.Pointer.Capture(handle);
+
+        e.Handled = true;
+    }
+
+    private void Handle_PointerMoved(object? sender, PointerEventArgs e)
+    {
+        if (VM is null || sender is not Border handle) return;
+        if (e.Pointer.Captured == handle)
+        {
+            var parentCanvas = this.Parent as Control;
+            if (parentCanvas is null) return;
+
+            var position = e.GetCurrentPoint(parentCanvas).Position;
+
+            VM.UpdateDrag(position.X);
+            e.Handled = true;
+        }
+    }
+
+    private void Handle_PointerReleased(object? sender, PointerReleasedEventArgs e)
+    {
+        if (VM is null || sender is not Border handle) return;
+        if (e.Pointer.Captured == handle)
+        {
+            var parentCanvas = this.Parent as Control;
+            if (parentCanvas is null) return;
+
+            var position = e.GetCurrentPoint(parentCanvas).Position;
+            VM.EndDrag(position.X);
+
+            e.Handled = true;
+        }
+        e.Pointer.Capture(null);
+    }
 }
