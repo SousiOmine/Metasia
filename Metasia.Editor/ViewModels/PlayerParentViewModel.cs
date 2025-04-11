@@ -48,7 +48,7 @@ public class PlayerParentViewModel : ViewModelBase
 
     public event EventHandler? ProjectInstanceChanged;
 
-    public PlayerViewModel TargetPlayerViewModel
+    public PlayerViewModel? TargetPlayerViewModel
     {
         get => _targetPlayerViewModel;
         set
@@ -112,5 +112,27 @@ public class PlayerParentViewModel : ViewModelBase
         CurrentProject = editorProject.CreateMetasiaProject();
 
         IsPlayerShow = true;
+    }
+
+    public bool TryUndo()
+    {
+        if (TargetPlayerViewModel is null) return false;
+        if (TargetPlayerViewModel.CanUndo)
+        {
+            TargetPlayerViewModel.Undo();
+            return true;
+        }
+        return false;
+    }
+    
+    public bool TryRedo()
+    {
+        if (TargetPlayerViewModel is null) return false;
+        if (TargetPlayerViewModel.CanRedo)
+        {
+            TargetPlayerViewModel.Redo();
+            return true;
+        }
+        return false;
     }
 }

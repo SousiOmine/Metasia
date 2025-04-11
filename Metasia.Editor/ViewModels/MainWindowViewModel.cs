@@ -39,22 +39,7 @@ namespace Metasia.Editor.ViewModels
 		public ICommand Undo { get; }
 		
 		public ICommand Redo { get; }
-
-		public bool CanUndo
-		{
-			get => _canUndo;
-			set => this.RaiseAndSetIfChanged(ref _canUndo, value);
-		}
 		
-		public bool CanRedo
-		{
-			get => _canRedo;
-			set => this.RaiseAndSetIfChanged(ref _canRedo, value);
-		}
-		
-		private bool _canUndo = false;
-		private bool _canRedo = false;
-
 
 		public MainWindowViewModel()
 		{
@@ -64,6 +49,9 @@ namespace Metasia.Editor.ViewModels
             SaveEditingProject = ReactiveCommand.Create(SaveEditingProjectExecuteAsync);
 			LoadEditingProject = ReactiveCommand.Create(LoadEditingProjectExecuteAsync);
 			CreateNewProject = ReactiveCommand.Create(CreateNewProjectExecuteAsync);
+
+			Undo = ReactiveCommand.Create(UndoExecute);
+			Redo = ReactiveCommand.Create(RedoExecute);
 			
 			PlayerParentVM = new PlayerParentViewModel();
 
@@ -123,6 +111,22 @@ namespace Metasia.Editor.ViewModels
 
 			MetasiaEditorProject editorProject = ProjectSaveLoadManager.Load(new DirectoryEntity(folder.Path.LocalPath));
 			PlayerParentVM.LoadProject(editorProject);
+		}
+		
+		private void UndoExecute()
+		{
+			if (PlayerParentVM.TargetPlayerViewModel is not null)
+			{
+				PlayerParentVM.TryUndo();
+			}
+		}
+		
+		private void RedoExecute()
+		{
+			if (PlayerParentVM.TargetPlayerViewModel is not null)
+			{
+				PlayerParentVM.TryRedo();
+			}
 		}
 	}
 }

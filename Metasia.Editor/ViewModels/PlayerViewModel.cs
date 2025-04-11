@@ -129,6 +129,18 @@ namespace Metasia.Editor.ViewModels
 			return true;
 		}
 
+		public void Undo()
+		{
+			HistoryManager.Undo();
+			NotifyProjectChanged();
+		}
+		
+		public void Redo()
+		{
+			HistoryManager.Redo();
+			NotifyProjectChanged();
+		}
+
 		/// <summary>
 		/// プロジェクトに変更が加わったらこれを呼び出す
 		/// </summary>
