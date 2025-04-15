@@ -130,34 +130,42 @@ namespace Metasia.Editor.ViewModels.Controls
             double frameDelta = deltaX / Frame_Per_DIP;
             int frameChange = (int)Math.Round(frameDelta);
 
-            int finalNewFrame = _initialDragFrame + frameChange;
+            int newStartFrame = TargetObject.StartFrame;
+            int newEndFrame = TargetObject.EndFrame;
 
-            // ドラッグが始端か終端かによって、新しいフレームを計算する
-            // オブジェクトの長さが1未満にならないように制限する
             if (_dragHandleName == "StartHandle")
             {
-                finalNewFrame = Math.Min(finalNewFrame, TargetObject.EndFrame - 1);
+                newStartFrame = _initialDragFrame + frameChange;
+                // 終端を超えないように、かつ長さが1未満にならないように制限
+                newStartFrame = Math.Min(newStartFrame, TargetObject.EndFrame - 1);
+                newStartFrame = Math.Max(newStartFrame, 0);
+            }
+            else if (_dragHandleName == "EndHandle")
+            {
+                newEndFrame = _initialDragFrame + frameChange;
+                // 始端を下回らないように、かつ長さが1未満にならないように制限
+                newEndFrame = Math.Max(newEndFrame, TargetObject.StartFrame + 1);
+            }
+
+            // 希望のフレームのままリサイズできるならばリサイズ実行
+            if (parentTimeline.CanResizeClip(TargetObject, newStartFrame, newEndFrame))
+            {
+                // フレームが変化していればコマンドを実行
+                if (newStartFrame != TargetObject.StartFrame || newEndFrame != TargetObject.EndFrame)
+                {
+                    IEditCommand command = new ClipResizeCommand(
+                        TargetObject,
+                        TargetObject.StartFrame, newStartFrame,
+                        TargetObject.EndFrame, newEndFrame
+                    );
+                    parentTimeline.RunEditCommand(command);
+
+                    RecalculateSize();
+                }
             }
             else
             {
-                finalNewFrame = Math.Max(finalNewFrame, TargetObject.StartFrame + 1);
-            }
-
-            //もしフレームが変わっていたらコマンドを実行
-            if (finalNewFrame != _initialDragFrame)
-            {
-                IEditCommand command;
-                if (_dragHandleName == "StartHandle")
-                {
-                    command = new ClipResizeCommand(TargetObject, TargetObject.StartFrame, finalNewFrame, TargetObject.EndFrame, TargetObject.EndFrame);
-                }
-                else
-                {
-                    command = new ClipResizeCommand(TargetObject, TargetObject.StartFrame, TargetObject.StartFrame, TargetObject.EndFrame, finalNewFrame);
-                }
-                parentTimeline.RunEditCommand(command);
-
-                RecalculateSize();
+                // ドラッグしたそのままのフレームでは重複でリサイズできない場合、重複しないぎりぎりまで詰める
             }
 
             _isDragging = false;

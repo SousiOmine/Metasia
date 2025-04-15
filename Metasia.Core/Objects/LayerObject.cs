@@ -47,11 +47,11 @@ namespace Metasia.Core.Objects
         {
             double resolution_level_x = e.ActualResolution.Width / e.TargetResolution.Width;
             double resolution_level_y = e.ActualResolution.Height / e.TargetResolution.Height;
-            
+
             List<MetasiaObject> ApplicateObjects = new();
-            foreach (var obj in Objects) 
+            foreach (var obj in Objects)
             {
-                if(obj.IsExistFromFrame(frame) && obj is IMetaDrawable && obj.IsActive)
+                if (obj.IsExistFromFrame(frame) && obj is IMetaDrawable && obj.IsActive)
                 {
                     ApplicateObjects.Add(obj);
                 }
@@ -61,7 +61,7 @@ namespace Metasia.Core.Objects
 
             if (e.Bitmap is null) e.Bitmap = new SKBitmap((int)(e.ActualResolution.Width), (int)(e.ActualResolution.Height));
 
-            
+
 
             foreach (var obj in ApplicateObjects)
             {
@@ -111,7 +111,7 @@ namespace Metasia.Core.Objects
 
                         double width = express.TargetSize.Value.Width * (scale / 100f);
                         double height = express.TargetSize.Value.Height * (scale / 100f);
-                        
+
                         SKRect drawPos = new SKRect()
                         {
                             Left = (float)((e.TargetResolution.Width - width) / 2 + x) * (e.ActualResolution.Width / e.TargetResolution.Width),
@@ -126,7 +126,7 @@ namespace Metasia.Core.Objects
 
                 express.Dispose();
             }
-            
+
             e.ActualSize = new SKSize(e.Bitmap.Width, e.Bitmap.Height);
             e.TargetSize = e.TargetResolution;
         }
@@ -169,6 +169,34 @@ namespace Metasia.Core.Objects
 
                 express.Dispose();
             }
+        }
+
+        /// <summary>
+        /// 指定されたオブジェクトを指定された範囲で重複せず配置できるかどうかを判定する
+        /// </summary>
+        /// <param name="objectToCheck">配置を確認するオブジェクト</param>
+        /// <param name="newStartFrame">新しい開始フレーム</param>
+        /// <param name="newEndFrame">新しい終了フレーム</param>
+        /// <returns>配置可能ならtrue, 不可能ならfalse</returns>
+
+        public bool CanPlaceObjectAt(MetasiaObject objectToCheck, int newStartFrame, int newEndFrame)
+        {
+            //新しい範囲がそもそも無効なら弾く
+            if (newStartFrame > newEndFrame) return false;
+
+            //範囲内に重複があるかどうか
+            foreach (var existingObject in Objects)
+            {
+                //同じオブジェクトは除外
+                if (existingObject.Id == objectToCheck.Id) continue;
+
+                if (newStartFrame <= existingObject.EndFrame && newEndFrame >= existingObject.StartFrame)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         

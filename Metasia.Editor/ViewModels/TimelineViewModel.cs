@@ -145,6 +145,29 @@ namespace Metasia.Editor.ViewModels
             SelectClip.Clear();
             SelectClip.Add(clip);
         }
+
+        public bool CanResizeClip(MetasiaObject clipObject, int newStartFrame, int newEndFrame)
+        {
+            LayerObject? ownerLayer = FindOwnerLayer(clipObject);
+
+            if (ownerLayer is not null)
+            {
+                return ownerLayer.CanPlaceObjectAt(clipObject, newStartFrame, newEndFrame);
+            }
+            return false;
+        }
+
+        private LayerObject? FindOwnerLayer(MetasiaObject targetObject)
+        {
+            foreach (var layer in Timeline.Layers)
+            {
+                if (layer.Objects.Any(x => x.Id == targetObject.Id))
+                {
+                    return layer;
+                }
+            }
+            return null;
+        }
         
         private void ChangeFramePerDIP()
         {
