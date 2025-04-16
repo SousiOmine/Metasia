@@ -1,4 +1,6 @@
 using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -9,10 +11,14 @@ namespace Metasia.Editor.Views.Controls;
 
 public partial class ClipView : UserControl
 {
+    private Point? _startPoint;
+    private bool _isDraggingPotential = false;
+    private const double DragThreshold = 5;
+
     private ClipViewModel? VM
     {
         get { return this.DataContext as ClipViewModel; }
-    
+
     }
     public ClipView()
     {
@@ -31,17 +37,43 @@ public partial class ClipView : UserControl
 
     private void Clip_PointerPressed(object? sender, PointerPressedEventArgs e)
     {
-
+        if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+        {
+            _startPoint = e.GetCurrentPoint(this).Position;
+            _isDraggingPotential = true;
+        }
     }
 
-    private void Clip_PointerMoved(object? sender, PointerEventArgs e)
+    private async void Clip_PointerMoved(object? sender, PointerEventArgs e)
     {
+        if (_isDraggingPotential && e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+        {
+            Point currentPoint = e.GetCurrentPoint(this).Position;
+            if (_startPoint is null) return;
+            if (Math.Abs(currentPoint.X - _startPoint.Value.X) > DragThreshold)
+            {
+                _isDraggingPotential = false;
 
+                if (VM is null) return;
+
+                var dragData = new DataObject();
+                const string dragFormat = "MetasiaEditorClipViewModel";
+                dragData.Set(dragFormat, VM);
+
+                var effect = await DragDrop.DoDragDrop(e, dragData, DragDropEffects.Move);
+
+                if (effect == DragDropEffects.None)
+                {
+                    Debug.WriteLine("DragDrop outside or canceled");
+                }
+                
+            }
+        }
     }
 
     private void Clip_PointerReleased(object? sender, PointerReleasedEventArgs e)
     {
-
+        _isDraggingPotential = false;
     }
 
     private void Handle_PointerPressed(object? sender, PointerPressedEventArgs e)

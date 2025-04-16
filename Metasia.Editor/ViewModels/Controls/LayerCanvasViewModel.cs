@@ -28,7 +28,7 @@ namespace Metasia.Editor.ViewModels.Controls
 
         private TimelineViewModel parentTimeline;
 
-        private LayerObject targetLayer;
+        public LayerObject TargetLayer { get; private set; }
 
         private double _frame_per_DIP;
         private double width;
@@ -36,7 +36,7 @@ namespace Metasia.Editor.ViewModels.Controls
         public LayerCanvasViewModel(TimelineViewModel parentTimeline, LayerObject targetLayer) 
         {
             this.parentTimeline = parentTimeline;
-            this.targetLayer = targetLayer;
+            this.TargetLayer = targetLayer;
 
             
 
@@ -76,13 +76,18 @@ namespace Metasia.Editor.ViewModels.Controls
             }
         }
 
+        public void ClipDropped(ClipViewModel clipVM, int targetStartFrame)
+        {
+            parentTimeline.ClipDropped(clipVM, this, targetStartFrame);
+        }
+
         private void ChangeFramePerDIP()
         {
             foreach (var clip in ClipsAndBlanks)
             {
                 clip.Frame_Per_DIP = Frame_Per_DIP;
             }
-            Width = targetLayer.EndFrame * Frame_Per_DIP;
+            Width = TargetLayer.EndFrame * Frame_Per_DIP;
         }
     }
 }

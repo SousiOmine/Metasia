@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Metasia.Editor.Models.EditCommands;
 using Avalonia.Layout;
+using Metasia.Editor.Models.EditCommands.Commands;
 
 namespace Metasia.Editor.ViewModels
 {
@@ -155,6 +156,33 @@ namespace Metasia.Editor.ViewModels
                 return ownerLayer.CanPlaceObjectAt(clipObject, newStartFrame, newEndFrame);
             }
             return false;
+        }
+
+        public void ClipDropped(ClipViewModel clipVM, LayerCanvasViewModel targetCanvasVM, int targetStartFrame)
+        {
+            if (playerViewModel is null) return;
+
+            var sourceMetasiaObject = clipVM.TargetObject;
+            var targetLayer = targetCanvasVM.TargetLayer;
+
+            LayerObject? sourceOwnerLayer = FindOwnerLayer(sourceMetasiaObject);
+            if (sourceOwnerLayer is null) return;
+
+            int clipLength = sourceMetasiaObject.EndFrame - sourceMetasiaObject.StartFrame;
+            int newEndFrame = targetStartFrame + clipLength;
+
+            if (targetLayer.CanPlaceObjectAt(sourceMetasiaObject, targetStartFrame, newEndFrame))
+            {
+                var command = new MoveClipCommand(
+                    sourceMetasiaObject,
+                    sourceOwnerLayer,
+                    targetLayer,
+                    sourceMetasiaObject.StartFrame,
+                    sourceMetasiaObject.EndFrame,
+                    targetStartFrame, newEndFrame);
+
+                RunEditCommand(command);
+            }
         }
 
         private LayerObject? FindOwnerLayer(MetasiaObject targetObject)

@@ -8,8 +8,15 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="50"
              x:Class="Metasia.Editor.Views.Controls.LayerCanvasView"
 			 x:DataType="vm:LayerCanvasViewModel"
+			 Background="Transparent"
              Width="{Binding Width}"
-			 Height="50">
+			 Height="50"
+			 DragDrop.AllowDrop="True"
+			 DragDrop.DragEnter="LayerCanvasView_DragEnter"
+			 DragDrop.DragOver="LayerCanvasView_DragOver"
+			 DragDrop.DragLeave="LayerCanvasView_DragLeave"
+			 DragDrop.Drop="LayerCanvasView_Drop"
+			 >
 	
 	<ItemsControl ItemsSource="{Binding ClipsAndBlanks}" >
 		<ItemsControl.ItemsPanel>
