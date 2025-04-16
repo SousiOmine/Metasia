@@ -29,6 +29,21 @@ public partial class ClipView : UserControl
         VM.ClipClick();
     }
 
+    private void Clip_PointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+
+    }
+
+    private void Clip_PointerMoved(object? sender, PointerEventArgs e)
+    {
+
+    }
+
+    private void Clip_PointerReleased(object? sender, PointerReleasedEventArgs e)
+    {
+
+    }
+
     private void Handle_PointerPressed(object? sender, PointerPressedEventArgs e)
     {
         //ViewModelがnullか、Borderからのイベントであれば何もしない

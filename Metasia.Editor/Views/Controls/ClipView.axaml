@@ -13,6 +13,7 @@
 	</UserControl.Resources>
 	<Border x:Name="Clip" Tapped="Clip_OnTapped"
 			BorderBrush="DarkGray" Background="Pink" BorderThickness="1" CornerRadius="10" ClipToBounds="True"
+			PointerPressed="Clip_PointerPressed" PointerMoved="Clip_PointerMoved" PointerReleased="Clip_PointerReleased"
 	        Opacity="{Binding IsSelecting, Converter={StaticResource ClipConverter}}">
 		<Grid ColumnDefinitions="Auto,*,Auto">
 			<Border Grid.Column="0" x:Name="StartHandle" Width="10" Background="Blue" Cursor="SizeWestEast" VerticalAlignment="Stretch" HorizontalAlignment="Left"
