@@ -78,6 +78,8 @@ namespace Metasia.Editor.ViewModels
 
         private PlayerViewModel playerViewModel;
 
+        public event EventHandler? ProjectChanged;
+
         public TimelineViewModel(PlayerViewModel playerViewModel)
         {
             this.playerViewModel = playerViewModel;
@@ -100,14 +102,10 @@ namespace Metasia.Editor.ViewModels
                 CursorLeft = playerViewModel.Frame * Frame_Per_DIP;
             };
 
-            //プロジェクトに変更が加えられたときの動作
+            //プロジェクトに変更が加えられたときには自身のイベントも発火する
             playerViewModel.ProjectChanged += (sender, args) =>
             {
-                //レイヤーにあるクリップのサイズを再計算
-                foreach (var layer in LayerCanvas)
-                {
-                    layer.RecalculateSize();
-                }
+                ProjectChanged?.Invoke(this, EventArgs.Empty);
             };
 
             foreach (var layer in Timeline.Layers)

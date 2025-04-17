@@ -47,14 +47,14 @@ namespace Metasia.Editor.ViewModels.Controls
                     ChangeFramePerDIP();
                 });
 
-            foreach(var obj in targetLayer.Objects)
-            {
-                var clipvm = new ClipViewModel(obj, parentTimeline);
-                ClipsAndBlanks.Add(clipvm);
-                
-            }
 
-            ChangeFramePerDIP();
+            RelocateClips();
+
+            // TimelineViewModelのProjectChangedイベントを購読
+            parentTimeline.ProjectChanged += (sender, args) =>
+            {
+                RelocateClips();
+            };
         }
 
         public void ResetSelectedClip()
@@ -79,6 +79,46 @@ namespace Metasia.Editor.ViewModels.Controls
         public void ClipDropped(ClipViewModel clipVM, int targetStartFrame)
         {
             parentTimeline.ClipDropped(clipVM, this, targetStartFrame);
+        }
+
+        /// <summary>
+        /// 配下のクリップをレイヤー配下のオブジェクトに合わせる
+        /// </summary>
+        private void RelocateClips()
+        {
+            //TargetLayer.ObjectsにあってClipsAndBlanksにないオブジェクトID
+            List<string> objectIds = TargetLayer.Objects.Select(x => x.Id).ToList();
+            List<string> clipIds = ClipsAndBlanks.Select(x => x.TargetObject.Id).ToList();
+
+            var diffIds = objectIds.Except(clipIds).ToList();
+
+            // 新しく追加されたオブジェクトをClipsAndBlanksに追加
+            foreach (var id in diffIds)
+            {
+                var obj = TargetLayer.Objects.FirstOrDefault(x => x.Id == id);
+                if (obj is not null)
+                {
+                    var clipVM = new ClipViewModel(obj, parentTimeline);
+                    ClipsAndBlanks.Add(clipVM);
+                }
+            }
+
+            // ClipsAndBlanksにあってTargetLayer.ObjectsにないオブジェクトID
+            var diffIds2 = clipIds.Except(objectIds).ToList();
+
+            // ClipsAndBlanksにあってTargetLayer.Objectsにないオブジェクトを削除
+            foreach (var id in diffIds2)
+            {
+                var clipVM = ClipsAndBlanks.FirstOrDefault(x => x.TargetObject.Id == id);
+                if (clipVM is not null)
+                {
+                    ClipsAndBlanks.Remove(clipVM);
+                }
+            }
+
+            RecalculateSize();
+            ChangeFramePerDIP();
+            
         }
 
         private void ChangeFramePerDIP()
