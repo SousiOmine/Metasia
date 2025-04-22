@@ -5,6 +5,8 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Markup.Xaml;
+using DynamicData.Kernel;
+using Metasia.Editor.Models.DragDropData;
 using Metasia.Editor.ViewModels.Controls;
 
 namespace Metasia.Editor.Views.Controls;
@@ -57,8 +59,9 @@ public partial class ClipView : UserControl
                 if (VM is null) return;
 
                 var dragData = new DataObject();
-                const string dragFormat = "MetasiaEditorClipViewModel";
-                dragData.Set(dragFormat, VM);
+                const string dragFormat = "ClipMoveDragData";
+                double dragOffset = _startPoint.Value.X;
+                dragData.Set(dragFormat, new ClipMoveDragData(VM, dragOffset));
 
                 var effect = await DragDrop.DoDragDrop(e, dragData, DragDropEffects.Move);
 
