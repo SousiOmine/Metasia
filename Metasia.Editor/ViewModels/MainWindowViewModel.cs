@@ -20,6 +20,7 @@ using Metasia.Editor.Models.Projects;
 using Metasia.Editor.Models.FileSystem;
 using Metasia.Editor.Models.ProjectGenerate;
 using Metasia.Editor.Models.EditCommands;
+using Metasia.Editor.Services;
 namespace Metasia.Editor.ViewModels
 {
 	public class MainWindowViewModel : ViewModelBase
@@ -41,12 +42,16 @@ namespace Metasia.Editor.ViewModels
 		public ICommand Redo { get; }
 		
 
-		public MainWindowViewModel()
+private readonly INewProjectDialogService _newProjectDialogService;
+		public MainWindowViewModel(INewProjectDialogService newProjectDialogService)
+				{
 		{
 
 
 
-            SaveEditingProject = ReactiveCommand.Create(SaveEditingProjectExecuteAsync);
+            				_newProjectDialogService = newProjectDialogService;
+
+				SaveEditingProject = ReactiveCommand.Create(SaveEditingProjectExecuteAsync);
 			LoadEditingProject = ReactiveCommand.Create(LoadEditingProjectExecuteAsync);
 			CreateNewProject = ReactiveCommand.Create(CreateNewProjectExecuteAsync);
 
@@ -69,24 +74,14 @@ namespace Metasia.Editor.ViewModels
 		{
 			try
 			{
-				var window = App.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop
 					? desktop.MainWindow
 					: null;
 				
-				if (window == null) return;
 				
-				var dialog = new NewProjectDialog();
-				var result = await dialog.ShowDialog<bool>(window);
 
-				if (result)
 				{
-					MetasiaEditorProject editorProject = ProjectGenerator.CreateProject(dialog.ProjectPath, dialog.ProjectInfo, dialog.SelectedTemplate);
-					PlayerParentVM.LoadProject(editorProject);
-				}
-			}
 			catch (Exception ex)
 			{
-				Debug.WriteLine($"新規プロジェクト作成エラー: {ex.Message}");
 			}
 		}
 
@@ -130,4 +125,3 @@ namespace Metasia.Editor.ViewModels
 		}
 	}
 }
-
