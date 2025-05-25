@@ -29,13 +29,11 @@ namespace Metasia.Editor
 			{
 				desktop.MainWindow = new MainWindow
 				{
-					DataContext = Services.GetService<MainWindowViewModel>(),
+					DataContext = new MainWindowViewModel(),
 				};
 
 				var services = new ServiceCollection();
 				services.AddSingleton<IFileDialogService>(new FileDialogService(desktop.MainWindow));
-services.AddSingleton<INewProjectDialogService, NewProjectDialogService>();
-services.AddSingleton<MainWindowViewModel>();
                 Services = services.BuildServiceProvider();
 			}
 
