@@ -14,8 +14,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Metasia.Editor.Services;
 using System.Threading.Tasks;
 using Metasia.Editor.Models;
-using Metasia.Editor.Views;
-using Avalonia.Controls;
 using Metasia.Editor.Models.Projects;
 using Metasia.Editor.Models.FileSystem;
 using Metasia.Editor.Models.ProjectGenerate;
@@ -24,6 +22,8 @@ namespace Metasia.Editor.ViewModels
 {
 	public class MainWindowViewModel : ViewModelBase
 	{
+		private readonly IDialogService _dialogService;
+
 		public PlayerParentViewModel PlayerParentVM { get; }
 
 		public InspectorViewModel inspectorViewModel { get; }
@@ -41,14 +41,13 @@ namespace Metasia.Editor.ViewModels
 		public ICommand Redo { get; }
 		
 
-		public MainWindowViewModel()
+		public MainWindowViewModel(IDialogService dialogService)
 		{
-
-
+			_dialogService = dialogService;
 
             SaveEditingProject = ReactiveCommand.Create(SaveEditingProjectExecuteAsync);
 			LoadEditingProject = ReactiveCommand.Create(LoadEditingProjectExecuteAsync);
-			CreateNewProject = ReactiveCommand.Create(CreateNewProjectExecuteAsync);
+			CreateNewProject = ReactiveCommand.CreateFromTask(CreateNewProjectExecuteAsync);
 
 			Undo = ReactiveCommand.Create(UndoExecute);
 			Redo = ReactiveCommand.Create(RedoExecute);
@@ -69,18 +68,20 @@ namespace Metasia.Editor.ViewModels
 		{
 			try
 			{
-				var window = App.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop
-					? desktop.MainWindow
-					: null;
+				var result = await _dialogService.ShowNewProjectDialogAsync();
 				
-				if (window == null) return;
-				
-				var dialog = new NewProjectDialog();
-				var result = await dialog.ShowDialog<bool>(window);
-
-				if (result)
+				if (result?.Success == true)
 				{
-					MetasiaEditorProject editorProject = ProjectGenerator.CreateProject(dialog.ProjectPath, dialog.ProjectInfo, dialog.SelectedTemplate);
+					// プロジェクトフォルダを作成
+					if (!Directory.Exists(result.ProjectPath))
+					{
+						Directory.CreateDirectory(result.ProjectPath);
+					}
+
+					MetasiaEditorProject editorProject = ProjectGenerator.CreateProject(
+						result.ProjectPath, 
+						result.ProjectInfo, 
+						result.SelectedTemplate);
 					PlayerParentVM.LoadProject(editorProject);
 				}
 			}

@@ -9,11 +9,21 @@ namespace Metasia.Editor.Services
 	public class FileDialogService : IFileDialogService
 	{
         //Avalonia公式サンプルの https://github.com/AvaloniaUI/AvaloniaUI.QuickGuides/tree/main/IoCFileOps を参考にした
-        private readonly Window _target;
+        private Window _target;
+
+        public FileDialogService()
+        {
+            _target = null!; // 後でSetMainWindowで設定される
+        }
 
         public FileDialogService(Window target)
         {
             _target = target;
+        }
+
+        public void SetMainWindow(Window window)
+        {
+            _target = window;
         }
 
 		public async Task<IStorageFile?> OpenFileDialogAsync()
