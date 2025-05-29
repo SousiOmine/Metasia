@@ -27,17 +27,35 @@ namespace Metasia.Editor
 		{
 			if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
 			{
+				// 依存性注入の設定
+				var services = new ServiceCollection();
+				ConfigureServices(services);
+				Services = services.BuildServiceProvider();
+
+				// MainWindowを作成し、ViewModelを依存性注入で取得
+				var mainWindowViewModel = Services.GetRequiredService<MainWindowViewModel>();
 				desktop.MainWindow = new MainWindow
 				{
-					DataContext = new MainWindowViewModel(),
+					DataContext = mainWindowViewModel,
 				};
 
-				var services = new ServiceCollection();
-				services.AddSingleton<IFileDialogService>(new FileDialogService(desktop.MainWindow));
-                Services = services.BuildServiceProvider();
+				// FileDialogServiceにMainWindowを設定
+				var fileDialogService = Services.GetRequiredService<FileDialogService>();
+				fileDialogService.SetMainWindow(desktop.MainWindow);
 			}
 
 			base.OnFrameworkInitializationCompleted();
+		}
+
+		private void ConfigureServices(IServiceCollection services)
+		{
+			// サービスの登録
+			services.AddSingleton<IFileDialogService, FileDialogService>();
+			services.AddSingleton<IDialogService, DialogService>();
+			
+			// ViewModelの登録
+			services.AddTransient<MainWindowViewModel>();
+			services.AddTransient<NewProjectDialogViewModel>();
 		}
 	}
 }
