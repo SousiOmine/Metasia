@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using Metasia.Core.Coordinate;
 using Metasia.Core.Objects;
 using Metasia.Core.Project;
@@ -40,11 +40,13 @@ namespace Metasia.Editor.ViewModels
 		
 		public ICommand Redo { get; }
 		
+		private readonly IFileDialogService _fileDialogService;
+		private readonly IDialogService _dialogService;
 
-		public MainWindowViewModel()
+		public MainWindowViewModel(IFileDialogService fileDialogService, IDialogService dialogService)
 		{
-
-
+			_fileDialogService = fileDialogService;
+			_dialogService = dialogService;
 
             SaveEditingProject = ReactiveCommand.Create(SaveEditingProjectExecuteAsync);
 			LoadEditingProject = ReactiveCommand.Create(LoadEditingProjectExecuteAsync);
@@ -60,27 +62,22 @@ namespace Metasia.Editor.ViewModels
 			inspectorViewModel = new InspectorViewModel(PlayerParentVM);
 
 			ToolsVM = new ToolsViewModel(PlayerParentVM);
-
-
-
 		}
 
 		private async Task CreateNewProjectExecuteAsync()
 		{
 			try
 			{
-				var window = App.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop
-					? desktop.MainWindow
-					: null;
-				
-				if (window == null) return;
-				
-				var dialog = new NewProjectDialog();
-				var result = await dialog.ShowDialog<bool>(window);
+				var viewModel = new NewProjectDialogViewModel(_fileDialogService);
+				var result = await _dialogService.ShowNewProjectDialogAsync(viewModel);
 
 				if (result)
 				{
-					MetasiaEditorProject editorProject = ProjectGenerator.CreateProject(dialog.ProjectPath, dialog.ProjectInfo, dialog.SelectedTemplate);
+					MetasiaEditorProject editorProject = ProjectGenerator.CreateProject(
+						viewModel.ProjectPath, 
+						viewModel.ProjectInfo, 
+						viewModel.SelectedTemplate);
+						
 					PlayerParentVM.LoadProject(editorProject);
 				}
 			}
@@ -104,13 +101,18 @@ namespace Metasia.Editor.ViewModels
 
 		private async Task LoadEditingProjectExecuteAsync()
 		{
-			var folderDialogService = App.Current?.Services?.GetService<IFileDialogService>();
-			if (folderDialogService is null) throw new NullReferenceException("FileDialogService is not found");
-			var folder = await folderDialogService.OpenFolderDialogAsync();
-			if (folder is null) return;
+			try
+			{
+				var folder = await _fileDialogService.OpenFolderDialogAsync();
+				if (folder is null) return;
 
-			MetasiaEditorProject editorProject = ProjectSaveLoadManager.Load(new DirectoryEntity(folder.Path.LocalPath));
-			PlayerParentVM.LoadProject(editorProject);
+				MetasiaEditorProject editorProject = ProjectSaveLoadManager.Load(new DirectoryEntity(folder.Path.LocalPath));
+				PlayerParentVM.LoadProject(editorProject);
+			}
+			catch (Exception ex)
+			{
+				Debug.WriteLine($"プロジェクト読み込みエラー: {ex.Message}");
+			}
 		}
 		
 		private void UndoExecute()
@@ -130,4 +132,3 @@ namespace Metasia.Editor.ViewModels
 		}
 	}
 }
-
