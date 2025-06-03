@@ -31,18 +31,20 @@ namespace Metasia.Editor.Services
 
             if (window == null)
             {
-                return (false, string.Empty, null, null);
+                return (false, string.Empty, new ProjectInfo(), null);
             }
 
             var dialog = new NewProjectDialog();
+            // Pass the loaded templates to the dialog
+            dialog.SetTemplates(_availableTemplates);
             var result = await dialog.ShowDialog<bool>(window);
 
             if (result)
             {
-                return (true, dialog.ProjectPath, dialog.ProjectInfo, dialog.SelectedTemplate);
+                return (true, dialog.ProjectPath, dialog.ProjectInfo ?? new ProjectInfo(), dialog.SelectedTemplate);
             }
 
-            return (false, string.Empty, null, null);
+            return (false, string.Empty, new ProjectInfo(), null);
         }
 
         private void LoadTemplates()
