@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,9 +18,9 @@ namespace Metasia.Editor.Views
         public string ProjectPath { get; private set; } = string.Empty;
         public ProjectInfo ProjectInfo { get; private set; }
         public MetasiaProject? SelectedTemplate { get; private set; }
-        
+
         private readonly List<IProjectTemplate> _availableTemplates = new();
-        
+
         public NewProjectDialog()
         {
             InitializeComponent();
@@ -67,7 +66,7 @@ namespace Metasia.Editor.Views
             {
                 ProjectName = projectNameTextBox.Text;
                 ProjectPath = Path.Combine(folderPathTextBox.Text, ProjectName);
-                
+
                 // フレームレートを取得
                 int framerate = 30;
                 switch (framerateComboBox.SelectedIndex)
@@ -76,7 +75,7 @@ namespace Metasia.Editor.Views
                     case 1: framerate = 30; break;
                     case 2: framerate = 60; break;
                 }
-                
+
                 // 解像度を取得
                 SKSize size = new SKSize(1920, 1080);
                 switch (resolutionComboBox.SelectedIndex)
@@ -85,7 +84,7 @@ namespace Metasia.Editor.Views
                     case 1: size = new SKSize(1920, 1080); break;
                     case 2: size = new SKSize(3840, 2160); break;
                 }
-                
+
                 ProjectInfo = new ProjectInfo
                 {
                     Framerate = framerate,
@@ -101,32 +100,33 @@ namespace Metasia.Editor.Views
                         SelectedTemplate = _availableTemplates[templateIndex].Template;
                     }
                 }
-                
+
                 // プロジェクトフォルダを作成
                 if (!Directory.Exists(ProjectPath))
                 {
                     Directory.CreateDirectory(ProjectPath);
                 }
-                
+
                 Close(true);
             };
         }
 
+        public void SetTemplates(List<IProjectTemplate> templates)
+        {
+            _availableTemplates.Clear();
+            _availableTemplates.AddRange(templates);
+            LoadTemplates();
+        }
+
         private void LoadTemplates()
         {
-            // 利用可能なテンプレートをロード
-            _availableTemplates.Clear();
-            _availableTemplates.Add(new KariProjectTemplate());
-            
-            // 将来的に他のテンプレートを追加する場合はここに追加
-
             // テンプレート選択コンボボックスにテンプレート名を追加
             var templateComboBox = this.FindControl<ComboBox>("TemplateComboBox");
-            
+
             // 空のプロジェクトオプションはコードで処理するため、ComboBoxのItemsコレクションをクリア
             templateComboBox.Items.Clear();
             templateComboBox.Items.Add(new ComboBoxItem { Content = "空のプロジェクト" });
-            
+
             foreach (var template in _availableTemplates)
             {
                 templateComboBox.Items.Add(new ComboBoxItem { Content = template.Name });
@@ -138,10 +138,10 @@ namespace Metasia.Editor.Views
             var projectNameTextBox = this.FindControl<TextBox>("ProjectNameTextBox");
             var folderPathTextBox = this.FindControl<TextBox>("FolderPathTextBox");
             var createButton = this.FindControl<Button>("CreateButton");
-            
+
             bool hasProjectName = !string.IsNullOrWhiteSpace(projectNameTextBox.Text);
             bool hasFolderPath = !string.IsNullOrWhiteSpace(folderPathTextBox.Text);
-            
+
             createButton.IsEnabled = hasProjectName && hasFolderPath;
         }
 
@@ -150,4 +150,6 @@ namespace Metasia.Editor.Views
             AvaloniaXamlLoader.Load(this);
         }
     }
-} 
+}
+
+
