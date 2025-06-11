@@ -1,4 +1,6 @@
-﻿using Avalonia;
+
+
+using Avalonia;
 using Metasia.Core.Objects;
 using Metasia.Editor.Models.EditCommands;
 using Metasia.Editor.Models.EditCommands.Commands;
@@ -19,7 +21,7 @@ namespace Metasia.Editor.ViewModels.Controls
             get;
             set;
         }
-        
+
         public bool IsSelecting
         {
             get => isSelecting;
@@ -34,11 +36,11 @@ namespace Metasia.Editor.ViewModels.Controls
         public double Frame_Per_DIP
         {
             get => _frame_per_DIP;
-            set 
+            set
             {
                 this.RaiseAndSetIfChanged(ref _frame_per_DIP, value);
                 RecalculateSize();
-            } 
+            }
         }
 
         public double StartFrame
@@ -90,9 +92,13 @@ namespace Metasia.Editor.ViewModels.Controls
             StartFrame = TargetObject.StartFrame * Frame_Per_DIP;
         }
 
-        public void ClipClick()
+        /// <summary>
+        /// Handle clip click event with multi-select support
+        /// </summary>
+        /// <param name="isMultiSelect">True if the multi-select modifier key is pressed</param>
+        public void ClipClick(bool isMultiSelect = false)
         {
-            parentTimeline.ClipSelect(this);
+            parentTimeline.ClipSelect(this, isMultiSelect);
         }
 
         /// <summary>
@@ -175,3 +181,4 @@ namespace Metasia.Editor.ViewModels.Controls
         }
     }
 }
+

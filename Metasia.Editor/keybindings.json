@@ -1,0 +1,23 @@
+
+{
+  "CommandBindings": [
+    {
+      "Command": "SaveProject",
+      "Gesture": "Control+S"
+    },
+    {
+      "Command": "Undo",
+      "Gesture": "Control+Z"
+    },
+    {
+      "Command": "Redo",
+      "Gesture": "Control+Y"
+    }
+  ],
+  "InteractionBindings": [
+    {
+      "Interaction": "MultiSelect",
+      "Modifiers": "Control"
+    }
+  ]
+}

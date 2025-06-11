@@ -37,6 +37,7 @@ namespace Metasia.Editor
                 var services = new ServiceCollection();
                 services.AddSingleton<IFileDialogService>(new FileDialogService(desktop.MainWindow));
                 services.AddSingleton<INewProjectDialogService, NewProjectDialogService>();
+                services.AddSingleton<IKeyBindingService, KeyBindingService>();
                 Services = services.BuildServiceProvider();
             }
 
