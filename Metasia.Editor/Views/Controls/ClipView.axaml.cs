@@ -26,7 +26,13 @@ public partial class ClipView : UserControl
 
     private void Clip_OnTapped(object? sender, TappedEventArgs e)
     {
-        VM.ClipClick();
+        if (VM is null) return;
+        
+        // 修飾キーの状態を取得
+        var modifiers = e.KeyModifiers;
+        
+        // 修飾キーの状態を含めてクリックイベントを発火
+        VM.ClipClick(modifiers);
     }
 
     private void Handle_PointerPressed(object? sender, PointerPressedEventArgs e)

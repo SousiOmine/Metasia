@@ -29,15 +29,16 @@ namespace Metasia.Editor
         {
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                desktop.MainWindow = new MainWindow
-                {
-                    DataContext = new MainWindowViewModel(),
-                };
-
                 var services = new ServiceCollection();
                 services.AddSingleton<IFileDialogService>(new FileDialogService(desktop.MainWindow));
                 services.AddSingleton<INewProjectDialogService, NewProjectDialogService>();
+                services.AddSingleton<IKeyBindingService, KeyBindingService>();
                 Services = services.BuildServiceProvider();
+
+                desktop.MainWindow = new MainWindow
+                {
+                    DataContext = new MainWindowViewModel(Services),
+                };
             }
 
             base.OnFrameworkInitializationCompleted();

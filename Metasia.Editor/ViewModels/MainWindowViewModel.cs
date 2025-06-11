@@ -20,6 +20,8 @@ using Metasia.Editor.Models.Projects;
 using Metasia.Editor.Models.FileSystem;
 using Metasia.Editor.Models.ProjectGenerate;
 using Metasia.Editor.Models.EditCommands;
+using Metasia.Editor.Models.KeyBindings;
+using System.Collections.Generic;
 
 namespace Metasia.Editor.ViewModels
 {
@@ -41,8 +43,20 @@ namespace Metasia.Editor.ViewModels
 
         public ICommand Redo { get; }
 
-        public MainWindowViewModel()
+        /// <summary>
+        /// コマンド識別子とICommandのマッピング
+        /// </summary>
+        public Dictionary<CommandIdentifier, ICommand> CommandMap { get; }
+
+        /// <summary>
+        /// キーバインディングサービス
+        /// </summary>
+        private readonly IKeyBindingService _keyBindingService;
+
+        public MainWindowViewModel(IServiceProvider serviceProvider)
         {
+            _keyBindingService = serviceProvider.GetService(typeof(IKeyBindingService)) as IKeyBindingService ?? 
+                throw new InvalidOperationException("KeyBindingService is not registered");
 
             SaveEditingProject = ReactiveCommand.Create(SaveEditingProjectExecuteAsync);
             LoadEditingProject = ReactiveCommand.Create(LoadEditingProjectExecuteAsync);
@@ -51,14 +65,26 @@ namespace Metasia.Editor.ViewModels
             Undo = ReactiveCommand.Create(UndoExecute);
             Redo = ReactiveCommand.Create(RedoExecute);
 
+            // コマンドマップの初期化
+            CommandMap = new Dictionary<CommandIdentifier, ICommand>
+            {
+                { CommandIdentifier.SaveProject, SaveEditingProject },
+                { CommandIdentifier.OpenProject, LoadEditingProject },
+                { CommandIdentifier.NewProject, CreateNewProject },
+                { CommandIdentifier.Undo, Undo },
+                { CommandIdentifier.Redo, Redo }
+            };
+
             PlayerParentVM = new PlayerParentViewModel();
-
             TimelineParentVM = new TimelineParentViewModel(PlayerParentVM);
-
             inspectorViewModel = new InspectorViewModel(PlayerParentVM);
-
             ToolsVM = new ToolsViewModel(PlayerParentVM);
+        }
 
+        // コンストラクタのオーバーロード（互換性のため）
+        public MainWindowViewModel() : this(App.Current?.Services ?? 
+            throw new InvalidOperationException("Application services are not available"))
+        {
         }
 
         private async Task CreateNewProjectExecuteAsync()
@@ -91,6 +117,7 @@ namespace Metasia.Editor.ViewModels
             try
             {
                 //別の場所に保存するやつを書く
+                Debug.WriteLine("プロジェクト保存が実行されました");
             }
             catch (Exception ex)
             {

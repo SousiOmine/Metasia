@@ -1,4 +1,5 @@
 ﻿using Avalonia;
+using Avalonia.Input;
 using Metasia.Core.Objects;
 using Metasia.Editor.Models.EditCommands;
 using Metasia.Editor.Models.EditCommands.Commands;
@@ -90,9 +91,21 @@ namespace Metasia.Editor.ViewModels.Controls
             StartFrame = TargetObject.StartFrame * Frame_Per_DIP;
         }
 
+        /// <summary>
+        /// クリップがクリックされたときの処理
+        /// </summary>
+        /// <param name="modifiers">押されていた修飾キー</param>
+        public void ClipClick(KeyModifiers modifiers = KeyModifiers.None)
+        {
+            parentTimeline.ClipSelect(this, modifiers);
+        }
+
+        /// <summary>
+        /// 後方互換性のためのクリックメソッド
+        /// </summary>
         public void ClipClick()
         {
-            parentTimeline.ClipSelect(this);
+            ClipClick(KeyModifiers.None);
         }
 
         /// <summary>
