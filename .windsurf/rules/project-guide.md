@@ -33,6 +33,8 @@ Metasiaは、C#と.NET 8.0で開発されているマルチプラットフォー
         * **Models**: アプリケーションのデータ構造とビジネスロジック。
     * Undo/Redo機能 (`EditCommandManager`) や、プロジェクトファイルの管理 (`ProjectSaveLoadManager`) など、エディタ固有の機能もここに実装されています。
 
+また`Test`プロジェクトには、Metasiaのコード品質を担保するためのテストコードが含まれています。
+
 ---
 
 ### 主な特徴
