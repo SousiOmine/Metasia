@@ -29,15 +29,19 @@ namespace Metasia.Editor
         {
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                desktop.MainWindow = new MainWindow
-                {
-                    DataContext = new MainWindowViewModel(),
-                };
+                // まずMainWindowを作成
+                var mainWindow = new MainWindow();
+                desktop.MainWindow = mainWindow;
 
+                // DIコンテナを設定
                 var services = new ServiceCollection();
-                services.AddSingleton<IFileDialogService>(new FileDialogService(desktop.MainWindow));
+                services.AddSingleton<IFileDialogService>(new FileDialogService(mainWindow));
                 services.AddSingleton<INewProjectDialogService, NewProjectDialogService>();
+                services.AddSingleton<IKeyBindingService, KeyBindingService>();
                 Services = services.BuildServiceProvider();
+
+                // DIコンテナが設定された後にViewModelを作成
+                mainWindow.DataContext = new MainWindowViewModel();
             }
 
             base.OnFrameworkInitializationCompleted();

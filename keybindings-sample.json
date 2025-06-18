@@ -1,0 +1,47 @@
+{
+  "version": "1.1",
+  "keyBindings": [
+    {
+      "commandId": "Undo",
+      "key": "Z",
+      "modifiers": ["Control"]
+    },
+    {
+      "commandId": "Redo",
+      "key": "Y",
+      "modifiers": ["Control"]
+    },
+    {
+      "commandId": "SaveEditingProject",
+      "key": "S",
+      "modifiers": ["Control"]
+    },
+    {
+      "commandId": "LoadEditingProject",
+      "key": "O",
+      "modifiers": ["Control"]
+    },
+    {
+      "commandId": "CreateNewProject",
+      "key": "N",
+      "modifiers": ["Control"]
+    }
+  ],
+  "modifierKeys": [
+    {
+      "actionId": "MultiSelectClip",
+      "modifier": "Control",
+      "description": "クリップの複数選択"
+    },
+    {
+      "actionId": "ConstrainedMove",
+      "modifier": "Shift",
+      "description": "水平/垂直方向への移動制限"
+    },
+    {
+      "actionId": "DuplicateOnDrag",
+      "modifier": "Alt",
+      "description": "ドラッグ時に複製"
+    }
+  ]
+} 

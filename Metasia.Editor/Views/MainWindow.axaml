@@ -8,7 +8,8 @@
 		x:Class="Metasia.Editor.Views.MainWindow"
 		x:DataType="vm:MainWindowViewModel"
 		Icon="/Assets/avalonia-logo.ico"
-		Title="Metasia.Editor">
+		Title="Metasia.Editor"
+		Focusable="True">
 
     <Design.DataContext>
         <!-- This only sets the DataContext for the previewer in an IDE,
