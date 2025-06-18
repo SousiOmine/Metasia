@@ -1,0 +1,207 @@
+---
+description: コアインターフェース（IMetaDrawable、IMetaAudiable、IMetaCoordable） エディタインターフェース（IEditCommand、IEditCommandManager） サービスインターフェースの説明 拡張ポイントと実装ガイド
+globs: 
+alwaysApply: false
+---
+# Metasia 主要インターフェース
+
+## コアインターフェース
+
+### IMetaDrawable - 描画可能オブジェクト
+[IMetaDrawable.cs](mdc:Metasia.Core/Objects/IMetaDrawable.cs)
+
+```csharp
+public interface IMetaDrawable
+{
+    void DrawExpresser(ref DrawExpresserArgs e, int frame);
+}
+```
+
+**実装ガイド:**
+- `DrawExpresserArgs.Bitmap`がnullの場合は新規作成
+- 描画後は`ActualSize`と`TargetSize`を設定
+- リソースは適切にDisposeする
+
+**実装例:**
+- [Text.cs](mdc:Metasia.Core/Objects/Text.cs) - テキストオブジェクト
+- [TimelineObject.cs](mdc:Metasia.Core/Objects/TimelineObject.cs) - タイムライン全体
+- [LayerObject.cs](mdc:Metasia.Core/Objects/LayerObject.cs) - レイヤー
+
+### IMetaAudiable - 音声出力可能オブジェクト
+[IMetaAudiable.cs](mdc:Metasia.Core/Objects/IMetaAudiable.cs)
+
+```csharp
+public interface IMetaAudiable
+{
+    double Volume { get; set; }
+    void AudioExpresser(ref AudioExpresserArgs e, int frame);
+}
+```
+
+**実装ガイド:**
+- `AudioExpresserArgs.Sound`がnullの場合は新規作成
+- ボリューム調整を適用
+- 音声合成は`MetasiaSound.SynthesisPulse`を使用
+- ただし、ユーザーは近い将来に音声関連の大幅なリファクタリングを検討しています
+
+### IMetaCoordable - 座標系を持つオブジェクト
+[IMetaCoordable.cs](mdc:Metasia.Core/Objects/IMetaCoordable.cs)
+
+```csharp
+public interface IMetaCoordable
+{
+    MetaDoubleParam X { get; set; }
+    MetaDoubleParam Y { get; set; }
+    MetaFloatParam Rotation { get; set; }
+    MetaFloatParam Alpha { get; set; }
+    MetaFloatParam Scale { get; set; }
+}
+```
+
+**実装ガイド:**
+- 各パラメータはアニメーション可能
+- `Get(frame)`メソッドで現在フレームの値を取得
+- 座標変換は描画時に適用
+
+## エディタインターフェース
+
+### IEditCommand - 編集コマンド
+[IEditCommand.cs](mdc:Metasia.Editor/Models/EditCommands/IEditCommand.cs)
+
+```csharp
+public interface IEditCommand
+{
+    void Execute();
+    void Undo();
+}
+```
+
+**実装ガイド:**
+- コンストラクタで変更前の状態を保存
+- `Execute()`で変更を適用
+- `Undo()`で元に戻す
+- 状態の完全性を保証
+
+**実装例:**
+- [ClipResizeCommand.cs](mdc:Metasia.Editor/Models/EditCommands/Commands/ClipResizeCommand.cs)
+- [LayerIsActiveChangeCommand.cs](mdc:Metasia.Editor/Models/EditCommands/Commands/LayerIsActiveChangeCommand.cs)
+
+### IEditCommandManager - コマンド履歴管理
+[IEditCommandManager.cs](mdc:Metasia.Editor/Models/EditCommands/IEditCommandManager.cs)
+
+```csharp
+public interface IEditCommandManager
+{
+    bool CanUndo { get; }
+    bool CanRedo { get; }
+    void Execute(IEditCommand command);
+    void Undo();
+    void Redo();
+    void Clear();
+}
+```
+
+**実装:** [EditCommandManager.cs](mdc:Metasia.Editor/Models/EditCommands/EditCommandManager.cs)
+
+## サービスインターフェース
+
+### IFileDialogService - ファイルダイアログ
+[IFileDialogService.cs](mdc:Metasia.Editor/Services/IFileDialogService.cs)
+
+```csharp
+public interface IFileDialogService
+{
+    Task<string?> ShowOpenFileDialogAsync(Window parent, FileDialogFilter[] filters);
+    Task<string?> ShowSaveFileDialogAsync(Window parent, FileDialogFilter[] filters);
+}
+```
+
+**実装:** [FileDialogService.cs](mdc:Metasia.Editor/Services/FileDialogService.cs)
+
+### IAudioService - オーディオサービス
+[IAudioService.cs](mdc:Metasia.Editor/Services/IAudioService.cs)
+
+```csharp
+public interface IAudioService
+{
+    void Initialize();
+    void Play(MetasiaSound sound);
+    void Stop();
+    void Dispose();
+}
+```
+
+**実装:** [SoundIOService.cs](mdc:Metasia.Editor/Services/SoundIOService.cs)
+
+## プロジェクトテンプレート
+
+### IProjectTemplate - プロジェクトテンプレート
+[IProjectTemplate.cs](mdc:Metasia.Editor/Models/ProjectGenerate/IProjectTemplate.cs)
+
+```csharp
+public interface IProjectTemplate
+{
+    string Name { get; }
+    string Description { get; }
+    MetasiaProject GenerateProject(string projectName);
+}
+```
+
+**実装例:**
+- [EmptyProjectTemplate.cs](mdc:Metasia.Editor/Models/ProjectGenerate/EmptyProjectTemplate.cs)
+- [kariProjectTemplate.cs](mdc:Metasia.Editor/Models/ProjectGenerate/kariProjectTemplate.cs)
+
+## ファイルシステム抽象化
+
+### IResourceEntity - リソースエンティティ
+[IResourceEntity.cs](mdc:Metasia.Editor/Models/FileSystem/IResourceEntity.cs)
+
+```csharp
+public interface IResourceEntity
+{
+    string Name { get; }
+    string Path { get; }
+    FileTypes Type { get; }
+}
+```
+
+### IFileEntity - ファイルエンティティ
+[IFileEntity.cs](mdc:Metasia.Editor/Models/FileSystem/IFileEntity.cs)
+
+```csharp
+public interface IFileEntity : IResourceEntity
+{
+    long Size { get; }
+    DateTime LastModified { get; }
+}
+```
+
+### IDirectoryEntity - ディレクトリエンティティ
+[IDirectoryEntity.cs](mdc:Metasia.Editor/Models/FileSystem/IDirectoryEntity.cs)
+
+```csharp
+public interface IDirectoryEntity : IResourceEntity
+{
+    IEnumerable<IResourceEntity> Children { get; }
+}
+```
+
+## 拡張ポイント
+
+### 新しいオブジェクトタイプの追加
+1. `MetasiaObject`を継承
+2. 必要なインターフェースを実装
+3. JSONシリアライズ対応を追加
+4. ViewModelとViewを作成
+
+### 新しいエフェクトの追加
+1. `IMetaDrawable`の`DrawExpresser`内で実装
+2. パラメータをプロパティとして公開
+3. アニメーション対応（`MetaDoubleParam`等）
+
+### 新しいファイル形式のサポート
+1. `FileTypes`列挙型に追加
+2. インポート/エクスポート処理を実装
+3. プレビュー機能の対応
+
+
