@@ -1,5 +1,8 @@
 ﻿using Avalonia;
+using Avalonia.Input;
 using Metasia.Core.Objects;
+using Metasia.Editor.Models.KeyBindings;
+using Metasia.Editor.Services;
 using Metasia.Editor.ViewModels.Controls;
 using ReactiveUI;
 using System;
@@ -76,10 +79,12 @@ namespace Metasia.Editor.ViewModels
         private double _cursorLeft;
 
         private PlayerViewModel playerViewModel;
+        private readonly IKeyBindingService _keyBindingService;
 
-        public TimelineViewModel(PlayerViewModel playerViewModel)
+        public TimelineViewModel(PlayerViewModel playerViewModel, IKeyBindingService keyBindingService)
         {
             this.playerViewModel = playerViewModel;
+            _keyBindingService = keyBindingService;
 
             //横方向の拡大率は初期３で固定
             Frame_Per_DIP = 3;
@@ -130,6 +135,13 @@ namespace Metasia.Editor.ViewModels
             });
         }
 
+        // コンストラクタのオーバーロード（互換性のため）
+        public TimelineViewModel(PlayerViewModel playerViewModel) 
+            : this(playerViewModel, App.Current?.Services?.GetService(typeof(IKeyBindingService)) as IKeyBindingService ?? 
+                  throw new InvalidOperationException("KeyBindingService is not registered"))
+        {
+        }
+
         public bool RunEditCommand(IEditCommand command)
         {
             return playerViewModel.RunEditCommand(command);
@@ -140,10 +152,47 @@ namespace Metasia.Editor.ViewModels
             Frame = (int)(position / Frame_Per_DIP);
         }
 
+        /// <summary>
+        /// クリップを選択する
+        /// </summary>
+        /// <param name="clip">選択するクリップ</param>
+        /// <param name="modifiers">押されていた修飾キー</param>
+        public void ClipSelect(ClipViewModel clip, KeyModifiers modifiers = KeyModifiers.None)
+        {
+            // 複数選択用の修飾キーを取得
+            var multiSelectModifiers = _keyBindingService.GetModifiers(InteractionIdentifier.MultiSelect);
+            
+            // 修飾キーが押されているかチェック
+            bool isMultiSelectModifierPressed = (modifiers & multiSelectModifiers) == multiSelectModifiers;
+            
+            if (isMultiSelectModifierPressed)
+            {
+                // 修飾キーが押されている場合は複数選択モード
+                if (SelectClip.Contains(clip))
+                {
+                    // すでに選択されている場合は選択解除
+                    SelectClip.Remove(clip);
+                }
+                else
+                {
+                    // 選択されていない場合は追加
+                    SelectClip.Add(clip);
+                }
+            }
+            else
+            {
+                // 修飾キーが押されていない場合は単一選択モード
+                SelectClip.Clear();
+                SelectClip.Add(clip);
+            }
+        }
+
+        /// <summary>
+        /// 後方互換性のための単一選択メソッド
+        /// </summary>
         public void ClipSelect(ClipViewModel clip)
         {
-            SelectClip.Clear();
-            SelectClip.Add(clip);
+            ClipSelect(clip, KeyModifiers.None);
         }
 
         public bool CanResizeClip(MetasiaObject clipObject, int newStartFrame, int newEndFrame)
