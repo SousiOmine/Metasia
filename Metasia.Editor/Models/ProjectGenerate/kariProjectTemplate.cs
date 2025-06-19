@@ -98,9 +98,25 @@ public class KariProjectTemplate : IProjectTemplate
         secLayer.Objects.Add(karisec);
         layer5.Objects.Add(secondTL);
 
+        // グループ制御オブジェクトのサンプル作成
+        GroupControlObject sampleGroupControl = new GroupControlObject("sampleGroup", "Sample Group")
+        {
+            StartFrame = 30,   // フレーム30から
+            EndFrame = 150,    // フレーム150まで有効
+        };
+        
+        // グループ制御の設定（2段下のレイヤーまで影響）
+        sampleGroupControl.TargetLayerDepth = 2;
+        sampleGroupControl.Scale.Params[0].Value = 80;  // 80%スケール
+        sampleGroupControl.X.Params[0].Value = 100;     // X座標オフセット
+        sampleGroupControl.Alpha.Params[0].Value = 20;  // 20%透明度
+        sampleGroupControl.Rotation.Params[0].Value = 15; // 15度回転
+
         // メインタイムラインの作成と設定
         TimelineObject mainTL = new TimelineObject("RootTimeline");
 
+        // レイヤー1にグループ制御オブジェクトを配置（レイヤー2, 3に影響）
+        layer1.Objects.Add(sampleGroupControl);
         layer1.Objects.Add(kariHello);
         layer2.Objects.Add(kariHello2);
         layer3.Objects.Add(text);
