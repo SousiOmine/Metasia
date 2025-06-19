@@ -205,3 +205,8 @@ public class ViewModel
 - モックしやすい設計
 - 単体テストを意識した実装
 
+### テストプロジェクト
+- **Metasia.Core.Tests**: Coreライブラリのテスト（43テスト）
+- **Metasia.Editor.Tests**: Editorアプリケーションのテスト（75テスト）
+- 詳細は[テストガイドライン](mdc:testing-guide.mdc)を参照
+

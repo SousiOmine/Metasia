@@ -9,6 +9,7 @@ alwaysApply: false
 
 ### Metasia.Core - コアライブラリ
 動画編集エンジンの中核となるバックエンドロジックを提供します。
+- **テストプロジェクト**: Metasia.Core.Tests
 
 #### 主要コンポーネント
 - **Objects/**: 動画編集の基本オブジェクト
@@ -34,6 +35,7 @@ alwaysApply: false
 
 ### Metasia.Editor - GUIアプリケーション
 Avalonia UIを使用したMVVMパターンのエディタアプリケーション。
+- **テストプロジェクト**: Metasia.Editor.Tests
 
 #### MVVMアーキテクチャ
 

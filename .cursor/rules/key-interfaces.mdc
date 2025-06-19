@@ -193,6 +193,7 @@ public interface IDirectoryEntity : IResourceEntity
 2. 必要なインターフェースを実装
 3. JSONシリアライズ対応を追加
 4. ViewModelとViewを作成
+5. 対応するテストクラスを作成（`Metasia.Core.Tests/Objects/`に配置）
 
 ### 新しいエフェクトの追加
 1. `IMetaDrawable`の`DrawExpresser`内で実装
@@ -200,8 +201,15 @@ public interface IDirectoryEntity : IResourceEntity
 3. アニメーション対応（`MetaDoubleParam`等）
 
 ### 新しいファイル形式のサポート
-1. `FileTypes`列挙型に追加
+1. `FileTypes`列挙型に追加（現在は`.mttl`がタイムライン用）
 2. インポート/エクスポート処理を実装
 3. プレビュー機能の対応
+4. `FileEntityTests`にテストケースを追加
+
+### 新しいEditCommandの追加
+1. `IEditCommand`インターフェースを実装
+2. `Execute()`と`Undo()`メソッドを実装
+3. 変更前の状態をコンストラクタで保存
+4. 対応するテストクラスを作成（`Metasia.Editor.Tests/Models/EditCommands/Commands/`に配置）
 
 

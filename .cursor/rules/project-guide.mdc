@@ -18,7 +18,7 @@ Metasiaは、C#と.NET 8.0で開発されているマルチプラットフォー
 ---
 
 ### プロジェクト構造
-このプロジェクトは、責務に応じて主に2つのプロジェクトに分割されています。
+このプロジェクトは、責務に応じて主に以下のプロジェクトに分割されています。
 
 1.  **`Metasia.Core`**
     * 動画編集の核となるバックエンドロジックを担当します。
@@ -34,6 +34,14 @@ Metasiaは、C#と.NET 8.0で開発されているマルチプラットフォー
         * **Models**: アプリケーションのデータ構造とビジネスロジック。
     * Undo/Redo機能 (`EditCommandManager`) や、プロジェクトファイルの管理 (`ProjectSaveLoadManager`) など、エディタ固有の機能もここに実装されています。
 
+3.  **`Metasia.Core.Tests`**
+    * Coreライブラリの単体テストプロジェクト。
+    * NUnitフレームワークを使用し、Objects名前空間のクラスを中心にテストを実装。
+
+4.  **`Metasia.Editor.Tests`**
+    * Editorアプリケーションの単体テストプロジェクト。
+    * Moqを使用したモックによるテストも含む。
+    * Models配下のEditCommands、FileSystem、Projects、Toolsのテストを実装。
 ---
 
 ### 主な特徴
