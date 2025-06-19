@@ -37,7 +37,7 @@ namespace Metasia.Editor.Models.FileSystem
                     FileType = FileTypes.Text;
                     break;
                 
-                case ".mtl":
+                case ".mttl":
                     FileType = FileTypes.MetasiaTimeline;
                     break;
                 
