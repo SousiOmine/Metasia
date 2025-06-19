@@ -20,11 +20,14 @@ using Metasia.Editor.Models.Projects;
 using Metasia.Editor.Models.FileSystem;
 using Metasia.Editor.Models.ProjectGenerate;
 using Metasia.Editor.Models.EditCommands;
+using System.Collections.Generic;
 
 namespace Metasia.Editor.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
+        private readonly IKeyBindingService _keyBindingService;
+
         public PlayerParentViewModel PlayerParentVM { get; }
 
         public InspectorViewModel inspectorViewModel { get; }
@@ -41,8 +44,12 @@ namespace Metasia.Editor.ViewModels
 
         public ICommand Redo { get; }
 
+        public Dictionary<CommandIdentifier, ICommand> CommandMap { get; } = new();
+
         public MainWindowViewModel()
         {
+            _keyBindingService = App.Current?.Services?.GetService<IKeyBindingService>() ??
+                                throw new NullReferenceException("KeyBindingService is not found");
 
             SaveEditingProject = ReactiveCommand.Create(SaveEditingProjectExecuteAsync);
             LoadEditingProject = ReactiveCommand.Create(LoadEditingProjectExecuteAsync);
@@ -59,6 +66,10 @@ namespace Metasia.Editor.ViewModels
 
             ToolsVM = new ToolsViewModel(PlayerParentVM);
 
+            // Initialize command map
+            CommandMap[CommandIdentifier.SaveProject] = SaveEditingProject;
+            CommandMap[CommandIdentifier.Undo] = Undo;
+            CommandMap[CommandIdentifier.Redo] = Redo;
         }
 
         private async Task CreateNewProjectExecuteAsync()

@@ -1,5 +1,9 @@
-﻿using Avalonia;
+
+
+
+using Avalonia;
 using Metasia.Core.Objects;
+using Metasia.Editor.Services;
 using Metasia.Editor.ViewModels.Controls;
 using ReactiveUI;
 using System;
@@ -10,6 +14,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Metasia.Editor.Models.EditCommands;
 using Avalonia.Layout;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Metasia.Editor.ViewModels
 {
@@ -34,7 +39,7 @@ namespace Metasia.Editor.ViewModels
             {
                 this.RaiseAndSetIfChanged(ref _frame_per_DIP, value);
                 ChangeFramePerDIP();
-            } 
+            }
         }
 
         /// <summary>
@@ -51,7 +56,7 @@ namespace Metasia.Editor.ViewModels
         /// 選択しているクリップ
         /// </summary>
         public ObservableCollection<ClipViewModel> SelectClip { get; } = new();
-        
+
         /// <summary>
         /// 現在表示しているフレーム PlayerViewModelと連動する
         /// </summary>
@@ -76,10 +81,14 @@ namespace Metasia.Editor.ViewModels
         private double _cursorLeft;
 
         private PlayerViewModel playerViewModel;
+        private IKeyBindingService? _keyBindingService;
 
         public TimelineViewModel(PlayerViewModel playerViewModel)
         {
             this.playerViewModel = playerViewModel;
+
+            // Get the key binding service
+            _keyBindingService = App.Current?.Services?.GetService<IKeyBindingService>();
 
             //横方向の拡大率は初期３で固定
             Frame_Per_DIP = 3;
@@ -140,10 +149,33 @@ namespace Metasia.Editor.ViewModels
             Frame = (int)(position / Frame_Per_DIP);
         }
 
-        public void ClipSelect(ClipViewModel clip)
+        /// <summary>
+        /// Handle clip selection with multi-select support
+        /// </summary>
+        /// <param name="clip">The clip to select</param>
+        /// <param name="isMultiSelect">True if the multi-select modifier key is pressed</param>
+        public void ClipSelect(ClipViewModel clip, bool isMultiSelect = false)
         {
-            SelectClip.Clear();
-            SelectClip.Add(clip);
+            if (isMultiSelect)
+            {
+                // If multi-select is enabled, toggle the selection state of the clip
+                if (SelectClip.Contains(clip))
+                {
+                    SelectClip.Remove(clip);
+                    clip.IsSelecting = false;
+                }
+                else
+                {
+                    SelectClip.Add(clip);
+                    clip.IsSelecting = true;
+                }
+            }
+            else
+            {
+                // If multi-select is not enabled, clear all selections and select only the clicked clip
+                SelectClip.Clear();
+                SelectClip.Add(clip);
+            }
         }
 
         public bool CanResizeClip(MetasiaObject clipObject, int newStartFrame, int newEndFrame)
@@ -168,10 +200,11 @@ namespace Metasia.Editor.ViewModels
             }
             return null;
         }
-        
+
         private void ChangeFramePerDIP()
         {
             CursorLeft = Frame * Frame_Per_DIP;
         }
     }
 }
+
