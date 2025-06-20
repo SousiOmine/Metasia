@@ -1,7 +1,6 @@
 using NUnit.Framework;
 using Metasia.Core.Coordinate;
 using Metasia.Core.Objects;
-using Moq;
 
 namespace Metasia.Core.Tests.Coordinate
 {
@@ -9,13 +8,13 @@ namespace Metasia.Core.Tests.Coordinate
     public class MetaDoubleParamTests
     {
         private MetaDoubleParam _metaDoubleParam;
-        private Mock<MetasiaObject> _mockOwner;
+        private MetasiaObject _owner;
 
         [SetUp]
         public void Setup()
         {
-            _mockOwner = new Mock<MetasiaObject>("test-id");
-            _mockOwner.Object.StartFrame = 0;
+            _owner = new MetasiaObject("test-id");
+            _owner.StartFrame = 0;
         }
 
         [Test]
@@ -36,7 +35,7 @@ namespace Metasia.Core.Tests.Coordinate
             const double initialValue = 123.456;
 
             // Act
-            var param = new MetaDoubleParam(_mockOwner.Object, initialValue);
+            var param = new MetaDoubleParam(_owner, initialValue);
 
             // Assert
             Assert.That(param.Params, Is.Not.Null);
@@ -50,7 +49,7 @@ namespace Metasia.Core.Tests.Coordinate
         {
             // Arrange
             const double expectedValue = 100.0;
-            _metaDoubleParam = new MetaDoubleParam(_mockOwner.Object, expectedValue);
+            _metaDoubleParam = new MetaDoubleParam(_owner, expectedValue);
 
             // Act
             var result = _metaDoubleParam.Get(50);
@@ -63,7 +62,7 @@ namespace Metasia.Core.Tests.Coordinate
         public void Get_WithMultiplePoints_CalculatesLinearInterpolation()
         {
             // Arrange
-            _metaDoubleParam = new MetaDoubleParam(_mockOwner.Object, 0.0);
+            _metaDoubleParam = new MetaDoubleParam(_owner, 0.0);
             _metaDoubleParam.Params.Add(new CoordPoint { Frame = 100, Value = 200.0 });
 
             // Act - フレーム50では線形補間で100.0になるはず
@@ -77,7 +76,7 @@ namespace Metasia.Core.Tests.Coordinate
         public void Get_BeforeFirstPoint_ReturnsFirstPointValue()
         {
             // Arrange
-            _metaDoubleParam = new MetaDoubleParam(_mockOwner.Object, 50.0);
+            _metaDoubleParam = new MetaDoubleParam(_owner, 50.0);
             _metaDoubleParam.Params[0].Frame = 10; // 最初のポイントをフレーム10に設定
 
             // Act - フレーム5（最初のポイントより前）
@@ -91,7 +90,7 @@ namespace Metasia.Core.Tests.Coordinate
         public void Get_AfterLastPoint_ReturnsLastPointValue()
         {
             // Arrange
-            _metaDoubleParam = new MetaDoubleParam(_mockOwner.Object, 10.0);
+            _metaDoubleParam = new MetaDoubleParam(_owner, 10.0);
             _metaDoubleParam.Params.Add(new CoordPoint { Frame = 50, Value = 100.0 });
 
             // Act - フレーム200（最後のポイントより後）
@@ -105,8 +104,8 @@ namespace Metasia.Core.Tests.Coordinate
         public void Get_WithOwnerStartFrame_AdjustsFrameCorrectly()
         {
             // Arrange
-            _mockOwner.Object.StartFrame = 100;
-            _metaDoubleParam = new MetaDoubleParam(_mockOwner.Object, 0.0);
+            _owner.StartFrame = 100;
+            _metaDoubleParam = new MetaDoubleParam(_owner, 0.0);
             _metaDoubleParam.Params.Add(new CoordPoint { Frame = 50, Value = 150.0 });
 
             // Act - 絶対フレーム150は、オブジェクトの相対フレーム50
@@ -120,7 +119,7 @@ namespace Metasia.Core.Tests.Coordinate
         public void Get_WithInvalidJSLogic_ReturnsFallbackValue()
         {
             // Arrange
-            _metaDoubleParam = new MetaDoubleParam(_mockOwner.Object, 42.0);
+            _metaDoubleParam = new MetaDoubleParam(_owner, 42.0);
             _metaDoubleParam.Params[0].JSLogic = "invalid javascript code {{{";
 
             // Act
@@ -134,7 +133,7 @@ namespace Metasia.Core.Tests.Coordinate
         public void Get_WithCustomJSLogic_ExecutesCorrectly()
         {
             // Arrange
-            _metaDoubleParam = new MetaDoubleParam(_mockOwner.Object, 10.0);
+            _metaDoubleParam = new MetaDoubleParam(_owner, 10.0);
             _metaDoubleParam.Params[0].JSLogic = "StartValue * 2";
             
             // Act
@@ -148,7 +147,7 @@ namespace Metasia.Core.Tests.Coordinate
         public void Get_WithNullOwner_HandlesGracefully()
         {
             // Arrange
-            _metaDoubleParam = new MetaDoubleParam(null, 123.0);
+            _metaDoubleParam = new MetaDoubleParam(null!, 123.0);
 
             // Act & Assert - 例外が発生しないことを確認
             Assert.DoesNotThrow(() => _metaDoubleParam.Get(50));
@@ -158,7 +157,7 @@ namespace Metasia.Core.Tests.Coordinate
         public void Params_CanBeModifiedDirectly()
         {
             // Arrange
-            _metaDoubleParam = new MetaDoubleParam(_mockOwner.Object, 0.0);
+            _metaDoubleParam = new MetaDoubleParam(_owner, 0.0);
             var newPoint = new CoordPoint { Frame = 75, Value = 175.0 };
 
             // Act
@@ -173,7 +172,7 @@ namespace Metasia.Core.Tests.Coordinate
         public void Get_WithUnsortedParams_SortsAutomatically()
         {
             // Arrange
-            _metaDoubleParam = new MetaDoubleParam(_mockOwner.Object, 0.0);
+            _metaDoubleParam = new MetaDoubleParam(_owner, 0.0);
             _metaDoubleParam.Params.Add(new CoordPoint { Frame = 100, Value = 200.0 });
             _metaDoubleParam.Params.Add(new CoordPoint { Frame = 50, Value = 100.0 });
 
@@ -182,6 +181,98 @@ namespace Metasia.Core.Tests.Coordinate
 
             // Assert - 線形補間で150.0になる
             Assert.That(result, Is.EqualTo(150.0).Within(0.001));
+        }
+
+        [Test]
+        public void Get_WithComplexJSLogic_CalculatesCorrectly()
+        {
+            // Arrange
+            _metaDoubleParam = new MetaDoubleParam(_owner, 0.0);
+            _metaDoubleParam.Params.Add(new CoordPoint { Frame = 100, Value = 100.0 });
+            // カスタム補間式（二次補間）
+            _metaDoubleParam.Params[0].JSLogic = 
+                "var t = (NowFrame - StartFrame) / (EndFrame - StartFrame);" +
+                "StartValue + (EndValue - StartValue) * t * t";
+
+            // Act - フレーム50では二次補間で25.0になるはず
+            var result = _metaDoubleParam.Get(50);
+
+            // Assert
+            Assert.That(result, Is.EqualTo(25.0).Within(0.001));
+        }
+
+        [Test]
+        public void Get_WithExactFrameMatch_ReturnsExactValue()
+        {
+            // Arrange
+            _metaDoubleParam = new MetaDoubleParam(_owner, 10.0);
+            _metaDoubleParam.Params.Add(new CoordPoint { Frame = 50, Value = 100.0 });
+            _metaDoubleParam.Params.Add(new CoordPoint { Frame = 100, Value = 200.0 });
+
+            // Act - 正確にフレーム50
+            var result = _metaDoubleParam.Get(50);
+
+            // Assert
+            Assert.That(result, Is.EqualTo(100.0));
+        }
+
+        [Test]
+        public void Get_WithNegativeFrame_HandlesCorrectly()
+        {
+            // Arrange
+            _owner.StartFrame = 50;
+            _metaDoubleParam = new MetaDoubleParam(_owner, 42.0);
+
+            // Act - 絶対フレーム30は、相対フレーム-20
+            var result = _metaDoubleParam.Get(30);
+
+            // Assert - 最初のポイントの値を返す
+            Assert.That(result, Is.EqualTo(42.0));
+        }
+
+        [Test]
+        public void Get_WithEmptyJSLogic_UsesFallback()
+        {
+            // Arrange
+            _metaDoubleParam = new MetaDoubleParam(_owner, 50.0);
+            _metaDoubleParam.Params[0].JSLogic = "";
+
+            // Act
+            var result = _metaDoubleParam.Get(0);
+
+            // Assert - 空のJSロジックの場合、startPointの値を返す
+            Assert.That(result, Is.EqualTo(50.0));
+        }
+
+        [Test]
+        public void Get_WithJSExceptionDuringExecution_ReturnsFallback()
+        {
+            // Arrange
+            _metaDoubleParam = new MetaDoubleParam(_owner, 75.0);
+            // 実行時に例外を発生させるJSコード
+            _metaDoubleParam.Params[0].JSLogic = "throw new Error('Test error');";
+
+            // Act
+            var result = _metaDoubleParam.Get(0);
+
+            // Assert
+            Assert.That(result, Is.EqualTo(75.0));
+        }
+
+        [TestCase(double.MinValue)]
+        [TestCase(-999999.999)]
+        [TestCase(0.0)]
+        [TestCase(0.0000001)]
+        [TestCase(999999.999)]
+        [TestCase(double.MaxValue)]
+        public void Constructor_WithExtremeValues_HandlesCorrectly(double value)
+        {
+            // Act
+            var param = new MetaDoubleParam(_owner, value);
+
+            // Assert
+            Assert.That(param.Params[0].Value, Is.EqualTo(value));
+            Assert.DoesNotThrow(() => param.Get(0));
         }
     }
 } 
