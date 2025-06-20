@@ -59,6 +59,25 @@ namespace Metasia.Editor.ViewModels
 
             ToolsVM = new ToolsViewModel(PlayerParentVM);
 
+            // キーバインディングサービスにコマンドを登録
+            RegisterCommands();
+        }
+
+        /// <summary>
+        /// キーバインディングサービスにコマンドを登録
+        /// </summary>
+        private void RegisterCommands()
+        {
+            var keyBindingService = App.Current?.Services?.GetService<IKeyBindingService>();
+            
+            if (keyBindingService != null)
+            {
+                keyBindingService.RegisterCommand("Undo", Undo);
+                keyBindingService.RegisterCommand("Redo", Redo);
+                keyBindingService.RegisterCommand("SaveEditingProject", SaveEditingProject);
+                keyBindingService.RegisterCommand("LoadEditingProject", LoadEditingProject);
+                keyBindingService.RegisterCommand("CreateNewProject", CreateNewProject);
+            }
         }
 
         private async Task CreateNewProjectExecuteAsync()

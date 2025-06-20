@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using ReactiveUI;
 
 namespace Metasia.Editor.ViewModels
@@ -33,7 +34,7 @@ namespace Metasia.Editor.ViewModels
                 {
                     if (_playerParentViewModel.TargetPlayerViewModel.SelectingObjects.Count > 0)
                     {
-                        TestCharacters = _playerParentViewModel.TargetPlayerViewModel.SelectingObjects[0].Id;
+                        TestCharacters = string.Join(", ", _playerParentViewModel.TargetPlayerViewModel.SelectingObjects.Select(obj => obj.Id));
                     }
                     else
                     {
