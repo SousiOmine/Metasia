@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Metasia.Editor\Metasia.Editor.csproj" />
+    <ProjectReference Include="..\Metasia.Core\Metasia.Core.csproj" />
   </ItemGroup>
 
-</Project>
+</Project> 

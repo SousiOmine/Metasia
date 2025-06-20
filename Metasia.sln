@@ -9,6 +9,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metasia.Core", "Metasia.Cor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{7855B90C-289D-482E-9A29-89C0F5AD2B54}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Metasia.Core.Tests", "Metasia.Core.Tests\Metasia.Core.Tests.csproj", "{49C3D7C4-F76A-4222-B060-6A6CCB772322}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Metasia.Editor.Tests", "Metasia.Editor.Tests\Metasia.Editor.Tests.csproj", "{784F16BA-4EFF-4AF7-B34F-6AC3B785A3CD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +31,14 @@ Global
 		{7855B90C-289D-482E-9A29-89C0F5AD2B54}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7855B90C-289D-482E-9A29-89C0F5AD2B54}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7855B90C-289D-482E-9A29-89C0F5AD2B54}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49C3D7C4-F76A-4222-B060-6A6CCB772322}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49C3D7C4-F76A-4222-B060-6A6CCB772322}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49C3D7C4-F76A-4222-B060-6A6CCB772322}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49C3D7C4-F76A-4222-B060-6A6CCB772322}.Release|Any CPU.Build.0 = Release|Any CPU
+		{784F16BA-4EFF-4AF7-B34F-6AC3B785A3CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{784F16BA-4EFF-4AF7-B34F-6AC3B785A3CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{784F16BA-4EFF-4AF7-B34F-6AC3B785A3CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{784F16BA-4EFF-4AF7-B34F-6AC3B785A3CD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

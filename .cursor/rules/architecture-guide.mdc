@@ -1,0 +1,105 @@
+---
+description: 詳細なプロジェクト構造とコンポーネントの説明 MVVMアーキテクチャの実装詳細 主要な設計パターン（MVVM、コマンド、オブザーバー） データフローとレンダリングパイプラインの説明
+globs: 
+alwaysApply: false
+---
+# Metasia アーキテクチャガイド
+
+## プロジェクト構造
+
+### Metasia.Core - コアライブラリ
+動画編集エンジンの中核となるバックエンドロジックを提供します。
+- **テストプロジェクト**: Metasia.Core.Tests
+
+#### 主要コンポーネント
+- **Objects/**: 動画編集の基本オブジェクト
+  - [TimelineObject.cs](mdc:Metasia.Core/Objects/TimelineObject.cs): タイムライン全体を管理
+  - [LayerObject.cs](mdc:Metasia.Core/Objects/LayerObject.cs): レイヤーとクリップを管理
+  - [MetasiaObject.cs](mdc:Metasia.Core/Objects/MetasiaObject.cs): すべてのオブジェクトの基底クラス
+  - [Text.cs](mdc:Metasia.Core/Objects/Text.cs): テキストオブジェクト
+
+- **Coordinate/**: 座標とアニメーションパラメータ
+  - [CoordPoint.cs](mdc:Metasia.Core/Coordinate/CoordPoint.cs): 座標ポイント
+  - [MetaDoubleParam.cs](mdc:Metasia.Core/Coordinate/MetaDoubleParam.cs): アニメーション可能なdouble値
+  - [MetaFloatParam.cs](mdc:Metasia.Core/Coordinate/MetaFloatParam.cs): アニメーション可能なfloat値
+
+- **Render/**: レンダリングエンジン
+  - [ProjectRenderer.cs](mdc:Metasia.Core/Render/ProjectRenderer.cs): プロジェクト全体のレンダリング
+  - [DrawExpresserArgs.cs](mdc:Metasia.Core/Render/DrawExpresserArgs.cs): 描画パラメータ
+  - [AudioExpresserArgs.cs](mdc:Metasia.Core/Render/AudioExpresserArgs.cs): 音声パラメータ
+
+- **Json/**: シリアライズ処理
+  - [ProjectSerializer.cs](mdc:Metasia.Core/Json/ProjectSerializer.cs): プロジェクトのJSON保存/読み込み
+  - [TimelineSerializer.cs](mdc:Metasia.Core/Json/TimelineSerializer.cs): タイムラインのシリアライズ
+  - [MetasiaObjectJsonConverter.cs](mdc:Metasia.Core/Json/MetasiaObjectJsonConverter.cs): カスタムJSONコンバーター
+
+### Metasia.Editor - GUIアプリケーション
+Avalonia UIを使用したMVVMパターンのエディタアプリケーション。
+- **テストプロジェクト**: Metasia.Editor.Tests
+
+#### MVVMアーキテクチャ
+
+##### ViewModels/ - ビューモデル層
+- [MainWindowViewModel.cs](mdc:Metasia.Editor/ViewModels/MainWindowViewModel.cs): メインウィンドウの状態管理
+- [PlayerViewModel.cs](mdc:Metasia.Editor/ViewModels/PlayerViewModel.cs): プレイヤーの再生制御
+- [TimelineViewModel.cs](mdc:Metasia.Editor/ViewModels/TimelineViewModel.cs): タイムライン編集
+- [InspectorViewModel.cs](mdc:Metasia.Editor/ViewModels/InspectorViewModel.cs): プロパティインスペクター
+
+##### Views/ - ビュー層
+- [MainWindow.axaml](mdc:Metasia.Editor/Views/MainWindow.axaml): メインウィンドウUI
+- [PlayerView.axaml](mdc:Metasia.Editor/Views/PlayerView.axaml): プレイヤーUI
+- [TimelineView.axaml](mdc:Metasia.Editor/Views/TimelineView.axaml): タイムラインUI
+- [InspectorView.axaml](mdc:Metasia.Editor/Views/InspectorView.axaml): インスペクターUI
+
+##### Models/ - モデル層
+- **EditCommands/**: Undo/Redoコマンドパターン
+  - [EditCommandManager.cs](mdc:Metasia.Editor/Models/EditCommands/EditCommandManager.cs): 編集履歴管理
+  - [IEditCommand.cs](mdc:Metasia.Editor/Models/EditCommands/IEditCommand.cs): コマンドインターフェース
+- **Projects/**: プロジェクト管理
+  - [MetasiaEditorProject.cs](mdc:Metasia.Editor/Models/Projects/MetasiaEditorProject.cs): エディタプロジェクト
+- **FileSystem/**: ファイルシステム抽象化
+
+## 主要な設計パターン
+
+### 1. MVVMパターン
+- **ReactiveUI**を使用したリアクティブプログラミング
+- ViewModelBaseクラスを継承してプロパティ変更通知を実装
+- ViewLocatorによる自動的なView-ViewModelバインディング
+
+### 2. コマンドパターン
+- すべての編集操作をIEditCommandとして実装
+- EditCommandManagerによるUndo/Redo履歴管理
+- 例: ClipResizeCommand, LayerIsActiveChangeCommand
+
+### 3. オブザーバーパターン
+- ObservableCollectionによるコレクション変更通知
+- ReactiveUIのWhenAnyValueによるプロパティ監視
+
+## データフロー
+
+1. **ユーザー操作** → View (axaml)
+2. **コマンド実行** → ViewModel → ICommand
+3. **モデル更新** → Model (EditCommand) → Core Objects
+4. **UI更新** → PropertyChanged → View更新
+
+## レンダリングパイプライン
+
+1. TimelineObject.DrawExpresser()
+   - 各レイヤーを順番に描画
+   - SKBitmapに合成
+
+2. LayerObject.DrawExpresser()
+   - フレーム内の有効なオブジェクトを収集
+   - 座標変換とエフェクト適用
+   - レイヤーバッファに描画
+
+3. 各オブジェクト (Text等)
+   - 固有の描画ロジック実装
+   - IMetaDrawableインターフェース
+
+## プロジェクトファイル形式
+
+- **.mtpj**: プロジェクトファイル (JSON形式)
+- 人間が読めるJSON形式で保存
+- MetasiaObjectJsonConverterによるポリモーフィックなシリアライズ
+

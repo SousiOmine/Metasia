@@ -26,4 +26,4 @@
     <ProjectReference Include="..\Metasia.Editor\Metasia.Editor.csproj" />
   </ItemGroup>
 
-</Project>
+</Project> 

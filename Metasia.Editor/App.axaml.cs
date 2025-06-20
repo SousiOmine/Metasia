@@ -1,3 +1,5 @@
+
+
 using System;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -10,34 +12,36 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Metasia.Editor
 {
-	public partial class App : Application
-	{
-		public new static App? Current => Application.Current as App;
+    public partial class App : Application
+    {
+        public new static App? Current => Application.Current as App;
 
-		/// <summary>
-		/// DIコンテナのサービスプロバイダ
-		/// </summary>
-		public IServiceProvider? Services { get; private set; }
-		public override void Initialize()
-		{
-			AvaloniaXamlLoader.Load(this);
-		}
+        /// <summary>
+        /// DIコンテナのサービスプロバイダ
+        /// </summary>
+        public IServiceProvider? Services { get; private set; }
+        public override void Initialize()
+        {
+            AvaloniaXamlLoader.Load(this);
+        }
 
-		public override void OnFrameworkInitializationCompleted()
-		{
-			if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-			{
-				desktop.MainWindow = new MainWindow
-				{
-					DataContext = new MainWindowViewModel(),
-				};
+        public override void OnFrameworkInitializationCompleted()
+        {
+            if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                desktop.MainWindow = new MainWindow
+                {
+                    DataContext = new MainWindowViewModel(),
+                };
 
-				var services = new ServiceCollection();
-				services.AddSingleton<IFileDialogService>(new FileDialogService(desktop.MainWindow));
+                var services = new ServiceCollection();
+                services.AddSingleton<IFileDialogService>(new FileDialogService(desktop.MainWindow));
+                services.AddSingleton<INewProjectDialogService, NewProjectDialogService>();
                 Services = services.BuildServiceProvider();
-			}
+            }
 
-			base.OnFrameworkInitializationCompleted();
-		}
-	}
+            base.OnFrameworkInitializationCompleted();
+        }
+    }
 }
+
