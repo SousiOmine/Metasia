@@ -3,6 +3,7 @@ using System.Windows.Input;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Metasia.Editor.Models.KeyBinding;
+using Metasia.Editor.Services.KeyBinding;
 using System.IO;
 using System.Text.Json;
 using System.Diagnostics;
@@ -18,11 +19,13 @@ namespace Metasia.Editor.Services
         private List<ModifierKeyDefinition> _modifierKeyDefinitions { get; } = new List<ModifierKeyDefinition>();
 
         private Dictionary<string, ICommand> _commands { get; } = new Dictionary<string, ICommand>();
+        private readonly IDefaultKeyBindingProvider _defaultProvider;
 
         private const string SETTINGS_FILE_NAME = "keybindings.json";
 
         public KeyBindingService()
         {
+            _defaultProvider = DefaultKeyBindingProviderFactory.Create();
             LoadKeyBindings();
         }
 
@@ -94,35 +97,7 @@ namespace Metasia.Editor.Services
         /// </summary>
         private void SetDefaultKeyBindings()
         {
-            _keyBindings.Add(new KeyBindingDefinition
-            {
-                CommandId = "Undo",
-                Gesture = new KeyGesture(Key.Z, KeyModifiers.Control)
-            });
-
-            _keyBindings.Add(new KeyBindingDefinition
-            {
-                CommandId = "Redo",
-                Gesture = new KeyGesture(Key.Y, KeyModifiers.Control)
-            });
-
-            _keyBindings.Add(new KeyBindingDefinition
-            {
-                CommandId = "SaveEditingProject",
-                Gesture = new KeyGesture(Key.S, KeyModifiers.Control)
-            });
-
-            _keyBindings.Add(new KeyBindingDefinition
-            {
-                CommandId = "LoadEditingProject",
-                Gesture = new KeyGesture(Key.O, KeyModifiers.Control)
-            });
-
-            _keyBindings.Add(new KeyBindingDefinition
-            {
-                CommandId = "CreateNewProject",
-                Gesture = new KeyGesture(Key.N, KeyModifiers.Control)
-            });
+            _keyBindings.AddRange(_defaultProvider.GetDefaultKeyBindings());
         }
 
         /// <summary>
@@ -130,26 +105,7 @@ namespace Metasia.Editor.Services
         /// </summary>
         private void SetDefaultModifierKeys()
         {
-            _modifierKeyDefinitions.Add(new ModifierKeyDefinition
-            {
-                ActionId = "MultiSelectClip",
-                Modifier = KeyModifiers.Control,
-                Description = "クリップの複数選択"
-            });
-
-            _modifierKeyDefinitions.Add(new ModifierKeyDefinition
-            {
-                ActionId = "ConstrainedMove",
-                Modifier = KeyModifiers.Shift,
-                Description = "水平/垂直方向への移動制限"
-            });
-
-            _modifierKeyDefinitions.Add(new ModifierKeyDefinition
-            {
-                ActionId = "DuplicateOnDrag",
-                Modifier = KeyModifiers.Alt,
-                Description = "ドラッグ時に複製"
-            });
+            _modifierKeyDefinitions.AddRange(_defaultProvider.GetDefaultModifierKeys());
         }
 
         /// <summary>
