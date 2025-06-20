@@ -8,6 +8,8 @@ using Avalonia.Markup.Xaml;
 using DynamicData.Kernel;
 using Metasia.Editor.Models.DragDropData;
 using Metasia.Editor.ViewModels.Controls;
+using Microsoft.Extensions.DependencyInjection;
+using Metasia.Editor.Services;
 
 namespace Metasia.Editor.Views.Controls;
 
@@ -34,7 +36,21 @@ public partial class ClipView : UserControl
 
     private void Clip_OnTapped(object? sender, TappedEventArgs e)
     {
-        VM.ClipClick();
+        if (VM is null) return;
+        
+        // キーバインディングサービスから修飾キー設定を取得
+        var keyBindingService = App.Current?.Services?.GetService<IKeyBindingService>();
+        var multiSelectModifier = keyBindingService?.GetModifierForAction("MultiSelectClip");
+        
+        // 現在の修飾キーの状態を取得
+        var currentModifiers = e.KeyModifiers;
+        
+        // 複数選択モードかどうかを判定
+        bool isMultiSelect = multiSelectModifier.HasValue && 
+                            keyBindingService.IsModifierKeyPressed(multiSelectModifier.Value, currentModifiers);
+        
+        // ViewModelにクリック情報を渡す（複数選択モードかどうかも含めて）
+        VM.ClipClick(isMultiSelect);
     }
 
     private void Clip_PointerPressed(object? sender, PointerPressedEventArgs e)

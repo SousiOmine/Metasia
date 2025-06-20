@@ -90,9 +90,9 @@ namespace Metasia.Editor.ViewModels.Controls
             StartFrame = TargetObject.StartFrame * Frame_Per_DIP;
         }
 
-        public void ClipClick()
+        public void ClipClick(bool isMultiSelect = false)
         {
-            parentTimeline.ClipSelect(this);
+            parentTimeline.ClipSelect(this, isMultiSelect);
         }
 
         /// <summary>

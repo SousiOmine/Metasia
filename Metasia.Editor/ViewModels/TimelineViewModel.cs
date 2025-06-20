@@ -139,10 +139,26 @@ namespace Metasia.Editor.ViewModels
             Frame = (int)(position / Frame_Per_DIP);
         }
 
-        public void ClipSelect(ClipViewModel clip)
+        public void ClipSelect(ClipViewModel clip, bool isMultiSelect = false)
         {
-            SelectClip.Clear();
-            SelectClip.Add(clip);
+            if (isMultiSelect)
+            {
+                // 複数選択モード：既に選択されている場合は選択解除、そうでなければ追加
+                if (SelectClip.Contains(clip))
+                {
+                    SelectClip.Remove(clip);
+                }
+                else
+                {
+                    SelectClip.Add(clip);
+                }
+            }
+            else
+            {
+                // 単一選択モード：既存の選択をクリアして新しいクリップを選択
+                SelectClip.Clear();
+                SelectClip.Add(clip);
+            }
         }
 
         public bool CanResizeClip(MetasiaObject clipObject, int newStartFrame, int newEndFrame)
