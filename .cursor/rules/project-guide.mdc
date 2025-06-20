@@ -7,6 +7,7 @@ alwaysApply: true
 
 ### 概要
 Metasiaは、C#と.NET 8.0で開発されているマルチプラットフォーム対応の動画編集ソフトウェアです。UIフレームワークにAvalonia UIを採用しており、Windows, macOS, Linuxなど、さまざまなOSでの動作を目指しています。
+GitHub上のパブリックリポジトリ`SousiOmine/Metasia`で管理されています。
 
 ---
 
