@@ -5,8 +5,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
+using Metasia.Editor.Models.DragDropData;
 
 namespace Metasia.Editor.ViewModels.Controls
 {
@@ -26,6 +29,11 @@ namespace Metasia.Editor.ViewModels.Controls
             set => this.RaiseAndSetIfChanged(ref width, value);
         }
 
+        /// <summary>
+        /// ドロップ処理のコマンド
+        /// </summary>
+        public ICommand HandleDropCommand { get; }
+
         private TimelineViewModel parentTimeline;
 
         public LayerObject TargetLayer { get; private set; }
@@ -38,7 +46,27 @@ namespace Metasia.Editor.ViewModels.Controls
             this.parentTimeline = parentTimeline;
             this.TargetLayer = targetLayer;
 
-            
+            // ドロップ処理コマンドの初期化（UIに依存しない）
+            HandleDropCommand = ReactiveCommand.Create<DropTargetInfo>(
+                execute: (dropInfo) =>
+                {
+                    if (dropInfo.DragData != null && dropInfo.CanDrop)
+                    {
+                        // 論理座標からフレーム番号を計算
+                        int targetFrame = ConvertPositionToFrame(dropInfo.DropPositionX);
+                        
+                        targetFrame -= ConvertPositionToFrame(dropInfo.DragData.DraggingOffsetX);
+                        targetFrame = Math.Max(0, targetFrame);
+                        
+                        ClipDropped(dropInfo.DragData.ClipVM, targetFrame);
+                    }
+                    else
+                    {
+                        Debug.WriteLine("Cannot drop at this location");
+                    }
+                },
+                canExecute: this.WhenAnyValue(x => x.TargetLayer).Select(layer => layer != null)
+            );
 
             parentTimeline.WhenAnyValue(x => x.Frame_Per_DIP).Subscribe
                 (Frame_Per_DIP =>
@@ -46,7 +74,6 @@ namespace Metasia.Editor.ViewModels.Controls
                     this.Frame_Per_DIP = Frame_Per_DIP;
                     ChangeFramePerDIP();
                 });
-
 
             RelocateClips();
 
@@ -79,6 +106,27 @@ namespace Metasia.Editor.ViewModels.Controls
         public void ClipDropped(ClipViewModel clipVM, int targetStartFrame)
         {
             parentTimeline.ClipDropped(clipVM, this, targetStartFrame);
+        }
+
+        /// <summary>
+        /// 座標変換のためのヘルパーメソッド（ViewModelで論理座標を扱う）
+        /// </summary>
+        public int ConvertPositionToFrame(double positionX)
+        {
+            return (int)(positionX / Frame_Per_DIP);
+        }
+
+        /// <summary>
+        /// ドロップ可能かどうかを判定（ビジネスロジック）
+        /// </summary>
+        public bool CanDropAt(ClipViewModel clip, int targetFrame)
+        {
+            if (clip == null) return false;
+            
+            int clipLength = clip.TargetObject.EndFrame - clip.TargetObject.StartFrame;
+            int newEndFrame = targetFrame + clipLength;
+            
+            return TargetLayer.CanPlaceObjectAt(clip.TargetObject, targetFrame, newEndFrame);
         }
 
         /// <summary>

@@ -15,10 +15,6 @@ namespace Metasia.Editor.Views.Controls;
 
 public partial class ClipView : UserControl
 {
-    private Point? _startPoint;
-    private bool _isDraggingPotential = false;
-    private const double DragThreshold = 5;
-
     private ClipViewModel? VM
     {
         get { return this.DataContext as ClipViewModel; }
@@ -51,48 +47,6 @@ public partial class ClipView : UserControl
         
         // ViewModelにクリック情報を渡す（複数選択モードかどうかも含めて）
         VM.ClipClick(isMultiSelect);
-    }
-
-    private void Clip_PointerPressed(object? sender, PointerPressedEventArgs e)
-    {
-        if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
-        {
-            _startPoint = e.GetCurrentPoint(this).Position;
-            _isDraggingPotential = true;
-        }
-    }
-
-    private async void Clip_PointerMoved(object? sender, PointerEventArgs e)
-    {
-        if (_isDraggingPotential && e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
-        {
-            Point currentPoint = e.GetCurrentPoint(this).Position;
-            if (_startPoint is null) return;
-            if (Math.Abs(currentPoint.X - _startPoint.Value.X) > DragThreshold)
-            {
-                _isDraggingPotential = false;
-
-                if (VM is null) return;
-
-                var dragData = new DataObject();
-                const string dragFormat = "ClipMoveDragData";
-                double dragOffset = _startPoint.Value.X;
-                dragData.Set(dragFormat, new ClipMoveDragData(VM, dragOffset));
-
-                var effect = await DragDrop.DoDragDrop(e, dragData, DragDropEffects.Move);
-
-                if (effect == DragDropEffects.None)
-                {
-                    Debug.WriteLine("DragDrop outside or canceled");
-                }
-                
-            }
-        }
-    }
-
-    private void Clip_PointerReleased(object? sender, PointerReleasedEventArgs e)
-    {
-        _isDraggingPotential = false;
     }
 
     private void Handle_PointerPressed(object? sender, PointerPressedEventArgs e)
