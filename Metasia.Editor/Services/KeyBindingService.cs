@@ -54,7 +54,7 @@ namespace Metasia.Editor.Services
                     // 登録されたコマンドの中から、キーバインディングが定義されているものを適用
                     foreach (var keyBinding in _keyBindings)
                     {
-                        if (_commands.TryGetValue(keyBinding.CommandId, out var command) && keyBinding.Gesture != null)
+                        if (_commands.TryGetValue(keyBinding.CommandId, out var command) && keyBinding.Gesture is not null)
                         {
                             var avaloniaKeyBinding = new Avalonia.Input.KeyBinding
                             {
@@ -71,6 +71,8 @@ namespace Metasia.Editor.Services
         public void RegisterCommand(string commandId, ICommand command)
         {
             _commands[commandId] = command;
+            // コマンドが登録されたらキーバインディングを更新
+            RefreshKeyBindings();
         }
 
         /// <summary>
@@ -162,7 +164,7 @@ namespace Metasia.Editor.Services
                 var existingBinding = _keyBindings.Find(kb => kb.CommandId == customBinding.CommandId);
                 var gesture = ParseKeyGesture(customBinding);
 
-                if (existingBinding != null)
+                if (existingBinding is not null)
                 {
                     existingBinding.Gesture = gesture;
                 }
@@ -189,7 +191,7 @@ namespace Metasia.Editor.Services
 
                 if (Enum.TryParse<KeyModifiers>(customModifier.Modifier, true, out var modifier))
                 {
-                    if (existingDefinition != null)
+                    if (existingDefinition is not null)
                     {
                         existingDefinition.Modifier = modifier;
                         existingDefinition.Description = customModifier.Description;
@@ -257,7 +259,7 @@ namespace Metasia.Editor.Services
 
                 foreach (var keyBinding in _keyBindings)
                 {
-                    if (keyBinding.Gesture != null)
+                    if (keyBinding.Gesture is not null)
                     {
                         var jsonBinding = new KeyBindingDefinitionJson
                         {

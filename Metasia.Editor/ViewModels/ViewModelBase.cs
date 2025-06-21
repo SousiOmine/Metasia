@@ -24,8 +24,10 @@ namespace Metasia.Editor.ViewModels
 		/// </summary>
 		protected void RegisterCommand(string commandId, System.Windows.Input.ICommand command)
 		{
-			if (_keyBindingService == null)
+			if (_keyBindingService is null)
+			{
 				throw new InvalidOperationException("KeyBindingService is not set. Call SetKeyBindingService first.");
+			}
 
 			_keyBindingService.RegisterCommand(commandId, command);
 			_registeredCommandIds.Add(commandId);
@@ -50,7 +52,7 @@ namespace Metasia.Editor.ViewModels
 				if (disposing)
 				{
 					// 登録したすべてのコマンドを解除
-					if (_keyBindingService != null)
+					if (_keyBindingService is not null)
 					{
 						foreach (var commandId in _registeredCommandIds)
 						{
