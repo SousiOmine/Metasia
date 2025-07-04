@@ -94,14 +94,14 @@ namespace Metasia.Editor.Views.Behaviors
             e.Handled = true;
         }
         
-        private DropTargetInfo? CreateDropTargetInfo(DragEventArgs e)
+        private ClipsDropTargetInfo? CreateDropTargetInfo(DragEventArgs e)
         {
-            if (e.Data.Get("ClipMoveDragData") is ClipMoveDragData clipMoveDragData && AssociatedObject is not null)
+            if (e.Data.Get("ClipsMoveDragData") is ClipsMoveDragData clipsMoveDragData && AssociatedObject is not null)
             {
                 var position = e.GetPosition(AssociatedObject);
-                return new DropTargetInfo
+                return new ClipsDropTargetInfo
                 {
-                    DragData = clipMoveDragData,
+                    DragData = clipsMoveDragData,
                     DropPositionX = position.X,
                     CanDrop = true
                 };

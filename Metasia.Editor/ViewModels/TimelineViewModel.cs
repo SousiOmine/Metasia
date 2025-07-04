@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Metasia.Editor.Models.EditCommands;
 using Avalonia.Layout;
 using Metasia.Editor.Models.EditCommands.Commands;
+using System.Diagnostics;
 
 namespace Metasia.Editor.ViewModels
 {
@@ -172,29 +173,45 @@ namespace Metasia.Editor.ViewModels
             return false;
         }
 
-        public void ClipDropped(ClipViewModel clipVM, LayerCanvasViewModel targetCanvasVM, int targetStartFrame)
+        public void ClipsDropped(int moveFrame, int moveLayerCount)
         {
-            if (playerViewModel is null) return;
-
-            var sourceMetasiaObject = clipVM.TargetObject;
-            var targetLayer = targetCanvasVM.TargetLayer;
-
-            LayerObject? sourceOwnerLayer = FindOwnerLayer(sourceMetasiaObject);
-            if (sourceOwnerLayer is null) return;
-
-            int clipLength = sourceMetasiaObject.EndFrame - sourceMetasiaObject.StartFrame;
-            int newEndFrame = targetStartFrame + clipLength;
-
-            if (targetLayer.CanPlaceObjectAt(sourceMetasiaObject, targetStartFrame, newEndFrame))
+            //選択中のオブジェクトすべてを対象とする
+            List<MetasiaObject> targetObjects = new();
+            foreach (var metasiaObject in playerViewModel.SelectingObjects)
             {
-                var command = new MoveClipCommand(
-                    sourceMetasiaObject,
-                    sourceOwnerLayer,
-                    targetLayer,
-                    sourceMetasiaObject.StartFrame,
-                    sourceMetasiaObject.EndFrame,
-                    targetStartFrame, newEndFrame);
+                targetObjects.Add(metasiaObject);
+            }
 
+            // 移動可能かを確認
+            // foreach (var targetObject in targetObjects)
+            // {
+            //     var sourceLayer = FindOwnerLayer(targetObject);
+            //     if (sourceLayer is null) continue;
+
+            //     // 移動先のレイヤーが存在しなければ終了
+            //     var newLayer = GetLayerByOffset(sourceLayer, moveLayerCount);
+            //     if (newLayer is null) return;
+
+            //     // 移動先のレイヤーと位置に配置可能であれば終了
+            //     if (!newLayer.CanPlaceObjectAt(targetObject, targetObject.StartFrame + moveFrame, targetObject.EndFrame + moveFrame)) return;
+            // }
+
+            List<ClipMoveInfo> moveInfos = new();
+            foreach (var targetObject in targetObjects)
+            {
+                var sourceLayer = FindOwnerLayer(targetObject);
+                if (sourceLayer is null) continue;
+
+                var newLayer = GetLayerByOffset(sourceLayer, moveLayerCount);
+                if (newLayer is null) continue;
+
+                moveInfos.Add(new ClipMoveInfo(targetObject, sourceLayer, newLayer, targetObject.StartFrame, targetObject.EndFrame, targetObject.StartFrame + moveFrame, targetObject.EndFrame + moveFrame));
+
+            }
+
+            if (moveInfos.Count > 0)
+            {
+                var command = new MoveClipsCommand(moveInfos);
                 RunEditCommand(command);
             }
         }
@@ -210,6 +227,20 @@ namespace Metasia.Editor.ViewModels
             }
             return null;
         }
+
+        private LayerObject? GetLayerByOffset(LayerObject currentLayer, int offset)
+        {
+            if (Timeline?.Layers is null) return null;
+            
+            int currentIndex = Timeline.Layers.IndexOf(currentLayer);
+            int newIndex = currentIndex + offset;
+
+            if (newIndex < 0 || newIndex >= Timeline.Layers.Count) return null;
+
+            return Timeline.Layers[newIndex];
+        }
+
+        
         
         private void ChangeFramePerDIP()
         {

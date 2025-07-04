@@ -46,25 +46,9 @@ namespace Metasia.Editor.ViewModels.Controls
             this.parentTimeline = parentTimeline;
             this.TargetLayer = targetLayer;
 
-            // ドロップ処理コマンドの初期化（UIに依存しない）
-            HandleDropCommand = ReactiveCommand.Create<DropTargetInfo>(
-                execute: (dropInfo) =>
-                {
-                    if (dropInfo.DragData != null && dropInfo.CanDrop)
-                    {
-                        // 論理座標からフレーム番号を計算
-                        int targetFrame = ConvertPositionToFrame(dropInfo.DropPositionX);
-                        
-                        targetFrame -= ConvertPositionToFrame(dropInfo.DragData.DraggingOffsetX);
-                        targetFrame = Math.Max(0, targetFrame);
-                        
-                        ClipDropped(dropInfo.DragData.ClipVM, targetFrame);
-                    }
-                    else
-                    {
-                        Debug.WriteLine("Cannot drop at this location");
-                    }
-                },
+            // ドロップ処理コマンドの初期化
+            HandleDropCommand = ReactiveCommand.Create<ClipsDropTargetInfo>(
+                execute: ExecuteHandleDrop,
                 canExecute: this.WhenAnyValue(x => x.TargetLayer).Select(layer => layer != null)
             );
 
@@ -102,31 +86,60 @@ namespace Metasia.Editor.ViewModels.Controls
                 clip.RecalculateSize();
             }
         }
-
-        public void ClipDropped(ClipViewModel clipVM, int targetStartFrame)
-        {
-            parentTimeline.ClipDropped(clipVM, this, targetStartFrame);
-        }
-
         /// <summary>
         /// 座標変換のためのヘルパーメソッド（ViewModelで論理座標を扱う）
         /// </summary>
-        public int ConvertPositionToFrame(double positionX)
+        public int ConvertPositionToFrame(double positionX, double framePerDIP)
         {
-            return (int)(positionX / Frame_Per_DIP);
+            return (int)(positionX / framePerDIP);
         }
 
         /// <summary>
-        /// ドロップ可能かどうかを判定（ビジネスロジック）
+        /// タイムラインVMのドロップ処理を呼び出す
         /// </summary>
-        public bool CanDropAt(ClipViewModel clip, int targetFrame)
+        private void ExecuteHandleDrop(ClipsDropTargetInfo dropInfo)
         {
-            if (clip == null) return false;
-            
-            int clipLength = clip.TargetObject.EndFrame - clip.TargetObject.StartFrame;
-            int newEndFrame = targetFrame + clipLength;
-            
-            return TargetLayer.CanPlaceObjectAt(clip.TargetObject, targetFrame, newEndFrame);
+            if (dropInfo.DragData is not null && dropInfo.CanDrop)
+            {
+                // クリップの新しい左端位置を計算（ドロップ位置 - クリップ内オフセット）
+                double newClipLeftPosition = dropInfo.DropPositionX - dropInfo.DragData.DraggingClipOffsetX;
+                int newStartFrame = ConvertPositionToFrame(newClipLeftPosition, dropInfo.DragData.FramePerDIP_AtDragStart);
+                
+                // 元のクリップの開始フレームと比較して移動量を算出
+                int originalStartFrame = dropInfo.DragData.ReferencedClipVM.TargetObject.StartFrame;
+                int moveFrame = newStartFrame - originalStartFrame;
+
+                // クリップをレイヤー方向にどれだけ移動するか算出
+                var referencedMetasiaObject = dropInfo.DragData.ReferencedClipVM.TargetObject;
+                LayerObject? referencedObjectLayer = null;
+                foreach (var layer in parentTimeline.Timeline.Layers)
+                {
+                    if (layer.Objects.Any(x => x.Id == referencedMetasiaObject.Id))
+                    {
+                        referencedObjectLayer = layer;
+                        break;
+                    }
+                }
+                if (referencedObjectLayer is null)
+                {
+                    return;
+                }
+
+                int sourceLayerIndex = parentTimeline.Timeline.Layers.IndexOf(referencedObjectLayer);
+                int targetLayerIndex = parentTimeline.Timeline.Layers.IndexOf(TargetLayer);
+                int moveLayerCount = targetLayerIndex - sourceLayerIndex;
+
+                ClipsDropped(moveFrame, moveLayerCount);
+            }
+            else
+            {
+                Debug.WriteLine("Cannot drop at this location");
+            }
+        }
+        
+        private void ClipsDropped(int moveFrame, int moveLayerCount)
+        {
+            parentTimeline.ClipsDropped(moveFrame, moveLayerCount);
         }
 
         /// <summary>
@@ -166,7 +179,7 @@ namespace Metasia.Editor.ViewModels.Controls
 
             RecalculateSize();
             ChangeFramePerDIP();
-            
+
         }
 
         private void ChangeFramePerDIP()

@@ -84,8 +84,8 @@ namespace Metasia.Editor.Views.Behaviors
                     if (vm is not null)
                     {
                         var dragData = new DataObject();
-                        const string dragFormat = "ClipMoveDragData";
-                        dragData.Set(dragFormat, new ClipMoveDragData(vm, _startPoint.Value.X));
+                        const string dragFormat = "ClipsMoveDragData";
+                        dragData.Set(dragFormat, new ClipsMoveDragData(vm, _startPoint.Value.X, vm.Frame_Per_DIP));
                         
                         // 実際のドラッグ&ドロップを開始
                         await DragDrop.DoDragDrop(e, dragData, DragDropEffects.Move);
