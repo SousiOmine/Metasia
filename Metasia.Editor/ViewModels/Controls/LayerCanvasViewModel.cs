@@ -161,6 +161,10 @@ namespace Metasia.Editor.ViewModels.Controls
                 {
                     var clipVM = new ClipViewModel(obj, parentTimeline);
                     ClipsAndBlanks.Add(clipVM);
+                    if (parentTimeline.SelectClip.Any(x => x.TargetObject.Id == id))
+                    {
+                        clipVM.IsSelecting = true;
+                    }
                 }
             }
 
