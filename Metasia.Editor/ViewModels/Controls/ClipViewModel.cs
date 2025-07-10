@@ -1,7 +1,10 @@
 ﻿using Avalonia;
 using Metasia.Core.Objects;
 using Metasia.Editor.Models.EditCommands;
+
 using Metasia.Editor.Models.EditCommands.Commands;
+using Metasia.Editor.Services;
+
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
@@ -52,32 +55,16 @@ namespace Metasia.Editor.ViewModels.Controls
         private double startFrame;
         private bool isSelecting;
 
-        /// <summary>
-        /// ドラッグ中かどうかを示すフラグ
-        /// </summary>
-        private bool _isDragging = false;
-
-        /// <summary>
-        /// ドラッグされているのが始端か終端かを示す
-        /// </summary>
-        private string _dragHandleName = string.Empty;  // "StartHandle" または "EndHandle"
-
-        /// <summary>
-        /// ドラッグ開始時のポインタ位置
-        /// </summary>
-        private double _dragStartX = 0;
-
-        /// <summary>
-        /// ドラッグ開始時の始端あるいは終端のフレーム
-        /// </summary>
-        private int _initialDragFrame = 0;
+        // Drag state is now handled by the TimelineInteractionService
 
         private TimelineViewModel parentTimeline;
+        private ITimelineInteractionService timelineInteractionService;
 
-        public ClipViewModel(MetasiaObject targetObject, TimelineViewModel parentTimeline)
+        public ClipViewModel(MetasiaObject targetObject, TimelineViewModel parentTimeline, ITimelineInteractionService interactionService)
         {
             TargetObject = targetObject;
             this.parentTimeline = parentTimeline;
+            this.timelineInteractionService = interactionService;
             IsSelecting = false;
         }
 
@@ -92,7 +79,7 @@ namespace Metasia.Editor.ViewModels.Controls
 
         public void ClipClick(bool isMultiSelect = false)
         {
-            parentTimeline.ClipSelect(this, isMultiSelect);
+            timelineInteractionService.SelectClip(this, isMultiSelect);
         }
 
         /// <summary>
@@ -102,17 +89,12 @@ namespace Metasia.Editor.ViewModels.Controls
         /// <param name="pointerPositionXOnCanvas">ポインタの初期位置</param>
         public void StartDrag(string handleName, double pointerPositionXOnCanvas)
         {
-            _isDragging = true;
-            _dragHandleName = handleName;
-            _dragStartX = pointerPositionXOnCanvas;
-            _initialDragFrame = (handleName == "StartHandle") ? TargetObject.StartFrame : TargetObject.EndFrame;
-
-            Console.WriteLine(pointerPositionXOnCanvas);
+            timelineInteractionService.StartClipDrag(this, handleName, pointerPositionXOnCanvas);
         }
 
         public void UpdateDrag(double pointerPositionXOnCanvas)
         {
-            //ドラッグ中になにかするならここに書く
+            timelineInteractionService.UpdateClipDrag(this, pointerPositionXOnCanvas);
         }
 
         /// <summary>
@@ -121,57 +103,7 @@ namespace Metasia.Editor.ViewModels.Controls
         /// <param name="pointerPositionXOnCanvas">ポインタの最後の位置</param>
         public void EndDrag(double pointerPositionXOnCanvas)
         {
-            if (!_isDragging || string.IsNullOrEmpty(_dragHandleName))
-            {
-                return;
-            }
-
-            double deltaX = pointerPositionXOnCanvas - _dragStartX;
-            double frameDelta = deltaX / Frame_Per_DIP;
-            int frameChange = (int)Math.Round(frameDelta);
-
-            int newStartFrame = TargetObject.StartFrame;
-            int newEndFrame = TargetObject.EndFrame;
-
-            if (_dragHandleName == "StartHandle")
-            {
-                newStartFrame = _initialDragFrame + frameChange;
-                // 終端を超えないように、かつ長さが1未満にならないように制限
-                newStartFrame = Math.Min(newStartFrame, TargetObject.EndFrame - 1);
-                newStartFrame = Math.Max(newStartFrame, 0);
-            }
-            else if (_dragHandleName == "EndHandle")
-            {
-                newEndFrame = _initialDragFrame + frameChange;
-                // 始端を下回らないように、かつ長さが1未満にならないように制限
-                newEndFrame = Math.Max(newEndFrame, TargetObject.StartFrame + 1);
-            }
-
-            // 希望のフレームのままリサイズできるならばリサイズ実行
-            if (parentTimeline.CanResizeClip(TargetObject, newStartFrame, newEndFrame))
-            {
-                // フレームが変化していればコマンドを実行
-                if (newStartFrame != TargetObject.StartFrame || newEndFrame != TargetObject.EndFrame)
-                {
-                    IEditCommand command = new ClipResizeCommand(
-                        TargetObject,
-                        TargetObject.StartFrame, newStartFrame,
-                        TargetObject.EndFrame, newEndFrame
-                    );
-                    parentTimeline.RunEditCommand(command);
-
-                    RecalculateSize();
-                }
-            }
-            else
-            {
-                // ドラッグしたそのままのフレームでは重複でリサイズできない場合、重複しないぎりぎりまで詰める
-            }
-
-            _isDragging = false;
-            _dragHandleName = string.Empty;
-
-            Console.WriteLine(pointerPositionXOnCanvas);
+            timelineInteractionService.EndClipDrag(this, pointerPositionXOnCanvas);
         }
     }
 }

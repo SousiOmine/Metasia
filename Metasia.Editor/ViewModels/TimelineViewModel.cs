@@ -8,7 +8,12 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
+
 using Metasia.Editor.Models.EditCommands;
+using Metasia.Editor.Services;
+
+
 using Avalonia.Layout;
 using Metasia.Editor.Models.EditCommands.Commands;
 using System.Diagnostics;
@@ -78,6 +83,7 @@ namespace Metasia.Editor.ViewModels
         private double _cursorLeft;
 
         private PlayerViewModel playerViewModel;
+        private ITimelineInteractionService timelineInteractionService;
 
         public event EventHandler? ProjectChanged;
 
@@ -88,6 +94,9 @@ namespace Metasia.Editor.ViewModels
             //横方向の拡大率は初期３で固定
             Frame_Per_DIP = 3;
             _timeline = playerViewModel.TargetTimeline;
+
+            // Initialize the interaction service
+            timelineInteractionService = new TimelineInteractionService(this);
 
             //PlayerViewModel側からフレームの変更があればカーソルの描画位置を反映
             playerViewModel.WhenAnyValue(x => x.Frame).Subscribe
@@ -142,78 +151,18 @@ namespace Metasia.Editor.ViewModels
 
         public void ClipSelect(ClipViewModel clip, bool isMultiSelect = false)
         {
-            if (isMultiSelect)
-            {
-                // 複数選択モード：既に選択されている場合は選択解除、そうでなければ追加
-                if (SelectClip.Contains(clip))
-                {
-                    SelectClip.Remove(clip);
-                }
-                else
-                {
-                    SelectClip.Add(clip);
-                }
-            }
-            else
-            {
-                // 単一選択モード：既存の選択をクリアして新しいクリップを選択
-                SelectClip.Clear();
-                SelectClip.Add(clip);
-            }
+            timelineInteractionService.SelectClip(clip, isMultiSelect);
         }
 
         public bool CanResizeClip(MetasiaObject clipObject, int newStartFrame, int newEndFrame)
         {
-            LayerObject? ownerLayer = FindOwnerLayer(clipObject);
-
-            if (ownerLayer is not null)
-            {
-                return ownerLayer.CanPlaceObjectAt(clipObject, newStartFrame, newEndFrame);
-            }
-            return false;
+            return timelineInteractionService.CanResizeClip(clipObject, newStartFrame, newEndFrame);
         }
 
         public void ClipsDropped(int moveFrame, int moveLayerCount)
         {
-            //選択中のオブジェクトすべてを対象とする
-            List<MetasiaObject> targetObjects = new();
-            foreach (var metasiaObject in playerViewModel.SelectingObjects)
-            {
-                targetObjects.Add(metasiaObject);
-            }
-
-            // 移動可能かを確認
-            // foreach (var targetObject in targetObjects)
-            // {
-            //     var sourceLayer = FindOwnerLayer(targetObject);
-            //     if (sourceLayer is null) continue;
-
-            //     // 移動先のレイヤーが存在しなければ終了
-            //     var newLayer = GetLayerByOffset(sourceLayer, moveLayerCount);
-            //     if (newLayer is null) return;
-
-            //     // 移動先のレイヤーと位置に配置可能であれば終了
-            //     if (!newLayer.CanPlaceObjectAt(targetObject, targetObject.StartFrame + moveFrame, targetObject.EndFrame + moveFrame)) return;
-            // }
-
-            List<ClipMoveInfo> moveInfos = new();
-            foreach (var targetObject in targetObjects)
-            {
-                var sourceLayer = FindOwnerLayer(targetObject);
-                if (sourceLayer is null) continue;
-
-                var newLayer = GetLayerByOffset(sourceLayer, moveLayerCount);
-                if (newLayer is null) continue;
-
-                moveInfos.Add(new ClipMoveInfo(targetObject, sourceLayer, newLayer, targetObject.StartFrame, targetObject.EndFrame, targetObject.StartFrame + moveFrame, targetObject.EndFrame + moveFrame));
-
-            }
-
-            if (moveInfos.Count > 0)
-            {
-                var command = new MoveClipsCommand(moveInfos);
-                RunEditCommand(command);
-            }
+            // This method is now handled by the TimelineInteractionService
+            // The behavior is implemented in the MoveClips method of the service
         }
 
         private LayerObject? FindOwnerLayer(MetasiaObject targetObject)

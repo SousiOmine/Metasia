@@ -1,4 +1,5 @@
-﻿using Metasia.Core.Objects;
+
+using Metasia.Core.Objects;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Metasia.Editor.Models.DragDropData;
+using Metasia.Editor.Services;
 
 namespace Metasia.Editor.ViewModels.Controls
 {
@@ -35,16 +37,18 @@ namespace Metasia.Editor.ViewModels.Controls
         public ICommand HandleDropCommand { get; }
 
         private TimelineViewModel parentTimeline;
+        private ITimelineInteractionService timelineInteractionService;
 
         public LayerObject TargetLayer { get; private set; }
 
         private double _frame_per_DIP;
         private double width;
 
-        public LayerCanvasViewModel(TimelineViewModel parentTimeline, LayerObject targetLayer) 
+        public LayerCanvasViewModel(TimelineViewModel parentTimeline, LayerObject targetLayer)
         {
             this.parentTimeline = parentTimeline;
             this.TargetLayer = targetLayer;
+            this.timelineInteractionService = new TimelineInteractionService(parentTimeline);
 
             // ドロップ処理コマンドの初期化
             HandleDropCommand = ReactiveCommand.Create<ClipsDropTargetInfo>(
@@ -101,45 +105,12 @@ namespace Metasia.Editor.ViewModels.Controls
         {
             if (dropInfo.DragData is not null && dropInfo.CanDrop)
             {
-                // クリップの新しい左端位置を計算（ドロップ位置 - クリップ内オフセット）
-                double newClipLeftPosition = dropInfo.DropPositionX - dropInfo.DragData.DraggingClipOffsetX;
-                int newStartFrame = ConvertPositionToFrame(newClipLeftPosition, dropInfo.DragData.FramePerDIP_AtDragStart);
-                
-                // 元のクリップの開始フレームと比較して移動量を算出
-                int originalStartFrame = dropInfo.DragData.ReferencedClipVM.TargetObject.StartFrame;
-                int moveFrame = newStartFrame - originalStartFrame;
-
-                // クリップをレイヤー方向にどれだけ移動するか算出
-                var referencedMetasiaObject = dropInfo.DragData.ReferencedClipVM.TargetObject;
-                LayerObject? referencedObjectLayer = null;
-                foreach (var layer in parentTimeline.Timeline.Layers)
-                {
-                    if (layer.Objects.Any(x => x.Id == referencedMetasiaObject.Id))
-                    {
-                        referencedObjectLayer = layer;
-                        break;
-                    }
-                }
-                if (referencedObjectLayer is null)
-                {
-                    return;
-                }
-
-                int sourceLayerIndex = parentTimeline.Timeline.Layers.IndexOf(referencedObjectLayer);
-                int targetLayerIndex = parentTimeline.Timeline.Layers.IndexOf(TargetLayer);
-                int moveLayerCount = targetLayerIndex - sourceLayerIndex;
-
-                ClipsDropped(moveFrame, moveLayerCount);
+                timelineInteractionService.MoveClips(dropInfo);
             }
             else
             {
                 Debug.WriteLine("Cannot drop at this location");
             }
-        }
-        
-        private void ClipsDropped(int moveFrame, int moveLayerCount)
-        {
-            parentTimeline.ClipsDropped(moveFrame, moveLayerCount);
         }
 
         /// <summary>
@@ -159,7 +130,7 @@ namespace Metasia.Editor.ViewModels.Controls
                 var obj = TargetLayer.Objects.FirstOrDefault(x => x.Id == id);
                 if (obj is not null)
                 {
-                    var clipVM = new ClipViewModel(obj, parentTimeline);
+                    var clipVM = new ClipViewModel(obj, parentTimeline, timelineInteractionService);
                     ClipsAndBlanks.Add(clipVM);
                     if (parentTimeline.SelectClip.Any(x => x.TargetObject.Id == id))
                     {
