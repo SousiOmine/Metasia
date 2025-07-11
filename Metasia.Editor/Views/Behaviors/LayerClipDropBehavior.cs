@@ -33,6 +33,9 @@ namespace Metasia.Editor.Views.Behaviors
             set => SetValue(FramePerDIPProperty, value);
         }
         
+        /// <summary>
+        /// Attaches drag-and-drop event handlers to the associated control and enables drop functionality.
+        /// </summary>
         protected override void OnAttached()
         {
             base.OnAttached();
@@ -45,6 +48,9 @@ namespace Metasia.Editor.Views.Behaviors
             }
         }
         
+        /// <summary>
+        /// Detaches the drag-and-drop event handlers from the associated control when the behavior is removed.
+        /// </summary>
         protected override void OnDetaching()
         {
             base.OnDetaching();
@@ -56,6 +62,9 @@ namespace Metasia.Editor.Views.Behaviors
             }
         }
         
+        /// <summary>
+        /// Handles the drag enter event to determine if the dragged data can be dropped onto the control, setting the appropriate drag effect.
+        /// </summary>
         private void OnDragEnter(object? sender, DragEventArgs e)
         {
             var dropInfo = CreateDropTargetInfo(e);
@@ -70,6 +79,9 @@ namespace Metasia.Editor.Views.Behaviors
             e.Handled = true;
         }
         
+        /// <summary>
+        /// Handles the drag-over event to determine if the dragged data can be dropped onto the control, updating the drag effect accordingly.
+        /// </summary>
         private void OnDragOver(object? sender, DragEventArgs e)
         {
             var dropInfo = CreateDropTargetInfo(e);
@@ -84,6 +96,9 @@ namespace Metasia.Editor.Views.Behaviors
             e.Handled = true;
         }
         
+        /// <summary>
+        /// Handles the drop event by creating drop target information from the drag event and executing the drop command if applicable.
+        /// </summary>
         private void OnDrop(object? sender, DragEventArgs e)
         {
             var dropInfo = CreateDropTargetInfo(e);
@@ -94,6 +109,13 @@ namespace Metasia.Editor.Views.Behaviors
             e.Handled = true;
         }
         
+        /// <summary>
+        /// Creates a <see cref="ClipsDropTargetInfo"/> object from the drag event if valid clip move data is present and the associated control exists.
+        /// </summary>
+        /// <param name="e">The drag event arguments containing the drag data and drop position.</param>
+        /// <returns>
+        /// A <see cref="ClipsDropTargetInfo"/> with the extracted drag data and drop position if the data is valid; otherwise, <c>null</c>.
+        /// </returns>
         private ClipsDropTargetInfo? CreateDropTargetInfo(DragEventArgs e)
         {
             if (e.Data.Get("ClipsMoveDragData") is ClipsMoveDragData clipsMoveDragData && AssociatedObject is not null)

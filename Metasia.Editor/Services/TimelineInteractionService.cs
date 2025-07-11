@@ -1,5 +1,3 @@
-
-
 using Metasia.Core.Objects;
 using Metasia.Editor.Models.DragDropData;
 using Metasia.Editor.Models.EditCommands;
@@ -33,6 +31,9 @@ namespace Metasia.Editor.Services
     {
         private readonly ITimelineContext _timelineContext;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TimelineInteractionService"/> with the specified timeline context.
+        /// </summary>
         public TimelineInteractionService(ITimelineContext timelineContext)
         {
             _timelineContext = timelineContext;
@@ -40,7 +41,12 @@ namespace Metasia.Editor.Services
 
         /// <summary>
         /// クリップのリサイズ操作を処理する
+        /// <summary>
+        /// Initiates a resize operation on the specified clip using the given drag handle and pointer position.
         /// </summary>
+        /// <param name="clipViewModel">The clip to be resized.</param>
+        /// <param name="handleName">The name of the drag handle being used (e.g., start or end handle).</param>
+        /// <param name="pointerPositionXOnCanvas">The X position of the pointer on the canvas at the start of the resize.</param>
         public void ResizeClip(ClipViewModel clipViewModel, string handleName, double pointerPositionXOnCanvas)
         {
             // リサイズ操作のビジネスロジックをここに集約
@@ -49,7 +55,12 @@ namespace Metasia.Editor.Services
 
         /// <summary>
         /// クリップのドラッグ操作を開始する
+        /// <summary>
+        /// Initiates a drag operation on a clip, setting the drag state, handle name, initial pointer position, and initial frame based on the selected handle.
         /// </summary>
+        /// <param name="clipViewModel">The clip view model to begin dragging.</param>
+        /// <param name="handleName">The name of the handle being dragged (e.g., start or end).</param>
+        /// <param name="pointerPositionXOnCanvas">The X position of the pointer on the canvas at the start of the drag.</param>
         public void StartClipDrag(ClipViewModel clipViewModel, string handleName, double pointerPositionXOnCanvas)
         {
             // ドラッグ開始時のビジネスロジックをここに集約
@@ -61,6 +72,8 @@ namespace Metasia.Editor.Services
 
         /// <summary>
         /// クリップのドラッグ操作を更新する
+        /// <summary>
+        /// Placeholder for updating the state of a clip during a drag operation.
         /// </summary>
         public void UpdateClipDrag(ClipViewModel clipViewModel, double pointerPositionXOnCanvas)
         {
@@ -70,7 +83,11 @@ namespace Metasia.Editor.Services
 
         /// <summary>
         /// クリップのドラッグ操作を終了する
+        /// <summary>
+        /// Finalizes a clip drag-resize operation, calculates the new start or end frame based on pointer movement, enforces valid frame constraints, and applies the resize if allowed.
         /// </summary>
+        /// <param name="clipViewModel">The clip view model being resized.</param>
+        /// <param name="pointerPositionXOnCanvas">The X position of the pointer on the canvas at the end of the drag.</param>
         public void EndClipDrag(ClipViewModel clipViewModel, double pointerPositionXOnCanvas)
         {
             // ドラッグ終了時のビジネスロジックをここに集約
@@ -127,6 +144,8 @@ namespace Metasia.Editor.Services
 
         /// <summary>
         /// クリップの移動操作を処理する
+        /// <summary>
+        /// Moves a clip to a new layer and frame position based on drag-and-drop information, if the move is valid.
         /// </summary>
         public void MoveClips(ClipsDropTargetInfo dropInfo)
         {
@@ -165,7 +184,14 @@ namespace Metasia.Editor.Services
 
         /// <summary>
         /// クリップの選択状態を更新する
+        /// <summary>
+        /// Updates the selection state of a clip, supporting both single and multi-select modes.
         /// </summary>
+        /// <param name="clipViewModel">The clip to select or deselect.</param>
+        /// <param name="isMultiSelect">
+        /// If true, toggles the selection of the specified clip without affecting other selections; 
+        /// if false, clears existing selections and selects only the specified clip.
+        /// </param>
         public void SelectClip(ClipViewModel clipViewModel, bool isMultiSelect = false)
         {
             if (isMultiSelect)
@@ -190,7 +216,13 @@ namespace Metasia.Editor.Services
 
         /// <summary>
         /// クリップのリサイズ可能かを確認する
+        /// <summary>
+        /// Determines whether the specified clip can be resized to the given start and end frames based on its owner layer's placement rules.
         /// </summary>
+        /// <param name="clipObject">The clip object to check for resize eligibility.</param>
+        /// <param name="newStartFrame">The proposed new start frame for the clip.</param>
+        /// <param name="newEndFrame">The proposed new end frame for the clip.</param>
+        /// <returns>True if the clip can be resized to the specified frame range; otherwise, false.</returns>
         public bool CanResizeClip(MetasiaObject clipObject, int newStartFrame, int newEndFrame)
         {
             LayerObject? ownerLayer = FindOwnerLayer(clipObject);
@@ -204,7 +236,13 @@ namespace Metasia.Editor.Services
 
         /// <summary>
         /// 移動先のフレームを計算する
+        /// <summary>
+        /// Calculates the frame offset for moving a clip based on the drop position and frame-per-DIP ratio.
         /// </summary>
+        /// <param name="dropPositionX">The X position on the canvas where the clip is dropped.</param>
+        /// <param name="clipVM">The view model of the clip being moved.</param>
+        /// <param name="framePerDIP">The number of frames represented by one device-independent pixel.</param>
+        /// <returns>The integer frame offset to apply for the move operation.</returns>
         private int CalculateMoveFrame(double dropPositionX, ClipViewModel clipVM, double framePerDIP)
         {
             // 移動先のフレームを計算するロジック
@@ -214,7 +252,11 @@ namespace Metasia.Editor.Services
 
         /// <summary>
         /// クリップが所属するレイヤーを取得する
+        /// <summary>
+        /// Searches all layers in the timeline and returns the layer that contains the specified object, or null if not found.
         /// </summary>
+        /// <param name="targetObject">The object to locate within the timeline layers.</param>
+        /// <returns>The layer containing the object, or null if no such layer exists.</returns>
         private LayerObject? FindOwnerLayer(MetasiaObject targetObject)
         {
             foreach (var layer in _timelineViewModel.Timeline.Layers)

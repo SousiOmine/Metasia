@@ -10,11 +10,18 @@ namespace Metasia.Editor.Models.EditCommands.Commands
 
         private readonly IEnumerable<ClipMoveInfo> _moveInfos;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MoveClipsCommand"/> class with the specified collection of clip move operations.
+        /// </summary>
+        /// <param name="moveInfos">A collection of <see cref="ClipMoveInfo"/> objects representing the clips to move and their target positions.</param>
         public MoveClipsCommand(IEnumerable<ClipMoveInfo> moveInfos)
         {
             _moveInfos = moveInfos;
         }
 
+        /// <summary>
+        /// Moves each clip specified in the command to its target layer and updates its frame positions.
+        /// </summary>
         public void Execute()
         {
             foreach (var moveInfo in _moveInfos)
@@ -35,6 +42,9 @@ namespace Metasia.Editor.Models.EditCommands.Commands
             }
         }
 
+        /// <summary>
+        /// Reverses the move operation for each clip, restoring them to their original layers and frame positions.
+        /// </summary>
         public void Undo()
         {
             foreach (var moveInfo in _moveInfos)

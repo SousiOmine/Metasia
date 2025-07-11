@@ -37,6 +37,9 @@ namespace Metasia.Editor.Views.Behaviors
         private bool _isDraggingPotential;
         private PointerEventArgs? _lastPointerEventArgs;
         
+        /// <summary>
+        /// Subscribes to pointer events on the associated control when the behavior is attached.
+        /// </summary>
         protected override void OnAttached()
         {
             base.OnAttached();
@@ -48,6 +51,9 @@ namespace Metasia.Editor.Views.Behaviors
             }
         }
         
+        /// <summary>
+        /// Unsubscribes from pointer events when the behavior is detached from its associated control.
+        /// </summary>
         protected override void OnDetaching()
         {
             base.OnDetaching();
@@ -59,6 +65,9 @@ namespace Metasia.Editor.Views.Behaviors
             }
         }
         
+        /// <summary>
+        /// Handles the pointer pressed event to record the initial position when the left mouse button is pressed, enabling potential drag initiation.
+        /// </summary>
         private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
         {
             if (e.GetCurrentPoint(AssociatedObject).Properties.IsLeftButtonPressed)
@@ -68,6 +77,9 @@ namespace Metasia.Editor.Views.Behaviors
             }
         }
         
+        /// <summary>
+        /// Initiates a drag-and-drop operation for a timeline clip when the pointer moves horizontally beyond the drag threshold while the left mouse button is pressed.
+        /// </summary>
         private async void OnPointerMoved(object? sender, PointerEventArgs e)
         {
             _lastPointerEventArgs = e;
@@ -94,6 +106,9 @@ namespace Metasia.Editor.Views.Behaviors
             }
         }
         
+        /// <summary>
+        /// Resets the drag initiation state when the pointer is released.
+        /// </summary>
         private void OnPointerReleased(object? sender, PointerReleasedEventArgs e)
         {
             _isDraggingPotential = false;

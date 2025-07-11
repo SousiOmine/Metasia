@@ -20,6 +20,9 @@ public partial class ClipView : UserControl
         get { return this.DataContext as ClipViewModel; }
 
     }
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ClipView"/> control and sets up a handler for DataContext changes.
+    /// </summary>
     public ClipView()
     {
         InitializeComponent();

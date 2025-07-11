@@ -1,4 +1,4 @@
-﻿using Avalonia;
+using Avalonia;
 using Metasia.Core.Objects;
 using Metasia.Editor.Models.EditCommands;
 
@@ -81,6 +81,12 @@ namespace Metasia.Editor.ViewModels.Controls
         private TimelineViewModel parentTimeline;
         private ITimelineInteractionService timelineInteractionService;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ClipViewModel"/> class for a given clip object, associating it with a parent timeline and an interaction service.
+        /// </summary>
+        /// <param name="targetObject">The underlying data object representing the clip.</param>
+        /// <param name="parentTimeline">The parent timeline view model containing this clip.</param>
+        /// <param name="interactionService">The service responsible for handling timeline interactions such as selection and dragging.</param>
         public ClipViewModel(MetasiaObject targetObject, TimelineViewModel parentTimeline, ITimelineInteractionService interactionService)
         {
             TargetObject = targetObject;
@@ -98,6 +104,10 @@ namespace Metasia.Editor.ViewModels.Controls
             StartFrame = TargetObject.StartFrame * Frame_Per_DIP;
         }
 
+        /// <summary>
+        /// Selects this clip, optionally enabling multi-selection.
+        /// </summary>
+        /// <param name="isMultiSelect">If true, adds this clip to the current selection; otherwise, selects only this clip.</param>
         public void ClipClick(bool isMultiSelect = false)
         {
             timelineInteractionService.SelectClip(this, isMultiSelect);
@@ -107,12 +117,20 @@ namespace Metasia.Editor.ViewModels.Controls
         /// ドラッグ開始時の処理
         /// </summary>
         /// <param name="handleName">StartHandle あるいは EndHandle</param>
-        /// <param name="pointerPositionXOnCanvas">ポインタの初期位置</param>
+        /// <summary>
+        /// Initiates a drag operation for the clip using the specified handle and pointer position.
+        /// </summary>
+        /// <param name="handleName">The name of the handle being dragged (e.g., start or end).</param>
+        /// <param name="pointerPositionXOnCanvas">The initial X position of the pointer on the canvas.</param>
         public void StartDrag(string handleName, double pointerPositionXOnCanvas)
         {
             timelineInteractionService.StartClipDrag(this, handleName, pointerPositionXOnCanvas);
         }
 
+        /// <summary>
+        /// Updates the clip's position during a drag operation based on the current pointer X position.
+        /// </summary>
+        /// <param name="pointerPositionXOnCanvas">The current X coordinate of the pointer on the canvas.</param>
         public void UpdateDrag(double pointerPositionXOnCanvas)
         {
             timelineInteractionService.UpdateClipDrag(this, pointerPositionXOnCanvas);
@@ -121,7 +139,10 @@ namespace Metasia.Editor.ViewModels.Controls
         /// <summary>
         /// ドラッグ終了時の処理
         /// </summary>
-        /// <param name="pointerPositionXOnCanvas">ポインタの最後の位置</param>
+        /// <summary>
+        /// Finalizes the drag operation for this clip at the specified pointer position.
+        /// </summary>
+        /// <param name="pointerPositionXOnCanvas">The X position of the pointer on the canvas when the drag ends.</param>
         public void EndDrag(double pointerPositionXOnCanvas)
         {
             timelineInteractionService.EndClipDrag(this, pointerPositionXOnCanvas);

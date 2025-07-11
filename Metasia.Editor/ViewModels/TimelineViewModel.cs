@@ -1,4 +1,4 @@
-﻿using Avalonia;
+using Avalonia;
 using Metasia.Core.Objects;
 using Metasia.Editor.ViewModels.Controls;
 using ReactiveUI;
@@ -88,6 +88,10 @@ namespace Metasia.Editor.ViewModels
 
         public event EventHandler? ProjectChanged;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TimelineViewModel"/> class, setting up timeline state, interaction services, and synchronizing with the provided <see cref="PlayerViewModel"/>.
+        /// </summary>
+        /// <param name="playerViewModel">The player view model to synchronize timeline state and events with.</param>
         public TimelineViewModel(PlayerViewModel playerViewModel)
         {
             this.playerViewModel = playerViewModel;
@@ -150,22 +154,42 @@ namespace Metasia.Editor.ViewModels
             Frame = (int)(position / Frame_Per_DIP);
         }
 
+        /// <summary>
+        /// Selects a clip in the timeline, optionally supporting multi-selection.
+        /// </summary>
+        /// <param name="clip">The clip to select.</param>
+        /// <param name="isMultiSelect">If true, adds the clip to the current selection; otherwise, replaces the selection.</param>
         public void ClipSelect(ClipViewModel clip, bool isMultiSelect = false)
         {
             timelineInteractionService.SelectClip(clip, isMultiSelect);
         }
 
+        /// <summary>
+        /// Determines whether the specified clip can be resized to the given start and end frames.
+        /// </summary>
+        /// <param name="clipObject">The clip object to evaluate for resizing.</param>
+        /// <param name="newStartFrame">The proposed new start frame for the clip.</param>
+        /// <param name="newEndFrame">The proposed new end frame for the clip.</param>
+        /// <returns>True if the clip can be resized to the specified frames; otherwise, false.</returns>
         public bool CanResizeClip(MetasiaObject clipObject, int newStartFrame, int newEndFrame)
         {
             return timelineInteractionService.CanResizeClip(clipObject, newStartFrame, newEndFrame);
         }
 
+        /// <summary>
+        /// Placeholder method for handling clip drop actions; actual behavior is managed by the TimelineInteractionService.
+        /// </summary>
         public void ClipsDropped(int moveFrame, int moveLayerCount)
         {
             // This method is now handled by the TimelineInteractionService
             // The behavior is implemented in the MoveClips method of the service
         }
 
+        /// <summary>
+        /// Searches all layers in the timeline and returns the layer that contains the specified object, or null if not found.
+        /// </summary>
+        /// <param name="targetObject">The object to locate within the timeline layers.</param>
+        /// <returns>The layer containing the specified object, or null if no such layer exists.</returns>
         private LayerObject? FindOwnerLayer(MetasiaObject targetObject)
         {
             foreach (var layer in Timeline.Layers)
@@ -178,6 +202,12 @@ namespace Metasia.Editor.ViewModels
             return null;
         }
 
+        /// <summary>
+        /// Returns the layer at the specified offset from the given current layer, or null if the resulting index is out of bounds.
+        /// </summary>
+        /// <param name="currentLayer">The reference layer from which to calculate the offset.</param>
+        /// <param name="offset">The number of positions to move from the current layer. Positive values move forward, negative values move backward.</param>
+        /// <returns>The layer at the offset position, or null if the offset is out of range or layers are unavailable.</returns>
         private LayerObject? GetLayerByOffset(LayerObject currentLayer, int offset)
         {
             if (Timeline?.Layers is null) return null;
@@ -192,6 +222,9 @@ namespace Metasia.Editor.ViewModels
 
         
         
+        /// <summary>
+        /// Updates the cursor's horizontal position based on the current frame and zoom scale.
+        /// </summary>
         private void ChangeFramePerDIP()
         {
             CursorLeft = Frame * Frame_Per_DIP;
@@ -203,6 +236,10 @@ namespace Metasia.Editor.ViewModels
 
         LayerObject ITimelineContext.TargetLayer => TargetLayer;
 
+        /// <summary>
+        /// Executes an edit command within the timeline context.
+        /// </summary>
+        /// <param name="command">The edit command to execute.</param>
         void ITimelineContext.RunEditCommand(IEditCommand command)
         {
             RunEditCommand(command);

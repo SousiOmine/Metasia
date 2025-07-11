@@ -1,5 +1,3 @@
-
-
 using Metasia.Core.Objects;
 using Metasia.Editor.Models.EditCommands;
 
@@ -22,7 +20,10 @@ namespace Metasia.Editor.Services
 
         /// <summary>
         /// 編集コマンドを実行する
-        /// </summary>
+        /// <summary>
+/// Executes the specified edit command within the timeline context.
+/// </summary>
+/// <param name="command">The edit command to execute.</param>
         void RunEditCommand(IEditCommand command);
     }
 }
