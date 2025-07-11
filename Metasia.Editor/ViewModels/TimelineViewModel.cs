@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
+
 using Metasia.Editor.Models.EditCommands;
 using Metasia.Editor.Services;
 
@@ -20,7 +21,7 @@ using System.Diagnostics;
 
 namespace Metasia.Editor.ViewModels
 {
-    public class TimelineViewModel : ViewModelBase
+    public class TimelineViewModel : ViewModelBase, ITimelineContext
     {
         /// <summary>
         /// 表示するタイムラインオブジェクト
@@ -195,5 +196,18 @@ namespace Metasia.Editor.ViewModels
         {
             CursorLeft = Frame * Frame_Per_DIP;
         }
+
+        #region ITimelineContext Implementation
+
+        Timeline ITimelineContext.Timeline => TargetTimeline;
+
+        LayerObject ITimelineContext.TargetLayer => TargetLayer;
+
+        void ITimelineContext.RunEditCommand(IEditCommand command)
+        {
+            RunEditCommand(command);
+        }
+
+        #endregion
     }
 }

@@ -18,15 +18,24 @@ using System.Linq;
 namespace Metasia.Editor.Services
 {
     /// <summary>
+    /// ドラッグハンドルの名前を定義する
+    /// </summary>
+    public static class DragHandleNames
+    {
+        public const string StartHandle = "StartHandle";
+        public const string EndHandle = "EndHandle";
+    }
+
+    /// <summary>
     /// タイムライン上のインタラクションを専門に扱うサービス
     /// </summary>
     public class TimelineInteractionService : ITimelineInteractionService
     {
-        private readonly TimelineViewModel _timelineViewModel;
+        private readonly ITimelineContext _timelineContext;
 
-        public TimelineInteractionService(TimelineViewModel timelineViewModel)
+        public TimelineInteractionService(ITimelineContext timelineContext)
         {
-            _timelineViewModel = timelineViewModel;
+            _timelineContext = timelineContext;
         }
 
         /// <summary>
@@ -44,10 +53,10 @@ namespace Metasia.Editor.Services
         public void StartClipDrag(ClipViewModel clipViewModel, string handleName, double pointerPositionXOnCanvas)
         {
             // ドラッグ開始時のビジネスロジックをここに集約
-            clipViewModel._isDragging = true;
-            clipViewModel._dragHandleName = handleName;
-            clipViewModel._dragStartX = pointerPositionXOnCanvas;
-            clipViewModel._initialDragFrame = (handleName == "StartHandle") ? clipViewModel.TargetObject.StartFrame : clipViewModel.TargetObject.EndFrame;
+            clipViewModel.IsDragging = true;
+            clipViewModel.DragHandleName = handleName;
+            clipViewModel.DragStartX = pointerPositionXOnCanvas;
+            clipViewModel.InitialDragFrame = (handleName == DragHandleNames.StartHandle) ? clipViewModel.TargetObject.StartFrame : clipViewModel.TargetObject.EndFrame;
         }
 
         /// <summary>
@@ -65,28 +74,28 @@ namespace Metasia.Editor.Services
         public void EndClipDrag(ClipViewModel clipViewModel, double pointerPositionXOnCanvas)
         {
             // ドラッグ終了時のビジネスロジックをここに集約
-            if (!clipViewModel._isDragging || string.IsNullOrEmpty(clipViewModel._dragHandleName))
+            if (!clipViewModel.IsDragging || string.IsNullOrEmpty(clipViewModel.DragHandleName))
             {
                 return;
             }
 
-            double deltaX = pointerPositionXOnCanvas - clipViewModel._dragStartX;
+            double deltaX = pointerPositionXOnCanvas - clipViewModel.DragStartX;
             double frameDelta = deltaX / clipViewModel.Frame_Per_DIP;
             int frameChange = (int)Math.Round(frameDelta);
 
             int newStartFrame = clipViewModel.TargetObject.StartFrame;
             int newEndFrame = clipViewModel.TargetObject.EndFrame;
 
-            if (clipViewModel._dragHandleName == "StartHandle")
+            if (clipViewModel.DragHandleName == DragHandleNames.StartHandle)
             {
-                newStartFrame = clipViewModel._initialDragFrame + frameChange;
+                newStartFrame = clipViewModel.InitialDragFrame + frameChange;
                 // 終端を超えないように、かつ長さが1未満にならないように制限
                 newStartFrame = Math.Min(newStartFrame, clipViewModel.TargetObject.EndFrame - 1);
                 newStartFrame = Math.Max(newStartFrame, 0);
             }
-            else if (clipViewModel._dragHandleName == "EndHandle")
+            else if (clipViewModel.DragHandleName == DragHandleNames.EndHandle)
             {
-                newEndFrame = clipViewModel._initialDragFrame + frameChange;
+                newEndFrame = clipViewModel.InitialDragFrame + frameChange;
                 // 始端を下回らないように、かつ長さが1未満にならないように制限
                 newEndFrame = Math.Max(newEndFrame, clipViewModel.TargetObject.StartFrame + 1);
             }
@@ -112,8 +121,8 @@ namespace Metasia.Editor.Services
                 // ドラッグしたそのままのフレームでは重複でリサイズできない場合、重複しないぎりぎりまで詰める
             }
 
-            clipViewModel._isDragging = false;
-            clipViewModel._dragHandleName = string.Empty;
+            clipViewModel.IsDragging = false;
+            clipViewModel.DragHandleName = string.Empty;
         }
 
         /// <summary>
@@ -121,11 +130,11 @@ namespace Metasia.Editor.Services
         /// </summary>
         public void MoveClips(ClipsDropTargetInfo dropInfo)
         {
-            if (dropInfo == null || dropInfo.DragData == null)
+            if (dropInfo == null || dropInfo.DragData == null || dropInfo.DragData.ReferencedClipVM == null)
                 return;
 
             var clipVM = dropInfo.DragData.ReferencedClipVM;
-            var timelineVM = _timelineViewModel;
+            var timelineVM = _timelineContext;
 
             // 移動先のフレームを計算
             int moveFrame = CalculateMoveFrame(dropInfo.DropPositionX, clipVM, dropInfo.DragData.FramePerDIP_AtDragStart);

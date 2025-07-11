@@ -57,6 +57,27 @@ namespace Metasia.Editor.ViewModels.Controls
 
         // Drag state is now handled by the TimelineInteractionService
 
+        /// <summary>
+        /// ドラッグ中かどうかを示すフラグ
+        /// </summary>
+        public bool IsDragging { get; set; }
+
+        /// <summary>
+        /// ドラッグされているのが始端か終端かを示す
+        /// </summary>
+        public string DragHandleName { get; set; }
+
+        /// <summary>
+        /// ドラッグ開始時のポインタ位置
+        /// </summary>
+        public double DragStartX { get; set; }
+
+        /// <summary>
+        /// ドラッグ開始時の始端あるいは終端のフレーム
+        /// </summary>
+        public int InitialDragFrame { get; set; }
+
+
         private TimelineViewModel parentTimeline;
         private ITimelineInteractionService timelineInteractionService;
 
