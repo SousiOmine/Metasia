@@ -35,15 +35,16 @@ namespace Metasia.Editor.ViewModels.Controls
         public ICommand HandleDropCommand { get; }
 
         private TimelineViewModel parentTimeline;
-
+        private PlayerViewModel playerViewModel;
         public LayerObject TargetLayer { get; private set; }
 
         private double _frame_per_DIP;
         private double width;
 
-        public LayerCanvasViewModel(TimelineViewModel parentTimeline, LayerObject targetLayer) 
+        public LayerCanvasViewModel(TimelineViewModel parentTimeline, PlayerViewModel playerViewModel, LayerObject targetLayer) 
         {
             this.parentTimeline = parentTimeline;
+            this.playerViewModel = playerViewModel;
             this.TargetLayer = targetLayer;
 
             // ドロップ処理コマンドの初期化
@@ -65,6 +66,20 @@ namespace Metasia.Editor.ViewModels.Controls
             parentTimeline.ProjectChanged += (sender, args) =>
             {
                 RelocateClips();
+            };
+
+            // SelectingObjectsの変更を監視してIsSelectingを更新
+            playerViewModel.SelectingObjects.CollectionChanged += (sender, args) =>
+            {
+                ResetSelectedClip();
+                foreach (var obj in playerViewModel.SelectingObjects)
+                {
+                    var clip = ClipsAndBlanks.FirstOrDefault(c => c.TargetObject.Id == obj.Id);
+                    if (clip != null)
+                    {
+                        clip.IsSelecting = true;
+                    }
+                }
             };
         }
 
@@ -161,7 +176,7 @@ namespace Metasia.Editor.ViewModels.Controls
                 {
                     var clipVM = new ClipViewModel(obj, parentTimeline);
                     ClipsAndBlanks.Add(clipVM);
-                    if (parentTimeline.SelectClip.Any(x => x.TargetObject.Id == id))
+                    if (playerViewModel.SelectingObjects.Any(x => x.Id == id))
                     {
                         clipVM.IsSelecting = true;
                     }

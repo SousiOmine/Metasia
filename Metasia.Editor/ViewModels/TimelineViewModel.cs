@@ -50,17 +50,12 @@ namespace Metasia.Editor.ViewModels
         public ObservableCollection<LayerCanvasViewModel> LayerCanvas { get; } = new();
 
         /// <summary>
-        /// 選択しているクリップ
-        /// </summary>
-        public ObservableCollection<ClipViewModel> SelectClip { get; } = new();
-        
-        /// <summary>
         /// 現在表示しているフレーム PlayerViewModelと連動する
         /// </summary>
         public int Frame
         {
-            get => playerViewModel.Frame;
-            set => playerViewModel.Frame = value;
+            get => PlayerViewModel.Frame;
+            set => PlayerViewModel.Frame = value;
         }
 
         /// <summary>
@@ -77,34 +72,34 @@ namespace Metasia.Editor.ViewModels
 
         private double _cursorLeft;
 
-        private PlayerViewModel playerViewModel;
+        private readonly PlayerViewModel PlayerViewModel;
 
         public event EventHandler? ProjectChanged;
 
         public TimelineViewModel(PlayerViewModel playerViewModel)
         {
-            this.playerViewModel = playerViewModel;
+            this.PlayerViewModel = playerViewModel;
 
             //横方向の拡大率は初期３で固定
             Frame_Per_DIP = 3;
-            _timeline = playerViewModel.TargetTimeline;
+            _timeline = PlayerViewModel.TargetTimeline;
 
             //PlayerViewModel側からフレームの変更があればカーソルの描画位置を反映
-            playerViewModel.WhenAnyValue(x => x.Frame).Subscribe
+            PlayerViewModel.WhenAnyValue(x => x.Frame).Subscribe
                 (Frame =>
                 {
                     CursorLeft = Frame * Frame_Per_DIP;
                 });
 
             // ViewPaintRequestのハンドラを設定
-            playerViewModel.ViewPaintRequest += () =>
+            PlayerViewModel.ViewPaintRequest += () =>
             {
                 // タイムラインの更新が必要な場合はここで行う
-                CursorLeft = playerViewModel.Frame * Frame_Per_DIP;
+                CursorLeft = PlayerViewModel.Frame * Frame_Per_DIP;
             };
 
             //プロジェクトに変更が加えられたときには自身のイベントも発火する
-            playerViewModel.ProjectChanged += (sender, args) =>
+            PlayerViewModel.ProjectChanged += (sender, args) =>
             {
                 ProjectChanged?.Invoke(this, EventArgs.Empty);
             };
@@ -112,27 +107,13 @@ namespace Metasia.Editor.ViewModels
             foreach (var layer in Timeline.Layers)
             {
                 LayerButtons.Add(new LayerButtonViewModel(this, layer));
-                LayerCanvas.Add(new LayerCanvasViewModel(this, layer));
+                LayerCanvas.Add(new LayerCanvasViewModel(this, PlayerViewModel, layer));
             }
-
-            SelectClip.CollectionChanged += ((sender, args) =>
-            {
-                foreach (var layerCanvas in LayerCanvas)
-                {
-                    layerCanvas.ResetSelectedClip();
-                }
-                playerViewModel.SelectingObjects.Clear();
-                foreach (var targetClip in SelectClip)
-                {
-                    targetClip.IsSelecting = true;
-                    playerViewModel.SelectingObjects.Add(targetClip.TargetObject);
-                }
-            });
         }
 
         public bool RunEditCommand(IEditCommand command)
         {
-            return playerViewModel.RunEditCommand(command);
+            return PlayerViewModel.RunEditCommand(command);
         }
 
         public void SetFrameFromPosition(double position)
@@ -140,25 +121,25 @@ namespace Metasia.Editor.ViewModels
             Frame = (int)(position / Frame_Per_DIP);
         }
 
-        public void ClipSelect(ClipViewModel clip, bool isMultiSelect = false)
+        public void ClipSelect(MetasiaObject obj, bool isMultiSelect = false)
         {
             if (isMultiSelect)
             {
                 // 複数選択モード：既に選択されている場合は選択解除、そうでなければ追加
-                if (SelectClip.Contains(clip))
+                if (PlayerViewModel.SelectingObjects.Contains(obj))
                 {
-                    SelectClip.Remove(clip);
+                    PlayerViewModel.SelectingObjects.Remove(obj);
                 }
                 else
                 {
-                    SelectClip.Add(clip);
+                    PlayerViewModel.SelectingObjects.Add(obj);
                 }
             }
             else
             {
                 // 単一選択モード：既存の選択をクリアして新しいクリップを選択
-                SelectClip.Clear();
-                SelectClip.Add(clip);
+                PlayerViewModel.SelectingObjects.Clear();
+                PlayerViewModel.SelectingObjects.Add(obj);
             }
         }
 
@@ -177,7 +158,7 @@ namespace Metasia.Editor.ViewModels
         {
             //選択中のオブジェクトすべてを対象とする
             List<MetasiaObject> targetObjects = new();
-            foreach (var metasiaObject in playerViewModel.SelectingObjects)
+            foreach (var metasiaObject in PlayerViewModel.SelectingObjects)
             {
                 targetObjects.Add(metasiaObject);
             }
