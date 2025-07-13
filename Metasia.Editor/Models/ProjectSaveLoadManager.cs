@@ -19,7 +19,7 @@ public class ProjectSaveLoadManager
             WriteIndented = true,
             IncludeFields = true,
         };
-        string jsonString = JsonSerializer.Serialize(editorProject, options);
+        string jsonString = JsonSerializer.Serialize(editorProject.ProjectFile, options);
         File.WriteAllText(Path.Combine(editorProject.ProjectPath.Path, "metasia.json"), jsonString);
 
         foreach (var timeline in editorProject.Timelines)
