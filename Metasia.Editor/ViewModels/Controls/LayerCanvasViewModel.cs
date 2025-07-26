@@ -116,35 +116,7 @@ namespace Metasia.Editor.ViewModels.Controls
         {
             if (dropInfo.DragData is not null && dropInfo.CanDrop)
             {
-                // クリップの新しい左端位置を計算（ドロップ位置 - クリップ内オフセット）
-                double newClipLeftPosition = dropInfo.DropPositionX - dropInfo.DragData.DraggingClipOffsetX;
-                int newStartFrame = ConvertPositionToFrame(newClipLeftPosition, dropInfo.DragData.FramePerDIP_AtDragStart);
-                
-                // 元のクリップの開始フレームと比較して移動量を算出
-                int originalStartFrame = dropInfo.DragData.ReferencedClipVM.TargetObject.StartFrame;
-                int moveFrame = newStartFrame - originalStartFrame;
-
-                // クリップをレイヤー方向にどれだけ移動するか算出
-                var referencedMetasiaObject = dropInfo.DragData.ReferencedClipVM.TargetObject;
-                LayerObject? referencedObjectLayer = null;
-                foreach (var layer in parentTimeline.Timeline.Layers)
-                {
-                    if (layer.Objects.Any(x => x.Id == referencedMetasiaObject.Id))
-                    {
-                        referencedObjectLayer = layer;
-                        break;
-                    }
-                }
-                if (referencedObjectLayer is null)
-                {
-                    return;
-                }
-
-                int sourceLayerIndex = parentTimeline.Timeline.Layers.IndexOf(referencedObjectLayer);
-                int targetLayerIndex = parentTimeline.Timeline.Layers.IndexOf(TargetLayer);
-                int moveLayerCount = targetLayerIndex - sourceLayerIndex;
-
-                ClipsDropped(moveFrame, moveLayerCount);
+                ClipsDropped(dropInfo);
             }
             else
             {
@@ -152,6 +124,11 @@ namespace Metasia.Editor.ViewModels.Controls
             }
         }
         
+        private void ClipsDropped(ClipsDropTargetInfo dropInfo)
+        {
+            parentTimeline.ClipsDropped(dropInfo, TargetLayer);
+        }
+
         private void ClipsDropped(int moveFrame, int moveLayerCount)
         {
             parentTimeline.ClipsDropped(moveFrame, moveLayerCount);

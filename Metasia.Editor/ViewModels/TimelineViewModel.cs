@@ -12,6 +12,7 @@ using Metasia.Editor.Models.EditCommands;
 using Avalonia.Layout;
 using Metasia.Editor.Models.EditCommands.Commands;
 using System.Diagnostics;
+using Metasia.Editor.Models.DragDropData;
 
 namespace Metasia.Editor.ViewModels
 {
@@ -152,6 +153,33 @@ namespace Metasia.Editor.ViewModels
                 return ownerLayer.CanPlaceObjectAt(clipObject, newStartFrame, newEndFrame);
             }
             return false;
+        }
+
+        public void ClipsDropped(ClipsDropTargetInfo dropInfo, LayerObject targetLayer)
+        {
+            if (dropInfo.DragData is null) return;
+            
+            // クリップの新しい左端位置を計算（ドロップ位置 - クリップ内オフセット）
+            double newClipLeftPosition = dropInfo.DropPositionX - dropInfo.DragData.DraggingClipOffsetX;
+            int newStartFrame = (int)(newClipLeftPosition / dropInfo.DragData.FramePerDIP_AtDragStart);
+            
+            // 元のクリップの開始フレームと比較して移動量を算出
+            int originalStartFrame = dropInfo.DragData.ReferencedClipVM.TargetObject.StartFrame;
+            int moveFrame = newStartFrame - originalStartFrame;
+
+            // クリップをレイヤー方向にどれだけ移動するか算出
+            var referencedMetasiaObject = dropInfo.DragData.ReferencedClipVM.TargetObject;
+            LayerObject? referencedObjectLayer = FindOwnerLayer(referencedMetasiaObject);
+            if (referencedObjectLayer is null)
+            {
+                return;
+            }
+
+            int sourceLayerIndex = Timeline.Layers.IndexOf(referencedObjectLayer);
+            int targetLayerIndex = Timeline.Layers.IndexOf(targetLayer);
+            int moveLayerCount = targetLayerIndex - sourceLayerIndex;
+
+            ClipsDropped(moveFrame, moveLayerCount);
         }
 
         public void ClipsDropped(int moveFrame, int moveLayerCount)
