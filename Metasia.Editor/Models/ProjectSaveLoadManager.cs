@@ -19,7 +19,7 @@ public class ProjectSaveLoadManager
             WriteIndented = true,
             IncludeFields = true,
         };
-        string jsonString = JsonSerializer.Serialize(editorProject, options);
+        string jsonString = JsonSerializer.Serialize(editorProject.ProjectFile, options);
         File.WriteAllText(Path.Combine(editorProject.ProjectPath.Path, "metasia.json"), jsonString);
 
         foreach (var timeline in editorProject.Timelines)
@@ -49,7 +49,7 @@ public class ProjectSaveLoadManager
 
         //タイムラインを取り込む対象のフォルダをプロジェクトファイルから取得
         DirectoryEntity[] scanFolders = projectFile.TimelineFolders.Select(folder => new DirectoryEntity(Path.Combine(projectPath.Path, folder))).ToArray();
-        scanFolders.Append(projectPath);
+        scanFolders = scanFolders.Concat(new[] { projectPath }).ToArray();
 
         //タイムラインを取り込む対象のフォルダを探索
         foreach (var folder in scanFolders)
