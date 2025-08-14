@@ -21,6 +21,9 @@ namespace Metasia.Editor.Views.Behaviors
         public static readonly StyledProperty<double> DragThresholdProperty =
             AvaloniaProperty.Register<ClipDragStartBehavior, double>(nameof(DragThreshold), 5.0);
         
+        public static readonly StyledProperty<double> FramePerDIPProperty =
+            AvaloniaProperty.Register<ClipDragStartBehavior, double>(nameof(FramePerDIP), 1.0);
+        
         public ICommand? Command
         {
             get => GetValue(CommandProperty);
@@ -31,6 +34,12 @@ namespace Metasia.Editor.Views.Behaviors
         {
             get => GetValue(DragThresholdProperty);
             set => SetValue(DragThresholdProperty, value);
+        }
+
+        public double FramePerDIP
+        {
+            get => GetValue(FramePerDIPProperty);
+            set => SetValue(FramePerDIPProperty, value);
         }
         
         private Point? _startPoint;
@@ -85,7 +94,7 @@ namespace Metasia.Editor.Views.Behaviors
                     {
                         var dragData = new DataObject();
                         const string dragFormat = "ClipsMoveDragData";
-                        dragData.Set(dragFormat, new ClipsMoveDragData(vm, _startPoint.Value.X, vm.Frame_Per_DIP));
+                        dragData.Set(dragFormat, new ClipsMoveDragData(vm, CalculateTargetFrame(_startPoint.Value.X)));
                         
                         // 実際のドラッグ&ドロップを開始
                         await DragDrop.DoDragDrop(e, dragData, DragDropEffects.Move);
@@ -99,6 +108,16 @@ namespace Metasia.Editor.Views.Behaviors
             _isDraggingPotential = false;
             _startPoint = null;
             _lastPointerEventArgs = null;
+        }
+
+        /// <summary>
+        /// マウス座標からフレーム(クリップ始点が0)に変換
+        /// </summary>
+        /// <param name="positionX"></param>
+        /// <returns></returns>
+        private int CalculateTargetFrame(double positionX)
+        {
+            return (int)(positionX / FramePerDIP);
         }
     }
 } 

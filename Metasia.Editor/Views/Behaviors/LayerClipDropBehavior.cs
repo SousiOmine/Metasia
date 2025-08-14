@@ -94,19 +94,26 @@ namespace Metasia.Editor.Views.Behaviors
             e.Handled = true;
         }
         
-        private ClipsDropTargetInfo? CreateDropTargetInfo(DragEventArgs e)
+        private ClipsDropTargetContext? CreateDropTargetInfo(DragEventArgs e)
         {
             if (e.Data.Get("ClipsMoveDragData") is ClipsMoveDragData clipsMoveDragData && AssociatedObject is not null)
             {
                 var position = e.GetPosition(AssociatedObject);
-                return new ClipsDropTargetInfo
-                {
-                    DragData = clipsMoveDragData,
-                    DropPositionX = position.X,
-                    CanDrop = true
-                };
+                return new ClipsDropTargetContext(clipsMoveDragData, CalculateTargetFrame(position.X), true);
             }
             return null;
         }
+
+        /// <summary>
+        /// マウス座標からフレーム(クリップ始点が0)に変換
+        /// </summary>
+        /// <param name="positionX"></param>
+        /// <returns></returns>
+        private int CalculateTargetFrame(double positionX)
+        {
+            return (int)(positionX / FramePerDIP);
+        }
+
+        
     }
 } 

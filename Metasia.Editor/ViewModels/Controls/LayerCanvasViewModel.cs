@@ -48,7 +48,7 @@ namespace Metasia.Editor.ViewModels.Controls
             this.TargetLayer = targetLayer;
 
             // ドロップ処理コマンドの初期化
-            HandleDropCommand = ReactiveCommand.Create<ClipsDropTargetInfo>(
+            HandleDropCommand = ReactiveCommand.Create<ClipsDropTargetContext>(
                 execute: ExecuteHandleDrop,
                 canExecute: this.WhenAnyValue(x => x.TargetLayer).Select(layer => layer != null)
             );
@@ -101,31 +101,23 @@ namespace Metasia.Editor.ViewModels.Controls
                 clip.RecalculateSize();
             }
         }
-        /// <summary>
-        /// 座標変換のためのヘルパーメソッド（ViewModelで論理座標を扱う）
-        /// </summary>
-        public int ConvertPositionToFrame(double positionX, double framePerDIP)
-        {
-            return (int)(positionX / framePerDIP);
-        }
 
         /// <summary>
         /// タイムラインVMのドロップ処理を呼び出す
         /// </summary>
-        private void ExecuteHandleDrop(ClipsDropTargetInfo dropInfo)
+        private void ExecuteHandleDrop(ClipsDropTargetContext dropInfo)
         {
-            if (dropInfo.DragData is not null && dropInfo.CanDrop)
+            if (dropInfo is not null && dropInfo.CanDrop)
             {
                 // クリップの新しい左端位置を計算（ドロップ位置 - クリップ内オフセット）
-                double newClipLeftPosition = dropInfo.DropPositionX - dropInfo.DragData.DraggingClipOffsetX;
-                int newStartFrame = ConvertPositionToFrame(newClipLeftPosition, dropInfo.DragData.FramePerDIP_AtDragStart);
+                int newStartFrame = dropInfo.DropPositionFrame - dropInfo.DraggingFrameOffsetX;
                 
                 // 元のクリップの開始フレームと比較して移動量を算出
-                int originalStartFrame = dropInfo.DragData.ReferencedClipVM.TargetObject.StartFrame;
+                int originalStartFrame = dropInfo.ReferenceClipVM.TargetObject.StartFrame;
                 int moveFrame = newStartFrame - originalStartFrame;
 
                 // クリップをレイヤー方向にどれだけ移動するか算出
-                var referencedMetasiaObject = dropInfo.DragData.ReferencedClipVM.TargetObject;
+                var referencedMetasiaObject = dropInfo.ReferenceClipVM.TargetObject;
                 LayerObject? referencedObjectLayer = null;
                 foreach (var layer in parentTimeline.Timeline.Layers)
                 {

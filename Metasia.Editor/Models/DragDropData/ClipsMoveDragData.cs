@@ -13,16 +13,14 @@ public class ClipsMoveDragData
     public ClipViewModel ReferencedClipVM { get; }
 
     /// <summary>
-    /// ドラッグイベント呼び出し元のクリップを掴むマウスX座標(クリップ左端から見たX座標)
+    /// ドラッグイベント呼び出し元のクリップを掴むマウスのクリップから見た相対フレーム
     /// </summary>
-    public double DraggingClipOffsetX { get; }
+    public int DraggingFrameOffsetX { get; }
 
-    public double FramePerDIP_AtDragStart { get; }
 
-    public ClipsMoveDragData(ClipViewModel clipVM, double draggingClipsOffsetX, double framePerDIP_AtDragStart)
+    public ClipsMoveDragData(ClipViewModel clipVM, int draggingFrameOffsetX)
     {
         ReferencedClipVM = clipVM;
-        DraggingClipOffsetX = draggingClipsOffsetX;
-        FramePerDIP_AtDragStart = framePerDIP_AtDragStart;
+        DraggingFrameOffsetX = draggingFrameOffsetX;
     }
 }
