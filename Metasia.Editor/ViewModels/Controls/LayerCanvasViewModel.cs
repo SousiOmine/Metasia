@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Metasia.Editor.Models.DragDropData;
+using Metasia.Editor.Models.Interactor;
 
 namespace Metasia.Editor.ViewModels.Controls
 {
@@ -107,46 +108,15 @@ namespace Metasia.Editor.ViewModels.Controls
         /// </summary>
         private void ExecuteHandleDrop(ClipsDropTargetContext dropInfo)
         {
-            if (dropInfo is not null && dropInfo.CanDrop)
+            try
             {
-                // クリップの新しい左端位置を計算（ドロップ位置 - クリップ内オフセット）
-                int newStartFrame = dropInfo.DropPositionFrame - dropInfo.DraggingFrameOffsetX;
-                
-                // 元のクリップの開始フレームと比較して移動量を算出
-                int originalStartFrame = dropInfo.ReferenceClipVM.TargetObject.StartFrame;
-                int moveFrame = newStartFrame - originalStartFrame;
-
-                // クリップをレイヤー方向にどれだけ移動するか算出
-                var referencedMetasiaObject = dropInfo.ReferenceClipVM.TargetObject;
-                LayerObject? referencedObjectLayer = null;
-                foreach (var layer in parentTimeline.Timeline.Layers)
-                {
-                    if (layer.Objects.Any(x => x.Id == referencedMetasiaObject.Id))
-                    {
-                        referencedObjectLayer = layer;
-                        break;
-                    }
-                }
-                if (referencedObjectLayer is null)
-                {
-                    return;
-                }
-
-                int sourceLayerIndex = parentTimeline.Timeline.Layers.IndexOf(referencedObjectLayer);
-                int targetLayerIndex = parentTimeline.Timeline.Layers.IndexOf(TargetLayer);
-                int moveLayerCount = targetLayerIndex - sourceLayerIndex;
-
-                ClipsDropped(moveFrame, moveLayerCount);
+                var command = TimelineInteractor.CreateMoveClipsCommand(dropInfo, parentTimeline.Timeline, TargetLayer, playerViewModel.SelectingObjects);
+                parentTimeline.RunEditCommand(command);
             }
-            else
+            catch (Exception ex)
             {
-                Debug.WriteLine("Cannot drop at this location");
+                Debug.WriteLine(ex.Message);
             }
-        }
-        
-        private void ClipsDropped(int moveFrame, int moveLayerCount)
-        {
-            parentTimeline.ClipsDropped(moveFrame, moveLayerCount);
         }
 
         /// <summary>
