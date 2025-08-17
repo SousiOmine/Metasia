@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
@@ -80,26 +81,12 @@ namespace Metasia.Editor.Views.Behaviors
         private async void OnPointerMoved(object? sender, PointerEventArgs e)
         {
             _lastPointerEventArgs = e;
+            var currentPoint = e.GetCurrentPoint(AssociatedObject).Position;
             
-            if (_isDraggingPotential && e.GetCurrentPoint(AssociatedObject).Properties.IsLeftButtonPressed && _startPoint.HasValue)
+            if (_isDraggingPotential && e.GetCurrentPoint(AssociatedObject).Properties.IsLeftButtonPressed && _startPoint.HasValue && Math.Abs(currentPoint.X - _startPoint.Value.X) > DragThreshold)
             {
-                var currentPoint = e.GetCurrentPoint(AssociatedObject).Position;
-                if (Math.Abs(currentPoint.X - _startPoint.Value.X) > DragThreshold)
-                {
-                    _isDraggingPotential = false;
-                    
-                    // ViewModelを取得
-                    var vm = AssociatedObject?.DataContext as ClipViewModel;
-                    if (vm is not null)
-                    {
-                        var dragData = new DataObject();
-                        const string dragFormat = "ClipsMoveDragData";
-                        dragData.Set(dragFormat, new ClipsMoveDragData(vm, CalculateTargetFrame(_startPoint.Value.X)));
-                        
-                        // 実際のドラッグ&ドロップを開始
-                        await DragDrop.DoDragDrop(e, dragData, DragDropEffects.Move);
-                    }
-                }
+                _isDraggingPotential = false;
+                await StartDragDropAsync(e);
             }
         }
         
@@ -118,6 +105,20 @@ namespace Metasia.Editor.Views.Behaviors
         private int CalculateTargetFrame(double positionX)
         {
             return (int)(positionX / FramePerDIP);
+        }
+
+        private async Task StartDragDropAsync(PointerEventArgs e)
+        {
+            // ViewModelを取得
+            var vm = AssociatedObject?.DataContext as ClipViewModel;
+            if (vm is not null && _startPoint.HasValue)
+            {
+                var dragData = new DataObject();
+                dragData.Set(DragDropFormats.ClipsMove, new ClipsMoveDragData(vm, CalculateTargetFrame(_startPoint.Value.X)));
+                        
+                // 実際のドラッグ&ドロップを開始
+                await DragDrop.DoDragDrop(e, dragData, DragDropEffects.Move);
+            }
         }
     }
 } 

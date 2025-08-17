@@ -108,14 +108,10 @@ namespace Metasia.Editor.ViewModels.Controls
         /// </summary>
         private void ExecuteHandleDrop(ClipsDropTargetContext dropInfo)
         {
-            try
+            var command = TimelineInteractor.CreateMoveClipsCommand(dropInfo, parentTimeline.Timeline, TargetLayer, playerViewModel.SelectingObjects);
+            if (command is not null)
             {
-                var command = TimelineInteractor.CreateMoveClipsCommand(dropInfo, parentTimeline.Timeline, TargetLayer, playerViewModel.SelectingObjects);
                 parentTimeline.RunEditCommand(command);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.Message);
             }
         }
 

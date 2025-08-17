@@ -10,20 +10,8 @@ namespace Metasia.Editor.Models.Interactor
 {
     public static class TimelineInteractor
     {
-        public static IEditCommand CreateMoveClipsCommand(ClipsDropTargetContext dropInfo, TimelineObject timeline, LayerObject referencedTargetLayer, IEnumerable<MetasiaObject> targetObjects)
+        public static IEditCommand? CreateMoveClipsCommand(ClipsDropTargetContext dropInfo, TimelineObject timeline, LayerObject referencedTargetLayer, IEnumerable<MetasiaObject> targetObjects)
         {
-            // オブジェクトを含んでいるレイヤーを探索
-            LayerObject? FindOwnerLayer(MetasiaObject targetObject)
-            {
-                foreach (var layer in timeline.Layers)
-                {
-                    if (layer.Objects.Any(x => x.Id == targetObject.Id))
-                    {
-                        return layer;
-                    }
-                }
-                return null;
-            }
 
             // 任意のレイヤーを基準にそのレイヤーより指定した数だけ上下の階層のレイヤーを探索
             LayerObject? GetLayerByOffset(LayerObject currentLayer, int offset)
@@ -58,7 +46,7 @@ namespace Metasia.Editor.Models.Interactor
             }
             if (referencedObjectLayer is null)
             {
-                throw new Exception("Referenced object layer not found");
+                return null;
             }
 
             int sourceLayerIndex = timeline.Layers.IndexOf(referencedObjectLayer);
@@ -68,7 +56,7 @@ namespace Metasia.Editor.Models.Interactor
             List<ClipMoveInfo> moveInfos = new();
             foreach (var targetObject in targetObjects)
             {
-                var sourceLayer = FindOwnerLayer(targetObject);
+                var sourceLayer = FindOwnerLayer(timeline, targetObject);
                 if (sourceLayer is null) continue;
 
                 var newLayer = GetLayerByOffset(sourceLayer, moveLayerCount);
@@ -80,7 +68,19 @@ namespace Metasia.Editor.Models.Interactor
             {
                 return new MoveClipsCommand(moveInfos);
             }
-            throw new Exception("MoveClipsCommand not created");
+            return null;
+        }
+
+        private static LayerObject? FindOwnerLayer(TimelineObject timeline, MetasiaObject targetObject)
+        {
+            foreach (var layer in timeline.Layers)
+            {
+                if (layer.Objects.Any(x => x.Id == targetObject.Id))
+                {
+                    return layer;
+                }
+            }
+            return null;
         }
     }
 }
