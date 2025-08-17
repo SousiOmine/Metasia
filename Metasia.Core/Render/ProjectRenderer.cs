@@ -21,21 +21,6 @@ namespace Metasia.Core.Render
 			
 		}
 		
-		public void BitmapRender(ref DrawExpresserArgs args, int frame)
-		{
-			//Listの中からMainTimelineというIDを持つListObjectを取得する
-			RootTimeline = Project.Timelines.Find(x => x.Id == "RootTimeline");
-			if (RootTimeline is null) return;
-
-			//下地は黒で塗りつぶす
-			using (SKCanvas canvas = new SKCanvas(args.Bitmap))
-			{
-				canvas.Clear(SKColors.Black);
-			}
-
-			RootTimeline.DrawExpresser(ref args, frame);
-		}
-		
 		public void AudioRender(ref AudioExpresserArgs args, int frame)
 		{
 			//Listの中からMainTimelineというIDを持つListObjectを取得する

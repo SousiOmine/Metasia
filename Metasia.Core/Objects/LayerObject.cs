@@ -13,7 +13,7 @@ using System.Text.Json.Serialization;
 
 namespace Metasia.Core.Objects
 {
-    public class LayerObject : MetasiaObject, IMetaDrawable, IMetaAudiable
+    public class LayerObject : MetasiaObject, IRenderable, IMetaAudiable
     {
         /// <summary>
         /// レイヤーに属するオブジェクト 原則同じフレームに2個以上オブジェクトがあってはならない
@@ -43,92 +43,30 @@ namespace Metasia.Core.Objects
             Objects = new();
         }
 
-        public void DrawExpresser(ref DrawExpresserArgs e, int frame)
+        public RenderNode Render(RenderContext context)
         {
-            double resolution_level_x = e.ActualResolution.Width / e.TargetResolution.Width;
-            double resolution_level_y = e.ActualResolution.Height / e.TargetResolution.Height;
-
-            List<MetasiaObject> ApplicateObjects = new();
+            List<IRenderable> ApplicateObjects = new();
             foreach (var obj in Objects)
             {
-                if (obj.IsExistFromFrame(frame) && obj is IMetaDrawable && obj.IsActive)
+                if (obj.IsExistFromFrame(context.Frame) && obj is IRenderable && obj.IsActive)
                 {
-                    ApplicateObjects.Add(obj);
+                    ApplicateObjects.Add((IRenderable)obj);
                 }
             }
 
-            if (ApplicateObjects.Count == 0) return;
+            if (ApplicateObjects.Count == 0) return new RenderNode();
 
-            if (e.Bitmap is null) e.Bitmap = new SKBitmap((int)(e.ActualResolution.Width), (int)(e.ActualResolution.Height));
-
-
+            var nodes = new List<RenderNode>();
 
             foreach (var obj in ApplicateObjects)
             {
-                IMetaDrawable drawObject = (IMetaDrawable)obj;
-                DrawExpresserArgs express = new()
-                {
-                    ActualResolution = e.ActualResolution,
-                    TargetResolution = e.TargetResolution,
-                    FPS = e.FPS
-                };
-                drawObject.DrawExpresser(ref express, frame);
-
-
-                if (express.Bitmap is not null)
-                {
-                    double x = 0;
-                    double y = 0;
-                    double rotate = 0;
-                    double alpha = 0;
-                    double scale = 100;
-
-                    using (SKCanvas canvas = new SKCanvas(e.Bitmap))
-                    {
-                        //座標持ってたら反映
-                        if (drawObject is IMetaCoordable)
-                        {
-                            IMetaCoordable coordObject = (IMetaCoordable)drawObject;
-                            x = coordObject.X.Get(frame);
-                            y = coordObject.Y.Get(frame);
-                            rotate = coordObject.Rotation.Get(frame);
-                            alpha = coordObject.Alpha.Get(frame);
-                            scale = coordObject.Scale.Get(frame);
-                        }
-
-                        if (rotate != 0)
-                        {
-                            express.Bitmap = MetasiaBitmap.Rotate(express.Bitmap, rotate);
-                            express.TargetSize = new SKSize(
-                                (int)(express.TargetSize.Value.Width *
-                                      (express.Bitmap.Width / express.ActualSize.Value.Width)),
-                                (int)(express.TargetSize.Value.Height *
-                                      (express.Bitmap.Height / express.ActualSize.Value.Height))
-                            );
-                            express.ActualSize = new SKSize(express.Bitmap.Width, express.Bitmap.Height);
-                        }
-                        if (alpha != 0.0) express.Bitmap = MetasiaBitmap.Transparency(express.Bitmap, (100 - alpha) / 100);
-
-                        double width = express.TargetSize.Value.Width * (scale / 100f);
-                        double height = express.TargetSize.Value.Height * (scale / 100f);
-
-                        SKRect drawPos = new SKRect()
-                        {
-                            Left = (float)((e.TargetResolution.Width - width) / 2 + x) * (e.ActualResolution.Width / e.TargetResolution.Width),
-                            Top = (float)((e.TargetResolution.Height - height) / 2 - y) * (e.ActualResolution.Height / e.TargetResolution.Height),
-                            Right = (float)(((e.TargetResolution.Width - width) / 2 + x + width) * (e.ActualResolution.Width / e.TargetResolution.Width)),
-                            Bottom = (float)(((e.TargetResolution.Height - height) / 2 - y + height) * (e.ActualResolution.Height / e.TargetResolution.Height)),
-                        };
-
-                        canvas.DrawBitmap(express.Bitmap, drawPos);
-                    }
-                }
-
-                express.Dispose();
+                nodes.Add(obj.Render(context));
             }
 
-            e.ActualSize = new SKSize(e.Bitmap.Width, e.Bitmap.Height);
-            e.TargetSize = e.TargetResolution;
+            return new RenderNode()
+            {
+                Children = nodes,
+            };
         }
 
         public void AudioExpresser(ref AudioExpresserArgs e, int frame)

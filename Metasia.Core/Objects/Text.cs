@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Metasia.Core.Objects
 {
-    public class Text : MetasiaObject, IMetaCoordable
+    public class Text : MetasiaObject, IRenderable
     {
         public MetaDoubleParam X { get; set; }
         public MetaDoubleParam Y { get; set; }
@@ -46,38 +46,75 @@ namespace Metasia.Core.Objects
             LoadTypeface();
         }
 
-        public void DrawExpresser(ref DrawExpresserArgs e, int frame)
+        public RenderNode Render(RenderContext context)
         {
-            if (frame < StartFrame || frame > EndFrame) return;
-
             SKPaint skPaint = new SKPaint()
             {
                 IsAntialias = true,
-                TextSize = TextSize.Get(frame),
+                TextSize = TextSize.Get(context.Frame),
                 Typeface = _typeface,
                 Color = SKColors.White,
             };
-            SKRect textRect= new SKRect();
-            var width = skPaint.MeasureText(Contents, ref textRect);
+            SKRect textBounds = new();
+            skPaint.MeasureText(Contents, ref textBounds);
+            
+            int bitmapWidth = (int)textBounds.Width;
+            int bitmapHeight = (int)textBounds.Height;
 
-            e.Bitmap = new SKBitmap((int)(width), (int)(textRect.Height * 1.2));
+            if (bitmapWidth <= 0 || bitmapHeight <= 0 || string.IsNullOrEmpty(Contents))
+            {
+                return new RenderNode();
+            }
 
-            using (SKCanvas canvas = new SKCanvas(e.Bitmap))
+            var logicalSize = new SKSize(bitmapWidth, bitmapHeight);
+            var bitmap = new SKBitmap(bitmapWidth, bitmapHeight);
+
+            using (SKCanvas canvas = new SKCanvas(bitmap))
             {
                 canvas.Clear();
-                canvas.DrawText(Contents, 0, skPaint.TextSize, skPaint);
+                canvas.DrawText(Contents, -textBounds.Left, -textBounds.Top, skPaint);
             }
 
-            if (Child is not null && Child is IMetaCoordable)
+            //縦横のレンダリング倍率
+            float renderScaleWidth = context.RenderResolution.Width / context.ProjectResolution.Width;
+            float renderScaleHeight = context.RenderResolution.Height / context.ProjectResolution.Height;
+
+            //レンダリング倍率に合わせて画像をリサイズ
+            if (renderScaleWidth != 1.0f || renderScaleHeight != 1.0f)
             {
-                IMetaCoordable drawChild = (IMetaCoordable)Child;
-                Child.StartFrame = this.StartFrame;
-                Child.EndFrame = this.EndFrame;
-                drawChild.DrawExpresser(ref e, frame);
+                var scaledInfo = new SKImageInfo((int)(bitmap.Width * renderScaleWidth), (int)(bitmap.Height * renderScaleHeight));
+                bitmap = bitmap.Resize(scaledInfo, SKFilterQuality.High);
             }
-            
-            e.ActualSize = new SKSize(e.Bitmap.Width, e.Bitmap.Height);
-            e.TargetSize = new SKSize(e.Bitmap.Width, e.Bitmap.Height);
+
+            var transform = new Transform()
+            {
+                Position = new SKPoint((float)X.Get(context.Frame), (float)Y.Get(context.Frame)),
+                Scale = (float)Scale.Get(context.Frame) / 100,
+                Rotation = (float)Rotation.Get(context.Frame),
+                Alpha = (100.0f - (float)Alpha.Get(context.Frame)) / 100,
+            };
+
+
+            if (Child is not IRenderable renderableChild)
+            {
+                return new RenderNode()
+                {
+                    Bitmap = bitmap,
+                    LogicalSize = logicalSize,
+                    Transform = transform,
+                };
+            }
+
+
+            //もし子オブジェクトも描画対応していた場合
+            var childNode = renderableChild.Render(context);
+            return new RenderNode()
+            {
+                Bitmap = bitmap,
+                LogicalSize = logicalSize,
+                Transform = transform,
+                Children = new List<RenderNode>() { childNode },
+            };
         }
 
         private bool LoadTypeface()
