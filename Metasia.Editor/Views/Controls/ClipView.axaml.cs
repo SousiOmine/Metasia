@@ -1,8 +1,12 @@
 using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Markup.Xaml;
+using DynamicData.Kernel;
+using Metasia.Editor.Models.DragDropData;
 using Metasia.Editor.ViewModels.Controls;
 using Microsoft.Extensions.DependencyInjection;
 using Metasia.Editor.Services;
@@ -14,7 +18,7 @@ public partial class ClipView : UserControl
     private ClipViewModel? VM
     {
         get { return this.DataContext as ClipViewModel; }
-    
+
     }
     public ClipView()
     {

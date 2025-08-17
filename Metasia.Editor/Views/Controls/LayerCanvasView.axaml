@@ -8,8 +8,15 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="50"
              x:Class="Metasia.Editor.Views.Controls.LayerCanvasView"
 			 x:DataType="vm:LayerCanvasViewModel"
+             xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
+             xmlns:behaviors="clr-namespace:Metasia.Editor.Views.Behaviors"
+			 Background="Transparent"
              Width="{Binding Width}"
-			 Height="50">
+			 Height="50"
+			 >
+	<i:Interaction.Behaviors>
+		<behaviors:LayerClipDropBehavior DropCommand="{Binding HandleDropCommand}" FramePerDIP="{Binding Frame_Per_DIP}"/>
+	</i:Interaction.Behaviors>
 	
 	<ItemsControl ItemsSource="{Binding ClipsAndBlanks}" >
 		<ItemsControl.ItemsPanel>

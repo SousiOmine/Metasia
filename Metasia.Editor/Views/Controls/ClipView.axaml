@@ -7,6 +7,8 @@
              x:Class="Metasia.Editor.Views.Controls.ClipView"
 			 x:DataType="vm:ClipViewModel"
              xmlns:converter="clr-namespace:Metasia.Editor.Views.BindingConverter"
+             xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
+             xmlns:behaviors="clr-namespace:Metasia.Editor.Views.Behaviors"
 			 Width="{Binding Width}" VerticalAlignment="Stretch">
 	<UserControl.Resources>
 		<converter:ClipSelectConverter x:Key="ClipConverter"/>
@@ -14,6 +16,9 @@
 	<Border x:Name="Clip" Tapped="Clip_OnTapped"
 			BorderBrush="DarkGray" Background="Pink" BorderThickness="1" CornerRadius="10" ClipToBounds="True"
 	        Opacity="{Binding IsSelecting, Converter={StaticResource ClipConverter}}">
+		<i:Interaction.Behaviors>
+			<behaviors:ClipDragStartBehavior DragThreshold="5" FramePerDIP="{Binding Frame_Per_DIP}"/>
+		</i:Interaction.Behaviors>
 		<Grid ColumnDefinitions="Auto,*,Auto">
 			<Border Grid.Column="0" x:Name="StartHandle" Width="10" Background="Blue" Cursor="SizeWestEast" VerticalAlignment="Stretch" HorizontalAlignment="Left"
 					PointerPressed="Handle_PointerPressed" PointerMoved="Handle_PointerMoved" PointerReleased="Handle_PointerReleased"/>

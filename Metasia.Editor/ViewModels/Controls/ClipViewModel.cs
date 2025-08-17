@@ -92,7 +92,7 @@ namespace Metasia.Editor.ViewModels.Controls
 
         public void ClipClick(bool isMultiSelect = false)
         {
-            parentTimeline.ClipSelect(this, isMultiSelect);
+            parentTimeline.ClipSelect(TargetObject, isMultiSelect);
         }
 
         /// <summary>
