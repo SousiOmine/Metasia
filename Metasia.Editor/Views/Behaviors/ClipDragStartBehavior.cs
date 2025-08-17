@@ -45,7 +45,6 @@ namespace Metasia.Editor.Views.Behaviors
         
         private Point? _startPoint;
         private bool _isDraggingPotential;
-        private PointerEventArgs? _lastPointerEventArgs;
         
         protected override void OnAttached()
         {
@@ -80,7 +79,6 @@ namespace Metasia.Editor.Views.Behaviors
         
         private async void OnPointerMoved(object? sender, PointerEventArgs e)
         {
-            _lastPointerEventArgs = e;
             var currentPoint = e.GetCurrentPoint(AssociatedObject).Position;
             
             if (_isDraggingPotential && e.GetCurrentPoint(AssociatedObject).Properties.IsLeftButtonPressed && _startPoint.HasValue && Math.Abs(currentPoint.X - _startPoint.Value.X) > DragThreshold)
@@ -94,7 +92,6 @@ namespace Metasia.Editor.Views.Behaviors
         {
             _isDraggingPotential = false;
             _startPoint = null;
-            _lastPointerEventArgs = null;
         }
 
         /// <summary>

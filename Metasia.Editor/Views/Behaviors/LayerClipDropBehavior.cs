@@ -96,7 +96,7 @@ namespace Metasia.Editor.Views.Behaviors
         
         private ClipsDropTargetContext? CreateDropTargetInfo(DragEventArgs e)
         {
-            if (e.Data.Get("ClipsMoveDragData") is ClipsMoveDragData clipsMoveDragData && AssociatedObject is not null)
+            if (e.Data.Get(DragDropFormats.ClipsMove) is ClipsMoveDragData clipsMoveDragData && AssociatedObject is not null)
             {
                 var position = e.GetPosition(AssociatedObject);
                 return new ClipsDropTargetContext(clipsMoveDragData, CalculateTargetFrame(position.X), true);
