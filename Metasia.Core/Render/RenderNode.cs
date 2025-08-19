@@ -17,7 +17,7 @@ namespace Metasia.Core.Render
         /// <summary>
         /// 描画オブジェクトの位置や角度、スケール、不透明度など
         /// </summary>
-        public Transform Transform { get; init; } = Transform.Identify;
+        public Transform Transform { get; init; } = Transform.Identity;
 
         /// <summary>
         /// 子ノードの描画情報リスト

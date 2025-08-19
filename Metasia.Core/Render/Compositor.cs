@@ -18,6 +18,10 @@ namespace Metasia.Core.Render
         /// <returns>合成後のビットマップ</returns>
         public SKBitmap RenderFrame(IRenderable root, int frame, SKSize renderResolution, SKSize projectResolution)
         {
+            ArgumentNullException.ThrowIfNull(root);
+            if (renderResolution.Width <= 0 || renderResolution.Height <= 0) throw new ArgumentOutOfRangeException("Render resolution must be positive");
+            if (projectResolution.Width <= 0 || projectResolution.Height <= 0) throw new ArgumentOutOfRangeException("Project resolution must be positive");
+            
             var resultBitmap = new SKBitmap((int)renderResolution.Width, (int)renderResolution.Height);
             using (SKCanvas canvas = new SKCanvas(resultBitmap))
             {
