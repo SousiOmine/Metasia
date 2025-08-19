@@ -85,21 +85,6 @@ namespace Metasia.Core.Tests.Objects
         }
 
         [Test]
-        public void Child_CanBeSetWithCoordableObject()
-        {
-            // Arrange
-            var childText = new Text("child-text");
-
-            // Act
-            _textObject.Child = childText;
-
-            // Assert
-            Assert.That(_textObject.Child, Is.Not.Null);
-            Assert.That(_textObject.Child, Is.InstanceOf<IMetaCoordable>());
-            Assert.That(_textObject.Child.Id, Is.EqualTo("child-text"));
-        }
-
-        [Test]
         public void TypefaceName_ChangeTriggersFontReload()
         {
             // Arrange

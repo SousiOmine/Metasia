@@ -92,24 +92,8 @@ namespace Metasia.Core.Tests.Objects
         public void ImplementsRequiredInterfaces()
         {
             // kariHelloObjectが必要なインターフェースを実装していることを確認
-            Assert.That(_kariHelloObject, Is.InstanceOf<IMetaCoordable>());
             Assert.That(_kariHelloObject, Is.InstanceOf<IMetaAudiable>());
-            Assert.That(_kariHelloObject, Is.InstanceOf<IMetaDrawable>()); // IMetaCoordableはIMetaDrawableを継承
-        }
-
-        [Test]
-        public void Child_CanBeSetWithDrawableObject()
-        {
-            // Arrange
-            var childObject = new kariHelloObject("child-kari");
-
-            // Act
-            _kariHelloObject.Child = childObject;
-
-            // Assert
-            Assert.That(_kariHelloObject.Child, Is.Not.Null);
-            Assert.That(_kariHelloObject.Child, Is.InstanceOf<IMetaDrawable>());
-            Assert.That(_kariHelloObject.Child.Id, Is.EqualTo("child-kari"));
+            Assert.That(_kariHelloObject, Is.InstanceOf<IRenderable>());
         }
     }
 } 
