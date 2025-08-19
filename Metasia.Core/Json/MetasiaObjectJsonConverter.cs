@@ -1,5 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Encodings.Web;
+using System.Text.Unicode;
 using Metasia.Core.Objects;
 using System.Diagnostics;
 
@@ -49,11 +51,13 @@ public class MetasiaObjectJsonConverter : JsonConverter<MetasiaObject>
         // - 大文字小文字を区別しない
         // - フィールドを含める
         // - 列挙型を文字列として扱う
+        // - 2バイト文字をエスケープしない
         var serializerOptions = new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true,
             IncludeFields = true,
-            Converters = { new JsonStringEnumConverter(), this }
+            Converters = { new JsonStringEnumConverter(), this },
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
         };
 
         try
@@ -79,7 +83,8 @@ public class MetasiaObjectJsonConverter : JsonConverter<MetasiaObject>
         {
             PropertyNameCaseInsensitive = true,
             IncludeFields = true,
-            Converters = { new JsonStringEnumConverter(), this }
+            Converters = { new JsonStringEnumConverter(), this },
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
         };
 
         // オブジェクトをJSON文字列に変換

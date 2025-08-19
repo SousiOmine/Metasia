@@ -1,4 +1,6 @@
 using System.Text.Json;
+using System.Text.Encodings.Web;
+using System.Text.Unicode;
 using Metasia.Core.Objects;
 using Metasia.Core.Project;
 
@@ -15,7 +17,8 @@ namespace Metasia.Core.Json
             {
                 WriteIndented = true,
                 IncludeFields = true,
-                Converters = { new MetasiaObjectJsonConverter() }
+                Converters = { new MetasiaObjectJsonConverter() },
+                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
             };
             return JsonSerializer.Serialize(timeline, options);
         }
