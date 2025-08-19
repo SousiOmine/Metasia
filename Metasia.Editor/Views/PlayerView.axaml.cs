@@ -46,23 +46,7 @@ public partial class PlayerView : UserControl
 	
 	private void SKCanvasView_PaintSurface(object? sender, Avalonia.Labs.Controls.SKPaintSurfaceEventArgs e)
 	{
-		if (VM is null) return;
-		//if (VM.TargetTimeline is null) return;
-
-		DrawExpresserArgs drawExp = new()
-		{
-			Bitmap = new SKBitmap(384, 216),
-			ActualResolution = new SKSize(384, 216),
-			TargetResolution = new SKSize(3840, 2160),
-			FPS = VM.TargetProjectInfo.Framerate,
-		};
-		
-		using (SKCanvas canvas = new SKCanvas(drawExp.Bitmap))
-		{
-			canvas.Clear(SKColors.Black);
-		}
-		
-		VM.TargetTimeline.DrawExpresser(ref drawExp, VM.Frame);
+		if (VM is null || VM.TargetTimeline is null) return;
 
 		if(VM.IsPlaying)
 		{
@@ -81,17 +65,19 @@ public partial class PlayerView : UserControl
 
         }
 
-
+		var compositor = new Compositor();
+		var bitmap = compositor.RenderFrame(VM.TargetTimeline, VM.Frame, new SKSize(384, 216), new SKSize(3840, 2160));
 
 		lock (renderLock)
 		{
-			
 			SKImageInfo info = e.Info;
 			SKSurface surface = e.Surface;
 			SKCanvas canvas = surface.Canvas;
 			canvas.Clear(SKColors.Green);
 
-			canvas.DrawBitmap(drawExp.Bitmap, 0, 0);
+			canvas.DrawBitmap(bitmap, 0, 0);
+
+			bitmap.Dispose();
 		}
 
 	}

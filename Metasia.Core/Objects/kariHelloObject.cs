@@ -12,7 +12,7 @@ using System.Text.Json.Serialization;
 
 namespace Metasia.Core.Objects
 {
-	public class kariHelloObject : MetasiaObject, IMetaCoordable, IMetaAudiable
+	public class kariHelloObject : MetasiaObject, IRenderable, IMetaAudiable
 	{
 		public MetaDoubleParam X { get; set; }
 		public MetaDoubleParam Y { get; set; }
@@ -54,27 +54,41 @@ namespace Metasia.Core.Objects
 			}
 		}
 
-		public void DrawExpresser(ref DrawExpresserArgs e, int frame)
+		public RenderNode Render(RenderContext context)
 		{
-            if (frame < StartFrame || frame > EndFrame) return;
+			var bitmap = new SKBitmap(200, 200);
 			
-			e.Bitmap = new SKBitmap(200, 200);
-			
-			using (SKCanvas canvas = new SKCanvas(e.Bitmap))
+			using (SKCanvas canvas = new SKCanvas(bitmap))
 			{
-				canvas.DrawBitmap(myBitmap, (e.Bitmap.Width - myBitmap.Width) / 2, (e.Bitmap.Height - myBitmap.Height) / 2);
+				canvas.DrawBitmap(myBitmap, (bitmap.Width - myBitmap.Width) / 2, (bitmap.Height - myBitmap.Height) / 2);
 			}
-			
-			if (Child is not null && Child is IMetaDrawable)
+
+			var transform = new Transform()
 			{
-				IMetaDrawable drawChild = (IMetaDrawable)Child;
-				Child.StartFrame = this.StartFrame;
-				Child.EndFrame = this.EndFrame;
-				drawChild.DrawExpresser(ref e, frame);
-			}
+				Position = new SKPoint((float)X.Get(context.Frame), (float)Y.Get(context.Frame)),
+				Scale = (float)Scale.Get(context.Frame) / 100,
+				Rotation = (float)Rotation.Get(context.Frame),
+				Alpha = (100.0f - (float)Alpha.Get(context.Frame)) / 100,
+			};
 			
-			e.ActualSize = new SKSize(e.Bitmap.Width, e.Bitmap.Height);
-			e.TargetSize = new SKSize(200, 200);
+			if (Child is not IRenderable renderableChild)
+			{
+				return new RenderNode()
+				{
+					Bitmap = bitmap,
+					LogicalSize = new SKSize(bitmap.Width, bitmap.Height),
+					Transform = transform,
+				};
+			}
+
+			var childNode = renderableChild.Render(context);
+			return new RenderNode()
+			{
+				Bitmap = bitmap,
+				Children = new List<RenderNode>() { childNode },
+				LogicalSize = new SKSize(bitmap.Width, bitmap.Height),
+				Transform = transform,
+			};
 		}
 
 		public double Volume { get; set; } = 100;

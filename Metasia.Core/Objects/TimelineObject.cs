@@ -16,7 +16,7 @@ namespace Metasia.Core.Objects
 	/// <summary>
 	/// タイムライン専用のオブジェクト
 	/// </summary>
-	public class TimelineObject : MetasiaObject, IMetaDrawable, IMetaAudiable
+	public class TimelineObject : MetasiaObject, IRenderable, IMetaAudiable
 	{
 		/// <summary>
 		/// タイムラインに属するレイヤー 格納順に描画される
@@ -36,38 +36,20 @@ namespace Metasia.Core.Objects
 			Layers = new();
         }
 
-        public void DrawExpresser(ref DrawExpresserArgs e, int frame)
+        public RenderNode Render(RenderContext context)
 		{
-			double resolution_level_x = e.ActualResolution.Width / e.TargetResolution.Width;
-			double resolution_level_y = e.ActualResolution.Height / e.TargetResolution.Height;
-			
-			//DrawExpresserArgsのSKBitmapのインスタンスがなかったら生成
-			if (e.Bitmap is null) e.Bitmap = new SKBitmap((int)(e.ActualResolution.Width), (int)(e.ActualResolution.Height));
+			var nodes = new List<RenderNode>();
 
             foreach (var layer in Layers)
 			{
 				if (!layer.IsActive) continue;
-                DrawExpresserArgs express = new()
-                {
-	                ActualResolution = e.ActualResolution,
-                    TargetResolution = e.TargetResolution,
-                    FPS = e.FPS
-                };
-				layer.DrawExpresser(ref express, frame);
-				if (express.Bitmap is null) continue;
+				nodes.Add(layer.Render(context));
+			}
 
-                using (SKCanvas canvas = new SKCanvas(e.Bitmap))
-				{
-					canvas.DrawBitmap(express.Bitmap, 0, 0);
-				}
-
-				express.Dispose();
-            }
-            
-            ;
-            
-            e.ActualSize = new SKSize(e.Bitmap.Width, e.Bitmap.Height);
-			e.TargetSize = e.TargetResolution;
+			return new RenderNode()
+			{
+				Children = nodes,
+			};
 		}
 		
 
