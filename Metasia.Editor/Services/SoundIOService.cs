@@ -1,17 +1,18 @@
 using System;
 using System.Collections.Concurrent;
+using Metasia.Core.Sounds;
 using SoundIOSharp;
 
 namespace Metasia.Editor.Services;
 
 public class SoundIOService : IAudioService
 {
-    private SoundIO soundIo;
-    private SoundIODevice device;
-    private SoundIOOutStream outStream;
+    private readonly SoundIO soundIo;
+    private readonly SoundIODevice device;
+    private readonly SoundIOOutStream outStream;
     private Action<IntPtr, double>? write_sample;
     
-    private ConcurrentQueue<double> soundQueue = new();
+    private readonly ConcurrentQueue<double> soundQueue = new();
 
     public SoundIOService()
     {
@@ -20,6 +21,7 @@ public class SoundIOService : IAudioService
         soundIo.FlushEvents();
 
         device = soundIo.GetOutputDevice(soundIo.DefaultOutputDeviceIndex);
+        if (device is null) throw new InvalidOperationException("出力オーディオデバイスが見つかりませんでした");
         
         outStream = device.CreateOutStream();
         outStream.WriteCallback = (min, max) => write_callback(outStream, min, max);
@@ -47,20 +49,20 @@ public class SoundIOService : IAudioService
         }
         else
         {
-            Console.Error.WriteLine("No suitable format available.");
-            return;
+            throw new InvalidOperationException("出力可能なフォーマットが見つかりませんでした");
         }
         
         outStream.Open();
         outStream.Start();
     }
 
-    public void InsertQueue(double[] pulse, byte channel)
+    public void InsertQueue(AudioChunk chunk)
     {
-        if(pulse.Length % channel != 0)
-            throw new ArgumentException("Pulse length must be divisible by channel" + pulse.Length + channel);
-        pulse = ConvertChannel(pulse, channel, (byte)outStream.Layout.ChannelCount);
-        foreach (var sample in pulse)
+        if (chunk.Format.SampleRate != outStream.SampleRate || chunk.Format.ChannelCount != outStream.Layout.ChannelCount)
+        {
+            throw new InvalidOperationException("チャンネル数またはサンプルレートが一致していません");
+        }
+        foreach (var sample in chunk.Samples)
         {
             soundQueue.Enqueue(sample);
         }
@@ -70,6 +72,11 @@ public class SoundIOService : IAudioService
 	{
 		soundQueue.Clear();
 	}
+
+    public long GetQueuedSamplesCount()
+    {
+        return soundQueue.Count / outStream.Layout.ChannelCount;
+    }
 
     public void Dispose()
     {
@@ -83,11 +90,13 @@ public class SoundIOService : IAudioService
     {
         if(before_channel == after_channel)
             return pulse;
-        throw new Exception("チャンネル数の変換は実装されていません");
+        throw new InvalidOperationException("チャンネル数の変換は実装されていません");
     }
     
     private void write_callback(SoundIOOutStream outStream, int min, int max)
     {
+        if (write_sample is null) throw new InvalidOperationException("write_sample is null");
+
         double float_sample_rate = outStream.SampleRate;
         double seconds_per_frame = 1.0 / float_sample_rate;
 
@@ -175,4 +184,6 @@ public class SoundIOService : IAudioService
         double* buf = (double*)ptr;
         *buf = sample;
     }
+
+
 }

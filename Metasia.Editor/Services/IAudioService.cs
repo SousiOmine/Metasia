@@ -1,4 +1,5 @@
 ﻿using System;
+using Metasia.Core.Sounds;
 
 namespace Metasia.Editor.Services;
 
@@ -12,10 +13,16 @@ public interface IAudioService : IDisposable
     /// </summary>
     /// <param name="pulse"></param>
     /// <param name="channel"></param>
-    public void InsertQueue(double[] pulse, byte channel);
+    public void InsertQueue(AudioChunk chunk);
 
     /// <summary>
     /// 再生キューをリセットする
     /// </summary>
     public void ClearQueue();
+
+    /// <summary>
+    /// 再生キューに格納されている(1チャンネルあたりの)サンプル数を返す
+    /// </summary>
+    /// <returns></returns>
+    public long GetQueuedSamplesCount();
 }

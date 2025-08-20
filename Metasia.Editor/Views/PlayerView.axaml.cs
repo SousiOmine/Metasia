@@ -48,23 +48,6 @@ public partial class PlayerView : UserControl
 	{
 		if (VM is null || VM.TargetTimeline is null) return;
 
-		if(VM.IsPlaying)
-		{
-            AudioExpresserArgs audioExp = new()
-            {
-                Sound = new MetasiaSound(2, 44100, 60),
-                AudioChannel = 2,
-                SoundSampleRate = 44100,
-                FPS = VM.TargetProjectInfo.Framerate,
-            };
-
-            VM.TargetTimeline.AudioExpresser(ref audioExp, VM.Frame);
-
-
-            audioService.InsertQueue(audioExp.Sound.Pulse, 2);
-
-        }
-
 		var compositor = new Compositor();
 		var bitmap = compositor.RenderFrame(VM.TargetTimeline, VM.Frame, new SKSize(384, 216), new SKSize(3840, 2160));
 
@@ -84,8 +67,7 @@ public partial class PlayerView : UserControl
 
 	private void PlayStart()
 	{
-		double[] pulse = new double[8820];
-		audioService.InsertQueue(pulse, 2);
+
 	}
 
 }

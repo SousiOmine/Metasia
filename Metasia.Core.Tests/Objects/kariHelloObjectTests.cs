@@ -92,7 +92,7 @@ namespace Metasia.Core.Tests.Objects
         public void ImplementsRequiredInterfaces()
         {
             // kariHelloObjectが必要なインターフェースを実装していることを確認
-            Assert.That(_kariHelloObject, Is.InstanceOf<IMetaAudiable>());
+            Assert.That(_kariHelloObject, Is.InstanceOf<IAudiable>());
             Assert.That(_kariHelloObject, Is.InstanceOf<IRenderable>());
         }
     }

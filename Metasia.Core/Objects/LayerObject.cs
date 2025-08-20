@@ -13,7 +13,7 @@ using System.Text.Json.Serialization;
 
 namespace Metasia.Core.Objects
 {
-    public class LayerObject : MetasiaObject, IRenderable, IMetaAudiable
+    public class LayerObject : MetasiaObject, IRenderable, IAudiable
     {
         /// <summary>
         /// レイヤーに属するオブジェクト 原則同じフレームに2個以上オブジェクトがあってはならない
@@ -69,46 +69,6 @@ namespace Metasia.Core.Objects
             };
         }
 
-        public void AudioExpresser(ref AudioExpresserArgs e, int frame)
-        {
-            List<MetasiaObject> ApplicateObjects = new();
-            foreach (var obj in Objects)
-            {
-                if (obj.IsExistFromFrame(frame) && obj is IMetaAudiable && obj.IsActive)
-                {
-                    ApplicateObjects.Add(obj);
-                }
-            }
-            if (ApplicateObjects.Count == 0) return;
-
-            if (e.Sound is null) e.Sound = new MetasiaSound(e.AudioChannel, e.SoundSampleRate, (ushort)e.FPS);
-
-            foreach (var o in ApplicateObjects)
-            {
-                IMetaAudiable audiableObject = (IMetaAudiable)o;
-                AudioExpresserArgs express = new()
-                {
-                    AudioChannel = e.AudioChannel,
-                    SoundSampleRate = e.SoundSampleRate,
-                    FPS = e.FPS
-                };
-                audiableObject.AudioExpresser(ref express, frame);
-
-                if (express.Sound is not null)
-                {
-
-                    if (audiableObject.Volume != 100)
-                    {
-                        express.Sound = MetasiaSound.VolumeChange(express.Sound, audiableObject.Volume / 100);
-                    }
-
-                    e.Sound = MetasiaSound.SynthesisPulse(e.AudioChannel, e.Sound, express.Sound);
-                }
-
-                express.Dispose();
-            }
-        }
-
         /// <summary>
         /// 指定されたオブジェクトを指定された範囲で重複せず配置できるかどうかを判定する
         /// </summary>
@@ -137,6 +97,46 @@ namespace Metasia.Core.Objects
             return true;
         }
 
-        
+        public AudioChunk GetAudioChunk(AudioFormat format, long startSample, long length)
+        {
+            //ProjectInfoにフレームレートを含むようになったらそれを使う
+            double framerate = 60;
+
+            long requestStartSample = startSample;
+            long requestEndSample = startSample + length;
+
+            var resultChunk = new AudioChunk(format, length);
+
+            foreach (var obj in Objects.OfType<MetasiaObject>().OfType<IAudiable>())
+            {
+                var metasiaObject = (MetasiaObject)obj;
+                if (!metasiaObject.IsActive) continue;
+                long objStartSample = (long)(metasiaObject.StartFrame * (format.SampleRate / framerate));
+                long objEndSample = (long)(metasiaObject.EndFrame * (format.SampleRate / framerate));
+
+                long overlapStartSample = Math.Max(requestStartSample, objStartSample);
+                long overlapEndSample = Math.Min(requestEndSample, objEndSample);
+
+                if (overlapStartSample >= overlapEndSample)
+                {
+                    continue;
+                }
+
+                long childStartPosition = overlapStartSample - objStartSample;
+                long overlapLength = overlapEndSample - overlapStartSample;
+                var chunk = obj.GetAudioChunk(format, childStartPosition, overlapLength);
+                for (int i = 0; i < overlapLength; i++)
+                {
+                    for (int ch = 0; ch < format.ChannelCount; ch++)
+                    {
+                        long sourceIndex = i * format.ChannelCount + ch;
+                        long resultIndex = (overlapStartSample - requestStartSample + i) * format.ChannelCount + ch;
+                        resultChunk.Samples[resultIndex] += chunk.Samples[sourceIndex];
+                    }
+                }
+            }
+
+            return resultChunk;
+        }
     }
 }

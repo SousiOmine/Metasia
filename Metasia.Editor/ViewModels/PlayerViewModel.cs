@@ -9,6 +9,8 @@ using Metasia.Core.Coordinate;
 using Metasia.Core.Objects;
 using Metasia.Core.Project;
 using Metasia.Editor.Models.EditCommands;
+using Metasia.Editor.Services;
+using Metasia.Editor.Services.Audio;
 using ReactiveUI;
 using SkiaSharp;
 
@@ -83,6 +85,8 @@ namespace Metasia.Editor.ViewModels
 		
 		public bool CanUndo => HistoryManager.CanUndo;
 		public bool CanRedo => HistoryManager.CanRedo;
+
+		private IAudioPlaybackService audioPlaybackService;
 		
 		public PlayerViewModel(TimelineObject targetTimeline, ProjectInfo projectInfo)
 		{
@@ -105,14 +109,18 @@ namespace Metasia.Editor.ViewModels
 				timer.Start();
 				IsPlaying = true;
 				PlayStart?.Invoke();
+
+				long startSample = (long)(Frame / (double)projectInfo.Framerate * 44100);
+				audioPlaybackService.Play(TargetTimeline, projectInfo, startSample, 1.0);
 			});
 			Pause = ReactiveCommand.Create(() =>
 			{
 				if(timer is not null) timer.Stop();
 				IsPlaying = false;
+				audioPlaybackService.Pause();
 			});
 
-
+            audioPlaybackService = new AudioPlaybackService(new SoundIOService());
 
             NotifyProjectChanged();
 		}

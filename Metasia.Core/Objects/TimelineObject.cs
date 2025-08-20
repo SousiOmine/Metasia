@@ -10,13 +10,14 @@ using System.Threading.Tasks;
 using Metasia.Core.Sounds;
 using System.Diagnostics;
 using System.Text.Json.Serialization;
+using System.Runtime.CompilerServices;
 
 namespace Metasia.Core.Objects
 {
 	/// <summary>
 	/// タイムライン専用のオブジェクト
 	/// </summary>
-	public class TimelineObject : MetasiaObject, IRenderable, IMetaAudiable
+	public class TimelineObject : MetasiaObject, IRenderable, IAudiable
 	{
 		/// <summary>
 		/// タイムラインに属するレイヤー 格納順に描画される
@@ -51,36 +52,46 @@ namespace Metasia.Core.Objects
 				Children = nodes,
 			};
 		}
-		
 
-		public void AudioExpresser(ref AudioExpresserArgs e, int frame)
-		{
-			//AudioExpresserArgsのMetasiaSoundのインスタンスがなかったら生成
-			if (e.Sound is null) e.Sound = new MetasiaSound(e.AudioChannel, e.SoundSampleRate, (ushort)e.FPS);
+        public AudioChunk GetAudioChunk(AudioFormat format, long startSample, long length)
+        {
+			//ProjectInfoにフレームレートを含むようになったらそれを使う
+            double framerate = 60;
 
-			foreach (var layer in Layers)
+			long requestStartSample = startSample;
+            long requestEndSample = startSample + length;
+
+            var resultChunk = new AudioChunk(format, length);
+
+			foreach (var obj in Layers)
 			{
-                if (!layer.IsActive) continue;
-                AudioExpresserArgs express = new()
-                {
-                    AudioChannel = e.AudioChannel,
-                    SoundSampleRate = e.SoundSampleRate,
-                    FPS = e.FPS
-                };
-				layer.AudioExpresser(ref express, frame);
+				if (!obj.IsActive) continue;
+				long objStartSample = (long)(obj.StartFrame * (format.SampleRate / framerate));
+                long objEndSample = (long)(obj.EndFrame * (format.SampleRate / framerate));
 
-				if(express.Sound is null) continue;
+                long overlapStartSample = Math.Max(requestStartSample, objStartSample);
+                long overlapEndSample = Math.Min(requestEndSample, objEndSample);
 
-                if (layer.Volume != 100)
+                if (overlapStartSample >= overlapEndSample)
                 {
-                    express.Sound = MetasiaSound.VolumeChange(express.Sound, layer.Volume / 100);
+                    continue;
                 }
 
-                e.Sound = MetasiaSound.SynthesisPulse(e.AudioChannel, e.Sound, express.Sound);
+				long layerStartPosition = overlapStartSample - objStartSample;
+                long overlapLength = overlapEndSample - overlapStartSample;
+                var chunk = obj.GetAudioChunk(format, layerStartPosition, overlapLength);
+                for (int i = 0; i < overlapLength; i++)
+                {
+                    for (int ch = 0; ch < format.ChannelCount; ch++)
+                    {
+                        long sourceIndex = i * format.ChannelCount + ch;
+                        long resultIndex = (overlapStartSample - requestStartSample + i) * format.ChannelCount + ch;
+                        resultChunk.Samples[resultIndex] += chunk.Samples[sourceIndex];
+                    }
+                }
+			}
 
-				express.Dispose();
-            }
-			
-		}
-	}
+			return resultChunk;
+        }
+    }
 }

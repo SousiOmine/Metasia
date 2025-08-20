@@ -12,13 +12,15 @@ using System.Text.Json.Serialization;
 
 namespace Metasia.Core.Objects
 {
-	public class kariHelloObject : MetasiaObject, IRenderable, IMetaAudiable
+	public class kariHelloObject : MetasiaObject, IRenderable, IAudiable
 	{
 		public MetaDoubleParam X { get; set; }
 		public MetaDoubleParam Y { get; set; }
 		public MetaDoubleParam Scale { get; set; }
 		public MetaDoubleParam Alpha { get; set; }
 		public MetaDoubleParam Rotation { get; set; }
+		
+		public double Volume { get; set; } = 100;
 		
 		private SKBitmap myBitmap = new(200, 200);
 		private int audio_offset = 0;
@@ -91,20 +93,27 @@ namespace Metasia.Core.Objects
 			};
 		}
 
-		public double Volume { get; set; } = 100;
-		public void AudioExpresser(ref AudioExpresserArgs e, int frame)
-		{
-			MetasiaSound sound = new(e.AudioChannel, 44100, 60);
-			audio_offset = frame * sound.Pulse.Length;
-			for (int i = 0; i < sound.Pulse.Length; i+=2)
-			{
-				sound.Pulse[i] = Math.Sin(((i + audio_offset)/2 * (1.0 / 44100)) * (440.0 * 2.0 * Math.PI)) * 0.5;
-				sound.Pulse[i + 1] = Math.Sin(((i + audio_offset)/2 * (1.0 / 44100)) * (440.0 * 2.0 * Math.PI)) * 0.5;
-			}
-			//audio_offset += sound.Pulse.Length;
-			
-			e.Sound = sound;
-		}
 
-	}
+        public AudioChunk GetAudioChunk(AudioFormat format, long startSample, long length)
+        {
+			var chunk = new AudioChunk(format, length);
+			double frequency = 440;
+
+			for (long i = 0; i < length; i++)
+			{
+				// currentSampleは、このオブジェクトの先頭からのサンプル位置
+				long currentSample = startSample + i;
+        
+				var time = currentSample / (double)format.SampleRate;
+				var pulse = Math.Sin(time * (frequency * 2.0 * Math.PI)) * 0.5;
+
+				for (int ch = 0; ch < format.ChannelCount; ch++)
+				{
+					chunk.Samples[i * format.ChannelCount + ch] = pulse;
+				}
+			}
+
+			return chunk;
+        }
+    }
 }
