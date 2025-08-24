@@ -17,7 +17,7 @@ namespace Metasia.Core.Objects
 	/// <summary>
 	/// タイムライン専用のオブジェクト
 	/// </summary>
-	public class TimelineObject : MetasiaObject, IRenderable, IAudiable
+	public class TimelineObject : MetasiaObject, IRenderable, IAudible
 	{
 		/// <summary>
 		/// タイムラインに属するレイヤー 格納順に描画される

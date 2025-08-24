@@ -7,7 +7,7 @@ namespace Metasia.Core.Sounds
         /// <summary>
         /// エフェクトが適用される音源ソース
         /// </summary>
-        public IAudiable Source { get; }
+        public IAudible Source { get; }
 
         /// <summary>
         /// 音声フォーマット
@@ -19,8 +19,14 @@ namespace Metasia.Core.Sounds
         /// </summary>
         public long CurrentSamplePosition { get; }
 
-        public AudioEffectContext(IAudiable source, AudioFormat format, long currentSamplePosition)
+        public AudioEffectContext(IAudible source, AudioFormat format, long currentSamplePosition)
         {
+            ArgumentNullException.ThrowIfNull(source);
+            ArgumentNullException.ThrowIfNull(format);
+            if (currentSamplePosition < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(currentSamplePosition), "currentSamplePosition must be non-negative");
+            }
             Source = source;
             Format = format;
             CurrentSamplePosition = currentSamplePosition;
@@ -37,6 +43,10 @@ namespace Metasia.Core.Sounds
             if (startPosition < CurrentSamplePosition)
             {
                 throw new ArgumentException("startPosition must be greater than or equal to CurrentSamplePosition");
+            }
+            if (endPosition < startPosition)
+            {
+                throw new ArgumentException("endPosition must be greater than or equal to startPosition");
             }
             var chunk = Source.GetAudioChunk(Format, startPosition, endPosition - startPosition);
             return chunk;

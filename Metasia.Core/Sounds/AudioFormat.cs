@@ -2,8 +2,8 @@ namespace Metasia.Core.Sounds
 {
     public class AudioFormat
     {
-        public int SampleRate { get => _sampleRate; init => _sampleRate = value; }
-        public int ChannelCount { get => _channelCount; init => _channelCount = value; }
+        public int SampleRate { get => _sampleRate; }
+        public int ChannelCount { get => _channelCount; }
 
         private int _sampleRate = 44100;
         private int _channelCount = 2;

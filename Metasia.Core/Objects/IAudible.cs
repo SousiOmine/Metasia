@@ -3,7 +3,7 @@ using Metasia.Core.Sounds;
 
 namespace Metasia.Core.Objects
 {
-    public interface IAudiable
+    public interface IAudible
     {
         public double Volume { get; set; }
 

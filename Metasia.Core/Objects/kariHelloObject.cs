@@ -12,7 +12,7 @@ using System.Text.Json.Serialization;
 
 namespace Metasia.Core.Objects
 {
-	public class kariHelloObject : MetasiaObject, IRenderable, IAudiable
+	public class kariHelloObject : MetasiaObject, IRenderable, IAudible
 	{
 		public MetaDoubleParam X { get; set; }
 		public MetaDoubleParam Y { get; set; }
@@ -105,7 +105,7 @@ namespace Metasia.Core.Objects
 				long currentSample = startSample + i;
         
 				var time = currentSample / (double)format.SampleRate;
-				var pulse = Math.Sin(time * (frequency * 2.0 * Math.PI)) * 0.5;
+				var pulse = Math.Sin(time * (frequency * 2.0 * Math.PI)) * 0.5 * Volume / 100;
 
 				for (int ch = 0; ch < format.ChannelCount; ch++)
 				{

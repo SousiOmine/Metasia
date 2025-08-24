@@ -13,7 +13,7 @@ using System.Text.Json.Serialization;
 
 namespace Metasia.Core.Objects
 {
-    public class LayerObject : MetasiaObject, IRenderable, IAudiable
+    public class LayerObject : MetasiaObject, IRenderable, IAudible
     {
         /// <summary>
         /// レイヤーに属するオブジェクト 原則同じフレームに2個以上オブジェクトがあってはならない
@@ -107,7 +107,7 @@ namespace Metasia.Core.Objects
 
             var resultChunk = new AudioChunk(format, length);
 
-            foreach (var obj in Objects.OfType<MetasiaObject>().OfType<IAudiable>())
+            foreach (var obj in Objects.OfType<MetasiaObject>().OfType<IAudible>())
             {
                 var metasiaObject = (MetasiaObject)obj;
                 if (!metasiaObject.IsActive) continue;
@@ -125,13 +125,14 @@ namespace Metasia.Core.Objects
                 long childStartPosition = overlapStartSample - objStartSample;
                 long overlapLength = overlapEndSample - overlapStartSample;
                 var chunk = obj.GetAudioChunk(format, childStartPosition, overlapLength);
+                double layerGain = obj.Volume / 100;
                 for (int i = 0; i < overlapLength; i++)
                 {
                     for (int ch = 0; ch < format.ChannelCount; ch++)
                     {
                         long sourceIndex = i * format.ChannelCount + ch;
                         long resultIndex = (overlapStartSample - requestStartSample + i) * format.ChannelCount + ch;
-                        resultChunk.Samples[resultIndex] += chunk.Samples[sourceIndex];
+                        resultChunk.Samples[resultIndex] += chunk.Samples[sourceIndex] * layerGain;
                     }
                 }
             }

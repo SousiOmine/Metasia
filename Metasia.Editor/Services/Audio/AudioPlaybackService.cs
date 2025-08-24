@@ -53,12 +53,15 @@ namespace Metasia.Editor.Services.Audio
 
                 long targetBufferingSize = audioFormat.SampleRate / 2; //とりあえず0.5秒
 
+                CurrentSample = currentSamplePosition;
+
                 //再生開始直前にキューをある程度満たす
                 while (audioService.GetQueuedSamplesCount() < targetBufferingSize && !cancelToken.IsCancellationRequested)
                 {
                     var chunk = timeline.GetAudioChunk(audioFormat, currentSamplePosition, targetBufferingSize);
                     audioService.InsertQueue(chunk);
                     currentSamplePosition += targetBufferingSize;
+                    CurrentSample = currentSamplePosition;
                 }
 
                 while (!cancelToken.IsCancellationRequested)
