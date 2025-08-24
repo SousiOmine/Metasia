@@ -8,6 +8,6 @@ namespace Metasia.Core.Sounds
         /// <param name="input">入力チャンク</param>
         /// <param name="context">エフェクトのコンテキスト</param>
         /// <returns>適用後のチャンク</returns>
-        public AudioChunk Apply(AudioChunk input, AudioEffectContext context);
+        AudioChunk Apply(AudioChunk input, AudioEffectContext context);
     }
 }

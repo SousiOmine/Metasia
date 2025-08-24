@@ -5,7 +5,7 @@ namespace Metasia.Core.Objects
 {
     public interface IAudible
     {
-        public double Volume { get; set; }
+        double Volume { get; set; }
 
         /// <summary>
         /// 指定した範囲の音声チャンクを取得する
@@ -14,6 +14,6 @@ namespace Metasia.Core.Objects
         /// <param name="startSample">オブジェクトの始端を基準とした取得開始位置</param>
         /// <param name="length">取得する音声チャンクの長さ</param>
         /// <returns>指定された範囲の音声チャンク</returns>
-        public AudioChunk GetAudioChunk(AudioFormat format, long startSample, long length);
+        AudioChunk GetAudioChunk(AudioFormat format, long startSample, long length);
     }
 }

@@ -5,9 +5,9 @@ namespace Metasia.Editor.Services.Audio
 {
 	public interface IAudioPlaybackService
 	{
-        public bool IsPlaying { get; }
-        public long CurrentSample { get; }
-		public void Play(TimelineObject timeline, ProjectInfo projectInfo, long startSample, double speed = 1.0);
-		public void Pause();
+        bool IsPlaying { get; }
+        long CurrentSample { get; }
+		void Play(TimelineObject timeline, ProjectInfo projectInfo, long startSample, double speed = 1.0);
+		void Pause();
 	}
 }
