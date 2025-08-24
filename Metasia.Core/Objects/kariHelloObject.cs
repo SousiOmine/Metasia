@@ -21,6 +21,7 @@ namespace Metasia.Core.Objects
 		public MetaDoubleParam Rotation { get; set; }
 		
 		public double Volume { get; set; } = 100;
+		public List<IAudioEffect> Effects { get; set; } = new();
 		
 		private SKBitmap myBitmap = new(200, 200);
 		private int audio_offset = 0;
@@ -111,6 +112,13 @@ namespace Metasia.Core.Objects
 				{
 					chunk.Samples[i * format.ChannelCount + ch] = pulse;
 				}
+			}
+
+			AudioEffectContext effectContext = new AudioEffectContext(this, format, startSample);
+
+			foreach (var effect in Effects)
+			{
+				chunk = effect.Apply(chunk, effectContext);
 			}
 
 			return chunk;

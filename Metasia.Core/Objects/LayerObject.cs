@@ -22,6 +22,8 @@ namespace Metasia.Core.Objects
         public ObservableCollection<MetasiaObject> Objects { get; private set; }
         public double Volume { get; set; } = 100;
 
+        public List<IAudioEffect> Effects { get; set; } = new();
+
         /// <summary>
         /// レイヤー名
         /// </summary>
@@ -135,6 +137,13 @@ namespace Metasia.Core.Objects
                         resultChunk.Samples[resultIndex] += chunk.Samples[sourceIndex] * layerGain;
                     }
                 }
+            }
+
+            AudioEffectContext effectContext = new AudioEffectContext(this, format, startSample);
+
+            foreach (var effect in Effects)
+            {
+                resultChunk = effect.Apply(resultChunk, effectContext);
             }
 
             return resultChunk;

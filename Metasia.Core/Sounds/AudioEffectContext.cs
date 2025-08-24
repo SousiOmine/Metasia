@@ -19,6 +19,14 @@ namespace Metasia.Core.Sounds
         /// </summary>
         public long CurrentSamplePosition { get; }
 
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        /// <param name="source">エフェクトが適用される音源ソース</param>
+        /// <param name="format">音声フォーマット</param>
+        /// <param name="currentSamplePosition">現在処理中のチャンクが、音源のどの位置から開始しているか</param>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+
         public AudioEffectContext(IAudible source, AudioFormat format, long currentSamplePosition)
         {
             ArgumentNullException.ThrowIfNull(source);

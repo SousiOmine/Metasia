@@ -7,6 +7,8 @@ namespace Metasia.Core.Objects
     {
         double Volume { get; set; }
 
+        List<IAudioEffect> Effects { get; }
+
         /// <summary>
         /// 指定した範囲の音声チャンクを取得する
         /// </summary>

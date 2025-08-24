@@ -27,6 +27,8 @@ namespace Metasia.Core.Objects
 
 		public double Volume { get; set; } = 100;
 
+		public List<IAudioEffect> Effects { get; set; } = new();
+
         public TimelineObject(string id) : base(id)
 		{
 			Layers = new();
@@ -89,6 +91,13 @@ namespace Metasia.Core.Objects
                         resultChunk.Samples[resultIndex] += chunk.Samples[sourceIndex];
                     }
                 }
+			}
+
+			AudioEffectContext effectContext = new AudioEffectContext(this, format, startSample);
+
+			foreach (var effect in Effects)
+			{
+				resultChunk = effect.Apply(resultChunk, effectContext);
 			}
 
 			return resultChunk;
