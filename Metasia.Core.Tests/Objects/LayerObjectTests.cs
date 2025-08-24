@@ -28,7 +28,7 @@ namespace Metasia.Core.Tests.Objects
             Assert.That(layer.EndFrame, Is.EqualTo(int.MaxValue));
             Assert.That(layer.Volume, Is.EqualTo(100));
             Assert.That(layer.Objects, Is.Not.Null);
-            Assert.That(layer.Objects, Is.InstanceOf<ObservableCollection<MetasiaObject>>());
+            Assert.That(layer.Objects, Is.InstanceOf<ObservableCollection<ClipObject>>());
             Assert.That(layer.Objects.Count, Is.EqualTo(0));
         }
 
@@ -51,10 +51,10 @@ namespace Metasia.Core.Tests.Objects
         public void CanPlaceObjectAt_WithNoOverlap_ReturnsTrue()
         {
             // Arrange
-            var existingObject = new MetasiaObject("existing-id") { StartFrame = 0, EndFrame = 50 };
+            var existingObject = new ClipObject("existing-id") { StartFrame = 0, EndFrame = 50 };
             _layerObject.Objects.Add(existingObject);
 
-            var newObject = new MetasiaObject("new-id");
+            var newObject = new ClipObject("new-id");
 
             // Act & Assert
             // 既存オブジェクトの後
@@ -67,10 +67,10 @@ namespace Metasia.Core.Tests.Objects
         public void CanPlaceObjectAt_WithOverlap_ReturnsFalse()
         {
             // Arrange
-            var existingObject = new MetasiaObject("existing-id") { StartFrame = 50, EndFrame = 100 };
+            var existingObject = new ClipObject("existing-id") { StartFrame = 50, EndFrame = 100 };
             _layerObject.Objects.Add(existingObject);
 
-            var newObject = new MetasiaObject("new-id");
+            var newObject = new ClipObject("new-id");
 
             // Act & Assert
             // 完全に重なる
@@ -89,7 +89,7 @@ namespace Metasia.Core.Tests.Objects
         public void CanPlaceObjectAt_WithSameObject_ReturnsTrue()
         {
             // Arrange
-            var existingObject = new MetasiaObject("same-id") { StartFrame = 50, EndFrame = 100 };
+            var existingObject = new ClipObject("same-id") { StartFrame = 50, EndFrame = 100 };
             _layerObject.Objects.Add(existingObject);
 
             // Act & Assert
@@ -102,7 +102,7 @@ namespace Metasia.Core.Tests.Objects
         public void CanPlaceObjectAt_WithInvalidRange_ReturnsFalse()
         {
             // Arrange
-            var newObject = new MetasiaObject("new-id");
+            var newObject = new ClipObject("new-id");
 
             // Act & Assert
             // 開始フレームが終了フレームより大きい
@@ -113,10 +113,10 @@ namespace Metasia.Core.Tests.Objects
         public void CanPlaceObjectAt_WithEdgeFrames_HandlesCorrectly()
         {
             // Arrange
-            var existingObject = new MetasiaObject("existing-id") { StartFrame = 50, EndFrame = 100 };
+            var existingObject = new ClipObject("existing-id") { StartFrame = 50, EndFrame = 100 };
             _layerObject.Objects.Add(existingObject);
 
-            var newObject = new MetasiaObject("new-id");
+            var newObject = new ClipObject("new-id");
 
             // Act & Assert
             // 終了フレームが既存の開始フレームと同じ（重なる）
@@ -159,8 +159,8 @@ namespace Metasia.Core.Tests.Objects
         public void Objects_CanAddAndRemove()
         {
             // Arrange
-            var obj1 = new MetasiaObject("obj1");
-            var obj2 = new MetasiaObject("obj2");
+            var obj1 = new ClipObject("obj1");
+            var obj2 = new ClipObject("obj2");
 
             // Act - Add
             _layerObject.Objects.Add(obj1);

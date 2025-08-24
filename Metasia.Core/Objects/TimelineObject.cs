@@ -10,19 +10,19 @@ using System.Threading.Tasks;
 using Metasia.Core.Sounds;
 using System.Diagnostics;
 using System.Text.Json.Serialization;
-using System.Runtime.CompilerServices;
+using System.Xml.Serialization;
 
 namespace Metasia.Core.Objects
 {
+	[Serializable]
 	/// <summary>
 	/// タイムライン専用のオブジェクト
 	/// </summary>
-	public class TimelineObject : MetasiaObject, IRenderable, IAudible
+	public class TimelineObject : ClipObject, IRenderable, IAudible
 	{
 		/// <summary>
 		/// タイムラインに属するレイヤー 格納順に描画される
 		/// </summary>
-		[JsonInclude]
 		public List<LayerObject> Layers { get; private set; }
 
 		public double Volume { get; set; } = 100;

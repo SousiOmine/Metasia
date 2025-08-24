@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 using Metasia.Core.Objects;
 using System.Diagnostics;
 
-public class MetasiaObjectJsonConverter : JsonConverter<MetasiaObject>
+public class MetasiaObjectJsonConverter : JsonConverter<IMetasiaObject>
 {
     // MetasiaObjectの派生クラスの型情報を保持する辞書
     // キー: クラス名, 値: 型情報
@@ -13,13 +13,13 @@ public class MetasiaObjectJsonConverter : JsonConverter<MetasiaObject>
     {
         // アプリケーション起動時に、MetasiaObjectの全ての具象派生クラスを自動的に検出
         // 抽象クラスは除外し、MetasiaObjectを継承したクラスのみを対象とする
-        _typeMap = typeof(MetasiaObject).Assembly
+        _typeMap = typeof(IMetasiaObject).Assembly
             .GetTypes()
-            .Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(MetasiaObject)))
+            .Where(t => t.IsClass && !t.IsAbstract && typeof(IMetasiaObject).IsAssignableFrom(t))
             .ToDictionary(t => t.Name, t => t);
     }
 
-    public override MetasiaObject? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    public override IMetasiaObject? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         // JSONがオブジェクトで始まることを確認
         if (reader.TokenType != JsonTokenType.StartObject)
@@ -58,7 +58,7 @@ public class MetasiaObjectJsonConverter : JsonConverter<MetasiaObject>
 
         try
         {
-            var instance = (MetasiaObject?)JsonSerializer.Deserialize(root.GetRawText(), type, serializerOptions);
+            var instance = (IMetasiaObject?)JsonSerializer.Deserialize(root.GetRawText(), type, serializerOptions);
             if (instance == null)
             {
                 Debug.WriteLine($"Failed to deserialize {typeDiscriminator} - result was null");
@@ -72,7 +72,7 @@ public class MetasiaObjectJsonConverter : JsonConverter<MetasiaObject>
         }
     }
 
-    public override void Write(Utf8JsonWriter writer, MetasiaObject value, JsonSerializerOptions options)
+    public override void Write(Utf8JsonWriter writer, IMetasiaObject value, JsonSerializerOptions options)
     {
         // シリアライズ設定を構成
         var serializerOptions = new JsonSerializerOptions

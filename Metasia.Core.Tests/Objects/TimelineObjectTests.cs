@@ -135,11 +135,10 @@ namespace Metasia.Core.Tests.Objects
         [Test]
         public void InheritedProperties_WorkCorrectly()
         {
-            // TimelineObjectはMetasiaObjectを継承しているので、基本プロパティも確認
+            // TimelineObjectはClipObjectを継承しているので、基本プロパティも確認
             Assert.That(_timelineObject.StartFrame, Is.EqualTo(0));
             Assert.That(_timelineObject.EndFrame, Is.EqualTo(100));
             Assert.That(_timelineObject.IsActive, Is.True);
-            Assert.That(_timelineObject.Child, Is.Null);
 
             // 変更も可能
             _timelineObject.StartFrame = 10;

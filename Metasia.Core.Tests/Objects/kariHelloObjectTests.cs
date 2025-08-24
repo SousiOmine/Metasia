@@ -72,11 +72,10 @@ namespace Metasia.Core.Tests.Objects
         [Test]
         public void InheritedProperties_WorkCorrectly()
         {
-            // kariHelloObjectはMetasiaObjectを継承しているので、基本プロパティも確認
+            // kariHelloObjectはClipObjectを継承しているので、基本プロパティも確認
             Assert.That(_kariHelloObject.StartFrame, Is.EqualTo(0));
             Assert.That(_kariHelloObject.EndFrame, Is.EqualTo(100));
             Assert.That(_kariHelloObject.IsActive, Is.True);
-            Assert.That(_kariHelloObject.Child, Is.Null);
 
             // 変更も可能
             _kariHelloObject.StartFrame = 10;

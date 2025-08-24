@@ -15,6 +15,7 @@ using System.Diagnostics;
 
 namespace Metasia.Editor.ViewModels
 {
+    [Serializable]
     public class TimelineViewModel : ViewModelBase
     {
         /// <summary>
@@ -121,7 +122,7 @@ namespace Metasia.Editor.ViewModels
             Frame = (int)(position / Frame_Per_DIP);
         }
 
-        public void ClipSelect(MetasiaObject obj, bool isMultiSelect = false)
+        public void ClipSelect(ClipObject obj, bool isMultiSelect = false)
         {
             if (isMultiSelect)
             {
@@ -143,7 +144,7 @@ namespace Metasia.Editor.ViewModels
             }
         }
 
-        public bool CanResizeClip(MetasiaObject clipObject, int newStartFrame, int newEndFrame)
+        public bool CanResizeClip(ClipObject clipObject, int newStartFrame, int newEndFrame)
         {
             LayerObject? ownerLayer = FindOwnerLayer(clipObject);
 
@@ -154,7 +155,7 @@ namespace Metasia.Editor.ViewModels
             return false;
         }
 
-        private LayerObject? FindOwnerLayer(MetasiaObject targetObject)
+        private LayerObject? FindOwnerLayer(ClipObject targetObject)
         {
             foreach (var layer in Timeline.Layers)
             {

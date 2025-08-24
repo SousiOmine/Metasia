@@ -8,14 +8,14 @@ namespace Metasia.Editor.Models.EditCommands.Commands
     {
         public string Description { get; }
 
-        private readonly MetasiaObject _targetObject;
+        private readonly ClipObject _targetObject;
         private readonly int _oldStartFrame;
         private readonly int _oldEndFrame;
         private readonly int _newStartFrame;
         private readonly int _newEndFrame;
 
 
-        public ClipResizeCommand(MetasiaObject targetObject, int oldStartFrame, int newStartFrame, int oldEndFrame, int newEndFrame)
+        public ClipResizeCommand(ClipObject targetObject, int oldStartFrame, int newStartFrame, int oldEndFrame, int newEndFrame)
         {
             _targetObject = targetObject;
             _oldStartFrame = oldStartFrame;

@@ -10,16 +10,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.Json.Serialization;
+using System.Xml.Serialization;
 
 namespace Metasia.Core.Objects
 {
-    public class LayerObject : MetasiaObject, IRenderable, IAudible
+    [Serializable]
+    public class LayerObject : ClipObject, IRenderable, IAudible
     {
         /// <summary>
         /// レイヤーに属するオブジェクト 原則同じフレームに2個以上オブジェクトがあってはならない
         /// </summary>
         [JsonInclude]
-        public ObservableCollection<MetasiaObject> Objects { get; private set; }
+        public ObservableCollection<ClipObject> Objects { get; private set; }
         public double Volume { get; set; } = 100;
 
         public List<IAudioEffect> Effects { get; set; } = new();
@@ -79,7 +81,7 @@ namespace Metasia.Core.Objects
         /// <param name="newEndFrame">新しい終了フレーム</param>
         /// <returns>配置可能ならtrue, 不可能ならfalse</returns>
 
-        public bool CanPlaceObjectAt(MetasiaObject objectToCheck, int newStartFrame, int newEndFrame)
+        public bool CanPlaceObjectAt(ClipObject objectToCheck, int newStartFrame, int newEndFrame)
         {
             //新しい範囲がそもそも無効なら弾く
             if (newStartFrame > newEndFrame) return false;
@@ -109,9 +111,9 @@ namespace Metasia.Core.Objects
 
             var resultChunk = new AudioChunk(format, length);
 
-            foreach (var obj in Objects.OfType<MetasiaObject>().OfType<IAudible>())
+            foreach (var obj in Objects.OfType<ClipObject>().OfType<IAudible>())
             {
-                var metasiaObject = (MetasiaObject)obj;
+                var metasiaObject = (ClipObject)obj;
                 if (!metasiaObject.IsActive) continue;
                 long objStartSample = (long)(metasiaObject.StartFrame * (format.SampleRate / framerate));
                 long objEndSample = (long)(metasiaObject.EndFrame * (format.SampleRate / framerate));

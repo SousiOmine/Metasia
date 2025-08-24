@@ -1,6 +1,8 @@
+using Metasia.Core.Objects;
+
 namespace Metasia.Core.Sounds
 {
-    public interface IAudioEffect
+    public interface IAudioEffect : IMetasiaObject
     {
         /// <summary>
         /// 入力チャンクに対してエフェクトを適用する

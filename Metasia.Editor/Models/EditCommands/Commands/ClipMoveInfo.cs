@@ -7,7 +7,7 @@ namespace Metasia.Editor.Models.EditCommands.Commands
     /// </summary>
     public class ClipMoveInfo
     {
-        public MetasiaObject TargetObject { get; }
+        public ClipObject TargetObject { get; }
         public LayerObject SourceLayer { get; }
         public LayerObject TargetLayer { get; }
         public int OldStartFrame { get; }
@@ -16,7 +16,7 @@ namespace Metasia.Editor.Models.EditCommands.Commands
         public int NewEndFrame { get; }
 
         public ClipMoveInfo(
-            MetasiaObject targetObject,
+            ClipObject targetObject,
             LayerObject sourceLayer,
             LayerObject targetLayer,
             int oldStartFrame, int oldEndFrame,

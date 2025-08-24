@@ -10,7 +10,7 @@ namespace Metasia.Core.Coordinate;
 /// </summary>
 public class MetaDoubleParam
 {
-    private MetasiaObject ownerObject;
+    private ClipObject ownerObject;
 
     /// <summary>
     /// 中間値CoordPointを格納するリスト
@@ -29,7 +29,7 @@ public class MetaDoubleParam
         Params = new();
     }
 
-    public MetaDoubleParam(MetasiaObject owner, double initialValue)
+    public MetaDoubleParam(ClipObject owner, double initialValue)
     {
         ownerObject = owner;
         Params = new();

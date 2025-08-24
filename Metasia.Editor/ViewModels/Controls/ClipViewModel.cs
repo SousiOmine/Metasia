@@ -14,7 +14,7 @@ namespace Metasia.Editor.ViewModels.Controls
 {
     public class ClipViewModel : ViewModelBase
     {
-        public MetasiaObject TargetObject
+        public ClipObject TargetObject
         {
             get;
             set;
@@ -74,7 +74,7 @@ namespace Metasia.Editor.ViewModels.Controls
 
         private TimelineViewModel parentTimeline;
 
-        public ClipViewModel(MetasiaObject targetObject, TimelineViewModel parentTimeline)
+        public ClipViewModel(ClipObject targetObject, TimelineViewModel parentTimeline)
         {
             TargetObject = targetObject;
             this.parentTimeline = parentTimeline;
