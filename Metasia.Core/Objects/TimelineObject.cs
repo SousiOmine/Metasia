@@ -13,10 +13,11 @@ using System.Text.Json.Serialization;
 
 namespace Metasia.Core.Objects
 {
+	[Serializable]
 	/// <summary>
 	/// タイムライン専用のオブジェクト
 	/// </summary>
-	public class TimelineObject : MetasiaObject, IRenderable, IMetaAudiable
+	public class TimelineObject : ClipObject, IRenderable, IMetaAudiable
 	{
 		/// <summary>
 		/// タイムラインに属するレイヤー 格納順に描画される

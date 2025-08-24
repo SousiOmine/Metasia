@@ -68,11 +68,10 @@ namespace Metasia.Core.Tests.Objects
         [Test]
         public void InheritedProperties_WorkCorrectly()
         {
-            // TextはMetasiaObjectを継承しているので、基本プロパティも確認
+            // TextはClipObjectを継承しているので、基本プロパティも確認
             Assert.That(_textObject.StartFrame, Is.EqualTo(0));
             Assert.That(_textObject.EndFrame, Is.EqualTo(100));
             Assert.That(_textObject.IsActive, Is.True);
-            Assert.That(_textObject.Child, Is.Null);
 
             // 変更も可能
             _textObject.StartFrame = 10;

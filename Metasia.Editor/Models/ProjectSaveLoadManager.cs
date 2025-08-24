@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using DynamicData;
-using Metasia.Core.Json;
+using Metasia.Core.Xml;
 using Metasia.Core.Objects;
 using Metasia.Editor.Models.FileSystem;
 using Metasia.Editor.Models.Projects;
@@ -25,7 +25,7 @@ public class ProjectSaveLoadManager
         foreach (var timeline in editorProject.Timelines)
         {
             //string timelineJsonString = JsonSerializer.Serialize(timeline, options);
-            string timelineJsonString = TimelineSerializer.SerializeTimeline(timeline.Timeline);
+            string timelineJsonString = TimelineXmlSerializer.SerializeTimeline(timeline.Timeline);
             File.WriteAllText(Path.Combine(editorProject.ProjectPath.Path, timeline.TimelineFilePath.Path), timelineJsonString);
         }
     }
@@ -62,7 +62,7 @@ public class ProjectSaveLoadManager
                 {
                     try
                     {
-                        TimelineObject? timelineObject = TimelineSerializer.DeserializeTimeline(File.ReadAllText(file));
+                        TimelineObject? timelineObject = TimelineXmlSerializer.DeserializeTimeline(File.ReadAllText(file));
                         if (timelineObject == null)
                         {
                             throw new Exception("タイムラインファイルのフォーマットが不正です。");

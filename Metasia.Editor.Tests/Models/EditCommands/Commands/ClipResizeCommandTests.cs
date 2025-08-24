@@ -7,13 +7,13 @@ namespace Metasia.Editor.Tests.Models.EditCommands.Commands
     [TestFixture]
     public class ClipResizeCommandTests
     {
-        private MetasiaObject _targetObject;
+        private ClipObject _targetObject;
         private ClipResizeCommand? _command;
 
         [SetUp]
         public void Setup()
         {
-            _targetObject = new MetasiaObject("test-object")
+            _targetObject = new ClipObject("test-object")
             {
                 StartFrame = 10,
                 EndFrame = 50

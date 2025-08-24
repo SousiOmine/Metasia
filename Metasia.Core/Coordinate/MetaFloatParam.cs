@@ -6,7 +6,7 @@ namespace Metasia.Core.Coordinate;
 
 public class MetaFloatParam
 {
-    private MetasiaObject ownerObject;
+    private ClipObject ownerObject;
     
     [JsonInclude]
     public List<CoordPoint> Params { get; protected set; }
@@ -22,7 +22,7 @@ public class MetaFloatParam
         Params = new();
     }
 
-    public MetaFloatParam(MetasiaObject owner, float initialValue)
+    public MetaFloatParam(ClipObject owner, float initialValue)
     {
         ownerObject = owner;
         Params = new();

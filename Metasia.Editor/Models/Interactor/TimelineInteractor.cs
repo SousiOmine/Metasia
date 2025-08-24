@@ -10,7 +10,7 @@ namespace Metasia.Editor.Models.Interactor
 {
     public static class TimelineInteractor
     {
-        public static IEditCommand? CreateMoveClipsCommand(ClipsDropTargetContext dropInfo, TimelineObject timeline, LayerObject referencedTargetLayer, IEnumerable<MetasiaObject> targetObjects)
+        public static IEditCommand? CreateMoveClipsCommand(ClipsDropTargetContext dropInfo, TimelineObject timeline, LayerObject referencedTargetLayer, IEnumerable<ClipObject> targetObjects)
         {
 
             // 任意のレイヤーを基準にそのレイヤーより指定した数だけ上下の階層のレイヤーを探索
@@ -34,11 +34,11 @@ namespace Metasia.Editor.Models.Interactor
             int moveFrame = newStartFrame - originalStartFrame;
 
             // クリップをレイヤー方向にどれだけ移動するか算出
-            MetasiaObject? referencedMetasiaObject = dropInfo.ReferenceClipVM.TargetObject;
+            ClipObject? referencedClipObject = dropInfo.ReferenceClipVM.TargetObject;
             LayerObject? referencedObjectLayer = null;
             foreach (var layer in timeline.Layers)
             {
-                if (layer.Objects.Any(x => x.Id == referencedMetasiaObject.Id))
+                if (layer.Objects.Any(x => x.Id == referencedClipObject.Id))
                 {
                     referencedObjectLayer = layer;
                     break;
@@ -71,7 +71,7 @@ namespace Metasia.Editor.Models.Interactor
             return null;
         }
 
-        private static LayerObject? FindOwnerLayer(TimelineObject timeline, MetasiaObject targetObject)
+        private static LayerObject? FindOwnerLayer(TimelineObject timeline, ClipObject targetObject)
         {
             foreach (var layer in timeline.Layers)
             {

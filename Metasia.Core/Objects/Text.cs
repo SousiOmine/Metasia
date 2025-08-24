@@ -10,7 +10,8 @@ using System.Threading.Tasks;
 
 namespace Metasia.Core.Objects
 {
-    public class Text : MetasiaObject, IRenderable
+    [Serializable]
+    public class Text : ClipObject, IRenderable
     {
         public MetaDoubleParam X { get; set; }
         public MetaDoubleParam Y { get; set; }
@@ -36,6 +37,17 @@ namespace Metasia.Core.Objects
         private SKTypeface? _typeface;
 
         public Text(string id) : base(id)
+        {
+            X = new MetaDoubleParam(this, 0);
+            Y = new MetaDoubleParam(this, 0);
+            Scale = new MetaDoubleParam(this, 100);
+            Alpha = new MetaDoubleParam(this, 0);
+            Rotation = new MetaDoubleParam(this, 0);
+            TextSize = new MetaFloatParam(this, 100);
+            LoadTypeface();
+        }
+
+        public Text()
         {
             X = new MetaDoubleParam(this, 0);
             Y = new MetaDoubleParam(this, 0);
@@ -95,25 +107,11 @@ namespace Metasia.Core.Objects
             };
 
 
-            if (Child is not IRenderable renderableChild)
-            {
-                return new RenderNode()
-                {
-                    Bitmap = bitmap,
-                    LogicalSize = logicalSize,
-                    Transform = transform,
-                };
-            }
-
-
-            //もし子オブジェクトも描画対応していた場合
-            var childNode = renderableChild.Render(context);
             return new RenderNode()
             {
                 Bitmap = bitmap,
                 LogicalSize = logicalSize,
                 Transform = transform,
-                Children = new List<RenderNode>() { childNode },
             };
         }
 

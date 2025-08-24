@@ -12,7 +12,8 @@ using System.Text.Json.Serialization;
 
 namespace Metasia.Core.Objects
 {
-	public class kariHelloObject : MetasiaObject, IRenderable, IMetaAudiable
+	[Serializable]
+	public class kariHelloObject : ClipObject, IRenderable, IMetaAudiable
 	{
 		public MetaDoubleParam X { get; set; }
 		public MetaDoubleParam Y { get; set; }
@@ -71,21 +72,9 @@ namespace Metasia.Core.Objects
 				Alpha = (100.0f - (float)Alpha.Get(context.Frame)) / 100,
 			};
 			
-			if (Child is not IRenderable renderableChild)
-			{
-				return new RenderNode()
-				{
-					Bitmap = bitmap,
-					LogicalSize = new SKSize(bitmap.Width, bitmap.Height),
-					Transform = transform,
-				};
-			}
-
-			var childNode = renderableChild.Render(context);
 			return new RenderNode()
 			{
 				Bitmap = bitmap,
-				Children = new List<RenderNode>() { childNode },
 				LogicalSize = new SKSize(bitmap.Width, bitmap.Height),
 				Transform = transform,
 			};

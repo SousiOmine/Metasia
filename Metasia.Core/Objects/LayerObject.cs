@@ -13,13 +13,14 @@ using System.Text.Json.Serialization;
 
 namespace Metasia.Core.Objects
 {
-    public class LayerObject : MetasiaObject, IRenderable, IMetaAudiable
+    [Serializable]
+    public class LayerObject : ClipObject, IRenderable, IMetaAudiable
     {
         /// <summary>
         /// レイヤーに属するオブジェクト 原則同じフレームに2個以上オブジェクトがあってはならない
         /// </summary>
         [JsonInclude]
-        public ObservableCollection<MetasiaObject> Objects { get; private set; }
+        public ObservableCollection<ClipObject> Objects { get; private set; }
         public double Volume { get; set; } = 100;
 
         /// <summary>
@@ -71,7 +72,7 @@ namespace Metasia.Core.Objects
 
         public void AudioExpresser(ref AudioExpresserArgs e, int frame)
         {
-            List<MetasiaObject> ApplicateObjects = new();
+            List<ClipObject> ApplicateObjects = new();
             foreach (var obj in Objects)
             {
                 if (obj.IsExistFromFrame(frame) && obj is IMetaAudiable && obj.IsActive)
@@ -117,7 +118,7 @@ namespace Metasia.Core.Objects
         /// <param name="newEndFrame">新しい終了フレーム</param>
         /// <returns>配置可能ならtrue, 不可能ならfalse</returns>
 
-        public bool CanPlaceObjectAt(MetasiaObject objectToCheck, int newStartFrame, int newEndFrame)
+        public bool CanPlaceObjectAt(ClipObject objectToCheck, int newStartFrame, int newEndFrame)
         {
             //新しい範囲がそもそも無効なら弾く
             if (newStartFrame > newEndFrame) return false;
