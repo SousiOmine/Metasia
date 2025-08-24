@@ -10,6 +10,7 @@ using Metasia.Core.Sounds;
 using System.Diagnostics;
 using System.Text.Json.Serialization;
 using System.Xml.Serialization;
+using Metasia.Core.Objects.AudioEffects;
 
 namespace Metasia.Core.Objects
 {
@@ -23,7 +24,7 @@ namespace Metasia.Core.Objects
 		public MetaDoubleParam Rotation { get; set; }
 		
 		public double Volume { get; set; } = 100;
-		public List<IAudioEffect> Effects { get; set; } = new();
+		public List<AudioEffectBase> AudioEffects { get; set; } = new();
 		
 		private SKBitmap myBitmap = new(200, 200);
 		private int audio_offset = 0;
@@ -110,7 +111,7 @@ namespace Metasia.Core.Objects
 
 			AudioEffectContext effectContext = new AudioEffectContext(this, format, startSample);
 
-			foreach (var effect in Effects)
+			foreach (var effect in AudioEffects)
 			{
 				chunk = effect.Apply(chunk, effectContext);
 			}

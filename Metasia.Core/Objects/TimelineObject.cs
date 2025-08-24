@@ -11,6 +11,7 @@ using Metasia.Core.Sounds;
 using System.Diagnostics;
 using System.Text.Json.Serialization;
 using System.Xml.Serialization;
+using Metasia.Core.Objects.AudioEffects;
 
 namespace Metasia.Core.Objects
 {
@@ -27,7 +28,7 @@ namespace Metasia.Core.Objects
 
 		public double Volume { get; set; } = 100;
 
-		public List<IAudioEffect> Effects { get; set; } = new();
+		public List<AudioEffectBase> AudioEffects { get; set; } = new();
 
         public TimelineObject(string id) : base(id)
 		{
@@ -95,7 +96,7 @@ namespace Metasia.Core.Objects
 
 			AudioEffectContext effectContext = new AudioEffectContext(this, format, startSample);
 
-			foreach (var effect in Effects)
+			foreach (var effect in AudioEffects)
 			{
 				resultChunk = effect.Apply(resultChunk, effectContext);
 			}

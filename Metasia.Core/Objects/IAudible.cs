@@ -1,3 +1,4 @@
+using Metasia.Core.Objects.AudioEffects;
 using Metasia.Core.Project;
 using Metasia.Core.Sounds;
 
@@ -7,7 +8,7 @@ namespace Metasia.Core.Objects
     {
         double Volume { get; set; }
 
-        List<IAudioEffect> Effects { get; }
+        List<AudioEffectBase> AudioEffects { get; }
 
         /// <summary>
         /// 指定した範囲の音声チャンクを取得する
