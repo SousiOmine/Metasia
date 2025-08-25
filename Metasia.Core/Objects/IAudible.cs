@@ -13,10 +13,8 @@ namespace Metasia.Core.Objects
         /// <summary>
         /// 指定した範囲の音声チャンクを取得する
         /// </summary>
-        /// <param name="format">音声フォーマット情報</param>
-        /// <param name="startSample">オブジェクトの始端を基準とした取得開始位置</param>
-        /// <param name="length">取得する音声チャンクの長さ</param>
+        /// <param name="context">音声の要求に必要な情報群</param>
         /// <returns>指定された範囲の音声チャンク</returns>
-        AudioChunk GetAudioChunk(AudioFormat format, long startSample, long length);
+        AudioChunk GetAudioChunk(GetAudioContext context);
     }
 }

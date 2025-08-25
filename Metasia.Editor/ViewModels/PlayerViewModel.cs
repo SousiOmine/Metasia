@@ -104,14 +104,25 @@ namespace Metasia.Editor.ViewModels
             });
 			Play = ReactiveCommand.Create(() =>
 			{
-				timer = new System.Timers.Timer(1000.0 / projectInfo.Framerate);
-				timer.Elapsed += Timer_Elapsed;
-				timer.Start();
-				IsPlaying = true;
-				PlayStart?.Invoke();
+				
 
-				long startSample = (long)(Frame / (double)projectInfo.Framerate * 44100);
-				audioPlaybackService.Play(TargetTimeline, projectInfo, startSample, 1.0);
+				try
+				{
+					timer = new System.Timers.Timer(1000.0 / projectInfo.Framerate);
+					timer.Elapsed += Timer_Elapsed;
+					timer.Start();
+					IsPlaying = true;
+					PlayStart?.Invoke();
+
+					long startSample = (long)(Frame / (double)projectInfo.Framerate * 44100);
+					audioPlaybackService.Play(TargetTimeline, projectInfo, startSample, 1.0);
+				}
+				catch (Exception ex)
+				{
+					timer?.Stop();
+					IsPlaying = false;
+					Debug.WriteLine($"Audio playback failed: {ex.Message}");
+				}
 			});
 			Pause = ReactiveCommand.Create(() =>
 			{

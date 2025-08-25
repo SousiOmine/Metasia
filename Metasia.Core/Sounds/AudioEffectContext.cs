@@ -15,29 +15,35 @@ namespace Metasia.Core.Sounds
         public AudioFormat Format { get; }
 
         /// <summary>
+        /// エフェクト適用対象のオブジェクトの長さ（秒）
+        /// </summary>
+        public double ObjectDurationInSeconds { get; }
+
+        /// <summary>
         /// 現在処理中のチャンクが、音源のどの位置から開始しているか
         /// </summary>
         public long CurrentSamplePosition { get; }
 
         /// <summary>
+        /// プロジェクトのフレームレート
+        /// </summary>
+        public double ProjectFrameRate { get; }
+
+        /// <summary>
         /// コンストラクタ
         /// </summary>
         /// <param name="source">エフェクトが適用される音源ソース</param>
-        /// <param name="format">音声フォーマット</param>
-        /// <param name="currentSamplePosition">現在処理中のチャンクが、音源のどの位置から開始しているか</param>
-        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        /// <param name="getAudioContext">音声コンテキスト情報</param>
 
-        public AudioEffectContext(IAudible source, AudioFormat format, long currentSamplePosition)
+        public AudioEffectContext(IAudible source, GetAudioContext getAudioContext)
         {
             ArgumentNullException.ThrowIfNull(source);
-            ArgumentNullException.ThrowIfNull(format);
-            if (currentSamplePosition < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(currentSamplePosition), "currentSamplePosition must be non-negative");
-            }
+            ArgumentNullException.ThrowIfNull(getAudioContext);
             Source = source;
-            Format = format;
-            CurrentSamplePosition = currentSamplePosition;
+            Format = getAudioContext.Format;
+            CurrentSamplePosition = getAudioContext.StartSamplePosition;
+            ObjectDurationInSeconds = getAudioContext.ObjectDurationInSeconds;
+            ProjectFrameRate = getAudioContext.ProjectFrameRate;
         }
 
         /// <summary>
@@ -56,7 +62,9 @@ namespace Metasia.Core.Sounds
             {
                 throw new ArgumentException("endPosition must be greater than or equal to startPosition");
             }
-            var chunk = Source.GetAudioChunk(Format, startPosition, endPosition - startPosition);
+
+            var audioContext = new GetAudioContext(Format, startPosition, endPosition - startPosition, ProjectFrameRate, ObjectDurationInSeconds);
+            var chunk = Source.GetAudioChunk(audioContext);
             return chunk;
         }
     }

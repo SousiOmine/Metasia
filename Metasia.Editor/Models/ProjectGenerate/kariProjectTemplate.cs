@@ -3,6 +3,7 @@ using Metasia.Editor.Models.Projects;
 using SkiaSharp;
 using Metasia.Core.Objects;
 using Metasia.Core.Coordinate;
+using Metasia.Core.Objects.AudioEffects;
 
 namespace Metasia.Editor.Models.ProjectGenerate;
 
@@ -32,6 +33,8 @@ public class KariProjectTemplate : IProjectTemplate
         kariHello2.Alpha.Params[0].Value = 50;
         kariHello2.Scale.Params[0].Value = 50;
         kariHello2.X.Params.Add(new CoordPoint() { Value = 1000, Frame = 10 });
+
+        kariHello2.AudioEffects.Add(new VolumeFadeEffect(){In = 1, Out = 1});
 
         Text text = new Text("konnichiwa")
         {

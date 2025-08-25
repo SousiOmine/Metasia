@@ -31,17 +31,18 @@ namespace Metasia.Core.Objects
 
 		public kariHelloObject()
 		{
+			InitializeParameters();
 			InitializeBitmap();
-			X = new MetaDoubleParam(this, 0);
-			Y = new MetaDoubleParam(this, 0);
-			Scale = new MetaDoubleParam(this, 100);
-			Alpha = new MetaDoubleParam(this, 0);
-			Rotation = new MetaDoubleParam(this, 0);
 		}
 
 		public kariHelloObject(string id) : base(id)
 		{
+			InitializeParameters();
 			InitializeBitmap();
+		}
+
+		private void InitializeParameters()
+		{
 			X = new MetaDoubleParam(this, 0);
 			Y = new MetaDoubleParam(this, 0);
 			Scale = new MetaDoubleParam(this, 100);
@@ -90,26 +91,26 @@ namespace Metasia.Core.Objects
 		}
 
 
-        public AudioChunk GetAudioChunk(AudioFormat format, long startSample, long length)
+        public AudioChunk GetAudioChunk(GetAudioContext context)
         {
-			var chunk = new AudioChunk(format, length);
+			var chunk = new AudioChunk(context.Format, context.RequiredLength);
 			double frequency = 440;
 
-			for (long i = 0; i < length; i++)
+			for (long i = 0; i < context.RequiredLength; i++)
 			{
 				// currentSampleは、このオブジェクトの先頭からのサンプル位置
-				long currentSample = startSample + i;
+				long currentSample = context.StartSamplePosition + i;
         
-				var time = currentSample / (double)format.SampleRate;
+				var time = currentSample / (double)context.Format.SampleRate;
 				var pulse = Math.Sin(time * (frequency * 2.0 * Math.PI)) * 0.5 * Volume / 100;
 
-				for (int ch = 0; ch < format.ChannelCount; ch++)
+				for (int ch = 0; ch < context.Format.ChannelCount; ch++)
 				{
-					chunk.Samples[i * format.ChannelCount + ch] = pulse;
+					chunk.Samples[i * context.Format.ChannelCount + ch] = pulse;
 				}
 			}
 
-			AudioEffectContext effectContext = new AudioEffectContext(this, format, startSample);
+			AudioEffectContext effectContext = new AudioEffectContext(this, context);
 
 			foreach (var effect in AudioEffects)
 			{

@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Metasia.Core.Objects;
@@ -38,7 +39,7 @@ namespace Metasia.Editor.Services.Audio
 			IsPlaying = false;
             cancellationTokenSource?.Cancel();
             cancellationTokenSource?.Dispose();
-            cancellationTokenSource = null;
+            //cancellationTokenSource = null;
 
             audioService.ClearQueue();
 		}
@@ -55,10 +56,13 @@ namespace Metasia.Editor.Services.Audio
 
                 CurrentSample = currentSamplePosition;
 
+                // タイムライン全体の長さを計算
+                double timelineDuration = (timeline.EndFrame - timeline.StartFrame) / projectInfo.Framerate;
+
                 //再生開始直前にキューをある程度満たす
                 while (audioService.GetQueuedSamplesCount() < targetBufferingSize && !cancelToken.IsCancellationRequested)
                 {
-                    var chunk = timeline.GetAudioChunk(audioFormat, currentSamplePosition, targetBufferingSize);
+                    var chunk = timeline.GetAudioChunk(new GetAudioContext(audioFormat, currentSamplePosition, targetBufferingSize, projectInfo.Framerate, timelineDuration));
                     audioService.InsertQueue(chunk);
                     currentSamplePosition += targetBufferingSize;
                     CurrentSample = currentSamplePosition;
@@ -68,9 +72,10 @@ namespace Metasia.Editor.Services.Audio
                 {
                     if (audioService.GetQueuedSamplesCount() < targetBufferingSize)
                     {
-                        var chunk = timeline.GetAudioChunk(audioFormat, currentSamplePosition, targetBufferingSize);
+                        var chunk = timeline.GetAudioChunk(new GetAudioContext(audioFormat, currentSamplePosition, targetBufferingSize, projectInfo.Framerate, timelineDuration));
                         audioService.InsertQueue(chunk);
                         currentSamplePosition += targetBufferingSize;
+                        CurrentSample = currentSamplePosition;
                     }
                     else
                     {
@@ -86,6 +91,10 @@ namespace Metasia.Editor.Services.Audio
             {
                 // 予期しない例外
                 Debug.WriteLine($"予期しない例外: {ex.Message}");
+            }
+            finally
+            {
+                IsPlaying = false;
             }
         }
 	}

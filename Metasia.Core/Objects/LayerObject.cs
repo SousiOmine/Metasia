@@ -102,22 +102,21 @@ namespace Metasia.Core.Objects
             return true;
         }
 
-        public AudioChunk GetAudioChunk(AudioFormat format, long startSample, long length)
+        public AudioChunk GetAudioChunk(GetAudioContext context)
         {
-            //ProjectInfoにフレームレートを含むようになったらそれを使う
-            double framerate = 60;
+            double framerate = context.ProjectFrameRate;
 
-            long requestStartSample = startSample;
-            long requestEndSample = startSample + length;
+            long requestStartSample = context.StartSamplePosition;
+            long requestEndSample = context.StartSamplePosition + context.RequiredLength;
 
-            var resultChunk = new AudioChunk(format, length);
+            var resultChunk = new AudioChunk(context.Format, context.RequiredLength);
 
             foreach (var obj in Objects.OfType<ClipObject>().OfType<IAudible>())
             {
-                var metasiaObject = (ClipObject)obj;
-                if (!metasiaObject.IsActive) continue;
-                long objStartSample = (long)(metasiaObject.StartFrame * (format.SampleRate / framerate));
-                long objEndSample = (long)(metasiaObject.EndFrame * (format.SampleRate / framerate));
+                var clipObject = (ClipObject)obj;
+                if (!clipObject.IsActive) continue;
+                long objStartSample = (long)(clipObject.StartFrame * (context.Format.SampleRate / framerate));
+                long objEndSample = (long)(clipObject.EndFrame * (context.Format.SampleRate / framerate));
 
                 long overlapStartSample = Math.Max(requestStartSample, objStartSample);
                 long overlapEndSample = Math.Min(requestEndSample, objEndSample);
@@ -129,20 +128,27 @@ namespace Metasia.Core.Objects
 
                 long childStartPosition = overlapStartSample - objStartSample;
                 long overlapLength = overlapEndSample - overlapStartSample;
-                var chunk = obj.GetAudioChunk(format, childStartPosition, overlapLength);
+                
+                // 子オブジェクトの長さを計算
+                double childDuration = (clipObject.EndFrame - clipObject.StartFrame) / framerate;
+                var chunk = obj.GetAudioChunk(new GetAudioContext(context.Format, childStartPosition, overlapLength, context.ProjectFrameRate, childDuration));
                 double layerGain = obj.Volume / 100;
                 for (int i = 0; i < overlapLength; i++)
                 {
-                    for (int ch = 0; ch < format.ChannelCount; ch++)
+                    for (int ch = 0; ch < context.Format.ChannelCount; ch++)
                     {
-                        long sourceIndex = i * format.ChannelCount + ch;
-                        long resultIndex = (overlapStartSample - requestStartSample + i) * format.ChannelCount + ch;
+                        long sourceIndex = i * context.Format.ChannelCount + ch;
+                        long resultIndex = (overlapStartSample - requestStartSample + i) * context.Format.ChannelCount + ch;
                         resultChunk.Samples[resultIndex] += chunk.Samples[sourceIndex] * layerGain;
+                        resultChunk.Samples[resultIndex] = Math.Max(-1.0, Math.Min(1.0, resultChunk.Samples[resultIndex]));
                     }
                 }
             }
 
-            AudioEffectContext effectContext = new AudioEffectContext(this, format, startSample);
+            // LayerObject全体の長さを計算
+            double layerDuration = (EndFrame - StartFrame) / framerate;
+            var layerContext = new GetAudioContext(context.Format, context.StartSamplePosition, context.RequiredLength, context.ProjectFrameRate, layerDuration);
+            AudioEffectContext effectContext = new AudioEffectContext(this, layerContext);
 
             foreach (var effect in AudioEffects)
             {

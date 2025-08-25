@@ -56,21 +56,21 @@ namespace Metasia.Core.Objects
 			};
 		}
 
-        public AudioChunk GetAudioChunk(AudioFormat format, long startSample, long length)
+        public AudioChunk GetAudioChunk(GetAudioContext context)
         {
-			//ProjectInfoにフレームレートを含むようになったらそれを使う
-            double framerate = 60;
+            double framerate = context.ProjectFrameRate;
 
-			long requestStartSample = startSample;
-            long requestEndSample = startSample + length;
+			long requestStartSample = context.StartSamplePosition;
+            long requestEndSample = context.StartSamplePosition + context.RequiredLength;
 
-            var resultChunk = new AudioChunk(format, length);
+            var resultChunk = new AudioChunk(context.Format, context.RequiredLength);
 
 			foreach (var obj in Layers)
 			{
 				if (!obj.IsActive) continue;
-				long objStartSample = (long)(obj.StartFrame * (format.SampleRate / framerate));
-                long objEndSample = (long)(obj.EndFrame * (format.SampleRate / framerate));
+				double samplesPerFrame = context.Format.SampleRate / framerate;
+				long objStartSample = (long)Math.Round(obj.StartFrame * samplesPerFrame);
+                long objEndSample = (long)Math.Round(obj.EndFrame * samplesPerFrame);
 
                 long overlapStartSample = Math.Max(requestStartSample, objStartSample);
                 long overlapEndSample = Math.Min(requestEndSample, objEndSample);
@@ -82,19 +82,27 @@ namespace Metasia.Core.Objects
 
 				long layerStartPosition = overlapStartSample - objStartSample;
                 long overlapLength = overlapEndSample - overlapStartSample;
-                var chunk = obj.GetAudioChunk(format, layerStartPosition, overlapLength);
+                
+                // レイヤーオブジェクトの長さを計算
+                double layerDuration = (obj.EndFrame - obj.StartFrame) / framerate;
+                var chunk = obj.GetAudioChunk(new GetAudioContext(context.Format, layerStartPosition, overlapLength, context.ProjectFrameRate, layerDuration));
                 for (int i = 0; i < overlapLength; i++)
                 {
-                    for (int ch = 0; ch < format.ChannelCount; ch++)
+                    for (int ch = 0; ch < context.Format.ChannelCount; ch++)
                     {
-                        long sourceIndex = i * format.ChannelCount + ch;
-                        long resultIndex = (overlapStartSample - requestStartSample + i) * format.ChannelCount + ch;
+                        long sourceIndex = i * context.Format.ChannelCount + ch;
+                        long resultIndex = (overlapStartSample - requestStartSample + i) * context.Format.ChannelCount + ch;
                         resultChunk.Samples[resultIndex] += chunk.Samples[sourceIndex];
+                        resultChunk.Samples[resultIndex] = Math.Max(-1.0, Math.Min(1.0, resultChunk.Samples[resultIndex]));
                     }
                 }
 			}
 
-			AudioEffectContext effectContext = new AudioEffectContext(this, format, startSample);
+			// TimelineObject全体の長さを計算
+			double timelineDuration = (EndFrame - StartFrame) / framerate;
+
+			var timelineContext = new GetAudioContext(context.Format, context.StartSamplePosition, context.RequiredLength, context.ProjectFrameRate, timelineDuration);
+			AudioEffectContext effectContext = new AudioEffectContext(this, timelineContext);
 
 			foreach (var effect in AudioEffects)
 			{
