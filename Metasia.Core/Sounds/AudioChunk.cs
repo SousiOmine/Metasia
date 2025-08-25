@@ -1,20 +1,20 @@
 namespace Metasia.Core.Sounds
 {
-    public class AudioChunk
+    public class AudioChunk : IAudioChunk
     {
         public double[] Samples { get; }
 
-        public AudioFormat Format { get; }
+        public IAudioFormat Format { get; }
 
         public long Length => (long)Samples.Length / Format.ChannelCount;
 
-        public AudioChunk(AudioFormat format, long length)
+        public AudioChunk(IAudioFormat format, long length)
         {
             Format = format;
             Samples = new double[length * format.ChannelCount];
         }
 
-        public AudioChunk(AudioFormat format, double[] samples)
+        public AudioChunk(IAudioFormat format, double[] samples)
         {
             ArgumentNullException.ThrowIfNull(format);
             ArgumentNullException.ThrowIfNull(samples);

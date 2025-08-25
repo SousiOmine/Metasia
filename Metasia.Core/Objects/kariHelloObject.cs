@@ -31,7 +31,6 @@ namespace Metasia.Core.Objects
 
 		public kariHelloObject()
 		{
-			InitializeParameters();
 			InitializeBitmap();
 		}
 
@@ -91,9 +90,9 @@ namespace Metasia.Core.Objects
 		}
 
 
-        public AudioChunk GetAudioChunk(GetAudioContext context)
+        public IAudioChunk GetAudioChunk(GetAudioContext context)
         {
-			var chunk = new AudioChunk(context.Format, context.RequiredLength);
+			IAudioChunk chunk = new AudioChunk(context.Format, context.RequiredLength);
 			double frequency = 440;
 
 			for (long i = 0; i < context.RequiredLength; i++)

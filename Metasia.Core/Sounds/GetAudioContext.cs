@@ -2,7 +2,7 @@ namespace Metasia.Core.Sounds
 {
     public class GetAudioContext
     {
-        public AudioFormat Format { get; }
+        public IAudioFormat Format { get; }
 
         public long StartSamplePosition { get; } = 0;
 
@@ -15,7 +15,7 @@ namespace Metasia.Core.Sounds
         /// </summary>
         public double ObjectDurationInSeconds { get; }
 
-        public GetAudioContext(AudioFormat format, long startSamplePosition, long requiredLength, double projectFrameRate, double objectDurationInSeconds)
+        public GetAudioContext(IAudioFormat format, long startSamplePosition, long requiredLength, double projectFrameRate, double objectDurationInSeconds)
         {
             ArgumentNullException.ThrowIfNull(format);
             if (startSamplePosition < 0)

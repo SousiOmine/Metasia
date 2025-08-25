@@ -7,6 +7,6 @@ namespace Metasia.Core.Objects.AudioEffects
         public string Id { get; set; } = string.Empty;
         public bool IsActive { get; set; } = true;
 
-        public abstract AudioChunk Apply(AudioChunk input, AudioEffectContext context);
+        public abstract IAudioChunk Apply(IAudioChunk input, AudioEffectContext context);
 	}
 }

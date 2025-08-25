@@ -13,7 +13,7 @@ namespace Metasia.Core.Objects.AudioEffects
         /// フェードアウト時の時間
         /// </summary>
         public float Out { get; set; } = 0.5f;
-		public override AudioChunk Apply(AudioChunk input, AudioEffectContext context)
+		public override IAudioChunk Apply(IAudioChunk input, AudioEffectContext context)
 		{
 			// 入力チェック
 			if (input == null || input.Samples == null || input.Samples.Length == 0)

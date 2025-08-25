@@ -102,14 +102,14 @@ namespace Metasia.Core.Objects
             return true;
         }
 
-        public AudioChunk GetAudioChunk(GetAudioContext context)
+        public IAudioChunk GetAudioChunk(GetAudioContext context)
         {
             double framerate = context.ProjectFrameRate;
 
             long requestStartSample = context.StartSamplePosition;
             long requestEndSample = context.StartSamplePosition + context.RequiredLength;
 
-            var resultChunk = new AudioChunk(context.Format, context.RequiredLength);
+            IAudioChunk resultChunk = new AudioChunk(context.Format, context.RequiredLength);
 
             foreach (var obj in Objects.OfType<ClipObject>().OfType<IAudible>())
             {

@@ -12,7 +12,7 @@ namespace Metasia.Core.Sounds
         /// <summary>
         /// 音声フォーマット
         /// </summary>
-        public AudioFormat Format { get; }
+        public IAudioFormat Format { get; }
 
         /// <summary>
         /// エフェクト適用対象のオブジェクトの長さ（秒）
@@ -52,7 +52,7 @@ namespace Metasia.Core.Sounds
         /// <param name="startPosition">音源の始端を基準とした開始位置</param>
         /// <param name="endPosition">音源の始端を基準とした終了位置</param>
         /// <returns>指定された範囲の音声データ</returns>
-        public AudioChunk GetSourceAudio(long startPosition, long endPosition)
+        public IAudioChunk GetSourceAudio(long startPosition, long endPosition)
         {
             if (startPosition < CurrentSamplePosition)
             {
