@@ -13,7 +13,7 @@ public interface IAudioService : IDisposable
     /// </summary>
     /// <param name="pulse"></param>
     /// <param name="channel"></param>
-    public void InsertQueue(AudioChunk chunk);
+    public void InsertQueue(IAudioChunk chunk);
 
     /// <summary>
     /// 再生キューをリセットする
