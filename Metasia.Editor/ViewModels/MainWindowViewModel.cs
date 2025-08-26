@@ -1,15 +1,5 @@
-
-
-using System.Collections.ObjectModel;
-using Metasia.Core.Coordinate;
-using Metasia.Core.Objects;
-using Metasia.Core.Project;
-using SkiaSharp;
-using System.IO;
 using System;
 using System.Diagnostics;
-using System.Text.Json;
-using Metasia.Core.Json;
 using System.Windows.Input;
 using ReactiveUI;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,7 +9,6 @@ using Metasia.Editor.Models;
 using Metasia.Editor.Models.Projects;
 using Metasia.Editor.Models.FileSystem;
 using Metasia.Editor.Models.ProjectGenerate;
-using Metasia.Editor.Models.EditCommands;
 
 namespace Metasia.Editor.ViewModels
 {
