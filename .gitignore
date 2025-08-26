@@ -1,3 +1,7 @@
+# LLM Agent
+.cursor/
+.windsurf/
+
 # vscode
 .vscode/
 ## Ignore Visual Studio temporary files, build results, and
