@@ -1,4 +1,4 @@
-﻿using Avalonia;
+using Avalonia;
 using Metasia.Core.Objects;
 using Metasia.Editor.ViewModels.Controls;
 using ReactiveUI;
@@ -117,8 +117,14 @@ namespace Metasia.Editor.ViewModels
             return PlayerViewModel.RunEditCommand(command);
         }
 
-        public void SetFrameFromPosition(double position)
+public void SetFrameFromPosition(double position)
         {
+            // 再生中の場合は停止する
+            if (PlayerViewModel.IsPlaying)
+            {
+                PlayerViewModel.Pause.Execute(null);
+            }
+            
             Frame = (int)(position / Frame_Per_DIP);
         }
 
