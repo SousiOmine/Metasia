@@ -1,6 +1,11 @@
 # LLM Agent
 .cursor/
 .windsurf/
+.cline
+.roo
+CLAUDE.md
+QWEN.md
+GEMINI.md
 
 # vscode
 .vscode/
