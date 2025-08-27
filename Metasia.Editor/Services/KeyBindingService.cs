@@ -20,6 +20,7 @@ namespace Metasia.Editor.Services
 
         private Dictionary<string, ICommand> _commands { get; } = new Dictionary<string, ICommand>();
         private readonly IDefaultKeyBindingProvider _defaultProvider;
+        private readonly List<WeakReference<Window>> _targetWindows = new List<WeakReference<Window>>();
 
         private const string SETTINGS_FILE_NAME = "keybindings.json";
 
@@ -31,20 +32,38 @@ namespace Metasia.Editor.Services
 
         public void ApplyKeyBindings(Window target)
         {
-            // 既存のキーバインディングをクリア
-            target.KeyBindings.Clear();
+            _targetWindows.Add(new WeakReference<Window>(target));
+            RefreshKeyBindings();
+        }
 
-            // 登録されたコマンドの中から、キーバインディングが定義されているものを適用
-            foreach (var keyBinding in _keyBindings)
+        /// <summary>
+        /// 現在のターゲットウィンドウのキーバインディングを更新する
+        /// </summary>
+        public void RefreshKeyBindings()
+        {
+            // 無効なウィンドウ参照を削除
+            _targetWindows.RemoveAll(wr => !wr.TryGetTarget(out _));
+
+            foreach (var targetWindowRef in _targetWindows)
             {
-                if (_commands.TryGetValue(keyBinding.CommandId, out var command) && keyBinding.Gesture != null)
+                if (targetWindowRef.TryGetTarget(out var targetWindow))
                 {
-                    var avaloniaKeyBinding = new Avalonia.Input.KeyBinding
+                    // 既存のキーバインディングをクリア
+                    targetWindow.KeyBindings.Clear();
+
+                    // 登録されたコマンドの中から、キーバインディングが定義されているものを適用
+                    foreach (var keyBinding in _keyBindings)
                     {
-                        Gesture = keyBinding.Gesture,
-                        Command = command
-                    };
-                    target.KeyBindings.Add(avaloniaKeyBinding);
+                        if (_commands.TryGetValue(keyBinding.CommandId, out var command) && keyBinding.Gesture is not null)
+                        {
+                            var avaloniaKeyBinding = new Avalonia.Input.KeyBinding
+                            {
+                                Gesture = keyBinding.Gesture,
+                                Command = command
+                            };
+                            targetWindow.KeyBindings.Add(avaloniaKeyBinding);
+                        }
+                    }
                 }
             }
         }
@@ -52,6 +71,32 @@ namespace Metasia.Editor.Services
         public void RegisterCommand(string commandId, ICommand command)
         {
             _commands[commandId] = command;
+            // コマンドが登録されたらキーバインディングを更新
+            RefreshKeyBindings();
+        }
+
+        /// <summary>
+        /// 指定されたコマンドIDのコマンドを登録解除する
+        /// </summary>
+        public bool UnregisterCommand(string commandId)
+        {
+            var result = _commands.Remove(commandId);
+            if (result)
+            {
+                // コマンドが削除されたらキーバインディングを更新
+                RefreshKeyBindings();
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// すべての登録されたコマンドをクリアする
+        /// </summary>
+        public void ClearCommands()
+        {
+            _commands.Clear();
+            // すべてのコマンドがクリアされたらキーバインディングも更新
+            RefreshKeyBindings();
         }
 
         /// <summary>
@@ -119,7 +164,7 @@ namespace Metasia.Editor.Services
                 var existingBinding = _keyBindings.Find(kb => kb.CommandId == customBinding.CommandId);
                 var gesture = ParseKeyGesture(customBinding);
 
-                if (existingBinding != null)
+                if (existingBinding is not null)
                 {
                     existingBinding.Gesture = gesture;
                 }
@@ -146,7 +191,7 @@ namespace Metasia.Editor.Services
 
                 if (Enum.TryParse<KeyModifiers>(customModifier.Modifier, true, out var modifier))
                 {
-                    if (existingDefinition != null)
+                    if (existingDefinition is not null)
                     {
                         existingDefinition.Modifier = modifier;
                         existingDefinition.Description = customModifier.Description;
@@ -214,7 +259,7 @@ namespace Metasia.Editor.Services
 
                 foreach (var keyBinding in _keyBindings)
                 {
-                    if (keyBinding.Gesture != null)
+                    if (keyBinding.Gesture is not null)
                     {
                         var jsonBinding = new KeyBindingDefinitionJson
                         {

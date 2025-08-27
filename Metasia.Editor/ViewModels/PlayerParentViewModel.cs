@@ -5,6 +5,9 @@ using Metasia.Editor.Models.Projects;
 using ReactiveUI;
 using SkiaSharp;
 using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
+using Metasia.Editor.Services;
+using System.Windows.Input;
 
 namespace Metasia.Editor.ViewModels;
 
@@ -53,10 +56,15 @@ public class PlayerParentViewModel : ViewModelBase
         get => _targetPlayerViewModel;
         set
         {
+            // 以前のコマンド登録を解除
+            UnregisterPlayerCommands();
+            
             this.RaiseAndSetIfChanged(ref _targetPlayerViewModel, value);
             if (value is not null)
             {
                 TargetTimelineName = value.TargetTimeline.Id;
+                // 新しいPlayerViewModelのコマンドを登録
+                RegisterPlayerCommands(value);
             }
         } 
     }
@@ -84,9 +92,31 @@ public class PlayerParentViewModel : ViewModelBase
 
     public PlayerParentViewModel()
     {
-        
+        // キーバインディングサービスを設定
+        var keyBindingService = App.Current?.Services?.GetService<IKeyBindingService>();
+        if (keyBindingService is not null)
+        {
+            SetKeyBindingService(keyBindingService);
+        }
     }
 
+    /// <summary>
+    /// PlayerViewModelのコマンドをキーバインディングサービスに登録
+    /// </summary>
+    private void RegisterPlayerCommands(PlayerViewModel playerViewModel)
+    {
+        RegisterCommand("PlayPauseToggle", playerViewModel.PlayPauseToggle);
+    }
+
+    /// <summary>
+    /// 以前のPlayerViewModelのコマンド登録を解除
+    /// </summary>
+    private void UnregisterPlayerCommands()
+    {
+        // 登録済みのコマンドを解除
+        var keyBindingService = App.Current?.Services?.GetService<IKeyBindingService>();
+        keyBindingService?.UnregisterCommand("PlayPauseToggle");
+    }
 
     public void LoadProject(MetasiaEditorProject editorProject)
     {

@@ -25,6 +25,11 @@
       "commandId": "CreateNewProject",
       "key": "N",
       "modifiers": ["Control"]
+    },
+    {
+      "commandId": "PlayPauseToggle",
+      "key": "Space",
+      "modifiers": []
     }
   ],
   "modifierKeys": [

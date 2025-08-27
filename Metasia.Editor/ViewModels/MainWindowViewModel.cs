@@ -27,7 +27,6 @@ namespace Metasia.Editor.ViewModels
         public ICommand CreateNewProject { get; }
 
         public ICommand Undo { get; }
-
         public ICommand Redo { get; }
 
         public MainWindowViewModel()
@@ -59,7 +58,7 @@ namespace Metasia.Editor.ViewModels
         {
             var keyBindingService = App.Current?.Services?.GetService<IKeyBindingService>();
             
-            if (keyBindingService != null)
+            if (keyBindingService is not null)
             {
                 keyBindingService.RegisterCommand("Undo", Undo);
                 keyBindingService.RegisterCommand("Redo", Redo);

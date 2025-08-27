@@ -82,6 +82,7 @@ namespace Metasia.Editor.ViewModels
         public ICommand PreviousFrame { get; }
 		public ICommand Play { get; }
 		public ICommand Pause { get; }
+		public ICommand PlayPauseToggle { get; }
 		
 		public bool CanUndo => HistoryManager.CanUndo;
 		public bool CanRedo => HistoryManager.CanRedo;
@@ -129,6 +130,24 @@ namespace Metasia.Editor.ViewModels
 				if(timer is not null) timer.Stop();
 				IsPlaying = false;
 				audioPlaybackService.Pause();
+			});
+			PlayPauseToggle = ReactiveCommand.Create(() =>
+			{
+				if (IsPlaying)
+				{
+					// 再生中なら停止
+					if(timer is not null) timer.Stop();
+					IsPlaying = false;
+				}
+				else
+				{
+					// 停止中なら再生
+					timer = new System.Timers.Timer(1000.0 / projectInfo.Framerate);
+					timer.Elapsed += Timer_Elapsed;
+					timer.Start();
+					IsPlaying = true;
+					PlayStart?.Invoke();
+				}
 			});
 
             audioPlaybackService = new AudioPlaybackService(new SoundIOService());

@@ -57,6 +57,11 @@ namespace Metasia.Editor.Services.KeyBinding
                 {
                     CommandId = "Redo",
                     Gesture = GetRedoGesture()
+                },
+                new KeyBindingDefinition
+                {
+                    CommandId = "PlayPauseToggle",
+                    Gesture = new KeyGesture(Key.Space)
                 }
             });
 
