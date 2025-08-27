@@ -57,6 +57,6 @@ public partial class TimelineView : UserControl
     {
         var point = e.GetCurrentPoint(sender as Control);
         int frame = (int)(point.Position.X / VM.Frame_Per_DIP);
-        VM.Frame = frame;
+        VM.SeekFrame(frame);
     }
 }

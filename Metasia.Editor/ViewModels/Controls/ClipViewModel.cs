@@ -96,9 +96,16 @@ namespace Metasia.Editor.ViewModels.Controls
             StartFrame = TargetObject.StartFrame * Frame_Per_DIP;
         }
 
-        public void ClipClick(bool isMultiSelect = false)
+        public void ClipClick(bool isMultiSelect, int targetFrame = -1)
         {
+            // まず通常の選択処理を実行
             parentTimeline.ClipSelect(TargetObject, isMultiSelect);
+            
+            if (targetFrame >= 0)
+            {
+                // 次にプレビュー位置を移動
+                parentTimeline.SeekFrame(targetFrame);
+            }
         }
 
         /// <summary>

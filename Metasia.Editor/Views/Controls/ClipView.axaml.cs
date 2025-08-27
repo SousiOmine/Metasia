@@ -49,7 +49,7 @@ public partial class ClipView : UserControl
             if (properties.IsRightButtonPressed)
             {
                 // 右クリック時は即座に選択処理を実行
-                TryClipSelect(e.KeyModifiers);
+                TryClipSelect(e.KeyModifiers, e);
             }
         }
     }
@@ -62,16 +62,15 @@ public partial class ClipView : UserControl
         // 短時間クリックかつドラッグが開始されていない場合のみ選択処理
         if (pressDuration < CLICK_THRESHOLD_MS && !_isPotentialDrag)
         {
-            TryClipSelect(e.KeyModifiers);
+            TryClipSelect(e.KeyModifiers, e);
         }
         
         _isPotentialDrag = false;
     }
 
-    private void TryClipSelect(KeyModifiers modifiers)
+    private void TryClipSelect(KeyModifiers modifiers, PointerEventArgs? pointerEventArgs)
     {
         if (VM is null) return;
-        
 
         // キーバインディングサービスから修飾キー設定を取得
         var keyBindingService = App.Current?.Services?.GetService<IKeyBindingService>();
@@ -80,7 +79,19 @@ public partial class ClipView : UserControl
         bool isMultiSelect = multiSelectModifier.HasValue && 
                             keyBindingService.IsModifierKeyPressed(multiSelectModifier.Value, modifiers);
 
-        VM.ClipClick(isMultiSelect);
+        // クリックされた位置からフレームを計算してViewModelに通知
+        if (pointerEventArgs != null)
+        {
+            var position = pointerEventArgs.GetCurrentPoint(this).Position;
+            // クリップ内の相対位置を計算
+            var relativePositionX = position.X;
+            // 相対位置をフレームに変換
+            var frameOffset = (int)(relativePositionX / VM.Frame_Per_DIP);
+            // クリップの開始フレームにオフセットを加算して絶対フレーム位置を算出
+            var targetFrame = VM.TargetObject.StartFrame + frameOffset;
+            
+            VM.ClipClick(isMultiSelect, targetFrame);
+        }
     }
     
     // ClipViewBehaviorからのドラッグ開始通知用メソッド

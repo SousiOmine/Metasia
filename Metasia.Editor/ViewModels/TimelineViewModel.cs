@@ -150,6 +150,18 @@ namespace Metasia.Editor.ViewModels
             }
         }
 
+        public void SeekFrame(int targetFrame)
+        {
+            // 再生中なら停止
+            if (PlayerViewModel.IsPlaying)
+            {
+                PlayerViewModel.Pause.Execute(null);
+            }
+            
+            // プレビュー位置を移動
+            Frame = targetFrame;
+        }
+
         public void ClipRemove(ClipObject clipObject)
         {
             LayerObject? ownerLayer = FindOwnerLayer(clipObject);
