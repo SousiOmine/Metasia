@@ -56,8 +56,8 @@ namespace Metasia.Editor.ViewModels
         /// </summary>
         public int Frame
         {
-            get => PlayerViewModel.Frame;
-            set => PlayerViewModel.Frame = value;
+            get => _frame;
+            set => this.RaiseAndSetIfChanged(ref _frame, value);
         }
 
         /// <summary>
@@ -72,6 +72,7 @@ namespace Metasia.Editor.ViewModels
         private TimelineObject _timeline;
         private double _frame_per_DIP;
 
+        private int _frame;
         private double _cursorLeft;
 
         private readonly PlayerViewModel PlayerViewModel;
@@ -90,6 +91,14 @@ namespace Metasia.Editor.ViewModels
             PlayerViewModel.WhenAnyValue(x => x.Frame).Subscribe
                 (Frame =>
                 {
+                    _frame = Frame;
+                    CursorLeft = Frame * Frame_Per_DIP;
+                });
+
+            this.WhenAnyValue(x => x.Frame).Subscribe
+                (Frame =>
+                {
+                    PlayerViewModel.Frame = Frame;
                     CursorLeft = Frame * Frame_Per_DIP;
                 });
 
@@ -97,7 +106,7 @@ namespace Metasia.Editor.ViewModels
             PlayerViewModel.ViewPaintRequest += () =>
             {
                 // タイムラインの更新が必要な場合はここで行う
-                CursorLeft = PlayerViewModel.Frame * Frame_Per_DIP;
+                CursorLeft = Frame * Frame_Per_DIP;
             };
 
             //プロジェクトに変更が加えられたときには自身のイベントも発火する
@@ -118,10 +127,6 @@ namespace Metasia.Editor.ViewModels
             return PlayerViewModel.RunEditCommand(command);
         }
 
-        public void SetFrameFromPosition(double position)
-        {
-            Frame = (int)(position / Frame_Per_DIP);
-        }
 
         public void ClipSelect(ClipObject obj, bool isMultiSelect = false)
         {

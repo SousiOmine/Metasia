@@ -56,6 +56,7 @@ public partial class TimelineView : UserControl
     private void TimecodeCanvas_PointerPressed(object? sender, Avalonia.Input.PointerPressedEventArgs e)
     {
         var point = e.GetCurrentPoint(sender as Control);
-        VM.SetFrameFromPosition(point.Position.X);
+        int frame = (int)(point.Position.X / VM.Frame_Per_DIP);
+        VM.Frame = frame;
     }
 }
