@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace Metasia.Editor.ViewModels.Controls
 {
@@ -74,11 +75,16 @@ namespace Metasia.Editor.ViewModels.Controls
 
         private TimelineViewModel parentTimeline;
 
+        public ICommand RemoveClipCommand { get; }
+
         public ClipViewModel(ClipObject targetObject, TimelineViewModel parentTimeline)
         {
             TargetObject = targetObject;
             this.parentTimeline = parentTimeline;
             IsSelecting = false;
+
+            // 削除コマンドの初期化
+            RemoveClipCommand = ReactiveCommand.Create(() => parentTimeline.ClipRemove(TargetObject));
         }
 
         /// <summary>

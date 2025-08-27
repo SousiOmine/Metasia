@@ -12,6 +12,7 @@ using Metasia.Editor.Models.EditCommands;
 using Avalonia.Layout;
 using Metasia.Editor.Models.EditCommands.Commands;
 using System.Diagnostics;
+using Metasia.Core.Objects;
 
 namespace Metasia.Editor.ViewModels
 {
@@ -144,6 +145,17 @@ namespace Metasia.Editor.ViewModels
             }
         }
 
+        public void ClipRemove(ClipObject clipObject)
+        {
+            LayerObject? ownerLayer = FindOwnerLayer(clipObject);
+
+            if (ownerLayer is not null)
+            {
+                IEditCommand command = new ClipRemoveCommand(clipObject, ownerLayer);
+                RunEditCommand(command);
+            }
+        }
+
         public bool CanResizeClip(ClipObject clipObject, int newStartFrame, int newEndFrame)
         {
             LayerObject? ownerLayer = FindOwnerLayer(clipObject);
@@ -166,6 +178,8 @@ namespace Metasia.Editor.ViewModels
             }
             return null;
         }
+
+
 
         private void ChangeFramePerDIP()
         {
