@@ -103,50 +103,17 @@ namespace Metasia.Editor.ViewModels
             {
                 Frame--;
             });
-			Play = ReactiveCommand.Create(() =>
-			{
-				
-
-				try
-				{
-					timer = new System.Timers.Timer(1000.0 / projectInfo.Framerate);
-					timer.Elapsed += Timer_Elapsed;
-					timer.Start();
-					IsPlaying = true;
-					PlayStart?.Invoke();
-
-					long startSample = (long)(Frame / (double)projectInfo.Framerate * 44100);
-					audioPlaybackService.Play(TargetTimeline, projectInfo, startSample, 1.0);
-				}
-				catch (Exception ex)
-				{
-					timer?.Stop();
-					IsPlaying = false;
-					Debug.WriteLine($"Audio playback failed: {ex.Message}");
-				}
-			});
-			Pause = ReactiveCommand.Create(() =>
-			{
-				if(timer is not null) timer.Stop();
-				IsPlaying = false;
-				audioPlaybackService.Pause();
-			});
+			Play = ReactiveCommand.Create(PlayMethod);
+			Pause = ReactiveCommand.Create(PauseMethod);
 			PlayPauseToggle = ReactiveCommand.Create(() =>
 			{
 				if (IsPlaying)
 				{
-					// 再生中なら停止
-					if(timer is not null) timer.Stop();
-					IsPlaying = false;
+					Pause.Execute(null);
 				}
 				else
 				{
-					// 停止中なら再生
-					timer = new System.Timers.Timer(1000.0 / projectInfo.Framerate);
-					timer.Elapsed += Timer_Elapsed;
-					timer.Start();
-					IsPlaying = true;
-					PlayStart?.Invoke();
+					Play.Execute(null);
 				}
 			});
 
@@ -155,12 +122,7 @@ namespace Metasia.Editor.ViewModels
             NotifyProjectChanged();
 		}
 		
-		
 
-		private void Timer_Elapsed(object? sender, ElapsedEventArgs e)
-		{
-			Frame++;
-		}
 		
 		public bool RunEditCommand(IEditCommand command)
 		{
@@ -193,6 +155,39 @@ namespace Metasia.Editor.ViewModels
 
             ProjectChanged?.Invoke(this, EventArgs.Empty);
         }
+
+		private void PlayMethod()
+		{
+			try
+			{
+				timer = new System.Timers.Timer(1000.0 / TargetProjectInfo.Framerate);
+				timer.Elapsed += Timer_Elapsed;
+				timer.Start();
+				IsPlaying = true;
+				PlayStart?.Invoke();
+
+				long startSample = (long)(Frame / (double)TargetProjectInfo.Framerate * 44100);
+				audioPlaybackService.Play(TargetTimeline, TargetProjectInfo, startSample, 1.0);
+			}
+			catch (Exception ex)
+			{
+				timer?.Stop();
+				IsPlaying = false;
+				Debug.WriteLine($"Audio playback failed: {ex.Message}");
+			}
+		}
+
+		private void PauseMethod()
+		{
+			if(timer is not null) timer.Stop();
+			IsPlaying = false;
+			audioPlaybackService.Pause();
+		}
+
+		private void Timer_Elapsed(object? sender, ElapsedEventArgs e)
+		{
+			Frame++;
+		}
 
 	}
 }
