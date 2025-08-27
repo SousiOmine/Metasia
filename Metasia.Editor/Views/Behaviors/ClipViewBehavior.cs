@@ -8,6 +8,7 @@ using Avalonia.Interactivity;
 using Avalonia.Xaml.Interactivity;
 using Metasia.Editor.Models.DragDropData;
 using Metasia.Editor.ViewModels.Controls;
+using Metasia.Editor.Views.Controls;
 
 namespace Metasia.Editor.Views.Behaviors
 {
@@ -215,6 +216,12 @@ namespace Metasia.Editor.Views.Behaviors
             var vm = AssociatedObject?.DataContext as ClipViewModel;
             if (vm is not null && _startPoint.HasValue)
             {
+                // ClipViewにドラッグ開始を通知
+                if (AssociatedObject is ClipView clipView)
+                {
+                    clipView.NotifyDragStarted();
+                }
+                
                 var dragData = new DataObject();
                 dragData.Set(DragDropFormats.ClipsMove, new ClipsMoveDragData(vm, CalculateTargetFrame(_startPoint.Value.X)));
                         

@@ -13,7 +13,9 @@
 	<UserControl.Resources>
 		<converter:ClipSelectConverter x:Key="ClipConverter"/>
 	</UserControl.Resources>
-	<Border x:Name="Clip" Tapped="Clip_OnTapped"
+	<Border x:Name="Clip" 
+			PointerPressed="Clip_OnPointerPressed"
+			PointerReleased="Clip_OnPointerReleased"
 			BorderBrush="DarkGray" Background="Pink" BorderThickness="1" CornerRadius="10" ClipToBounds="True"
 	        Opacity="{Binding IsSelecting, Converter={StaticResource ClipConverter}}"
 			>

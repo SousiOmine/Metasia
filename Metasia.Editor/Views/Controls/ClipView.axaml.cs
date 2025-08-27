@@ -18,8 +18,13 @@ public partial class ClipView : UserControl
     private ClipViewModel? VM
     {
         get { return this.DataContext as ClipViewModel; }
-
     }
+    
+    // 追加するフィールド
+    private DateTime _pointerPressedTime;
+    private bool _isPotentialDrag = false;
+    private const int CLICK_THRESHOLD_MS = 300;
+
     public ClipView()
     {
         InitializeComponent();
@@ -30,9 +35,37 @@ public partial class ClipView : UserControl
         };
     }
 
-    private void Clip_OnTapped(object? sender, TappedEventArgs e)
+    // PointerPressedイベントハンドラ
+    private void Clip_OnPointerPressed(object? sender, PointerPressedEventArgs e)
     {
-        TryClipSelect(e.KeyModifiers);
+        _pointerPressedTime = DateTime.Now;
+        _isPotentialDrag = false;
+        
+        // 左右どちらのボタンでも処理
+        var properties = e.GetCurrentPoint(this).Properties;
+        if (properties.IsLeftButtonPressed || properties.IsRightButtonPressed)
+        {
+            // 右クリックの場合、即座に選択処理を実行
+            if (properties.IsRightButtonPressed)
+            {
+                // 右クリック時は即座に選択処理を実行
+                TryClipSelect(e.KeyModifiers);
+            }
+        }
+    }
+
+    // PointerReleasedイベントハンドラ
+    private void Clip_OnPointerReleased(object? sender, PointerReleasedEventArgs e)
+    {
+        var pressDuration = (DateTime.Now - _pointerPressedTime).TotalMilliseconds;
+        
+        // 短時間クリックかつドラッグが開始されていない場合のみ選択処理
+        if (pressDuration < CLICK_THRESHOLD_MS && !_isPotentialDrag)
+        {
+            TryClipSelect(e.KeyModifiers);
+        }
+        
+        _isPotentialDrag = false;
     }
 
     private void TryClipSelect(KeyModifiers modifiers)
@@ -49,4 +82,10 @@ public partial class ClipView : UserControl
 
         VM.ClipClick(isMultiSelect);
     }
-}   
+    
+    // ClipViewBehaviorからのドラッグ開始通知用メソッド
+    public void NotifyDragStarted()
+    {
+        _isPotentialDrag = true;
+    }
+}
