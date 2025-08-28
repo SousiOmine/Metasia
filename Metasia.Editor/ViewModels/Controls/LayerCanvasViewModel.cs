@@ -39,14 +39,17 @@ namespace Metasia.Editor.ViewModels.Controls
         private PlayerViewModel playerViewModel;
         public LayerObject TargetLayer { get; private set; }
 
+        private readonly IClipViewModelFactory _clipViewModelFactory;
+
         private double _frame_per_DIP;
         private double width;
 
-        public LayerCanvasViewModel(TimelineViewModel parentTimeline, PlayerViewModel playerViewModel, LayerObject targetLayer) 
+        public LayerCanvasViewModel(TimelineViewModel parentTimeline, PlayerViewModel playerViewModel, LayerObject targetLayer, IClipViewModelFactory clipViewModelFactory) 
         {
             this.parentTimeline = parentTimeline;
             this.playerViewModel = playerViewModel;
             this.TargetLayer = targetLayer;
+            this._clipViewModelFactory = clipViewModelFactory;
 
             // ドロップ処理コマンドの初期化
             HandleDropCommand = ReactiveCommand.Create<ClipsDropTargetContext>(
@@ -143,7 +146,7 @@ namespace Metasia.Editor.ViewModels.Controls
                 var obj = TargetLayer.Objects.FirstOrDefault(x => x.Id == id);
                 if (obj is not null)
                 {
-                    var clipVM = new ClipViewModel(obj, parentTimeline);
+                    var clipVM = _clipViewModelFactory.Create(obj, parentTimeline);
                     ClipsAndBlanks.Add(clipVM);
                     if (playerViewModel.SelectingObjects.Any(x => x.Id == id))
                     {

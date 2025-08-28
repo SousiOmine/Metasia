@@ -79,7 +79,7 @@ namespace Metasia.Editor.ViewModels
 
         public event EventHandler? ProjectChanged;
 
-        public TimelineViewModel(PlayerViewModel playerViewModel)
+        public TimelineViewModel(PlayerViewModel playerViewModel, ILayerButtonViewModelFactory layerButtonViewModelFactory, ILayerCanvasViewModelFactory layerCanvasViewModelFactory)
         {
             this.PlayerViewModel = playerViewModel;
 
@@ -117,8 +117,8 @@ namespace Metasia.Editor.ViewModels
 
             foreach (var layer in Timeline.Layers)
             {
-                LayerButtons.Add(new LayerButtonViewModel(this, layer));
-                LayerCanvas.Add(new LayerCanvasViewModel(this, PlayerViewModel, layer));
+                LayerButtons.Add(layerButtonViewModelFactory.Create(this, layer));
+                LayerCanvas.Add(layerCanvasViewModelFactory.Create(this, PlayerViewModel, layer));
             }
         }
 

@@ -8,7 +8,6 @@ using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Metasia.Editor.Services;
 using System.Windows.Input;
-using Metasia.Editor.ViewModels.Factory;
 
 namespace Metasia.Editor.ViewModels;
 
