@@ -81,6 +81,9 @@ namespace Metasia.Editor.ViewModels
 
         public TimelineViewModel(PlayerViewModel playerViewModel, ILayerButtonViewModelFactory layerButtonViewModelFactory, ILayerCanvasViewModelFactory layerCanvasViewModelFactory)
         {
+            ArgumentNullException.ThrowIfNull(playerViewModel);
+            ArgumentNullException.ThrowIfNull(layerButtonViewModelFactory);
+            ArgumentNullException.ThrowIfNull(layerCanvasViewModelFactory);
             this.PlayerViewModel = playerViewModel;
 
             //横方向の拡大率は初期３で固定

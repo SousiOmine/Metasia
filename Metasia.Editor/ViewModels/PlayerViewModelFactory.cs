@@ -1,3 +1,4 @@
+using System;
 using Metasia.Core.Objects;
 using Metasia.Core.Project;
 using Metasia.Editor.Models.EditCommands;
@@ -7,16 +8,20 @@ namespace Metasia.Editor.ViewModels;
 
 public class PlayerViewModelFactory : IPlayerViewModelFactory
 {
-    private IEditCommandManager editCommandManager;
-    private IAudioPlaybackService audioPlaybackService;
+    private readonly IEditCommandManager editCommandManager;
+    private readonly IAudioPlaybackService audioPlaybackService;
 
     public PlayerViewModelFactory(IEditCommandManager editCommandManager, IAudioPlaybackService audioPlaybackService)
     {
+        ArgumentNullException.ThrowIfNull(editCommandManager);
+        ArgumentNullException.ThrowIfNull(audioPlaybackService);
         this.editCommandManager = editCommandManager;
         this.audioPlaybackService = audioPlaybackService;
     }
     public PlayerViewModel Create(TimelineObject timeline, ProjectInfo projectInfo)
     {
+        ArgumentNullException.ThrowIfNull(timeline);
+        ArgumentNullException.ThrowIfNull(projectInfo);
         return new PlayerViewModel(timeline, projectInfo, editCommandManager, audioPlaybackService);
     }
 }

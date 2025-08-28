@@ -22,6 +22,7 @@ namespace Metasia.Editor
         /// DIコンテナのサービスプロバイダ
         /// </summary>
         public IServiceProvider? Services { get; private set; }
+        
         public override void Initialize()
         {
             AvaloniaXamlLoader.Load(this);
@@ -34,6 +35,9 @@ namespace Metasia.Editor
                 // まずMainWindowを作成
                 var mainWindow = new MainWindow();
                 desktop.MainWindow = mainWindow;
+
+                // アプリケーション終了時の処理を登録
+                desktop.ShutdownRequested += OnShutdownRequested;
 
                 // DIコンテナを設定
                 var services = new ServiceCollection();
@@ -57,13 +61,26 @@ namespace Metasia.Editor
                 services.AddSingleton<TimelineParentViewModel>();
                 services.AddSingleton<InspectorViewModel>();
                 services.AddSingleton<ToolsViewModel>();
-                Services = services.BuildServiceProvider();
+                Services = services.BuildServiceProvider(new ServiceProviderOptions 
+                { 
+                    ValidateScopes = true, 
+                    ValidateOnBuild = true 
+                });
 
                 // DIコンテナが設定された後にViewModelを作成
                 mainWindow.DataContext = Services.GetRequiredService<MainWindowViewModel>();
             }
 
             base.OnFrameworkInitializationCompleted();
+        }
+
+        private void OnShutdownRequested(object? sender, ShutdownRequestedEventArgs e)
+        {
+            // ServiceProviderを破棄
+            if (Services is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
         }
     }
 }

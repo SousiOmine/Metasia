@@ -24,6 +24,8 @@ namespace Metasia.Editor.ViewModels
         PlayerParentViewModel _playerParentViewModel;
         public TimelineParentViewModel(PlayerParentViewModel playerParentViewModel, ITimelineViewModelFactory timelineViewModelFactory)
         {
+            ArgumentNullException.ThrowIfNull(playerParentViewModel);
+            ArgumentNullException.ThrowIfNull(timelineViewModelFactory);
             _playerParentViewModel = playerParentViewModel;
 
             _playerParentViewModel.ProjectInstanceChanged += (sender, e) =>

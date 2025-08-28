@@ -90,8 +90,8 @@ public class PlayerParentViewModel : ViewModelBase
 
     private bool _isPlayerShow = false;
 
-    private IKeyBindingService? _keyBindingService;
-    private IPlayerViewModelFactory? _playerViewModelFactory;
+    private readonly IKeyBindingService _keyBindingService;
+    private readonly IPlayerViewModelFactory _playerViewModelFactory;
 
     public PlayerParentViewModel(IKeyBindingService keyBindingService, IPlayerViewModelFactory playerViewModelFactory)
     {
@@ -118,7 +118,7 @@ public class PlayerParentViewModel : ViewModelBase
     private void UnregisterPlayerCommands()
     {
         // 登録済みのコマンドを解除
-        _keyBindingService?.UnregisterCommand("PlayPauseToggle");
+        _keyBindingService.UnregisterCommand("PlayPauseToggle");
     }
 
     public void LoadProject(MetasiaEditorProject editorProject)
