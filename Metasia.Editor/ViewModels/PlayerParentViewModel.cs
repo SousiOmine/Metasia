@@ -8,6 +8,7 @@ using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Metasia.Editor.Services;
 using System.Windows.Input;
+using Metasia.Editor.ViewModels.Factory;
 
 namespace Metasia.Editor.ViewModels;
 
@@ -37,7 +38,7 @@ public class PlayerParentViewModel : ViewModelBase
                     else
                     {
                         // なければ新しく作成
-                        var newVM = new PlayerViewModel(mainTimeline, value.Info);
+                        var newVM = _playerViewModelFactory.Create(mainTimeline, value.Info);
                         _playerViewModels.Add(newVM);
                         TargetPlayerViewModel = newVM;
                     }
@@ -90,14 +91,18 @@ public class PlayerParentViewModel : ViewModelBase
 
     private bool _isPlayerShow = false;
 
-    public PlayerParentViewModel()
+    private IKeyBindingService? _keyBindingService;
+    private IPlayerViewModelFactory? _playerViewModelFactory;
+
+    public PlayerParentViewModel(IKeyBindingService keyBindingService, IPlayerViewModelFactory playerViewModelFactory)
     {
         // キーバインディングサービスを設定
-        var keyBindingService = App.Current?.Services?.GetService<IKeyBindingService>();
         if (keyBindingService is not null)
         {
+            _keyBindingService = keyBindingService;
             SetKeyBindingService(keyBindingService);
         }
+        _playerViewModelFactory = playerViewModelFactory;
     }
 
     /// <summary>
@@ -114,8 +119,7 @@ public class PlayerParentViewModel : ViewModelBase
     private void UnregisterPlayerCommands()
     {
         // 登録済みのコマンドを解除
-        var keyBindingService = App.Current?.Services?.GetService<IKeyBindingService>();
-        keyBindingService?.UnregisterCommand("PlayPauseToggle");
+        _keyBindingService?.UnregisterCommand("PlayPauseToggle");
     }
 
     public void LoadProject(MetasiaEditorProject editorProject)
@@ -135,7 +139,7 @@ public class PlayerParentViewModel : ViewModelBase
         // タイムラインごとに新しいPlayerViewModelを作成
         foreach (TimelineFile timeline in editorProject.Timelines)
         {
-            _playerViewModels.Add(new PlayerViewModel(timeline.Timeline, projectInfo));
+            _playerViewModels.Add(_playerViewModelFactory.Create(timeline.Timeline, projectInfo));
         }
 
         // CurrentProjectをセット (setterでPlayerViewModelも設定される)

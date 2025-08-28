@@ -89,11 +89,12 @@ namespace Metasia.Editor.ViewModels
 
 		private IAudioPlaybackService audioPlaybackService;
 		
-		public PlayerViewModel(TimelineObject targetTimeline, ProjectInfo projectInfo)
+		public PlayerViewModel(TimelineObject targetTimeline, ProjectInfo projectInfo, IEditCommandManager historyManager, IAudioPlaybackService audioPlaybackService)
 		{
 			TargetTimeline = targetTimeline;
 			TargetProjectInfo = projectInfo;
-			HistoryManager = new EditCommandManager();
+			HistoryManager = historyManager;
+			this.audioPlaybackService = audioPlaybackService;
 
             NextFrame = ReactiveCommand.Create(() =>
             {
@@ -116,8 +117,6 @@ namespace Metasia.Editor.ViewModels
 					Play.Execute(null);
 				}
 			});
-
-            audioPlaybackService = new AudioPlaybackService(new SoundIOService());
 
             NotifyProjectChanged();
 		}

@@ -16,7 +16,7 @@ namespace Metasia.Editor.ViewModels
     {
         public PlayerParentViewModel PlayerParentVM { get; }
 
-        public InspectorViewModel inspectorViewModel { get; }
+        public InspectorViewModel InspectorVM { get; }
 
         public TimelineParentViewModel TimelineParentVM { get; }
 
@@ -29,8 +29,17 @@ namespace Metasia.Editor.ViewModels
         public ICommand Undo { get; }
         public ICommand Redo { get; }
 
-        public MainWindowViewModel()
+        public MainWindowViewModel(
+            PlayerParentViewModel playerParentVM,
+            TimelineParentViewModel timelineParentVM,
+            InspectorViewModel inspectorViewModel,
+            ToolsViewModel toolsVM,
+            IKeyBindingService keyBindingService)
         {
+            PlayerParentVM = playerParentVM;
+            TimelineParentVM = timelineParentVM;
+            InspectorVM = inspectorViewModel;
+            ToolsVM = toolsVM;
 
             SaveEditingProject = ReactiveCommand.Create(SaveEditingProjectExecuteAsync);
             LoadEditingProject = ReactiveCommand.Create(LoadEditingProjectExecuteAsync);
@@ -39,25 +48,15 @@ namespace Metasia.Editor.ViewModels
             Undo = ReactiveCommand.Create(UndoExecute);
             Redo = ReactiveCommand.Create(RedoExecute);
 
-            PlayerParentVM = new PlayerParentViewModel();
-
-            TimelineParentVM = new TimelineParentViewModel(PlayerParentVM);
-
-            inspectorViewModel = new InspectorViewModel(PlayerParentVM);
-
-            ToolsVM = new ToolsViewModel(PlayerParentVM);
-
             // キーバインディングサービスにコマンドを登録
-            RegisterCommands();
+            RegisterCommands(keyBindingService);
         }
 
         /// <summary>
         /// キーバインディングサービスにコマンドを登録
         /// </summary>
-        private void RegisterCommands()
+        private void RegisterCommands(IKeyBindingService keyBindingService)
         {
-            var keyBindingService = App.Current?.Services?.GetService<IKeyBindingService>();
-            
             if (keyBindingService is not null)
             {
                 keyBindingService.RegisterCommand("Undo", Undo);

@@ -72,7 +72,7 @@
 				<!--<views:PlayerView DataContext="{Binding playerViewModel}" Grid.Column="2"/>-->
 				<views:PlayerParentView DataContext="{Binding PlayerParentVM}" Grid.Column="2" />
 				<GridSplitter Grid.Column="3" HorizontalAlignment="Stretch" Background="Gray"/>
-				<views:InspectorView DataContext="{Binding inspectorViewModel}" Grid.Column="4"/>
+				<views:InspectorView DataContext="{Binding InspectorVM}" Grid.Column="4"/>
 			</Grid>
 			<GridSplitter Grid.Row="1" HorizontalAlignment="Stretch" Background="Gray"/>
 			<views:TimelineParentView DataContext="{Binding TimelineParentVM}" Grid.Row="2"/>

@@ -1,3 +1,4 @@
+using Metasia.Editor.ViewModels.Factory;
 using ReactiveUI;
 using System;
 
@@ -22,7 +23,7 @@ namespace Metasia.Editor.ViewModels
         private bool _isTimelineShow = false;
 
         PlayerParentViewModel _playerParentViewModel;
-        public TimelineParentViewModel(PlayerParentViewModel playerParentViewModel)
+        public TimelineParentViewModel(PlayerParentViewModel playerParentViewModel, ITimelineViewModelFactory timelineViewModelFactory)
         {
             _playerParentViewModel = playerParentViewModel;
 
@@ -30,7 +31,7 @@ namespace Metasia.Editor.ViewModels
             {
                 if (_playerParentViewModel.TargetPlayerViewModel is not null)
                 {
-                    CurrentTimelineViewModel = new TimelineViewModel(_playerParentViewModel.TargetPlayerViewModel);
+                    CurrentTimelineViewModel = timelineViewModelFactory.Create(_playerParentViewModel.TargetPlayerViewModel);
                     IsTimelineShow = true;
                 }
                 else
@@ -41,7 +42,7 @@ namespace Metasia.Editor.ViewModels
 
             if (_playerParentViewModel.TargetPlayerViewModel is not null)
             {
-                CurrentTimelineViewModel = new TimelineViewModel(_playerParentViewModel.TargetPlayerViewModel);
+                CurrentTimelineViewModel = timelineViewModelFactory.Create(_playerParentViewModel.TargetPlayerViewModel);
             }
         }
     }

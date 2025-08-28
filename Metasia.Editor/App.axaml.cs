@@ -6,7 +6,9 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Metasia.Editor.Models.EditCommands;
 using Metasia.Editor.Services;
+using Metasia.Editor.Services.Audio;
 using Metasia.Editor.ViewModels;
+using Metasia.Editor.ViewModels.Factory;
 using Metasia.Editor.Views;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -38,10 +40,24 @@ namespace Metasia.Editor
                 services.AddSingleton<IFileDialogService>(new FileDialogService(mainWindow));
                 services.AddSingleton<INewProjectDialogService, NewProjectDialogService>();
                 services.AddSingleton<IKeyBindingService, KeyBindingService>();
+
+                services.AddSingleton<IEditCommandManager, EditCommandManager>();
+                services.AddSingleton<IAudioService, SoundIOService>();
+                services.AddTransient<IAudioPlaybackService, AudioPlaybackService>();
+
+
+                services.AddSingleton<IPlayerViewModelFactory, PlayerViewModelFactory>();
+                services.AddSingleton<ITimelineViewModelFactory, TimelineViewModelFactory>();
+                
+                services.AddTransient<MainWindowViewModel>();
+                services.AddSingleton<PlayerParentViewModel>();
+                services.AddSingleton<TimelineParentViewModel>();
+                services.AddSingleton<InspectorViewModel>();
+                services.AddSingleton<ToolsViewModel>();
                 Services = services.BuildServiceProvider();
 
                 // DIコンテナが設定された後にViewModelを作成
-                mainWindow.DataContext = new MainWindowViewModel();
+                mainWindow.DataContext = Services.GetRequiredService<MainWindowViewModel>();
             }
 
             base.OnFrameworkInitializationCompleted();
