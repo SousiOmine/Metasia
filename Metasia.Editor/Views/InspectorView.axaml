@@ -8,12 +8,9 @@
              x:Class="Metasia.Editor.Views.InspectorView"
              x:DataType="vm:InspectorViewModel">
     <ScrollViewer>
-        <ItemsControl ItemsSource="{Binding ClipSettingPanes}">
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <views_inspector:ClipSettingPaneView/>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
+        <StackPanel>
+            <views_inspector:ClipSettingPaneView DataContext="{Binding ClipSettingPane}"/>
+        </StackPanel>
+        
     </ScrollViewer>
 </UserControl>

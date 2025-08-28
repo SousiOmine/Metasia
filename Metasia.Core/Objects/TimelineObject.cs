@@ -12,6 +12,7 @@ using System.Diagnostics;
 using System.Text.Json.Serialization;
 using System.Xml.Serialization;
 using Metasia.Core.Objects.AudioEffects;
+using Metasia.Core.Attributes;
 
 namespace Metasia.Core.Objects
 {
@@ -26,6 +27,7 @@ namespace Metasia.Core.Objects
 		/// </summary>
 		public List<LayerObject> Layers { get; private set; }
 
+		[EditableProperty("AudioVolume")]
 		public double Volume { get; set; } = 100;
 
 		public List<AudioEffectBase> AudioEffects { get; set; } = new();

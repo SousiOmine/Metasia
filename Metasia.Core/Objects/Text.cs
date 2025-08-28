@@ -7,18 +7,28 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using Metasia.Core.Attributes;
 namespace Metasia.Core.Objects
 {
     [Serializable]
     public class Text : ClipObject, IRenderable
     {
+        [EditableProperty("X")]
         public MetaNumberParam<double> X { get; set; }
+
+        [EditableProperty("Y")]
         public MetaNumberParam<double> Y { get; set; }
+
+        [EditableProperty("Scale")]
         public MetaNumberParam<double> Scale { get; set; }
+
+        [EditableProperty("Alpha")]
         public MetaNumberParam<double> Alpha { get; set; }
+
+        [EditableProperty("Rotation")]
         public MetaNumberParam<double> Rotation { get; set; }
 
+        [EditableProperty("TypefaceName")]
         public string TypefaceName
         {
             get { return typefaceName; }
@@ -29,8 +39,10 @@ namespace Metasia.Core.Objects
             }
         }
 
+        [EditableProperty("TextContents")]
         public string Contents { get; set; }
 
+        [EditableProperty("TextSize")]
         public MetaNumberParam<double> TextSize { get; set; }
 
         private string typefaceName;

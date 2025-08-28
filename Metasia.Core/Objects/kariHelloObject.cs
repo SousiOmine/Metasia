@@ -11,18 +11,24 @@ using System.Diagnostics;
 using System.Text.Json.Serialization;
 using System.Xml.Serialization;
 using Metasia.Core.Objects.AudioEffects;
+using Metasia.Core.Attributes;
 
 namespace Metasia.Core.Objects
 {
 	[Serializable]
 	public class kariHelloObject : ClipObject, IRenderable, IAudible
 	{
+		[EditableProperty("X")]
 		public MetaNumberParam<double> X { get; set; }
+		[EditableProperty("Y")]
 		public MetaNumberParam<double> Y { get; set; }
+		[EditableProperty("Scale")]
 		public MetaNumberParam<double> Scale { get; set; }
+		[EditableProperty("Alpha")]
 		public MetaNumberParam<double> Alpha { get; set; }
+		[EditableProperty("Rotation")]
 		public MetaNumberParam<double> Rotation { get; set; }
-		
+		[EditableProperty("AudioVolume")]
 		public double Volume { get; set; } = 100;
 		public List<AudioEffectBase> AudioEffects { get; set; } = new();
 		

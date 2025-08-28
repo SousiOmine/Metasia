@@ -8,7 +8,7 @@ namespace Metasia.Editor.ViewModels
 {
     public class InspectorViewModel : ViewModelBase
     {
-        public ObservableCollection<ClipSettingPaneViewModel> ClipSettingPanes { get; } = new();
+        public ClipSettingPaneViewModel ClipSettingPane { get; }
         public string TestCharacters
         {
             get => _testCharacters;
@@ -27,6 +27,8 @@ namespace Metasia.Editor.ViewModels
                 TestCharacters = string.Empty;
                 PlayerChanged();
             };
+
+            ClipSettingPane = new ClipSettingPaneViewModel();
         }
 
         public void PlayerChanged()
@@ -37,17 +39,11 @@ namespace Metasia.Editor.ViewModels
                 {
                     if (_playerParentViewModel.TargetPlayerViewModel.SelectingObjects.Count > 0)
                     {
-                        ClipSettingPanes.Clear();
-                        foreach (var obj in _playerParentViewModel.TargetPlayerViewModel.SelectingObjects)
-                        {
-                            ClipSettingPanes.Add(new ClipSettingPaneViewModel(obj));
-                        }
-                        TestCharacters = string.Join(", ", _playerParentViewModel.TargetPlayerViewModel.SelectingObjects.Select(obj => obj.Id));
+                        ClipSettingPane.TargetObject = _playerParentViewModel.TargetPlayerViewModel.SelectingObjects.FirstOrDefault();
                     }
                     else
                     {
-                        ClipSettingPanes.Clear();
-                        TestCharacters = string.Empty;
+                        ClipSettingPane.TargetObject = null;
                     }
                 };
             }
