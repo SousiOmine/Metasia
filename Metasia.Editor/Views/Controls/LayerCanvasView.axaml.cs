@@ -16,4 +16,16 @@ public partial class LayerCanvasView : UserControl
     {
         InitializeComponent();
     }
+
+    protected override void OnPointerPressed(PointerPressedEventArgs e)
+    {
+        base.OnPointerPressed(e);
+        
+        if (VM != null)
+        {
+            var position = e.GetPosition(this);
+            var frame = (int)(position.X / VM.Frame_Per_DIP);
+            VM.EmptyAreaClicked(frame);
+        }
+    }
 }

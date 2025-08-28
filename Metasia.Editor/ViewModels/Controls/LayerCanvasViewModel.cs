@@ -103,6 +103,17 @@ namespace Metasia.Editor.ViewModels.Controls
             }
         }
 
+        
+        /// <summary>
+        /// 空のエリアがクリックされたときに呼び出されるメソッド
+        /// </summary>
+        /// <param name="frame">クリックされた位置のフレーム</param>
+        public void EmptyAreaClicked(int frame)
+        {
+            // フレーム位置にプレビューを移動
+            parentTimeline.SeekFrame(frame);
+        }
+
         /// <summary>
         /// タイムラインVMのドロップ処理を呼び出す
         /// </summary>
