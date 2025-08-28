@@ -13,11 +13,11 @@ namespace Metasia.Core.Objects
     [Serializable]
     public class Text : ClipObject, IRenderable
     {
-        public MetaDoubleParam X { get; set; }
-        public MetaDoubleParam Y { get; set; }
-        public MetaDoubleParam Scale { get; set; }
-        public MetaDoubleParam Alpha { get; set; }
-        public MetaDoubleParam Rotation { get; set; }
+        public MetaNumberParam<double> X { get; set; }
+        public MetaNumberParam<double> Y { get; set; }
+        public MetaNumberParam<double> Scale { get; set; }
+        public MetaNumberParam<double> Alpha { get; set; }
+        public MetaNumberParam<double> Rotation { get; set; }
 
         public string TypefaceName
         {
@@ -31,39 +31,40 @@ namespace Metasia.Core.Objects
 
         public string Contents { get; set; }
 
-        public MetaFloatParam TextSize { get; set; }
+        public MetaNumberParam<double> TextSize { get; set; }
 
         private string typefaceName;
         private SKTypeface? _typeface;
 
         public Text(string id) : base(id)
         {
-            X = new MetaDoubleParam(this, 0);
-            Y = new MetaDoubleParam(this, 0);
-            Scale = new MetaDoubleParam(this, 100);
-            Alpha = new MetaDoubleParam(this, 0);
-            Rotation = new MetaDoubleParam(this, 0);
-            TextSize = new MetaFloatParam(this, 100);
+            X = new MetaNumberParam<double>(this, 0);
+            Y = new MetaNumberParam<double>(this, 0);
+            Scale = new MetaNumberParam<double>(this, 100);
+            Alpha = new MetaNumberParam<double>(this, 0);
+            Rotation = new MetaNumberParam<double>(this, 0);
+            TextSize = new MetaNumberParam<double>(this, 100);
             LoadTypeface();
         }
 
         public Text()
         {
-            X = new MetaDoubleParam(this, 0);
-            Y = new MetaDoubleParam(this, 0);
-            Scale = new MetaDoubleParam(this, 100);
-            Alpha = new MetaDoubleParam(this, 0);
-            Rotation = new MetaDoubleParam(this, 0);
-            TextSize = new MetaFloatParam(this, 100);
+            X = new MetaNumberParam<double>(this, 0);
+            Y = new MetaNumberParam<double>(this, 0);
+            Scale = new MetaNumberParam<double>(this, 100);
+            Alpha = new MetaNumberParam<double>(this, 0);
+            Rotation = new MetaNumberParam<double>(this, 0);
+            TextSize = new MetaNumberParam<double>(this, 100);
             LoadTypeface();
         }
 
+        [Obsolete]
         public RenderNode Render(RenderContext context)
         {
             SKPaint skPaint = new SKPaint()
             {
                 IsAntialias = true,
-                TextSize = TextSize.Get(context.Frame),
+                TextSize = (float)TextSize.Get(context.Frame),
                 Typeface = _typeface,
                 Color = SKColors.White,
             };

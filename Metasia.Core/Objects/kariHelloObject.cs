@@ -17,11 +17,11 @@ namespace Metasia.Core.Objects
 	[Serializable]
 	public class kariHelloObject : ClipObject, IRenderable, IAudible
 	{
-		public MetaDoubleParam X { get; set; }
-		public MetaDoubleParam Y { get; set; }
-		public MetaDoubleParam Scale { get; set; }
-		public MetaDoubleParam Alpha { get; set; }
-		public MetaDoubleParam Rotation { get; set; }
+		public MetaNumberParam<double> X { get; set; }
+		public MetaNumberParam<double> Y { get; set; }
+		public MetaNumberParam<double> Scale { get; set; }
+		public MetaNumberParam<double> Alpha { get; set; }
+		public MetaNumberParam<double> Rotation { get; set; }
 		
 		public double Volume { get; set; } = 100;
 		public List<AudioEffectBase> AudioEffects { get; set; } = new();
@@ -42,11 +42,11 @@ namespace Metasia.Core.Objects
 
 		private void InitializeParameters()
 		{
-			X = new MetaDoubleParam(this, 0);
-			Y = new MetaDoubleParam(this, 0);
-			Scale = new MetaDoubleParam(this, 100);
-			Alpha = new MetaDoubleParam(this, 0);
-			Rotation = new MetaDoubleParam(this, 0);
+			X = new MetaNumberParam<double>(this, 0);
+			Y = new MetaNumberParam<double>(this, 0);
+			Scale = new MetaNumberParam<double>(this, 100);
+			Alpha = new MetaNumberParam<double>(this, 0);
+			Rotation = new MetaNumberParam<double>(this, 0);
 		}
 
 		private void InitializeBitmap()

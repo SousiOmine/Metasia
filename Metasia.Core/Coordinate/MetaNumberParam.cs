@@ -1,59 +1,47 @@
+using System.Diagnostics;
 using Jint;
 using Metasia.Core.Objects;
-using System.Diagnostics;
-using System.Text.Json.Serialization;
 
 namespace Metasia.Core.Coordinate;
 
-/// <summary>
-/// double型の中間値を持つパラメータ
-/// </summary>
-public class MetaDoubleParam
+public class MetaNumberParam<T> where T : struct, IConvertible, IEquatable<T>
 {
-    private ClipObject ownerObject;
-
-    /// <summary>
-    /// 中間値CoordPointを格納するリスト
-    /// </summary>
-    [JsonInclude]
     public List<CoordPoint> Params { get; protected set; }
 
-    /// <summary>
-    /// 中間点の間の値を計算するためのJavaScriptエンジン
-    /// </summary>
-    private Engine jsEngine = new Engine();
+    private ClipObject ownerObject;
 
-    [JsonConstructor]
-    public MetaDoubleParam()
+    private Engine jsEngine = new Engine(opts => opts
+        .MaxStatements(10000)
+        .LimitRecursion(10000)
+        .TimeoutInterval(TimeSpan.FromMilliseconds(100))
+    );
+
+    public MetaNumberParam()
     {
         Params = new();
     }
 
-    public MetaDoubleParam(ClipObject owner, double initialValue)
+    public MetaNumberParam(ClipObject owner, T initialValue)
     {
         ownerObject = owner;
-        Params = new();
-        Params.Add(new CoordPoint(){Value = initialValue});
+        Params = [new CoordPoint(){Value = Convert.ToDouble(initialValue)}];
     }
 
-    
-
-    /// <summary>
-    /// フレームから値を取得する
-    /// </summary>
-    /// <param name="frame"></param>
-    /// <returns></returns>
-    public double Get(int frame)
+    public T Get(int frame)
     {
         return CalculateMidValue(frame);
     }
-    
-    protected double CalculateMidValue(int frame)
+
+    protected T CalculateMidValue(int frame)
     {
         //CoordPointのFrameはオブジェクトの始点基準なので合わせる
         frame -= ownerObject?.StartFrame ?? 0;
         //pointsをFrameの昇順に並べ替え
         Params.Sort((a, b) => a.Frame - b.Frame);
+        if(Params.Count == 0)
+        {
+            throw new InvalidOperationException("Params is empty");
+        }
         CoordPoint startPoint = Params.Last();
         CoordPoint endPoint = startPoint;
 
@@ -78,11 +66,13 @@ public class MetaDoubleParam
         try
         {
             double midValue = jsEngine.Evaluate(startPoint.JSLogic).AsNumber();
-            return midValue;
+            return (T)Convert.ChangeType(midValue, typeof(T));
         }
         catch(Exception e)
         {
-            return startPoint.Value;
+            Debug.WriteLine(e.Message);
+            return (T)Convert.ChangeType(startPoint.Value, typeof(T));
         }
     }
 }
+
