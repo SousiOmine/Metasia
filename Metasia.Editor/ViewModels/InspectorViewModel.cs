@@ -1,11 +1,14 @@
 using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 using ReactiveUI;
+using Metasia.Editor.ViewModels.Inspector;
 
 namespace Metasia.Editor.ViewModels
 {
     public class InspectorViewModel : ViewModelBase
     {
+        public ObservableCollection<ClipSettingPaneViewModel> ClipSettingPanes { get; } = new();
         public string TestCharacters
         {
             get => _testCharacters;
@@ -34,10 +37,16 @@ namespace Metasia.Editor.ViewModels
                 {
                     if (_playerParentViewModel.TargetPlayerViewModel.SelectingObjects.Count > 0)
                     {
+                        ClipSettingPanes.Clear();
+                        foreach (var obj in _playerParentViewModel.TargetPlayerViewModel.SelectingObjects)
+                        {
+                            ClipSettingPanes.Add(new ClipSettingPaneViewModel(obj));
+                        }
                         TestCharacters = string.Join(", ", _playerParentViewModel.TargetPlayerViewModel.SelectingObjects.Select(obj => obj.Id));
                     }
                     else
                     {
+                        ClipSettingPanes.Clear();
                         TestCharacters = string.Empty;
                     }
                 };
