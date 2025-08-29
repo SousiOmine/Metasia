@@ -96,7 +96,10 @@ namespace Metasia.Editor.ViewModels
         {
             try
             {
-                //別の場所に保存するやつを書く
+                if (PlayerParentVM.CurrentEditorProject is not null)
+                {
+                    ProjectSaveLoadManager.Save(PlayerParentVM.CurrentEditorProject);
+                }
             }
             catch (Exception ex)
             {
