@@ -26,8 +26,8 @@
 				<MenuItem Header="閉じる"/>
 				<Separator/>
 				<MenuItem Header="編集プロジェクトを開く" Command="{Binding LoadEditingProject}"/>
-				<MenuItem Header="編集プロジェクトの保存" Command="{Binding SaveEditingProject}"/>
-				<MenuItem Header="編集プロジェクトの上書き"/>
+				<MenuItem Header="編集プロジェクトの保存"/>
+				<MenuItem Header="編集プロジェクトの上書き" Command="{Binding OverrideSaveEditingProject}"/>
 				<Separator/>
 				<MenuItem Header="出力"/>
 				<Separator/>

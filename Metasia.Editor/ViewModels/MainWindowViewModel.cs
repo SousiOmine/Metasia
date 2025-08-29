@@ -22,9 +22,9 @@ namespace Metasia.Editor.ViewModels
 
         public ToolsViewModel ToolsVM { get; }
 
-        public ICommand SaveEditingProject { get; }
         public ICommand LoadEditingProject { get; }
         public ICommand CreateNewProject { get; }
+        public ICommand OverrideSaveEditingProject { get; }
 
         public ICommand Undo { get; }
         public ICommand Redo { get; }
@@ -41,9 +41,9 @@ namespace Metasia.Editor.ViewModels
             InspectorVM = inspectorViewModel;
             ToolsVM = toolsVM;
 
-            SaveEditingProject = ReactiveCommand.Create(SaveEditingProjectExecuteAsync);
             LoadEditingProject = ReactiveCommand.Create(LoadEditingProjectExecuteAsync);
             CreateNewProject = ReactiveCommand.Create(CreateNewProjectExecuteAsync);
+            OverrideSaveEditingProject = ReactiveCommand.Create(OverrideSaveEditingProjectExecuteAsync);
 
             Undo = ReactiveCommand.Create(UndoExecute);
             Redo = ReactiveCommand.Create(RedoExecute);
@@ -61,9 +61,9 @@ namespace Metasia.Editor.ViewModels
             {
                 keyBindingService.RegisterCommand("Undo", Undo);
                 keyBindingService.RegisterCommand("Redo", Redo);
-                keyBindingService.RegisterCommand("SaveEditingProject", SaveEditingProject);
                 keyBindingService.RegisterCommand("LoadEditingProject", LoadEditingProject);
                 keyBindingService.RegisterCommand("CreateNewProject", CreateNewProject);
+                keyBindingService.RegisterCommand("OverrideSaveEditingProject", OverrideSaveEditingProject);
             }
         }
 
@@ -92,7 +92,7 @@ namespace Metasia.Editor.ViewModels
             }
         }
 
-        private async Task SaveEditingProjectExecuteAsync()
+        private async Task OverrideSaveEditingProjectExecuteAsync()
         {
             try
             {
@@ -103,7 +103,7 @@ namespace Metasia.Editor.ViewModels
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"プロジェクト保存エラー: {ex.Message}");
+                Debug.WriteLine($"プロジェクト上書き保存エラー: {ex.Message}");
             }
         }
 
@@ -135,4 +135,3 @@ namespace Metasia.Editor.ViewModels
         }
     }
 }
-
