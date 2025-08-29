@@ -25,7 +25,7 @@ public class ProjectSaveLoadManager
         foreach (var timeline in editorProject.Timelines)
         {
             //string timelineJsonString = JsonSerializer.Serialize(timeline, options);
-            string timelineJsonString = TimelineXmlSerializer.SerializeTimeline(timeline.Timeline);
+            string timelineJsonString = MetasiaObjectXmlSerializer.Serialize(timeline.Timeline);
             File.WriteAllText(Path.Combine(editorProject.ProjectPath.Path, timeline.TimelineFilePath.Path), timelineJsonString);
         }
     }
@@ -62,7 +62,7 @@ public class ProjectSaveLoadManager
                 {
                     try
                     {
-                        TimelineObject? timelineObject = TimelineXmlSerializer.DeserializeTimeline(File.ReadAllText(file));
+                        TimelineObject? timelineObject = MetasiaObjectXmlSerializer.Deserialize<TimelineObject>(File.ReadAllText(file));
                         if (timelineObject == null)
                         {
                             throw new Exception("タイムラインファイルのフォーマットが不正です。");
