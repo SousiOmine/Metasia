@@ -8,24 +8,59 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Platform.Storage;
 using Metasia.Core.Project;
 using Metasia.Editor.Models.ProjectGenerate;
+using Metasia.Editor.ViewModels;
 using SkiaSharp;
 
 namespace Metasia.Editor.Views
 {
     public partial class NewProjectDialog : Window
     {
-        public string ProjectName { get; private set; } = string.Empty;
-        public string ProjectPath { get; private set; } = string.Empty;
-        public ProjectInfo ProjectInfo { get; private set; }
-        public MetasiaProject? SelectedTemplate { get; private set; }
+        private NewProjectDialogViewModel? _viewModel;
 
-        private readonly List<IProjectTemplate> _availableTemplates = new();
+        public string ProjectName => _viewModel?.ProjectName ?? string.Empty;
+        public string ProjectPath => _viewModel?.ProjectPath ?? string.Empty;
+        public ProjectInfo ProjectInfo => _viewModel?.ProjectInfo ?? new ProjectInfo();
+        public MetasiaProject? SelectedTemplate => _viewModel?.SelectedTemplate;
 
         public NewProjectDialog()
         {
             InitializeComponent();
-            LoadTemplates();
+        }
 
+        public void SetTemplates(List<IProjectTemplate> templates)
+        {
+            if (_viewModel == null)
+            {
+                _viewModel = new NewProjectDialogViewModel();
+                DataContext = _viewModel;
+            }
+            _viewModel.SetTemplates(templates);
+            LoadTemplates();
+        }
+
+        private void LoadTemplates()
+        {
+            // テンプレート選択コンボックスにテンプレート名を追加
+            var templateComboBox = this.FindControl<ComboBox>("TemplateComboBox");
+
+            // 空のプロジェクトオプションはコードで処理するため、ComboBoxのItemsコレクションをクリア
+            templateComboBox.Items.Clear();
+            templateComboBox.Items.Add(new ComboBoxItem { Content = "空のプロジェクト" });
+
+            if (_viewModel != null)
+            {
+                foreach (var template in _viewModel.AvailableTemplates)
+                {
+                    templateComboBox.Items.Add(new ComboBoxItem { Content = template.Name });
+                }
+            }
+        }
+
+        private void InitializeComponent()
+        {
+            AvaloniaXamlLoader.Load(this);
+            
+            // コントロールの参照を取得
             var browseButton = this.FindControl<Button>("BrowseButton");
             var folderPathTextBox = this.FindControl<TextBox>("FolderPathTextBox");
             var projectNameTextBox = this.FindControl<TextBox>("ProjectNameTextBox");
@@ -35,8 +70,7 @@ namespace Metasia.Editor.Views
             var resolutionComboBox = this.FindControl<ComboBox>("ResolutionComboBox");
             var templateComboBox = this.FindControl<ComboBox>("TemplateComboBox");
 
-            templateComboBox.SelectedIndex = 0;
-
+            // ボタンクリックイベントの設定
             browseButton.Click += async (sender, e) =>
             {
                 var folders = await StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
@@ -45,16 +79,43 @@ namespace Metasia.Editor.Views
                     AllowMultiple = false
                 });
 
-                if (folders.Count > 0)
+                if (folders.Count > 0 && _viewModel != null)
                 {
                     folderPathTextBox.Text = folders[0].Path.LocalPath;
-                    UpdateCreateButtonState();
+                    _viewModel.FolderPath = folderPathTextBox.Text;
                 }
             };
 
             projectNameTextBox.TextChanged += (sender, e) =>
             {
-                UpdateCreateButtonState();
+                if (_viewModel != null)
+                {
+                    _viewModel.ProjectName = projectNameTextBox.Text;
+                }
+            };
+
+            framerateComboBox.SelectionChanged += (sender, e) =>
+            {
+                if (_viewModel != null)
+                {
+                    _viewModel.SelectedFramerateIndex = framerateComboBox.SelectedIndex;
+                }
+            };
+
+            resolutionComboBox.SelectionChanged += (sender, e) =>
+            {
+                if (_viewModel != null)
+                {
+                    _viewModel.SelectedResolutionIndex = resolutionComboBox.SelectedIndex;
+                }
+            };
+
+            templateComboBox.SelectionChanged += (sender, e) =>
+            {
+                if (_viewModel != null)
+                {
+                    _viewModel.SelectedTemplateIndex = templateComboBox.SelectedIndex;
+                }
             };
 
             cancelButton.Click += (sender, e) =>
@@ -64,90 +125,16 @@ namespace Metasia.Editor.Views
 
             createButton.Click += (sender, e) =>
             {
-                ProjectName = projectNameTextBox.Text;
-                ProjectPath = Path.Combine(folderPathTextBox.Text, ProjectName);
-
-                // フレームレートを取得
-                int framerate = 30;
-                switch (framerateComboBox.SelectedIndex)
+                if (_viewModel != null)
                 {
-                    case 0: framerate = 24; break;
-                    case 1: framerate = 30; break;
-                    case 2: framerate = 60; break;
-                }
-
-                // 解像度を取得
-                SKSize size = new SKSize(1920, 1080);
-                switch (resolutionComboBox.SelectedIndex)
-                {
-                    case 0: size = new SKSize(1280, 720); break;
-                    case 1: size = new SKSize(1920, 1080); break;
-                    case 2: size = new SKSize(3840, 2160); break;
-                }
-
-                ProjectInfo = new ProjectInfo
-                {
-                    Framerate = framerate,
-                    Size = size
-                };
-
-                // テンプレートを取得
-                if (templateComboBox.SelectedIndex > 0)
-                {
-                    int templateIndex = templateComboBox.SelectedIndex - 1; // 最初の項目は「空のプロジェクト」
-                    if (templateIndex >= 0 && templateIndex < _availableTemplates.Count)
+                    // プロジェクトフォルダを作成
+                    if (!Directory.Exists(ProjectPath))
                     {
-                        SelectedTemplate = _availableTemplates[templateIndex].Template;
+                        Directory.CreateDirectory(ProjectPath);
                     }
+                    Close(true);
                 }
-
-                // プロジェクトフォルダを作成
-                if (!Directory.Exists(ProjectPath))
-                {
-                    Directory.CreateDirectory(ProjectPath);
-                }
-
-                Close(true);
             };
-        }
-
-        public void SetTemplates(List<IProjectTemplate> templates)
-        {
-            _availableTemplates.Clear();
-            _availableTemplates.AddRange(templates);
-            LoadTemplates();
-        }
-
-        private void LoadTemplates()
-        {
-            // テンプレート選択コンボボックスにテンプレート名を追加
-            var templateComboBox = this.FindControl<ComboBox>("TemplateComboBox");
-
-            // 空のプロジェクトオプションはコードで処理するため、ComboBoxのItemsコレクションをクリア
-            templateComboBox.Items.Clear();
-            templateComboBox.Items.Add(new ComboBoxItem { Content = "空のプロジェクト" });
-
-            foreach (var template in _availableTemplates)
-            {
-                templateComboBox.Items.Add(new ComboBoxItem { Content = template.Name });
-            }
-        }
-
-        private void UpdateCreateButtonState()
-        {
-            var projectNameTextBox = this.FindControl<TextBox>("ProjectNameTextBox");
-            var folderPathTextBox = this.FindControl<TextBox>("FolderPathTextBox");
-            var createButton = this.FindControl<Button>("CreateButton");
-
-            bool hasProjectName = !string.IsNullOrWhiteSpace(projectNameTextBox.Text);
-            bool hasFolderPath = !string.IsNullOrWhiteSpace(folderPathTextBox.Text);
-
-            createButton.IsEnabled = hasProjectName && hasFolderPath;
-        }
-
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
         }
     }
 }
