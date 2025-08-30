@@ -19,7 +19,7 @@ namespace Metasia.Editor.Services.KeyBinding
             {
                 new KeyBindingDefinition
                 {
-                    CommandId = "SaveEditingProject",
+                    CommandId = "OverrideSaveEditingProject",
                     Gesture = GetSaveGesture()
                 },
                 new KeyBindingDefinition
@@ -75,4 +75,4 @@ namespace Metasia.Editor.Services.KeyBinding
         public abstract List<KeyBindingDefinition> GetDefaultKeyBindings();
         public abstract List<ModifierKeyDefinition> GetDefaultModifierKeys();
     }
-} 
+}
