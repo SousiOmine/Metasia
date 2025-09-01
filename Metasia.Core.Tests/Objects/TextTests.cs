@@ -100,5 +100,97 @@ namespace Metasia.Core.Tests.Objects
             Assert.That(afterFirstChange, Is.EqualTo("NewFont"));
             Assert.That(afterSecondChange, Is.EqualTo("AnotherFont"));
         }
+
+        /// <summary>
+        /// テキストオブジェクトを正常に分割できることを確認するテスト
+        /// 意図: 分割機能がTextクラスで正しく動作し、基本プロパティが維持されることを検証
+        /// 想定結果: 2つのTextオブジェクトが返され、ID、フレーム範囲、コンテンツ、フォントが正しく設定される
+        /// </summary>
+        [Test]
+        public void SplitAtFrame_ValidSplitFrame_ReturnsTwoTextClipsWithCorrectProperties()
+        {
+            // Arrange
+            _textObject.StartFrame = 10;
+            _textObject.EndFrame = 100;
+            _textObject.Contents = "Test Text";
+            _textObject.TypefaceName = "Arial";
+            var splitFrame = 50;
+
+            // Act
+            var (firstClip, secondClip) = _textObject.SplitAtFrame(splitFrame);
+            var firstText = firstClip as Text;
+            var secondText = secondClip as Text;
+
+            // Assert
+            Assert.That(firstText, Is.Not.Null);
+            Assert.That(secondText, Is.Not.Null);
+            Assert.That(firstText.Id, Is.EqualTo("text-id_part1"));
+            Assert.That(secondText.Id, Is.EqualTo("text-id_part2"));
+            Assert.That(firstText.StartFrame, Is.EqualTo(10));
+            Assert.That(firstText.EndFrame, Is.EqualTo(49));
+            Assert.That(secondText.StartFrame, Is.EqualTo(50));
+            Assert.That(secondText.EndFrame, Is.EqualTo(100));
+            Assert.That(firstText.Contents, Is.EqualTo("Test Text"));
+            Assert.That(secondText.Contents, Is.EqualTo("Test Text"));
+            Assert.That(firstText.TypefaceName, Is.EqualTo("Arial"));
+            Assert.That(secondText.TypefaceName, Is.EqualTo("Arial"));
+        }
+
+        /// <summary>
+        /// 分割時に座標パラメータが正しく維持されることを確認するテスト
+        /// 意図: MetaNumberParamプロパティが分割後も値を保持していることを検証
+        /// 想定結果: 分割された両方のオブジェクトでX、Y、Scale座標パラメータが元の値を維持
+        /// </summary>
+        [Test]
+        public void SplitAtFrame_PreservesCoordinateParameters()
+        {
+            // Arrange
+            _textObject.StartFrame = 10;
+            _textObject.EndFrame = 100;
+            _textObject.X = new MetaNumberParam<double>(_textObject, 100);
+            _textObject.Y = new MetaNumberParam<double>(_textObject, 200);
+            _textObject.Scale = new MetaNumberParam<double>(_textObject, 150);
+            var splitFrame = 50;
+
+            // Act
+            var (firstClip, secondClip) = _textObject.SplitAtFrame(splitFrame);
+            var firstText = firstClip as Text;
+            var secondText = secondClip as Text;
+
+            // Assert
+            Assert.That(firstText.X.Get(0), Is.EqualTo(100));
+            Assert.That(firstText.Y.Get(0), Is.EqualTo(200));
+            Assert.That(firstText.Scale.Get(0), Is.EqualTo(150));
+            Assert.That(secondText.X.Get(0), Is.EqualTo(100));
+            Assert.That(secondText.Y.Get(0), Is.EqualTo(200));
+            Assert.That(secondText.Scale.Get(0), Is.EqualTo(150));
+        }
+
+        /// <summary>
+        /// 分割されたテキストオブジェクトが元オブジェクトから独立していることを確認するテスト
+        /// 意図: ディープコピーが正しく行われ、元オブジェクトの変更が分割オブジェクトに影響しないことを検証
+        /// 想定結果: 元オブジェクトを変更しても、分割されたオブジェクトのプロパティは変更されない
+        /// </summary>
+        [Test]
+        public void SplitAtFrame_TextClipsAreIndependent_ModifyingOriginalDoesNotAffectSplits()
+        {
+            // Arrange
+            _textObject.StartFrame = 10;
+            _textObject.EndFrame = 100;
+            _textObject.Contents = "Original Text";
+            var (firstClip, secondClip) = _textObject.SplitAtFrame(50);
+            var firstText = firstClip as Text;
+            var secondText = secondClip as Text;
+
+            // Act
+            _textObject.Contents = "Modified Text";
+            _textObject.TypefaceName = "New Font";
+
+            // Assert
+            Assert.That(firstText.Contents, Is.EqualTo("Original Text"));
+            Assert.That(secondText.Contents, Is.EqualTo("Original Text"));
+            Assert.That(firstText.TypefaceName, Is.Not.EqualTo("New Font"));
+            Assert.That(secondText.TypefaceName, Is.Not.EqualTo("New Font"));
+        }
     }
 } 
