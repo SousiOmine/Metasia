@@ -1,4 +1,5 @@
 ﻿using Metasia.Core.Render;
+using Metasia.Core.Xml;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
@@ -123,6 +124,36 @@ namespace Metasia.Core.Objects
 			}
 
 			return chunk;
+        }
+
+        /// <summary>
+        /// 指定したフレームでHelloオブジェクトを分割する
+        /// </summary>
+        /// <param name="splitFrame">分割フレーム</param>
+        /// <returns>分割後の2つのHelloオブジェクト（前半と後半）</returns>
+        public override (ClipObject firstClip, ClipObject secondClip) SplitAtFrame(int splitFrame)
+        {
+            var result = base.SplitAtFrame(splitFrame);
+            
+            var firstHello = (kariHelloObject)result.firstClip;
+            var secondHello = (kariHelloObject)result.secondClip;
+            
+            firstHello.Id = Id + "_part1";
+            secondHello.Id = Id + "_part2";
+            
+            return (firstHello, secondHello);
+        }
+
+        /// <summary>
+        /// Helloオブジェクトのコピーを作成する
+        /// </summary>
+        /// <returns>コピーされたHelloオブジェクト</returns>
+        protected override ClipObject CreateCopy()
+        {
+            var xml = MetasiaObjectXmlSerializer.Serialize(this);
+            var copy = MetasiaObjectXmlSerializer.Deserialize<kariHelloObject>(xml);
+            copy.Id = Id + "_copy";
+            return copy;
         }
     }
 }

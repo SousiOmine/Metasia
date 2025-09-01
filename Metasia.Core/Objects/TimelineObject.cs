@@ -1,5 +1,6 @@
-﻿using Metasia.Core.Graphics;
+﻿﻿using Metasia.Core.Graphics;
 using Metasia.Core.Render;
+using Metasia.Core.Xml;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
@@ -112,6 +113,69 @@ namespace Metasia.Core.Objects
 			}
 
 			return resultChunk;
+        }
+
+        /// <summary>
+        /// 指定したフレームでタイムラインオブジェクトを分割する
+        /// </summary>
+        /// <param name="splitFrame">分割フレーム</param>
+        /// <returns>分割後の2つのタイムラインオブジェクト（前半と後半）</returns>
+public override (ClipObject firstClip, ClipObject secondClip) SplitAtFrame(int splitFrame)
+{
+    var result = base.SplitAtFrame(splitFrame);
+
+    var firstTimeline = (TimelineObject)result.firstClip;
+    var secondTimeline = (TimelineObject)result.secondClip;
+
+    firstTimeline.Id = Id + "_part1";
+    secondTimeline.Id = Id + "_part2";
+
+    // レイヤーをディープコピー
+    firstTimeline.Layers = new List<LayerObject>();
+    secondTimeline.Layers = new List<LayerObject>();
+
+    foreach (var layer in Layers)
+    {
+        // 前半とレイヤーの交差
+        var fStart = Math.Max(layer.StartFrame, firstTimeline.StartFrame);
+        var fEnd   = Math.Min(layer.EndFrame,   firstTimeline.EndFrame);
+        // 後半とレイヤーの交差
+        var sStart = Math.Max(layer.StartFrame, secondTimeline.StartFrame);
+        var sEnd   = Math.Min(layer.EndFrame,   secondTimeline.EndFrame);
+
+        // 必要になったときだけ 1 回シリアライズ
+        string? serialized = null;
+
+        if (fStart < fEnd)
+        {
+            serialized ??= MetasiaObjectXmlSerializer.Serialize(layer);
+            var firstLayerCopy = MetasiaObjectXmlSerializer.Deserialize<LayerObject>(serialized);
+            firstLayerCopy.StartFrame = fStart;
+            firstLayerCopy.EndFrame   = fEnd;
+            firstTimeline.Layers.Add(firstLayerCopy);
+        }
+        if (sStart < sEnd)
+        {
+            serialized ??= MetasiaObjectXmlSerializer.Serialize(layer);
+            var secondLayerCopy = MetasiaObjectXmlSerializer.Deserialize<LayerObject>(serialized);
+            secondLayerCopy.StartFrame = sStart;
+            secondLayerCopy.EndFrame   = sEnd;
+            secondTimeline.Layers.Add(secondLayerCopy);
+        }
+    }
+
+    return (firstTimeline, secondTimeline);
+}
+        /// <summary>
+        /// タイムラインオブジェクトのコピーを作成する
+        /// </summary>
+        /// <returns>コピーされたタイムラインオブジェクト</returns>
+        protected override ClipObject CreateCopy()
+        {
+            var xml = MetasiaObjectXmlSerializer.Serialize(this);
+            var copy = MetasiaObjectXmlSerializer.Deserialize<TimelineObject>(xml);
+            copy.Id = Id + "_copy";
+            return copy;
         }
     }
 }

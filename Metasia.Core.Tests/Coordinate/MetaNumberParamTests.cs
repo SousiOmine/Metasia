@@ -205,5 +205,275 @@ namespace Metasia.Core.Tests.Coordinate
         }
 
         #endregion
+
+        #region Splitメソッドのテスト
+
+        // 要件1: 基本機能 - 指定フレームで2つのパラメータに分割できること
+        [Test]
+        public void Split_BasicFunctionality_ShouldCreateTwoParams()
+        {
+            // Arrange
+            var param = new MetaNumberParam<double>(null, 10.0);
+
+            // Act
+            var (firstHalf, secondHalf) = param.Split(50);
+
+            // Assert
+            Assert.NotNull(firstHalf);
+            Assert.NotNull(secondHalf);
+            Assert.That(firstHalf.Params, Has.Count.GreaterThanOrEqualTo(1));
+            Assert.That(secondHalf.Params, Has.Count.GreaterThanOrEqualTo(1));
+        }
+
+        // 要件2: ポイントの分配ルール - 前半は分割フレーム未満、後半は分割フレーム以上を含むこと
+        [Test]
+        public void Split_PointDistribution_ShouldDistributePointsCorrectly()
+        {
+            // Arrange
+            var param = new MetaNumberParam<double>(null, 0.0);
+            param.Params.Add(new CoordPoint() { Frame = 10, Value = 10.0 });
+            param.Params.Add(new CoordPoint() { Frame = 30, Value = 30.0 });
+            param.Params.Add(new CoordPoint() { Frame = 60, Value = 60.0 });
+
+            // Act
+            var (firstHalf, secondHalf) = param.Split(40);
+
+            // Assert - 前半は分割フレーム(40)未満のポイントを含む
+            Assert.That(firstHalf.Params.All(p => p.Frame < 40), Is.True);
+            Assert.That(firstHalf.Params.Any(p => p.Frame == 0), Is.True); // 初期値
+            Assert.That(firstHalf.Params.Any(p => p.Frame == 10), Is.True);
+            Assert.That(firstHalf.Params.Any(p => p.Frame == 30), Is.True);
+            Assert.That(firstHalf.Params.Any(p => p.Frame == 39), Is.True); // 境界ポイント
+            
+            // Assert - 後半は調整されたフレームで分割フレーム以上のポイントを含む
+            Assert.That(secondHalf.Params.All(p => p.Frame >= 0), Is.True);
+            Assert.That(secondHalf.Params.Any(p => p.Frame == 0), Is.True); // 境界ポイント
+            Assert.That(secondHalf.Params.Any(p => p.Frame == 20), Is.True); // 60-40=20
+        }
+
+        // 要件3: 境界ポイントの追加条件 - 必要な場合のみ境界ポイントが追加されること
+        [Test]
+        public void Split_BoundaryPointAddition_ShouldAddBoundaryPointsOnlyWhenNeeded()
+        {
+            // Arrange - 分割フレームに既にポイントが存在する場合
+            var param1 = new MetaNumberParam<double>(null, 0.0);
+            param1.Params.Add(new CoordPoint() { Frame = 0, Value = 0.0 });
+            param1.Params.Add(new CoordPoint() { Frame = 50, Value = 50.0 }); // 分割フレームにポイントあり
+            param1.Params.Add(new CoordPoint() { Frame = 100, Value = 100.0 });
+
+            // Act
+            var (firstHalf1, secondHalf1) = param1.Split(50);
+
+            // Assert - 前半は分割フレーム未満なので境界ポイントが追加される
+            Assert.That(firstHalf1.Params.Count(p => p.Frame == 49), Is.EqualTo(1)); // 境界ポイント
+            Assert.That(secondHalf1.Params.Count(p => p.Frame == 0), Is.EqualTo(1)); // 境界ポイント
+
+            // Arrange - 分割フレームにポイントが存在しない場合
+            var param2 = new MetaNumberParam<double>(null, 0.0);
+            param2.Params.Add(new CoordPoint() { Frame = 0, Value = 0.0 });
+            param2.Params.Add(new CoordPoint() { Frame = 100, Value = 100.0 });
+
+            // Act
+            var (firstHalf2, secondHalf2) = param2.Split(50);
+
+            // Assert - 境界ポイントが追加される
+            Assert.That(firstHalf2.Params.Any(p => p.Frame == 49), Is.True); // 境界ポイント
+            Assert.That(secondHalf2.Params.Any(p => p.Frame == 0), Is.True);
+        }
+
+        // 要件4: JSロジックの保持 - 既存ポイントのJSロジックが保持されること
+        [Test]
+        public void Split_JSLogicPreservation_ShouldPreserveExistingJSLogic()
+        {
+            // Arrange
+            var param = new MetaNumberParam<double>();
+            var customLogic = "custom unique logic string";
+            
+            // 最初のポイントにカスタムロジックを設定
+            param.Params.Add(new CoordPoint() { Frame = 0, Value = 0.0, JSLogic = customLogic });
+            // 2番目のポイントにはデフォルトロジックを使用
+            param.Params.Add(new CoordPoint() { Frame = 100, Value = 100.0 });
+
+            // Act
+            var (firstHalf, secondHalf) = param.Split(50);
+
+            // Assert - 最初のポイントのJSロジックが保持されている
+            Assert.That(firstHalf.Params[0].JSLogic, Does.Contain("custom unique logic"));
+        }
+
+        // 要件4: JSロジックの保持 - 境界ポイントのJSロジックが適切に設定されること
+        [Test]
+        public void Split_BoundaryPointJSLogic_ShouldUseNearestPointLogic()
+        {
+            // Arrange - 分割フレーム位置にポイントがある場合
+            var param1 = new MetaNumberParam<double>(null, 0.0);
+            var customLogic = "custom logic";
+            param1.Params.Add(new CoordPoint() { Frame = 0, Value = 0.0 });
+            param1.Params.Add(new CoordPoint() { Frame = 50, Value = 50.0, JSLogic = customLogic });
+
+            // Act
+            var (firstHalf1, secondHalf1) = param1.Split(50);
+
+            // Assert - 分割フレーム位置のポイントのJSロジックを境界ポイントに使用
+            Assert.That(firstHalf1.Params.Last(p => p.Frame == 49).JSLogic, Is.EqualTo(customLogic));
+            Assert.That(secondHalf1.Params.First(p => p.Frame == 0).JSLogic, Is.EqualTo(customLogic));
+
+            // Arrange - 分割フレーム位置にポイントがない場合
+            var param2 = new MetaNumberParam<double>(null, 0.0);
+            param2.Params.Add(new CoordPoint() { Frame = 0, Value = 0.0, JSLogic = customLogic });
+            param2.Params.Add(new CoordPoint() { Frame = 100, Value = 100.0 });
+
+            // Act
+            var (firstHalf2, secondHalf2) = param2.Split(50);
+
+            // Assert - 最も近い前方ポイントのJSロジックを使用
+            Assert.That(firstHalf2.Params.Last(p => p.Frame == 49).JSLogic, Is.EqualTo(customLogic));
+            Assert.That(secondHalf2.Params.First(p => p.Frame == 0).JSLogic, Is.EqualTo(customLogic));
+        }
+
+        // 要件5: 値の連続性 - 分割位置での値が連続していること
+        [Test]
+        public void Split_ValueContinuity_ShouldMaintainContinuityAtSplitPoint()
+        {
+            // Arrange
+            var param = new MetaNumberParam<double>(null, 0.0);
+            param.Params.Add(new CoordPoint() { Frame = 0, Value = 0.0 });
+            param.Params.Add(new CoordPoint() { Frame = 100, Value = 100.0 });
+
+            // Act
+            var (firstHalf, secondHalf) = param.Split(50);
+
+            // Assert
+            double firstHalfEndValue = firstHalf.Get(49); // 前半の最終フレーム
+            double secondHalfStartValue = secondHalf.Get(0);
+            
+            Assert.That(firstHalfEndValue, Is.EqualTo(49.0)); // 0-100の線形補間でframe 49
+            Assert.That(secondHalfStartValue, Is.EqualTo(50.0)); // 境界ポイントの値
+            // 値は連続している（前半の最終値と後半の開始値が近い）
+        }
+
+        // 要件6: 不変性 - 元のパラメータが変更されないこと
+        [Test]
+        public void Split_Immutability_ShouldNotModifyOriginalParam()
+        {
+            // Arrange
+            var param = new MetaNumberParam<double>(null, 0.0);
+            param.Params.Add(new CoordPoint() { Frame = 0, Value = 0.0 });
+            param.Params.Add(new CoordPoint() { Frame = 100, Value = 100.0 });
+            int originalCount = param.Params.Count;
+            double originalValue = param.Get(25);
+
+            // Act
+            var (firstHalf, secondHalf) = param.Split(50);
+
+            // Assert - 元のパラメータは変更されていない
+            Assert.That(param.Params, Has.Count.EqualTo(originalCount));
+            Assert.That(param.Get(25), Is.EqualTo(originalValue));
+        }
+
+        // 要件7: エッジケース - 空のParamsの場合
+        [Test]
+        public void Split_EmptyParams_ShouldThrowInvalidOperationException()
+        {
+            // Arrange
+            var param = new MetaNumberParam<double>();
+
+            // Act & Assert
+            Assert.Throws<InvalidOperationException>(() => param.Split(50));
+        }
+
+        // 要件7: エッジケース - 分割フレームがすべてのポイントの前
+        [Test]
+        public void Split_SplitFrameBeforeAllPoints_ShouldCreateEmptyFirstHalf()
+        {
+            // Arrange
+            var param = new MetaNumberParam<double>(null, 10.0);
+            param.Params.Add(new CoordPoint() { Frame = 20, Value = 20.0 });
+            param.Params.Add(new CoordPoint() { Frame = 40, Value = 40.0 });
+
+            // Act
+            var (firstHalf, secondHalf) = param.Split(10);
+
+            // Assert
+            Assert.That(firstHalf.Params.Count, Is.EqualTo(2)); // 0と10の境界ポイント
+            Assert.That(secondHalf.Params.Count, Is.EqualTo(3)); // 0(境界), 10(20-10), 30(40-10)
+        }
+
+        // 要件7: エッジケース - 分割フレームがすべてのポイントの後
+        [Test]
+        public void Split_SplitFrameAfterAllPoints_ShouldCreateEmptySecondHalf()
+        {
+            // Arrange
+            var param = new MetaNumberParam<double>(null, 10.0);
+            param.Params.Add(new CoordPoint() { Frame = 20, Value = 20.0 });
+            param.Params.Add(new CoordPoint() { Frame = 40, Value = 40.0 });
+
+            // Act
+            var (firstHalf, secondHalf) = param.Split(50);
+
+            // Assert
+            Assert.That(firstHalf.Params.Count, Is.EqualTo(4)); // 0, 20, 40, 50(境界)
+            Assert.That(secondHalf.Params.Count, Is.EqualTo(1)); // 0の境界ポイントのみ
+        }
+
+        // 要件7: エッジケース - 分割フレームが既存ポイントと一致
+        [Test]
+        public void Split_SplitFrameAtExistingPoint_ShouldIncludePointOnlyInSecondHalf()
+        {
+            // Arrange
+            var param = new MetaNumberParam<double>(null, 0.0);
+            param.Params.Add(new CoordPoint() { Frame = 0, Value = 0.0 });
+            param.Params.Add(new CoordPoint() { Frame = 50, Value = 50.0 }); // 分割位置
+            param.Params.Add(new CoordPoint() { Frame = 100, Value = 100.0 });
+
+            // Act
+            var (firstHalf, secondHalf) = param.Split(50);
+
+            // Assert - 前半は分割フレーム未満、後半は分割フレーム以上
+            Assert.That(firstHalf.Params.All(p => p.Frame < 50), Is.True);
+            Assert.That(firstHalf.Params.Any(p => p.Frame == 49), Is.True); // 境界ポイント
+            Assert.That(secondHalf.Params.Any(p => p.Frame == 0), Is.True); // 境界ポイント（50-50=0）
+        }
+
+        // 追加: ジェネリック型対応
+        [Test]
+        public void Split_GenericTypeSupport_ShouldWorkWithDifferentTypes()
+        {
+            // Arrange
+            var param = new MetaNumberParam<int>(null, 0);
+            param.Params.Add(new CoordPoint() { Frame = 0, Value = 0.0 });
+            param.Params.Add(new CoordPoint() { Frame = 100, Value = 100.0 });
+
+            // Act
+            var (firstHalf, secondHalf) = param.Split(50);
+
+            // Assert
+            int firstHalfEndValue = firstHalf.Get(49); // 前半の最終フレーム
+            int secondHalfStartValue = secondHalf.Get(0);
+            
+            Assert.That(firstHalfEndValue, Is.EqualTo(49)); // 0-100の線形補間でframe 49
+            Assert.That(secondHalfStartValue, Is.EqualTo(50)); // 境界ポイントの値
+        }
+
+        // 追加: 補間計算の正確性
+        [Test]
+        public void Split_InterpolationAccuracy_ShouldMaintainCorrectInterpolation()
+        {
+            // Arrange
+            var param = new MetaNumberParam<double>(null, 0.0);
+            param.Params.Add(new CoordPoint() { Frame = 0, Value = 0.0 });
+            param.Params.Add(new CoordPoint() { Frame = 100, Value = 100.0 });
+
+            // Act
+            var (firstHalf, secondHalf) = param.Split(50);
+
+            // Assert - 分割後も補間が正しく機能する
+            Assert.That(firstHalf.Get(25), Is.EqualTo(25.0)); // 0-49の範囲で25
+            Assert.That(secondHalf.Get(25), Is.EqualTo(75.0)); // 50-100の範囲で25 = 全体で75
+            Assert.That(firstHalf.Get(10), Is.EqualTo(10.0));
+            Assert.That(secondHalf.Get(40), Is.EqualTo(90.0)); // 50+40=90
+        }
+
+        #endregion
     }
 }

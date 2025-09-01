@@ -1,5 +1,6 @@
 ﻿using Metasia.Core.Coordinate;
 using Metasia.Core.Render;
+using Metasia.Core.Xml;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
@@ -141,6 +142,36 @@ namespace Metasia.Core.Objects
 
             }
             return true;
+        }
+
+        /// <summary>
+        /// 指定したフレームでテキストクリップを分割する
+        /// </summary>
+        /// <param name="splitFrame">分割フレーム</param>
+        /// <returns>分割後の2つのテキストクリップ（前半と後半）</returns>
+        public override (ClipObject firstClip, ClipObject secondClip) SplitAtFrame(int splitFrame)
+        {
+            var result = base.SplitAtFrame(splitFrame);
+            
+            var firstText = (Text)result.firstClip;
+            var secondText = (Text)result.secondClip;
+            
+            firstText.Id = Id + "_part1";
+            secondText.Id = Id + "_part2";
+            
+            return (firstText, secondText);
+        }
+
+        /// <summary>
+        /// テキストクリップのコピーを作成する
+        /// </summary>
+        /// <returns>コピーされたテキストクリップ</returns>
+        protected override ClipObject CreateCopy()
+        {
+            var xml = MetasiaObjectXmlSerializer.Serialize(this);
+            var copy = MetasiaObjectXmlSerializer.Deserialize<Text>(xml);
+            copy.Id = Id + "_copy";
+            return copy;
         }
     }
 }

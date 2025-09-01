@@ -76,6 +76,7 @@ namespace Metasia.Editor.ViewModels.Controls
         private TimelineViewModel parentTimeline;
 
         public ICommand RemoveClipCommand { get; }
+        public ICommand SplitClipCommand { get; }
 
         public ClipViewModel(ClipObject targetObject, TimelineViewModel parentTimeline)
         {
@@ -85,6 +86,9 @@ namespace Metasia.Editor.ViewModels.Controls
 
             // 削除コマンドの初期化
             RemoveClipCommand = ReactiveCommand.Create(() => parentTimeline.ClipRemove(TargetObject));
+            
+            // 分割コマンドの初期化
+            SplitClipCommand = ReactiveCommand.Create(() => parentTimeline.SplitSelectedClips());
         }
 
         /// <summary>
