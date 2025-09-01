@@ -176,6 +176,33 @@ namespace Metasia.Editor.ViewModels
             }
         }
 
+        public void SplitSelectedClips()
+        {
+            // 現在のフレーム位置で選択中のクリップを分割
+            int splitFrame = Frame;
+            
+            // 選択中のクリップをフィルタリング（分割可能なもののみ）
+            var selectedClips = PlayerViewModel.SelectingObjects
+                .Where(clip => clip is ClipObject clipObject && 
+                              splitFrame > clipObject.StartFrame && 
+                              splitFrame < clipObject.EndFrame)
+                .Cast<ClipObject>()
+                .ToList();
+            
+            if (selectedClips.Count == 0)
+                return;
+            
+            // 各クリップのオーナーレイヤーを取得
+            var ownerLayers = selectedClips.Select(clip => FindOwnerLayer(clip)).ToList();
+            
+            // すべてのクリップにオーナーレイヤーがあるか確認
+            if (ownerLayers.Any(layer => layer is null))
+                return;
+
+            IEditCommand command = new ClipsSplitCommand(selectedClips, ownerLayers!, splitFrame);
+            RunEditCommand(command);
+        }
+
         public bool CanResizeClip(ClipObject clipObject, int newStartFrame, int newEndFrame)
         {
             LayerObject? ownerLayer = FindOwnerLayer(clipObject);
