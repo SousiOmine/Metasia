@@ -149,5 +149,128 @@ namespace Metasia.Core.Tests.Objects
             Assert.That(_timelineObject.EndFrame, Is.EqualTo(200));
             Assert.That(_timelineObject.IsActive, Is.False);
         }
+
+        /// <summary>
+        /// タイムラインオブジェクトを正常に分割できることを確認するテスト
+        /// 意図: タイムラインの分割機能が正しく動作し、基本プロパティとレイヤーが維持されることを検証
+        /// 想定結果: 2つのTimelineObjectが返され、ID、フレーム範囲、音量、レイヤー数が正しく設定される
+        /// </summary>
+        [Test]
+        public void SplitAtFrame_ValidSplitFrame_ReturnsTwoTimelineObjectsWithCorrectProperties()
+        {
+            // Arrange
+            _timelineObject.StartFrame = 10;
+            _timelineObject.EndFrame = 100;
+            _timelineObject.Volume = 80;
+            var layer1 = new LayerObject("layer1", "Layer 1");
+            var layer2 = new LayerObject("layer2", "Layer 2");
+            _timelineObject.Layers.Add(layer1);
+            _timelineObject.Layers.Add(layer2);
+            var splitFrame = 50;
+
+            // Act
+            var (firstClip, secondClip) = _timelineObject.SplitAtFrame(splitFrame);
+            var firstTimeline = firstClip as TimelineObject;
+            var secondTimeline = secondClip as TimelineObject;
+
+            // Assert
+            Assert.That(firstTimeline, Is.Not.Null);
+            Assert.That(secondTimeline, Is.Not.Null);
+            Assert.That(firstTimeline.Id, Is.EqualTo("timeline-id_part1"));
+            Assert.That(secondTimeline.Id, Is.EqualTo("timeline-id_part2"));
+            Assert.That(firstTimeline.StartFrame, Is.EqualTo(10));
+            Assert.That(firstTimeline.EndFrame, Is.EqualTo(49));
+            Assert.That(secondTimeline.StartFrame, Is.EqualTo(50));
+            Assert.That(secondTimeline.EndFrame, Is.EqualTo(100));
+            Assert.That(firstTimeline.Volume, Is.EqualTo(80));
+            Assert.That(secondTimeline.Volume, Is.EqualTo(80));
+            Assert.That(firstTimeline.Layers.Count, Is.EqualTo(2));
+            Assert.That(secondTimeline.Layers.Count, Is.EqualTo(2));
+        }
+
+        /// <summary>
+        /// 分割時にレイヤーのフレーム範囲が正しく調整されることを確認するテスト
+        /// 意図: タイムライン分割後、各レイヤーのフレーム範囲が対応するタイムライン範囲に調整されることを検証
+        /// 想定結果: 前半タイムラインのレイヤーは開始フレーム10、後半タイムラインのレイヤーは開始フレーム50になる
+        /// </summary>
+        [Test]
+        public void SplitAtFrame_LayersHaveAdjustedFrameRanges()
+        {
+            // Arrange
+            _timelineObject.StartFrame = 10;
+            _timelineObject.EndFrame = 100;
+            var layer = new LayerObject("layer1", "Layer 1");
+            _timelineObject.Layers.Add(layer);
+            var splitFrame = 50;
+
+            // Act
+            var (firstClip, secondClip) = _timelineObject.SplitAtFrame(splitFrame);
+            var firstTimeline = firstClip as TimelineObject;
+            var secondTimeline = secondClip as TimelineObject;
+
+            // Assert
+            Assert.That(firstTimeline.Layers[0].StartFrame, Is.EqualTo(10));
+            Assert.That(firstTimeline.Layers[0].EndFrame, Is.EqualTo(49));
+            Assert.That(secondTimeline.Layers[0].StartFrame, Is.EqualTo(50));
+            Assert.That(secondTimeline.Layers[0].EndFrame, Is.EqualTo(100));
+        }
+
+        /// <summary>
+        /// 分割時に音響効果が正しく維持されることを確認するテスト
+        /// 意図: タイムライン分割後、音響効果が両方のタイムラインにコピーされることを検証
+        /// 想定結果: 分割された両方のタイムラインで音響効果リストに1つの効果が保持される
+        /// </summary>
+        [Test]
+        public void SplitAtFrame_PreservesAudioEffects()
+        {
+            // Arrange
+            _timelineObject.StartFrame = 10;
+            _timelineObject.EndFrame = 100;
+            var effect = new Metasia.Core.Objects.AudioEffects.VolumeFadeEffect();
+            _timelineObject.AudioEffects.Add(effect);
+            var splitFrame = 50;
+
+            // Act
+            var (firstClip, secondClip) = _timelineObject.SplitAtFrame(splitFrame);
+            var firstTimeline = firstClip as TimelineObject;
+            var secondTimeline = secondClip as TimelineObject;
+
+            // Assert
+            Assert.That(firstTimeline.AudioEffects.Count, Is.EqualTo(1));
+            Assert.That(secondTimeline.AudioEffects.Count, Is.EqualTo(1));
+            Assert.That(firstTimeline.AudioEffects[0], Is.InstanceOf<Metasia.Core.Objects.AudioEffects.VolumeFadeEffect>());
+            Assert.That(secondTimeline.AudioEffects[0], Is.InstanceOf<Metasia.Core.Objects.AudioEffects.VolumeFadeEffect>());
+        }
+
+        /// <summary>
+        /// 分割されたタイムラインオブジェクトが元オブジェクトから独立していることを確認するテスト
+        /// 意図: ディープコピーが正しく行われ、元タイムラインの変更が分割オブジェクトに影響しないことを検証
+        /// 想定結果: 元タイムラインを変更しても、分割されたタイムラインの音量とレイヤーは変更されない
+        /// </summary>
+        [Test]
+        public void SplitAtFrame_TimelineObjectsAreIndependent_ModifyingOriginalDoesNotAffectSplits()
+        {
+            // Arrange
+            _timelineObject.StartFrame = 10;
+            _timelineObject.EndFrame = 100;
+            _timelineObject.Volume = 80;
+            var layer1 = new LayerObject("layer1", "Layer 1");
+            var layer2 = new LayerObject("layer2", "Layer 2");
+            _timelineObject.Layers.Add(layer1);
+            _timelineObject.Layers.Add(layer2);
+            var (firstClip, secondClip) = _timelineObject.SplitAtFrame(50);
+            var firstTimeline = firstClip as TimelineObject;
+            var secondTimeline = secondClip as TimelineObject;
+
+            // Act
+            _timelineObject.Volume = 50;
+            _timelineObject.Layers.Clear();
+
+            // Assert
+            Assert.That(firstTimeline.Volume, Is.EqualTo(80));
+            Assert.That(secondTimeline.Volume, Is.EqualTo(80));
+            Assert.That(firstTimeline.Layers.Count, Is.GreaterThan(0));
+            Assert.That(secondTimeline.Layers.Count, Is.GreaterThan(0));
+        }
     }
 } 

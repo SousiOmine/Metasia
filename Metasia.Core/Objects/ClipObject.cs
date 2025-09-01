@@ -1,3 +1,5 @@
+using Metasia.Core.Xml;
+
 namespace Metasia.Core.Objects
 {
     [Serializable]
@@ -50,6 +52,41 @@ namespace Metasia.Core.Objects
         {
             if(frame >= StartFrame && frame <= EndFrame) return true;
             else return false;
+        }
+
+        /// <summary>
+        /// 指定したフレームでクリップを分割する
+        /// </summary>
+        /// <param name="splitFrame">分割フレーム</param>
+        /// <returns>分割後の2つのクリップ（前半と後半）</returns>
+        public virtual (ClipObject firstClip, ClipObject secondClip) SplitAtFrame(int splitFrame)
+        {
+            if (splitFrame <= StartFrame || splitFrame >= EndFrame)
+            {
+                throw new ArgumentException("分割フレームはクリップの開始フレームより大きく、終了フレームより小さい必要があります。", nameof(splitFrame));
+            }
+
+            var firstClip = CreateCopy();
+            firstClip.StartFrame = StartFrame;
+            firstClip.EndFrame = splitFrame - 1;
+
+            var secondClip = CreateCopy();
+            secondClip.StartFrame = splitFrame;
+            secondClip.EndFrame = EndFrame;
+
+            return (firstClip, secondClip);
+        }
+
+        /// <summary>
+        /// クリップのコピーを作成する
+        /// </summary>
+        /// <returns>コピーされたクリップ</returns>
+        protected virtual ClipObject CreateCopy()
+        {
+            var xml = MetasiaObjectXmlSerializer.Serialize(this);
+            var copy = MetasiaObjectXmlSerializer.Deserialize<ClipObject>(xml);
+            copy.Id = Id + "_copy";
+            return copy;
         }
     }
 }

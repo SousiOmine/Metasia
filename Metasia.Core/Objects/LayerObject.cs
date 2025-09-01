@@ -1,6 +1,7 @@
 ﻿using Metasia.Core.Graphics;
 using Metasia.Core.Render;
 using Metasia.Core.Sounds;
+using Metasia.Core.Xml;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
@@ -156,6 +157,59 @@ namespace Metasia.Core.Objects
             }
 
             return resultChunk;
+        }
+
+        /// <summary>
+        /// 指定したフレームでレイヤーオブジェクトを分割する
+        /// </summary>
+        /// <param name="splitFrame">分割フレーム</param>
+        /// <returns>分割後の2つのレイヤーオブジェクト（前半と後半）</returns>
+        public override (ClipObject firstClip, ClipObject secondClip) SplitAtFrame(int splitFrame)
+        {
+            var result = base.SplitAtFrame(splitFrame);
+            
+            var firstLayer = (LayerObject)result.firstClip;
+            var secondLayer = (LayerObject)result.secondClip;
+            
+            firstLayer.Id = Id + "_part1";
+            secondLayer.Id = Id + "_part2";
+            
+            // オブジェクトを分割フレームに基づいて振り分ける
+            firstLayer.Objects = new ObservableCollection<ClipObject>();
+            secondLayer.Objects = new ObservableCollection<ClipObject>();
+            
+            foreach (var obj in Objects)
+            {
+                if (obj.EndFrame < splitFrame)
+                {
+                    firstLayer.Objects.Add(obj);
+                }
+                else if (obj.StartFrame >= splitFrame)
+                {
+                    secondLayer.Objects.Add(obj);
+                }
+                else
+                {
+                    // 分割フレームにまたがるオブジェクトも分割する
+                    var splitResult = obj.SplitAtFrame(splitFrame);
+                    firstLayer.Objects.Add(splitResult.firstClip);
+                    secondLayer.Objects.Add(splitResult.secondClip);
+                }
+            }
+            
+            return (firstLayer, secondLayer);
+        }
+
+        /// <summary>
+        /// レイヤーオブジェクトのコピーを作成する
+        /// </summary>
+        /// <returns>コピーされたレイヤーオブジェクト</returns>
+        protected override ClipObject CreateCopy()
+        {
+            var xml = MetasiaObjectXmlSerializer.Serialize(this);
+            var copy = MetasiaObjectXmlSerializer.Deserialize<LayerObject>(xml);
+            copy.Id = Id + "_copy";
+            return copy;
         }
     }
 }

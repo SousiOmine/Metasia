@@ -81,10 +81,18 @@ public class MetaNumberParam<T> where T : struct, IConvertible, IEquatable<T>
     /// </summary>
     /// <param name="splitFrame">分割フレーム位置</param>
     /// <returns>前半部分と後半部分の2つのMetaNumberParam</returns>
+    /// <remarks>
+    /// 分割仕様:
+    /// - 前半: splitFrame - 1 までのフレームを含む
+    /// - 後半: splitFrame から開始（splitFrame を含む）
+    /// - つまり splitFrame は後半クリップに属する
+    /// </remarks>
     public (MetaNumberParam<T> FirstHalf, MetaNumberParam<T> SecondHalf) Split(int splitFrame)
     {
         var firstHalf = new MetaNumberParam<T>();
         var secondHalf = new MetaNumberParam<T>();
+        firstHalf.ownerObject = ownerObject;
+        secondHalf.ownerObject = ownerObject;
         
         // 分割フレームの値を計算
         T splitValue = Get(splitFrame);
