@@ -3,12 +3,15 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using ReactiveUI;
 using Metasia.Editor.ViewModels.Inspector;
+using Metasia.Core.Objects;
+using Metasia.Editor.Models;
+using Metasia.Editor.Models.EditCommands;
 
 namespace Metasia.Editor.ViewModels
 {
     public class InspectorViewModel : ViewModelBase
     {
-        public ClipSettingPaneViewModel ClipSettingPane { get; }
+        public ObservableCollection<ClipSettingPaneViewModel> ClipSettingPanes { get; set; } = new();
         public string TestCharacters
         {
             get => _testCharacters;
@@ -16,7 +19,10 @@ namespace Metasia.Editor.ViewModels
         }
 
         private PlayerParentViewModel _playerParentViewModel;
+        private PlayerViewModel _playerViewModel;
         private string _testCharacters = String.Empty;
+        private ClipObject? _targetObject;
+
         public InspectorViewModel(PlayerParentViewModel playerParentViewModel)
         {
             _playerParentViewModel = playerParentViewModel;
@@ -27,8 +33,6 @@ namespace Metasia.Editor.ViewModels
                 TestCharacters = string.Empty;
                 PlayerChanged();
             };
-
-            ClipSettingPane = new ClipSettingPaneViewModel();
         }
 
         public void PlayerChanged()
@@ -39,14 +43,23 @@ namespace Metasia.Editor.ViewModels
                 {
                     if (_playerParentViewModel.TargetPlayerViewModel.SelectingObjects.Count > 0)
                     {
-                        ClipSettingPane.TargetObject = _playerParentViewModel.TargetPlayerViewModel.SelectingObjects.FirstOrDefault();
+                        ClipSettingPanes.Clear();
+                        var clipSettingPaneViewModel = new ClipSettingPaneViewModel(this);
+                        clipSettingPaneViewModel.TargetObject = _playerParentViewModel.TargetPlayerViewModel.SelectingObjects.FirstOrDefault();
+                        ClipSettingPanes.Add(clipSettingPaneViewModel);
                     }
                     else
                     {
-                        ClipSettingPane.TargetObject = null;
+                        ClipSettingPanes.Clear();
                     }
                 };
+                _playerViewModel = _playerParentViewModel.TargetPlayerViewModel;
             }
+        }
+
+        public void RunEditCommand(IEditCommand editCommand)
+        {
+            _playerViewModel.RunEditCommand(editCommand);
         }
     }
 }

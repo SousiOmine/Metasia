@@ -4,12 +4,20 @@
              xmlns:views_inspector="using:Metasia.Editor.Views.Inspector"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm_inspector="clr-namespace:Metasia.Editor.ViewModels.Inspector"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Metasia.Editor.Views.InspectorView"
              x:DataType="vm:InspectorViewModel">
     <ScrollViewer>
         <StackPanel>
-            <views_inspector:ClipSettingPaneView DataContext="{Binding ClipSettingPane}"/>
+            <ItemsControl ItemsSource="{Binding ClipSettingPanes}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="vm_inspector:ClipSettingPaneViewModel">
+                        <views_inspector:ClipSettingPaneView/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <TextBlock Text="{Binding TestCharacters}"/>
         </StackPanel>
         
     </ScrollViewer>
