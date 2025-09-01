@@ -30,7 +30,7 @@
 		
 		<Border.ContextFlyout>
 			<MenuFlyout>
-				<MenuItem Header="分割" />
+				<MenuItem Header="分割" Command="{Binding SplitClipCommand}" />
 				<MenuItem Header="削除" Command="{Binding RemoveClipCommand}" />
 			</MenuFlyout>
 		</Border.ContextFlyout>
