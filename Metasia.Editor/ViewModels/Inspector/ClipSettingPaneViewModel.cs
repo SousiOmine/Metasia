@@ -1,4 +1,5 @@
 using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
 using Metasia.Core.Objects;
@@ -26,21 +27,16 @@ public class ClipSettingPaneViewModel : ViewModelBase
         get => _isActiveCheck;
         set => this.RaiseAndSetIfChanged(ref _isActiveCheck, value);
     }
+
+    public ObservableCollection<PropertyRouterViewModel> Properties { get; set; } = new();
     
     public ICommand IsActiveCheckCommand { get; set; }
-    
-    public string DebugTest
-    {
-        get => _debugTest;
-        set => this.RaiseAndSetIfChanged(ref _debugTest, value);
-    }
 
     public event EventHandler? TargetObjectChanged;
 
     private InspectorViewModel _inspectorViewModel;
     private ClipObject? _targetObject;
     private bool _isActiveCheck;
-    private string _debugTest = string.Empty;
 
     public ClipSettingPaneViewModel(InspectorViewModel inspectorViewModel)
     {
@@ -55,7 +51,12 @@ public class ClipSettingPaneViewModel : ViewModelBase
         IsActiveCheck = TargetObject.IsActive;
 
         var editableProperties = ObjectPropertyFinder.FindEditableProperties(TargetObject);
-        DebugTest = string.Join(", \n", editableProperties.Select(x => x.Identifier));
+
+        Properties.Clear();
+        foreach (var property in editableProperties)
+        {
+            Properties.Add(new PropertyRouterViewModel(property));
+        }
     }
     
     private void isActiveCheck_Click()

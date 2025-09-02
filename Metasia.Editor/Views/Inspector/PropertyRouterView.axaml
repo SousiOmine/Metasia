@@ -1,0 +1,19 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:Metasia.Editor.ViewModels.Inspector"
+             xmlns:vm_properties="clr-namespace:Metasia.Editor.ViewModels.Inspector.Properties"
+             xmlns:views_properties="clr-namespace:Metasia.Editor.Views.Inspector.Properties"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Metasia.Editor.Views.Inspector.PropertyRouterView"
+             x:DataType="vm:PropertyRouterViewModel">
+    <StackPanel>
+
+        <TextBlock Text="{Binding PlaceholderText}" IsVisible="{Binding UsePlaceholder}"/>
+        <Border IsVisible="{Binding IsMetaNumberParamProperty}">
+            <views_properties:MetaNumberParamPropertyView DataContext="{Binding MetaNumberParamPropertyVm}"/>
+
+        </Border>
+    </StackPanel>
+</UserControl>

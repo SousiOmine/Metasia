@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:Metasia.Editor.ViewModels.Inspector"
+             xmlns:views_inspector="clr-namespace:Metasia.Editor.Views.Inspector"
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
              x:Class="Metasia.Editor.Views.Inspector.ClipSettingPaneView"
 			 x:DataType="vm:ClipSettingPaneViewModel"
@@ -10,7 +11,13 @@
     <Border Background="LightGreen" VerticalAlignment="Center" HorizontalAlignment="Stretch" Padding="10">
         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Stretch">
             <CheckBox Content="IsActive" IsChecked="{Binding IsActiveCheck}" Command="{Binding IsActiveCheckCommand}"></CheckBox>
-            <TextBlock Text="{Binding DebugTest}"></TextBlock>
+            <ItemsControl ItemsSource="{Binding Properties}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="vm:PropertyRouterViewModel">
+                        <views_inspector:PropertyRouterView/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
         </StackPanel>
     </Border>
 </UserControl>
