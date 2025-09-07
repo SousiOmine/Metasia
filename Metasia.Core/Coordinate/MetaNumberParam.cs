@@ -37,6 +37,13 @@ public class MetaNumberParam<T> where T : struct, IConvertible, IEquatable<T>
         {
             throw new InvalidOperationException("Params is empty");
         }
+        
+        // 指定フレームがすべてのキーフレームより前にある場合、最初のキーフレームの値を返す
+        if (frame < Params[0].Frame)
+        {
+            return (T)Convert.ChangeType(Params[0].Value, typeof(T));
+        }
+        
         CoordPoint startPoint = Params.Last();
         CoordPoint endPoint = startPoint;
 
@@ -158,4 +165,3 @@ public class MetaNumberParam<T> where T : struct, IConvertible, IEquatable<T>
         return (firstHalf, secondHalf);
     }
 }
-
