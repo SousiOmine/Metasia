@@ -1,6 +1,7 @@
 
 
 using Jint;
+using Metasia.Core.Coordinate.InterpolationLogic;
 
 namespace Metasia.Core.Coordinate
 {
@@ -19,17 +20,7 @@ namespace Metasia.Core.Coordinate
         /// </summary>
         public double Value = 0f;
 
-        /// <summary>
-        /// このポイントから次のポイントまでの値の変化を計算するためのJavaScriptコード
-        /// </summary>
-        public string JSLogic = """
-
-if(StartValue == EndValue) return StartValue;
-StartValue + (EndValue - StartValue) * (NowFrame - StartFrame) / (EndFrame - StartFrame)
-
-""";
-
-        
+        public InterpolationLogicBase InterpolationLogic = new LinearLogic();
 
         /// <summary>
         /// PointLogicを指定しないコンストラクタ。PointLogicには直線移動が設定される。

@@ -1,6 +1,7 @@
 using System.Xml.Serialization;
 using Metasia.Core.Objects;
 using System.Text;
+using Metasia.Core.Coordinate.InterpolationLogic;
 
 namespace Metasia.Core.Xml
 {
@@ -10,10 +11,17 @@ namespace Metasia.Core.Xml
         
         static MetasiaObjectXmlSerializer()
         {
-            var baseInterface = typeof(IMetasiaObject);
-            // IMetasiaObjectを実装する、インターフェースや抽象クラスではないすべての型を検索
-            includedTypes = baseInterface.Assembly.GetTypes()
-                .Where(t => baseInterface.IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract)
+            var metasiaObjectType = typeof(IMetasiaObject);
+            // ★ IInterpolationLogicの型も取得
+            var interpolationLogicType = typeof(IInterpolationLogic);
+
+            // 読み込まれている全てのアセンブリから型を検索
+            includedTypes = AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(assembly => assembly.GetTypes())
+                .Where(t => !t.IsInterface && !t.IsAbstract && 
+                            // ★ IMetasiaObject または IInterpolationLogic を実装する型を全て検索
+                            (metasiaObjectType.IsAssignableFrom(t) || interpolationLogicType.IsAssignableFrom(t)))
+                .Distinct()
                 .ToArray();
         }
 

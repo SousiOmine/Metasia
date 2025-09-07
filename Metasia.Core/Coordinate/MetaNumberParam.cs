@@ -11,12 +11,6 @@ public class MetaNumberParam<T> where T : struct, IConvertible, IEquatable<T>
 
     private ClipObject ownerObject;
 
-    private Engine jsEngine = new Engine(opts => opts
-        .MaxStatements(10000)
-        .LimitRecursion(10000)
-        .TimeoutInterval(TimeSpan.FromMilliseconds(100))
-    );
-
     public MetaNumberParam()
     {
         Params = new();
@@ -57,16 +51,10 @@ public class MetaNumberParam<T> where T : struct, IConvertible, IEquatable<T>
                 break;
             }
         }
-
-        jsEngine.SetValue("StartValue", startPoint.Value)
-                .SetValue("EndValue", endPoint.Value)
-                .SetValue("NowFrame", frame)
-                .SetValue("StartFrame", startPoint.Frame)
-                .SetValue("EndFrame", endPoint.Frame);
-
+        
         try
         {
-            double midValue = jsEngine.Evaluate(startPoint.JSLogic).AsNumber();
+            double midValue = startPoint.InterpolationLogic.Calculate(startPoint.Value, endPoint.Value, frame, startPoint.Frame, endPoint.Frame);
             return (T)Convert.ChangeType(midValue, typeof(T));
         }
         catch(Exception e)
@@ -104,7 +92,7 @@ public class MetaNumberParam<T> where T : struct, IConvertible, IEquatable<T>
             {
                 Frame = point.Frame,
                 Value = point.Value,
-                JSLogic = point.JSLogic
+                InterpolationLogic = point.InterpolationLogic.HardCopy()
             };
             firstHalf.Params.Add(newPoint);
         }
@@ -116,7 +104,7 @@ public class MetaNumberParam<T> where T : struct, IConvertible, IEquatable<T>
             {
                 Frame = point.Frame - splitFrame,
                 Value = point.Value,
-                JSLogic = point.JSLogic
+                InterpolationLogic = point.InterpolationLogic.HardCopy()
             };
             secondHalf.Params.Add(newPoint);
         }
@@ -139,8 +127,8 @@ public class MetaNumberParam<T> where T : struct, IConvertible, IEquatable<T>
         var splitFramePoint = Params.FirstOrDefault(p => p.Frame == splitFrame);
         if (splitFramePoint != null)
         {
-            boundaryPointForFirstHalf.JSLogic = splitFramePoint.JSLogic;
-            boundaryPointForSecondHalf.JSLogic = splitFramePoint.JSLogic;
+            boundaryPointForFirstHalf.InterpolationLogic = splitFramePoint.InterpolationLogic.HardCopy();
+            boundaryPointForSecondHalf.InterpolationLogic = splitFramePoint.InterpolationLogic.HardCopy();
         }
         else
         {
@@ -148,8 +136,8 @@ public class MetaNumberParam<T> where T : struct, IConvertible, IEquatable<T>
             var nearestPoint = Params.LastOrDefault(p => p.Frame < splitFrame);
             if (nearestPoint != null)
             {
-                boundaryPointForFirstHalf.JSLogic = nearestPoint.JSLogic;
-                boundaryPointForSecondHalf.JSLogic = nearestPoint.JSLogic;
+                boundaryPointForFirstHalf.InterpolationLogic = nearestPoint.InterpolationLogic.HardCopy();
+                boundaryPointForSecondHalf.InterpolationLogic = nearestPoint.InterpolationLogic;
             }
         }
         
