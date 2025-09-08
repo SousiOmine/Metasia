@@ -12,7 +12,7 @@ using System.Windows.Input;
 using Metasia.Editor.Models.DragDropData;
 using Metasia.Editor.Models.Interactor;
 
-namespace Metasia.Editor.ViewModels.Controls
+namespace Metasia.Editor.ViewModels.Timeline
 {
     public class LayerCanvasViewModel : ViewModelBase
     {

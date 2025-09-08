@@ -1,6 +1,6 @@
 using Avalonia.Controls;
 
-namespace Metasia.Editor.Views.Controls;
+namespace Metasia.Editor.Views.Timeline;
 
 public partial class ClipView : UserControl
 {

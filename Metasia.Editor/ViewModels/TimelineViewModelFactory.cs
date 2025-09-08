@@ -1,5 +1,5 @@
 using System;
-using Metasia.Editor.ViewModels.Controls;
+using Metasia.Editor.ViewModels.Timeline;
 
 namespace Metasia.Editor.ViewModels;
 

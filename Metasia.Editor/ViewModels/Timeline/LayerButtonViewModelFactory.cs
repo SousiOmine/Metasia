@@ -1,7 +1,7 @@
 using System;
 using Metasia.Core.Objects;
 
-namespace Metasia.Editor.ViewModels.Controls;
+namespace Metasia.Editor.ViewModels.Timeline;
 
 public class LayerButtonViewModelFactory : ILayerButtonViewModelFactory
 {

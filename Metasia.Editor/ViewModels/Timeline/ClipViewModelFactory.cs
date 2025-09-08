@@ -1,7 +1,7 @@
 using Metasia.Core.Objects;
 using System;
 
-namespace Metasia.Editor.ViewModels.Controls;
+namespace Metasia.Editor.ViewModels.Timeline;
 
 public class ClipViewModelFactory : IClipViewModelFactory
 {

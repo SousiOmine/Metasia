@@ -7,8 +7,8 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Xaml.Interactivity;
 using Metasia.Editor.Models.DragDropData;
-using Metasia.Editor.ViewModels.Controls;
-using Metasia.Editor.Views.Controls;
+using Metasia.Editor.ViewModels.Timeline;
+using Metasia.Editor.Views.Timeline;
 using Microsoft.Extensions.DependencyInjection;
 using Metasia.Editor.Services;
 

@@ -1,6 +1,6 @@
 ﻿using Avalonia;
 using Metasia.Core.Objects;
-using Metasia.Editor.ViewModels.Controls;
+using Metasia.Editor.ViewModels.Timeline;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;

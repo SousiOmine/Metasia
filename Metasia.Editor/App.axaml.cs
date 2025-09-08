@@ -8,7 +8,7 @@ using Metasia.Editor.Models.EditCommands;
 using Metasia.Editor.Services;
 using Metasia.Editor.Services.Audio;
 using Metasia.Editor.ViewModels;
-using Metasia.Editor.ViewModels.Controls;
+using Metasia.Editor.ViewModels.Timeline;
 using Metasia.Editor.Views;
 using Microsoft.Extensions.DependencyInjection;
 

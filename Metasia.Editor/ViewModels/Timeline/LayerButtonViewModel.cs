@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using Metasia.Editor.Models.EditCommands.Commands;
 
-namespace Metasia.Editor.ViewModels.Controls
+namespace Metasia.Editor.ViewModels.Timeline
 {
     public class LayerButtonViewModel : ViewModelBase
     {

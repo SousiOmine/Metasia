@@ -11,7 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace Metasia.Editor.ViewModels.Controls
+namespace Metasia.Editor.ViewModels.Timeline
 {
     public class ClipViewModel : ViewModelBase
     {

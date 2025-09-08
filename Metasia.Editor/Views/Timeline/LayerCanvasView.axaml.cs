@@ -5,9 +5,9 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Markup.Xaml;
 using Metasia.Editor.Models.DragDropData;
-using Metasia.Editor.ViewModels.Controls;
+using Metasia.Editor.ViewModels.Timeline;
 
-namespace Metasia.Editor.Views.Controls;
+namespace Metasia.Editor.Views.Timeline;
 
 public partial class LayerCanvasView : UserControl
 {

@@ -6,7 +6,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Xaml.Interactivity;
 using Metasia.Editor.Models.DragDropData;
-using Metasia.Editor.ViewModels.Controls;
+using Metasia.Editor.ViewModels.Timeline;
 
 namespace Metasia.Editor.Views.Behaviors
 {

@@ -1,6 +1,6 @@
 using Metasia.Core.Objects;
 
-namespace Metasia.Editor.ViewModels.Controls;
+namespace Metasia.Editor.ViewModels.Timeline;
 
 public interface IClipViewModelFactory
 {
