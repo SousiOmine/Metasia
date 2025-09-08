@@ -3,14 +3,21 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:Metasia.Editor.ViewModels.Inspector.Properties"
+             xmlns:vm_components="clr-namespace:Metasia.Editor.ViewModels.Inspector.Properties.Components"
+             xmlns:views_components="clr-namespace:Metasia.Editor.Views.Inspector.Properties.Components"
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="50"
              x:Class="Metasia.Editor.Views.Inspector.Properties.MetaNumberParamPropertyView"
              x:DataType="vm:MetaNumberParamPropertyViewModel">
     <StackPanel>
         <StackPanel Orientation="Horizontal">
-            <Button Content="{Binding PropertyDisplayName}" VerticalAlignment="Center" Width="80"></Button>
-            <TextBlock Text="{Binding PropertyValue}" VerticalAlignment="Center" Padding="10"></TextBlock>
-            <Slider Width="100"></Slider>
+            <Button Content="{Binding PropertyDisplayName}" VerticalAlignment="Top" Width="80"></Button>
+            <ItemsControl ItemsSource="{Binding CoordPoints}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="vm_components:MetaNumberCoordPointViewModel">
+                        <views_components:MetaNumberCoordPointView/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
         </StackPanel>
     </StackPanel>
 </UserControl>

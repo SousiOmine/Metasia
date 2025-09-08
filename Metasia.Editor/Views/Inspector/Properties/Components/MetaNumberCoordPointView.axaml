@@ -1,0 +1,22 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:Metasia.Editor.ViewModels.Inspector.Properties.Components"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="50"
+             x:Class="Metasia.Editor.Views.Inspector.Properties.Components.MetaNumberCoordPointView"
+             x:DataType="vm:MetaNumberCoordPointViewModel">
+    <StackPanel Orientation="Horizontal" Margin="5">
+        <StackPanel IsVisible="{Binding !IsSingle}"
+            Margin="0,0,10,0">
+            <Button Content="{Binding Label}"
+                    IsVisible="{Binding !IsMidpoint}"></Button>
+            <NumericUpDown Value="0" FormatString="0"
+                           IsVisible="{Binding IsMidpoint}"></NumericUpDown>
+        </StackPanel>
+        <TextBlock IsVisible="{Binding IsSingle}">移動なし</TextBlock>
+        <NumericUpDown Value="0"
+                       Margin="0,0,10,0"></NumericUpDown>
+        <Slider Width="100"></Slider>
+    </StackPanel>
+</UserControl>
