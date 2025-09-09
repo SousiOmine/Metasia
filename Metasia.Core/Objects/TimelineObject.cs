@@ -120,52 +120,43 @@ namespace Metasia.Core.Objects
         /// </summary>
         /// <param name="splitFrame">分割フレーム</param>
         /// <returns>分割後の2つのタイムラインオブジェクト（前半と後半）</returns>
-public override (ClipObject firstClip, ClipObject secondClip) SplitAtFrame(int splitFrame)
-{
-    var result = base.SplitAtFrame(splitFrame);
-
-    var firstTimeline = (TimelineObject)result.firstClip;
-    var secondTimeline = (TimelineObject)result.secondClip;
-
-    firstTimeline.Id = Id + "_part1";
-    secondTimeline.Id = Id + "_part2";
-
-    // レイヤーをディープコピー
-    firstTimeline.Layers = new List<LayerObject>();
-    secondTimeline.Layers = new List<LayerObject>();
-
-    foreach (var layer in Layers)
-    {
-        // 前半とレイヤーの交差
-        var fStart = Math.Max(layer.StartFrame, firstTimeline.StartFrame);
-        var fEnd   = Math.Min(layer.EndFrame,   firstTimeline.EndFrame);
-        // 後半とレイヤーの交差
-        var sStart = Math.Max(layer.StartFrame, secondTimeline.StartFrame);
-        var sEnd   = Math.Min(layer.EndFrame,   secondTimeline.EndFrame);
-
-        // 必要になったときだけ 1 回シリアライズ
-        string? serialized = null;
-
-        if (fStart < fEnd)
+        public override (ClipObject firstClip, ClipObject secondClip) SplitAtFrame(int splitFrame)
         {
-            serialized ??= MetasiaObjectXmlSerializer.Serialize(layer);
-            var firstLayerCopy = MetasiaObjectXmlSerializer.Deserialize<LayerObject>(serialized);
-            firstLayerCopy.StartFrame = fStart;
-            firstLayerCopy.EndFrame   = fEnd;
-            firstTimeline.Layers.Add(firstLayerCopy);
-        }
-        if (sStart < sEnd)
-        {
-            serialized ??= MetasiaObjectXmlSerializer.Serialize(layer);
-            var secondLayerCopy = MetasiaObjectXmlSerializer.Deserialize<LayerObject>(serialized);
-            secondLayerCopy.StartFrame = sStart;
-            secondLayerCopy.EndFrame   = sEnd;
-            secondTimeline.Layers.Add(secondLayerCopy);
-        }
-    }
+            var result = base.SplitAtFrame(splitFrame);
 
-    return (firstTimeline, secondTimeline);
-}
+            var firstTimeline = (TimelineObject)result.firstClip;
+            var secondTimeline = (TimelineObject)result.secondClip;
+
+            firstTimeline.Id = Id + "_part1";
+            secondTimeline.Id = Id + "_part2";
+
+            // レイヤーを適切に分割
+            firstTimeline.Layers = new List<LayerObject>();
+            secondTimeline.Layers = new List<LayerObject>();
+
+            foreach (var layer in Layers)
+            {
+                // レイヤーが完全に前半に属する場合
+                if (layer.EndFrame < splitFrame)
+                {
+                    firstTimeline.Layers.Add(layer);
+                }
+                // レイヤーが完全に後半に属する場合
+                else if (layer.StartFrame >= splitFrame)
+                {
+                    secondTimeline.Layers.Add(layer);
+                }
+                // レイヤーが分割フレームをまたぐ場合、レイヤーを分割
+                else
+                {
+                    var splitResult = layer.SplitAtFrame(splitFrame);
+                    firstTimeline.Layers.Add((LayerObject)splitResult.firstClip);
+                    secondTimeline.Layers.Add((LayerObject)splitResult.secondClip);
+                }
+            }
+            return (firstTimeline, secondTimeline);
+        }
+
         /// <summary>
         /// タイムラインオブジェクトのコピーを作成する
         /// </summary>

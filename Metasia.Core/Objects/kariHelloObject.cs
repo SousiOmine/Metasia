@@ -136,13 +136,42 @@ namespace Metasia.Core.Objects
         public override (ClipObject firstClip, ClipObject secondClip) SplitAtFrame(int splitFrame)
         {
             var result = base.SplitAtFrame(splitFrame);
-            
+
             var firstHello = (kariHelloObject)result.firstClip;
             var secondHello = (kariHelloObject)result.secondClip;
-            
+
             firstHello.Id = Id + "_part1";
             secondHello.Id = Id + "_part2";
-            
+
+            // MetaNumberParamプロパティの分割
+            // 相対フレーム位置で分割するため、オブジェクトの開始フレームを基準とした相対位置で分割
+            int relativeSplitFrame = splitFrame - StartFrame;
+
+            // Xプロパティの分割
+            var (firstX, secondX) = X.Split(relativeSplitFrame);
+            firstHello.X = firstX;
+            secondHello.X = secondX;
+
+            // Yプロパティの分割
+            var (firstY, secondY) = Y.Split(relativeSplitFrame);
+            firstHello.Y = firstY;
+            secondHello.Y = secondY;
+
+            // Scaleプロパティの分割
+            var (firstScale, secondScale) = Scale.Split(relativeSplitFrame);
+            firstHello.Scale = firstScale;
+            secondHello.Scale = secondScale;
+
+            // Alphaプロパティの分割
+            var (firstAlpha, secondAlpha) = Alpha.Split(relativeSplitFrame);
+            firstHello.Alpha = firstAlpha;
+            secondHello.Alpha = secondAlpha;
+
+            // Rotationプロパティの分割
+            var (firstRotation, secondRotation) = Rotation.Split(relativeSplitFrame);
+            firstHello.Rotation = firstRotation;
+            secondHello.Rotation = secondRotation;
+
             return (firstHello, secondHello);
         }
 

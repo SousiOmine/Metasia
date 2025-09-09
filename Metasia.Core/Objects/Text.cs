@@ -154,13 +154,47 @@ namespace Metasia.Core.Objects
         public override (ClipObject firstClip, ClipObject secondClip) SplitAtFrame(int splitFrame)
         {
             var result = base.SplitAtFrame(splitFrame);
-            
+
             var firstText = (Text)result.firstClip;
             var secondText = (Text)result.secondClip;
-            
+
             firstText.Id = Id + "_part1";
             secondText.Id = Id + "_part2";
-            
+
+            // MetaNumberParamプロパティの分割
+            // 相対フレーム位置で分割するため、オブジェクトの開始フレームを基準とした相対位置で分割
+            int relativeSplitFrame = splitFrame - StartFrame;
+
+            // Xプロパティの分割
+            var (firstX, secondX) = X.Split(relativeSplitFrame);
+            firstText.X = firstX;
+            secondText.X = secondX;
+
+            // Yプロパティの分割
+            var (firstY, secondY) = Y.Split(relativeSplitFrame);
+            firstText.Y = firstY;
+            secondText.Y = secondY;
+
+            // Scaleプロパティの分割
+            var (firstScale, secondScale) = Scale.Split(relativeSplitFrame);
+            firstText.Scale = firstScale;
+            secondText.Scale = secondScale;
+
+            // Alphaプロパティの分割
+            var (firstAlpha, secondAlpha) = Alpha.Split(relativeSplitFrame);
+            firstText.Alpha = firstAlpha;
+            secondText.Alpha = secondAlpha;
+
+            // Rotationプロパティの分割
+            var (firstRotation, secondRotation) = Rotation.Split(relativeSplitFrame);
+            firstText.Rotation = firstRotation;
+            secondText.Rotation = secondRotation;
+
+            // TextSizeプロパティの分割
+            var (firstTextSize, secondTextSize) = TextSize.Split(relativeSplitFrame);
+            firstText.TextSize = firstTextSize;
+            secondText.TextSize = secondTextSize;
+
             return (firstText, secondText);
         }
 

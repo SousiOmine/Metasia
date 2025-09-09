@@ -23,17 +23,17 @@ public class KariProjectTemplate : IProjectTemplate
         { 
             EndFrame = 120,
         };
-        kariHello.Rotation.Params.Add(new CoordPoint() { Value = 90, Frame = 120 });
+        kariHello.Rotation.AddPoint(new CoordPoint() { Value = 90, Frame = 120 });
 
         kariHelloObject kariHello2 = new kariHelloObject("karihello2")
         {
             EndFrame = 10,
         };
-        kariHello2.Y.Params[0].Value = 300;
-        kariHello2.Rotation.Params[0].Value = 45;
-        kariHello2.Alpha.Params[0].Value = 50;
-        kariHello2.Scale.Params[0].Value = 50;
-        kariHello2.X.Params.Add(new CoordPoint() { Value = 1000, Frame = 10 });
+        kariHello2.Y.SetSinglePoint(300);
+        kariHello2.Rotation.SetSinglePoint(45);
+        kariHello2.Alpha.SetSinglePoint(50);
+        kariHello2.Scale.SetSinglePoint(50);
+        kariHello2.X.AddPoint(new CoordPoint() { Value = 1000, Frame = 10 });
 
         kariHello2.AudioEffects.Add(new VolumeFadeEffect(){In = 1, Out = 1});
 
@@ -43,7 +43,7 @@ public class KariProjectTemplate : IProjectTemplate
             TypefaceName = "LINE Seed JP_TTF",
             Contents = "こんにちは Hello",
         };
-        text.TextSize.Params[0].Value = 400;
+        text.TextSize.SetSinglePoint(400);
 
         Text onesec = new Text("sec1")
         {
@@ -51,9 +51,9 @@ public class KariProjectTemplate : IProjectTemplate
             TypefaceName = "LINE Seed JP_TTF",
             Contents = "1",
         };
-        onesec.TextSize.Params[0].Value = 200;
-        onesec.X.Params[0].Value = -1800;
-        onesec.Y.Params[0].Value = 900;
+        onesec.TextSize.SetSinglePoint(200);
+        onesec.X.SetSinglePoint(-1800);
+        onesec.Y.SetSinglePoint(900);
 
         Text twosec = new Text("sec2")
         {
@@ -62,9 +62,9 @@ public class KariProjectTemplate : IProjectTemplate
             TypefaceName = "LINE Seed JP_TTF",
             Contents = "2",
         };
-        twosec.TextSize.Params[0].Value = 200;
-        twosec.X.Params[0].Value = -1800;
-        twosec.Y.Params[0].Value = 900;
+        twosec.TextSize.SetSinglePoint(200);
+        twosec.X.SetSinglePoint(-1800);
+        twosec.Y.SetSinglePoint(900);
 
         Text foursec = new Text("sec4")
         {
@@ -73,9 +73,9 @@ public class KariProjectTemplate : IProjectTemplate
             TypefaceName = "LINE Seed JP_TTF",
             Contents = "4",
         };
-        foursec.TextSize.Params[0].Value = 200;
-        foursec.X.Params[0].Value = -1800;
-        foursec.Y.Params[0].Value = 900;
+        foursec.TextSize.SetSinglePoint(200);
+        foursec.X.SetSinglePoint(-1800);
+        foursec.Y.SetSinglePoint(900);
 
         // レイヤーの作成
         LayerObject layer1 = new LayerObject("layer1", "Layer 1");
@@ -97,7 +97,7 @@ public class KariProjectTemplate : IProjectTemplate
         {
             EndFrame = 1200,
         };
-        karisec.Scale.Params[0].Value = 300;
+        karisec.Scale.SetSinglePoint(300);
 
         secLayer.Objects.Add(karisec);
         layer5.Objects.Add(secondTL);
@@ -111,16 +111,13 @@ public class KariProjectTemplate : IProjectTemplate
             Contents = "JS",
         };
         // X パラメータに5つの中間点を設定し、1つは JavaScriptLogic を使用
-        jsClip.X.Params.Clear();
-        jsClip.X.Params.Add(new CoordPoint() { Value = -1300, Frame = 0 });
-        jsClip.X.Params.Add(new CoordPoint() { Value = -400, Frame = 60 });
-        jsClip.X.Params.Add(new CoordPoint() { Value = 500, Frame = 120 });
-        // 120フレームのポイントに JavaScript の非線形ロジックを設定
-        jsClip.X.Params[2].InterpolationLogic = new JavaScriptLogic() {
+        jsClip.X.SetSinglePoint(-1300);
+        jsClip.X.AddPoint(new CoordPoint() { Value = -400, Frame = 60 });
+        jsClip.X.AddPoint(new CoordPoint() { Value = 500, Frame = 120, InterpolationLogic = new JavaScriptLogic() {
             JSLogic = "StartValue + (EndValue - StartValue) * Math.pow((NowFrame - StartFrame) / (EndFrame - StartFrame), 2)"
-        };
-        jsClip.X.Params.Add(new CoordPoint() { Value = 1400, Frame = 180 });
-        jsClip.X.Params.Add(new CoordPoint() { Value = 2300, Frame = 239 });
+        } });
+        jsClip.X.AddPoint(new CoordPoint() { Value = 1400, Frame = 180 });
+        jsClip.X.AddPoint(new CoordPoint() { Value = 2300, Frame = 239 });
         // クリップをレイヤー5に追加
         layer5.Objects.Add(jsClip);
 
