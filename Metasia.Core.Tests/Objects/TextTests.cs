@@ -147,9 +147,9 @@ namespace Metasia.Core.Tests.Objects
             // Arrange
             _textObject.StartFrame = 10;
             _textObject.EndFrame = 100;
-            _textObject.X = new MetaNumberParam<double>(_textObject, 100);
-            _textObject.Y = new MetaNumberParam<double>(_textObject, 200);
-            _textObject.Scale = new MetaNumberParam<double>(_textObject, 150);
+            _textObject.X = new MetaNumberParam<double>(100);
+            _textObject.Y = new MetaNumberParam<double>(200);
+            _textObject.Scale = new MetaNumberParam<double>(150);
             var splitFrame = 50;
 
             // Act

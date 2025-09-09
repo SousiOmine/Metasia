@@ -86,7 +86,7 @@ public class MetasiaObjectXmlSerializerTests
             EndFrame = 30,
             IsActive = true,
             Contents = "Test Text",
-            TextSize = new MetaNumberParam<double>(new ClipObject("dummy"), 12.0),
+            TextSize = new MetaNumberParam<double>(12.0),
             TypefaceName = "Arial"
         };
 

@@ -108,8 +108,8 @@ namespace Metasia.Core.Tests.Objects
             _kariHelloObject.StartFrame = 10;
             _kariHelloObject.EndFrame = 100;
             _kariHelloObject.Volume = 60;
-            _kariHelloObject.X = new MetaNumberParam<double>(_kariHelloObject, 150);
-            _kariHelloObject.Y = new MetaNumberParam<double>(_kariHelloObject, 250);
+            _kariHelloObject.X = new MetaNumberParam<double>(150);
+            _kariHelloObject.Y = new MetaNumberParam<double>(250);
             var splitFrame = 50;
 
             // Act
@@ -141,11 +141,11 @@ namespace Metasia.Core.Tests.Objects
             // Arrange
             _kariHelloObject.StartFrame = 10;
             _kariHelloObject.EndFrame = 100;
-            _kariHelloObject.X = new MetaNumberParam<double>(_kariHelloObject, 100);
-            _kariHelloObject.Y = new MetaNumberParam<double>(_kariHelloObject, 200);
-            _kariHelloObject.Scale = new MetaNumberParam<double>(_kariHelloObject, 150);
-            _kariHelloObject.Alpha = new MetaNumberParam<double>(_kariHelloObject, 25);
-            _kariHelloObject.Rotation = new MetaNumberParam<double>(_kariHelloObject, 45);
+            _kariHelloObject.X = new MetaNumberParam<double>(100);
+            _kariHelloObject.Y = new MetaNumberParam<double>(200);
+            _kariHelloObject.Scale = new MetaNumberParam<double>(150);
+            _kariHelloObject.Alpha = new MetaNumberParam<double>(25);
+            _kariHelloObject.Rotation = new MetaNumberParam<double>(45);
             var splitFrame = 50;
 
             // Act

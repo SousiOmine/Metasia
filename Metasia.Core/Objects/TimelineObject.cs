@@ -139,12 +139,22 @@ namespace Metasia.Core.Objects
                 // レイヤーが完全に前半に属する場合
                 if (layer.EndFrame < splitFrame)
                 {
-                    firstTimeline.Layers.Add(layer);
+                    // 前半タイムラインの範囲に合わせてレイヤーの範囲を調整
+                    var xml = MetasiaObjectXmlSerializer.Serialize(layer);
+                    var adjustedLayer = MetasiaObjectXmlSerializer.Deserialize<LayerObject>(xml);
+                    adjustedLayer.StartFrame = Math.Max(layer.StartFrame, firstTimeline.StartFrame);
+                    adjustedLayer.EndFrame = Math.Min(layer.EndFrame, firstTimeline.EndFrame);
+                    firstTimeline.Layers.Add(adjustedLayer);
                 }
                 // レイヤーが完全に後半に属する場合
                 else if (layer.StartFrame >= splitFrame)
                 {
-                    secondTimeline.Layers.Add(layer);
+                    // 後半タイムラインの範囲に合わせてレイヤーの範囲を調整
+                    var xml = MetasiaObjectXmlSerializer.Serialize(layer);
+                    var adjustedLayer = MetasiaObjectXmlSerializer.Deserialize<LayerObject>(xml);
+                    adjustedLayer.StartFrame = Math.Max(layer.StartFrame, secondTimeline.StartFrame);
+                    adjustedLayer.EndFrame = Math.Min(layer.EndFrame, secondTimeline.EndFrame);
+                    secondTimeline.Layers.Add(adjustedLayer);
                 }
                 // レイヤーが分割フレームをまたぐ場合、レイヤーを分割
                 else

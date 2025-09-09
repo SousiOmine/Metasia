@@ -199,7 +199,11 @@ namespace Metasia.Core.Tests.Objects
             // Arrange
             _timelineObject.StartFrame = 10;
             _timelineObject.EndFrame = 100;
-            var layer = new LayerObject("layer1", "Layer 1");
+            var layer = new LayerObject("layer1", "Layer 1")
+            {
+                StartFrame = 10,
+                EndFrame = 100
+            };
             _timelineObject.Layers.Add(layer);
             var splitFrame = 50;
 
@@ -209,6 +213,7 @@ namespace Metasia.Core.Tests.Objects
             var secondTimeline = secondClip as TimelineObject;
 
             // Assert
+            // LayerObjectのStartFrameとEndFrameが正しく調整される
             Assert.That(firstTimeline.Layers[0].StartFrame, Is.EqualTo(10));
             Assert.That(firstTimeline.Layers[0].EndFrame, Is.EqualTo(49));
             Assert.That(secondTimeline.Layers[0].StartFrame, Is.EqualTo(50));
