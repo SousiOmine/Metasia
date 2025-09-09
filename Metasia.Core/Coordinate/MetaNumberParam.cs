@@ -8,17 +8,15 @@ namespace Metasia.Core.Coordinate;
 public class MetaNumberParam<T> where T : struct, IConvertible, IEquatable<T>
 {
     public List<CoordPoint> Params { get; protected set; }
-
-    private ClipObject ownerObject;
+    
 
     public MetaNumberParam()
     {
         Params = new();
     }
 
-    public MetaNumberParam(ClipObject owner, T initialValue)
+    public MetaNumberParam(T initialValue)
     {
-        ownerObject = owner;
         Params = [new CoordPoint(){Value = Convert.ToDouble(initialValue)}];
     }
 
@@ -29,8 +27,6 @@ public class MetaNumberParam<T> where T : struct, IConvertible, IEquatable<T>
 
     protected T CalculateMidValue(int frame)
     {
-        //CoordPointのFrameはオブジェクトの始点基準なので合わせる
-        frame -= ownerObject?.StartFrame ?? 0;
         //pointsをFrameの昇順に並べ替え
         Params.Sort((a, b) => a.Frame - b.Frame);
         if(Params.Count == 0)
@@ -86,8 +82,6 @@ public class MetaNumberParam<T> where T : struct, IConvertible, IEquatable<T>
     {
         var firstHalf = new MetaNumberParam<T>();
         var secondHalf = new MetaNumberParam<T>();
-        firstHalf.ownerObject = ownerObject;
-        secondHalf.ownerObject = ownerObject;
         
         // 分割フレームの値を計算
         T splitValue = Get(splitFrame);

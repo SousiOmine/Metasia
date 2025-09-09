@@ -51,33 +51,35 @@ namespace Metasia.Core.Objects
 
         public Text(string id) : base(id)
         {
-            X = new MetaNumberParam<double>(this, 0);
-            Y = new MetaNumberParam<double>(this, 0);
-            Scale = new MetaNumberParam<double>(this, 100);
-            Alpha = new MetaNumberParam<double>(this, 0);
-            Rotation = new MetaNumberParam<double>(this, 0);
-            TextSize = new MetaNumberParam<double>(this, 100);
+            X = new MetaNumberParam<double>(0);
+            Y = new MetaNumberParam<double>(0);
+            Scale = new MetaNumberParam<double>(100);
+            Alpha = new MetaNumberParam<double>(0);
+            Rotation = new MetaNumberParam<double>(0);
+            TextSize = new MetaNumberParam<double>(100);
             LoadTypeface();
         }
 
         public Text()
         {
-            X = new MetaNumberParam<double>(this, 0);
-            Y = new MetaNumberParam<double>(this, 0);
-            Scale = new MetaNumberParam<double>(this, 100);
-            Alpha = new MetaNumberParam<double>(this, 0);
-            Rotation = new MetaNumberParam<double>(this, 0);
-            TextSize = new MetaNumberParam<double>(this, 100);
+            X = new MetaNumberParam<double>(0);
+            Y = new MetaNumberParam<double>(0);
+            Scale = new MetaNumberParam<double>(100);
+            Alpha = new MetaNumberParam<double>(0);
+            Rotation = new MetaNumberParam<double>(0);
+            TextSize = new MetaNumberParam<double>(100);
             LoadTypeface();
         }
 
         [Obsolete]
         public RenderNode Render(RenderContext context)
         {
+            //このオブジェクトのStartFrameを基準としたフレーム
+            int relativeFrame = context.Frame - StartFrame;
             SKPaint skPaint = new SKPaint()
             {
                 IsAntialias = true,
-                TextSize = (float)TextSize.Get(context.Frame),
+                TextSize = (float)TextSize.Get(relativeFrame),
                 Typeface = _typeface,
                 Color = SKColors.White,
             };
@@ -114,10 +116,10 @@ namespace Metasia.Core.Objects
 
             var transform = new Transform()
             {
-                Position = new SKPoint((float)X.Get(context.Frame), (float)Y.Get(context.Frame)),
-                Scale = (float)Scale.Get(context.Frame) / 100,
-                Rotation = (float)Rotation.Get(context.Frame),
-                Alpha = (100.0f - (float)Alpha.Get(context.Frame)) / 100,
+                Position = new SKPoint((float)X.Get(relativeFrame), (float)Y.Get(relativeFrame)),
+                Scale = (float)Scale.Get(relativeFrame) / 100,
+                Rotation = (float)Rotation.Get(relativeFrame),
+                Alpha = (100.0f - (float)Alpha.Get(relativeFrame)) / 100,
             };
 
 
