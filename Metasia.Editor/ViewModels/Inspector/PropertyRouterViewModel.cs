@@ -38,7 +38,15 @@ public class PropertyRouterViewModel : ViewModelBase
     {
         if (propertyInfo.Type == typeof(MetaNumberParam<double>))
         {
-            MetaNumberParamPropertyVm = new MetaNumberParamPropertyViewModel(propertyInfo.Identifier, (MetaNumberParam<double>)propertyInfo.PropertyValue!);
+            
+            if (propertyInfo.Min is null || propertyInfo.Max is null || propertyInfo.RecommendedMin is null || propertyInfo.RecommendedMax is null)
+            {
+                MetaNumberParamPropertyVm = new MetaNumberParamPropertyViewModel(propertyInfo.Identifier, (MetaNumberParam<double>)propertyInfo.PropertyValue!);
+            }
+            else
+            {
+                MetaNumberParamPropertyVm = new MetaNumberParamPropertyViewModel(propertyInfo.Identifier, (MetaNumberParam<double>)propertyInfo.PropertyValue!, propertyInfo.Min.Value, propertyInfo.Max.Value, propertyInfo.RecommendedMin.Value, propertyInfo.RecommendedMax.Value);
+            }
             IsMetaNumberParamProperty = true;
             UsePlaceholder = false;
         }

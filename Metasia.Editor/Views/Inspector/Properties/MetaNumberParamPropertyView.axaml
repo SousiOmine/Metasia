@@ -10,7 +10,7 @@
              x:DataType="vm:MetaNumberParamPropertyViewModel">
     <StackPanel>
         <StackPanel Orientation="Horizontal">
-            <Button Content="{Binding PropertyDisplayName}" VerticalAlignment="Top" Width="80">
+            <Button Content="{Binding PropertyDisplayName}" VerticalAlignment="Top" Width="70" Margin="2">
                 <Button.Flyout>
                     <MenuFlyout>
                         <MenuItem Header="移動を追加"/>

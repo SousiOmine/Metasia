@@ -9,7 +9,11 @@ public class ObjectPropertyFinder
 	public record EditablePropertyInfo(
         Type Type,
         string Identifier,
-        object? PropertyValue
+        object? PropertyValue,
+        double? Min,
+        double? Max,
+        double? RecommendedMin,
+        double? RecommendedMax
     );
 
     public static List<EditablePropertyInfo> FindEditableProperties(object target)
@@ -21,17 +25,24 @@ public class ObjectPropertyFinder
 
         foreach (var prop in type.GetProperties())
         {
-            var attr = Attribute.GetCustomAttribute(prop, typeof(EditablePropertyAttribute), false);
-            if (attr == null)
+            if(Attribute.GetCustomAttribute(prop, typeof(EditablePropertyAttribute)) is not EditablePropertyAttribute editablePropertyAttribute)
                 continue;
 
-            if (!(attr is EditablePropertyAttribute editablePropertyAttribute))
-                continue;
+            var rangeAttr = Attribute.GetCustomAttribute(prop, typeof(ValueRangeAttribute)) as ValueRangeAttribute;
+
+            double? min = rangeAttr?.Min ?? double.MinValue;
+            double? max = rangeAttr?.Max ?? double.MaxValue;
+            double? recommendedMin = rangeAttr?.RecommendedMin ?? min;
+            double? recommendedMax = rangeAttr?.RecommendedMax ?? max;
 
             properties.Add(new EditablePropertyInfo(
                 prop.PropertyType,
                 editablePropertyAttribute.PropertyIdentifier,
-                prop.GetValue(target)
+                prop.GetValue(target),
+                min,
+                max,
+                recommendedMin,
+                recommendedMax
             ));
         }
 

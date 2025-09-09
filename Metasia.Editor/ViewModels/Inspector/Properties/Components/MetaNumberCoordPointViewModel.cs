@@ -41,14 +41,39 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
         get => _label;
         set => this.RaiseAndSetIfChanged(ref _label, value);
     }
+
+    public double Min
+    {
+        get => _min;
+        set => this.RaiseAndSetIfChanged(ref _min, value);
+    }
+    public double Max
+    {
+        get => _max;
+        set => this.RaiseAndSetIfChanged(ref _max, value);
+    }
+    public double RecommendedMin
+    {
+        get => _recommendedMin;
+        set => this.RaiseAndSetIfChanged(ref _recommendedMin, value);
+    }
+    public double RecommendedMax
+    {
+        get => _recommendedMax;
+        set => this.RaiseAndSetIfChanged(ref _recommendedMax, value);
+    }
     
     private double _pointValue;
     private int _pointFrame;
     private bool _isSingle;
     private bool _isMidpoint;
     private string _label = string.Empty;
+    private double _min = double.MinValue;
+    private double _max = double.MaxValue;
+    private double _recommendedMin = double.MinValue;
+    private double _recommendedMax = double.MaxValue;
 
-    public MetaNumberCoordPointViewModel(CoordPoint target, PointType pointType = PointType.Start)
+    public MetaNumberCoordPointViewModel(CoordPoint target, PointType pointType = PointType.Start, double min = double.MinValue, double max = double.MaxValue, double recommendedMin = double.MinValue, double recommendedMax = double.MaxValue)
     {
         switch (pointType)
         {
@@ -75,5 +100,9 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
         
         PointValue = target.Value;
         PointFrame = target.Frame;
+        Min = min;
+        Max = max;
+        RecommendedMin = recommendedMin;
+        RecommendedMax = recommendedMax;
     }
 }

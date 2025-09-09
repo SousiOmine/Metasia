@@ -20,16 +20,22 @@ namespace Metasia.Core.Objects
 	public class kariHelloObject : ClipObject, IRenderable, IAudible
 	{
 		[EditableProperty("X")]
+		[ValueRange(-99999, 99999, -2000, 2000)]
 		public MetaNumberParam<double> X { get; set; }
 		[EditableProperty("Y")]
+		[ValueRange(-99999, 99999, -2000, 2000)]
 		public MetaNumberParam<double> Y { get; set; }
 		[EditableProperty("Scale")]
+		[ValueRange(0, 99999, 0, 1000)]
 		public MetaNumberParam<double> Scale { get; set; }
 		[EditableProperty("Alpha")]
+		[ValueRange(0, 100, 0, 100)]
 		public MetaNumberParam<double> Alpha { get; set; }
 		[EditableProperty("Rotation")]
+		[ValueRange(-99999, 99999, 0, 360)]
 		public MetaNumberParam<double> Rotation { get; set; }
 		[EditableProperty("AudioVolume")]
+		[ValueRange(0, 99999, 0, 200)]
 		public double Volume { get; set; } = 100;
 		public List<AudioEffectBase> AudioEffects { get; set; } = new();
 		
