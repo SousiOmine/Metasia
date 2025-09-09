@@ -4,6 +4,7 @@ using SkiaSharp;
 using Metasia.Core.Objects;
 using Metasia.Core.Coordinate;
 using Metasia.Core.Objects.AudioEffects;
+using Metasia.Core.Coordinate.InterpolationLogic;
 
 namespace Metasia.Editor.Models.ProjectGenerate;
 
@@ -100,6 +101,28 @@ public class KariProjectTemplate : IProjectTemplate
 
         secLayer.Objects.Add(karisec);
         layer5.Objects.Add(secondTL);
+
+        // JavaScriptロジックを持つX座標パラメータ
+        Text jsClip = new Text("jsClip")
+        {
+            StartFrame = 240,
+            EndFrame = 500,
+            TypefaceName = "LINE Seed JP_TTF",
+            Contents = "JS",
+        };
+        // X パラメータに5つの中間点を設定し、1つは JavaScriptLogic を使用
+        jsClip.X.Params.Clear();
+        jsClip.X.Params.Add(new CoordPoint() { Value = -1300, Frame = 0 });
+        jsClip.X.Params.Add(new CoordPoint() { Value = -400, Frame = 60 });
+        jsClip.X.Params.Add(new CoordPoint() { Value = 500, Frame = 120 });
+        // 120フレームのポイントに JavaScript の非線形ロジックを設定
+        jsClip.X.Params[2].InterpolationLogic = new JavaScriptLogic() {
+            JSLogic = "StartValue + (EndValue - StartValue) * Math.pow((NowFrame - StartFrame) / (EndFrame - StartFrame), 2)"
+        };
+        jsClip.X.Params.Add(new CoordPoint() { Value = 1400, Frame = 180 });
+        jsClip.X.Params.Add(new CoordPoint() { Value = 2300, Frame = 239 });
+        // クリップをレイヤー5に追加
+        layer5.Objects.Add(jsClip);
 
         // メインタイムラインの作成と設定
         TimelineObject mainTL = new TimelineObject("RootTimeline");

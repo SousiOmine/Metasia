@@ -12,6 +12,18 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
         End,
         Single
     }
+    
+    public double PointValue
+    {
+        get => _pointValue;
+        set => this.RaiseAndSetIfChanged(ref _pointValue, value);
+    }
+
+    public int PointFrame
+    {
+        get => _pointFrame;
+        set => this.RaiseAndSetIfChanged(ref _pointFrame, value);
+    }
     public bool IsSingle
     {
         get => _isSingle;
@@ -30,6 +42,8 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _label, value);
     }
     
+    private double _pointValue;
+    private int _pointFrame;
     private bool _isSingle;
     private bool _isMidpoint;
     private string _label = string.Empty;
@@ -58,5 +72,8 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
                 IsSingle = true;
                 break;
         }
+        
+        PointValue = target.Value;
+        PointFrame = target.Frame;
     }
 }

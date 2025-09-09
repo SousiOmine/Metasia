@@ -10,7 +10,13 @@
              x:DataType="vm:MetaNumberParamPropertyViewModel">
     <StackPanel>
         <StackPanel Orientation="Horizontal">
-            <Button Content="{Binding PropertyDisplayName}" VerticalAlignment="Top" Width="80"></Button>
+            <Button Content="{Binding PropertyDisplayName}" VerticalAlignment="Top" Width="80">
+                <Button.Flyout>
+                    <MenuFlyout>
+                        <MenuItem Header="移動を追加"/>
+                    </MenuFlyout>
+                </Button.Flyout>
+            </Button>
             <ItemsControl ItemsSource="{Binding CoordPoints}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="vm_components:MetaNumberCoordPointViewModel">

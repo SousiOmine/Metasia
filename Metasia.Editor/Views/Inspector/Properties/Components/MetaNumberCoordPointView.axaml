@@ -10,12 +10,26 @@
         <StackPanel IsVisible="{Binding !IsSingle}"
             Margin="0,0,10,0">
             <Button Content="{Binding Label}"
-                    IsVisible="{Binding !IsMidpoint}"></Button>
-            <NumericUpDown Value="0" FormatString="0"
-                           IsVisible="{Binding IsMidpoint}"></NumericUpDown>
+                    IsVisible="{Binding !IsMidpoint}">
+                <Button.Flyout>
+                    <MenuFlyout>
+                        <MenuItem Header="中間点を追加"/>
+                    </MenuFlyout>
+                </Button.Flyout>
+            </Button>
+            <NumericUpDown Value="{Binding PointFrame}" FormatString="0"
+                           IsVisible="{Binding IsMidpoint}">
+                <NumericUpDown.ContextFlyout>
+                    <MenuFlyout>
+                        <MenuItem Header="中間点を手前に追加"/>
+                        <MenuItem Header="中間点を後ろに追加"/>
+                        <MenuItem Header="この中間点を削除"/>
+                    </MenuFlyout>
+                </NumericUpDown.ContextFlyout>
+            </NumericUpDown>
         </StackPanel>
         <TextBlock IsVisible="{Binding IsSingle}">移動なし</TextBlock>
-        <NumericUpDown Value="0"
+        <NumericUpDown Value="{Binding PointValue}"
                        Margin="0,0,10,0"></NumericUpDown>
         <Slider Width="100"></Slider>
     </StackPanel>
