@@ -2,6 +2,7 @@
 using Metasia.Core.Objects;
 using Metasia.Editor.Models.EditCommands;
 using Metasia.Editor.Models.EditCommands.Commands;
+using Metasia.Editor.Models.States;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
@@ -35,7 +36,7 @@ namespace Metasia.Editor.ViewModels.Timeline
         public double Frame_Per_DIP
         {
             get => _frame_per_DIP;
-            set 
+            private set 
             {
                 this.RaiseAndSetIfChanged(ref _frame_per_DIP, value);
                 RecalculateSize();
@@ -74,21 +75,29 @@ namespace Metasia.Editor.ViewModels.Timeline
         private int _initialDragFrame = 0;
 
         private TimelineViewModel parentTimeline;
-
+        private readonly IEditCommandManager editCommandManager;
+        private readonly ITimelineViewState _timelineViewState;
         public ICommand RemoveClipCommand { get; }
         public ICommand SplitClipCommand { get; }
 
-        public ClipViewModel(ClipObject targetObject, TimelineViewModel parentTimeline)
+        public ClipViewModel(ClipObject targetObject, TimelineViewModel parentTimeline, IEditCommandManager editCommandManager, ITimelineViewState timelineViewState)
         {
             TargetObject = targetObject;
             this.parentTimeline = parentTimeline;
             IsSelecting = false;
-
+            this.editCommandManager = editCommandManager;
+            this._timelineViewState = timelineViewState;
             // 削除コマンドの初期化
             RemoveClipCommand = ReactiveCommand.Create(() => parentTimeline.ClipRemove(TargetObject));
             
             // 分割コマンドの初期化
             SplitClipCommand = ReactiveCommand.Create(() => parentTimeline.SplitSelectedClips());
+
+            _timelineViewState.Frame_Per_DIP_Changed += () =>
+            {
+                Frame_Per_DIP = _timelineViewState.Frame_Per_DIP;
+            };
+            Frame_Per_DIP = _timelineViewState.Frame_Per_DIP;
         }
 
         /// <summary>
@@ -96,8 +105,8 @@ namespace Metasia.Editor.ViewModels.Timeline
         /// </summary>
         public void RecalculateSize()
         {
-            Width = (TargetObject.EndFrame - TargetObject.StartFrame + 1) * Frame_Per_DIP;
-            StartFrame = TargetObject.StartFrame * Frame_Per_DIP;
+            Width = (TargetObject.EndFrame - TargetObject.StartFrame + 1) * _timelineViewState.Frame_Per_DIP;
+            StartFrame = TargetObject.StartFrame * _timelineViewState.Frame_Per_DIP;
         }
 
         public void ClipClick(bool isMultiSelect, int targetFrame = -1)
@@ -144,7 +153,7 @@ namespace Metasia.Editor.ViewModels.Timeline
             }
 
             double deltaX = pointerPositionXOnCanvas - _dragStartX;
-            double frameDelta = deltaX / Frame_Per_DIP;
+            double frameDelta = deltaX / _timelineViewState.Frame_Per_DIP;
             int frameChange = (int)Math.Round(frameDelta);
 
             int newStartFrame = TargetObject.StartFrame;
@@ -175,7 +184,7 @@ namespace Metasia.Editor.ViewModels.Timeline
                         TargetObject.StartFrame, newStartFrame,
                         TargetObject.EndFrame, newEndFrame
                     );
-                    parentTimeline.RunEditCommand(command);
+                    editCommandManager.Execute(command);
 
                     RecalculateSize();
                 }

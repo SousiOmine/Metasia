@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using Metasia.Editor.Models.DragDropData;
 using Metasia.Editor.Models.Interactor;
+using Metasia.Editor.Models.States;
+using Metasia.Editor.Models.EditCommands;
 
 namespace Metasia.Editor.ViewModels.Timeline
 {
@@ -21,7 +23,7 @@ namespace Metasia.Editor.ViewModels.Timeline
         public double Frame_Per_DIP
         {
             get => _frame_per_DIP;
-            set => this.RaiseAndSetIfChanged(ref _frame_per_DIP, value);
+            private set => this.RaiseAndSetIfChanged(ref _frame_per_DIP, value);
         }
 
         public double Width
@@ -36,50 +38,59 @@ namespace Metasia.Editor.ViewModels.Timeline
         public ICommand HandleDropCommand { get; }
 
         private TimelineViewModel parentTimeline;
-        private PlayerViewModel playerViewModel;
         public LayerObject TargetLayer { get; private set; }
 
         private readonly IClipViewModelFactory _clipViewModelFactory;
-
+        private readonly IProjectState _projectState;
+        private readonly ISelectionState selectionState;
+        private readonly IEditCommandManager editCommandManager;
+        private readonly ITimelineViewState _timelineViewState;
         private double _frame_per_DIP;
         private double width;
 
-        public LayerCanvasViewModel(TimelineViewModel parentTimeline, PlayerViewModel playerViewModel, LayerObject targetLayer, IClipViewModelFactory clipViewModelFactory) 
+        public LayerCanvasViewModel(
+            TimelineViewModel parentTimeline,
+            LayerObject targetLayer,
+            IClipViewModelFactory clipViewModelFactory,
+            IProjectState projectState,
+            ISelectionState selectionState,
+            IEditCommandManager editCommandManager,
+            ITimelineViewState timelineViewState) 
         {
             this.parentTimeline = parentTimeline;
-            this.playerViewModel = playerViewModel;
-            this.TargetLayer = targetLayer;
-            this._clipViewModelFactory = clipViewModelFactory;
-
+            TargetLayer = targetLayer;
+            _clipViewModelFactory = clipViewModelFactory;
+            _projectState = projectState;
+            this.selectionState = selectionState;
+            this.editCommandManager = editCommandManager;
+            this._timelineViewState = timelineViewState;
             // ドロップ処理コマンドの初期化
             HandleDropCommand = ReactiveCommand.Create<ClipsDropTargetContext>(
                 execute: ExecuteHandleDrop,
                 canExecute: this.WhenAnyValue(x => x.TargetLayer).Select(layer => layer != null)
             );
 
-            parentTimeline.WhenAnyValue(x => x.Frame_Per_DIP).Subscribe
-                (Frame_Per_DIP =>
-                {
-                    this.Frame_Per_DIP = Frame_Per_DIP;
-                    ChangeFramePerDIP();
-                });
+            _timelineViewState.Frame_Per_DIP_Changed += () =>
+            {
+                Frame_Per_DIP = _timelineViewState.Frame_Per_DIP;
+                ChangeFramePerDIP();
+            };
+            Frame_Per_DIP = _timelineViewState.Frame_Per_DIP;
 
             RelocateClips();
 
-            // TimelineViewModelのProjectChangedイベントを購読
-            parentTimeline.ProjectChanged += (sender, args) =>
+            _projectState.ProjectLoaded += () =>
             {
                 RelocateClips();
             };
 
-            // SelectingObjectsの変更を監視してIsSelectingを更新
-            playerViewModel.SelectingObjects.CollectionChanged += (sender, args) =>
+            selectionState.SelectionChanged += () =>
             {
                 ResetSelectedClip();
-                foreach (var obj in playerViewModel.SelectingObjects)
+                foreach (var obj in selectionState.SelectedClips)
                 {
                     var clip = ClipsAndBlanks.FirstOrDefault(c => c.TargetObject.Id == obj.Id);
-                    if (clip != null)
+                    if (clip is not null)
                     {
                         clip.IsSelecting = true;
                     }
@@ -122,10 +133,10 @@ namespace Metasia.Editor.ViewModels.Timeline
         /// </summary>
         private void ExecuteHandleDrop(ClipsDropTargetContext dropInfo)
         {
-            var command = TimelineInteractor.CreateMoveClipsCommand(dropInfo, parentTimeline.Timeline, TargetLayer, playerViewModel.SelectingObjects);
+            var command = TimelineInteractor.CreateMoveClipsCommand(dropInfo, parentTimeline.Timeline, TargetLayer, selectionState.SelectedClips);
             if (command is not null)
             {
-                parentTimeline.RunEditCommand(command);
+                editCommandManager.Execute(command);
             }
         }
 
@@ -148,7 +159,7 @@ namespace Metasia.Editor.ViewModels.Timeline
                 {
                     var clipVM = _clipViewModelFactory.Create(obj, parentTimeline);
                     ClipsAndBlanks.Add(clipVM);
-                    if (playerViewModel.SelectingObjects.Any(x => x.Id == id))
+                    if (selectionState.SelectedClips.Any(x => x.Id == id))
                     {
                         clipVM.IsSelecting = true;
                     }
@@ -175,11 +186,11 @@ namespace Metasia.Editor.ViewModels.Timeline
 
         private void ChangeFramePerDIP()
         {
-            foreach (var clip in ClipsAndBlanks)
-            {
-                clip.Frame_Per_DIP = Frame_Per_DIP;
-            }
-            Width = TargetLayer.EndFrame * Frame_Per_DIP;
+            // foreach (var clip in ClipsAndBlanks)
+            // {
+            //     clip.Frame_Per_DIP = _timelineViewState.Frame_Per_DIP;
+            // }
+            Width = TargetLayer.EndFrame * _timelineViewState.Frame_Per_DIP;
         }
     }
 }

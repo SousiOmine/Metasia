@@ -6,6 +6,7 @@ using System.Runtime.InteropServices.JavaScript;
 using System.Windows.Input;
 using DynamicData;
 using Metasia.Editor.Models.FileSystem;
+using Metasia.Editor.Models.States;
 using Metasia.Editor.Models.Tools.ProjectTool;
 using ReactiveUI;
 
@@ -35,15 +36,17 @@ namespace Metasia.Editor.ViewModels.Tools
         private bool _isFileSelected;
 
         private PlayerParentViewModel _playerParentViewModel;
+        private IProjectState _projectState;
 
-        public ProjectToolViewModel(PlayerParentViewModel playerParentViewModel)
+        public ProjectToolViewModel(PlayerParentViewModel playerParentViewModel, IProjectState projectState)
         {
             _playerParentViewModel = playerParentViewModel;
-            ProjectDir_Path = playerParentViewModel.CurrentEditorProject?.ProjectPath.Path ?? String.Empty;
+            _projectState = projectState;
+            ProjectDir_Path = _projectState.CurrentProject?.ProjectPath.Path ?? String.Empty;
 
-            _playerParentViewModel.ProjectInstanceChanged += (sender, args) =>
+            _projectState.ProjectLoaded += () =>
             {
-                ProjectDir_Path = playerParentViewModel.CurrentEditorProject?.ProjectPath.Path ?? String.Empty;
+                ProjectDir_Path = _projectState.CurrentProject?.ProjectPath.Path ?? String.Empty;
                 LoadDirectory();
             };
 

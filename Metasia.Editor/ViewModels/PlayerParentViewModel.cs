@@ -8,48 +8,13 @@ using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Metasia.Editor.Services;
 using System.Windows.Input;
+using Metasia.Editor.Models.States;
+using Metasia.Editor.Models.EditCommands;
 
 namespace Metasia.Editor.ViewModels;
 
-public class PlayerParentViewModel : ViewModelBase
+public class PlayerParentViewModel : ViewModelBase, IDisposable
 {
-    public MetasiaProject? CurrentProject
-    {
-        get { return currentProject;}
-        set
-        {
-
-            currentProject = value;
-            if (value is not null)
-            {
-                // 新しいProjectがセットされたら、メインタイムラインのPlayerViewModelを作成
-                var mainTimeline = value.Timelines.FirstOrDefault();
-                if (mainTimeline != null)
-                {
-                    // 既存のPlayerViewModelsを確認
-                    var existingVM = _playerViewModels.FirstOrDefault(vm => vm.TargetTimeline.Id == mainTimeline.Id);
-
-                    if (existingVM != null)
-                    {
-                        // 既存のVMがあればそれを使用
-                        TargetPlayerViewModel = existingVM;
-                    }
-                    else
-                    {
-                        // なければ新しく作成
-                        var newVM = _playerViewModelFactory.Create(mainTimeline, value.Info);
-                        _playerViewModels.Add(newVM);
-                        TargetPlayerViewModel = newVM;
-                    }
-                }
-            }
-            ProjectInstanceChanged?.Invoke(this, EventArgs.Empty);
-        }
-    }
-
-    public MetasiaEditorProject? CurrentEditorProject { get; set; }
-
-    public event EventHandler? ProjectInstanceChanged;
 
     public PlayerViewModel? TargetPlayerViewModel
     {
@@ -81,19 +46,18 @@ public class PlayerParentViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _isPlayerShow, value);
     }
 
-    private MetasiaProject? currentProject;
     private PlayerViewModel? _targetPlayerViewModel;
     private string _targetTimelineName = string.Empty;
-    private MetasiaEditorProject? currentEditorProject;
 
     private List<PlayerViewModel> _playerViewModels = new();
 
     private bool _isPlayerShow = false;
 
-    private readonly IKeyBindingService _keyBindingService;
+    private readonly IKeyBindingService? _keyBindingService;
     private readonly IPlayerViewModelFactory _playerViewModelFactory;
-
-    public PlayerParentViewModel(IKeyBindingService keyBindingService, IPlayerViewModelFactory playerViewModelFactory)
+    private readonly IProjectState _projectState;
+    private readonly IEditCommandManager _editCommandManager;
+    public PlayerParentViewModel(IKeyBindingService keyBindingService, IPlayerViewModelFactory playerViewModelFactory, IProjectState projectState, IEditCommandManager editCommandManager)
     {
         // キーバインディングサービスを設定
         if (keyBindingService is not null)
@@ -102,6 +66,17 @@ public class PlayerParentViewModel : ViewModelBase
             SetKeyBindingService(keyBindingService);
         }
         _playerViewModelFactory = playerViewModelFactory;
+        _projectState = projectState;
+        _editCommandManager = editCommandManager;
+        _projectState.ProjectLoaded += OnProjectLoaded;
+    }
+
+    /// <summary>
+    /// ProjectLoadedイベントハンドラー
+    /// </summary>
+    private void OnProjectLoaded()
+    {
+        LoadProject();
     }
 
     /// <summary>
@@ -118,41 +93,21 @@ public class PlayerParentViewModel : ViewModelBase
     private void UnregisterPlayerCommands()
     {
         // 登録済みのコマンドを解除
-        _keyBindingService.UnregisterCommand("PlayPauseToggle");
+        _keyBindingService?.UnregisterCommand("PlayPauseToggle");
     }
 
-    public void LoadProject(MetasiaEditorProject editorProject)
-    {
-        IsPlayerShow = false;
-        CurrentEditorProject = editorProject;
+    // public void LoadProject(MetasiaEditorProject editorProject)
+    // {
+    //     _projectState.LoadProjectAsync(editorProject);
+        
+    // }
 
-        // 既存のPlayerViewModelリストをクリア
-        _playerViewModels.Clear();
-
-        ProjectInfo projectInfo = new ProjectInfo()
-        {
-            Framerate = editorProject.ProjectFile.Framerate,
-            Size = new SKSize(editorProject.ProjectFile.Resolution.Width, editorProject.ProjectFile.Resolution.Height),
-        };
-
-        // タイムラインごとに新しいPlayerViewModelを作成
-        foreach (TimelineFile timeline in editorProject.Timelines)
-        {
-            _playerViewModels.Add(_playerViewModelFactory.Create(timeline.Timeline, projectInfo));
-        }
-
-        // CurrentProjectをセット (setterでPlayerViewModelも設定される)
-        CurrentProject = editorProject.CreateMetasiaProject();
-
-        IsPlayerShow = true;
-    }
 
     public bool TryUndo()
     {
-        if (TargetPlayerViewModel is null) return false;
-        if (TargetPlayerViewModel.CanUndo)
+        if (_editCommandManager.CanUndo)
         {
-            TargetPlayerViewModel.Undo();
+            _editCommandManager.Undo();
             return true;
         }
         return false;
@@ -160,12 +115,69 @@ public class PlayerParentViewModel : ViewModelBase
     
     public bool TryRedo()
     {
-        if (TargetPlayerViewModel is null) return false;
-        if (TargetPlayerViewModel.CanRedo)
+        if (_editCommandManager.CanRedo)
         {
-            TargetPlayerViewModel.Redo();
+            _editCommandManager.Redo();
             return true;
         }
         return false;
+    }
+
+    private void LoadProject()
+    {
+        IsPlayerShow = false;
+
+        // 既存のPlayerViewModelリストをクリア
+        _playerViewModels.Clear();
+        _editCommandManager.Clear();
+
+        if (_projectState.CurrentProjectInfo is null || _projectState.CurrentProject is null)
+        {
+            return;
+        }
+
+        ProjectInfo projectInfo = new ProjectInfo(_projectState.CurrentProjectInfo.Framerate, new SKSize(_projectState.CurrentProjectInfo.Size.Width, _projectState.CurrentProjectInfo.Size.Height));
+
+        // タイムラインごとに新しいPlayerViewModelを作成
+        foreach (TimelineFile timeline in _projectState.CurrentProject.Timelines)
+        {
+            _playerViewModels.Add(_playerViewModelFactory.Create(timeline.Timeline, projectInfo));
+        }
+
+        IsPlayerShow = true;
+
+        if (_projectState.CurrentProject is not null)
+        {
+            // 新しいProjectがセットされたら、メインタイムラインのPlayerViewModelを作成
+            var mainTimeline = _projectState.CurrentProject.Timelines.FirstOrDefault()?.Timeline;
+            if (mainTimeline != null)
+            {
+                // 既存のPlayerViewModelsを確認
+                var existingVM = _playerViewModels.FirstOrDefault(vm => vm.TargetTimeline.Id == mainTimeline.Id);
+
+                if (existingVM != null)
+                {
+                    // 既存のVMがあればそれを使用
+                    TargetPlayerViewModel = existingVM;
+                }
+                else
+                {
+                    // なければ新しく作成
+                    var newVM = _playerViewModelFactory.Create(mainTimeline, _projectState.CurrentProjectInfo);
+                    _playerViewModels.Add(newVM);
+                    TargetPlayerViewModel = newVM;
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// リソースを解放します
+    /// </summary>
+    public new void Dispose()
+    {
+        _projectState.ProjectLoaded -= OnProjectLoaded;
+        UnregisterPlayerCommands();
+        base.Dispose();
     }
 }

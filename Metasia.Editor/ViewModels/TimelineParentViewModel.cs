@@ -1,5 +1,6 @@
 using ReactiveUI;
 using System;
+using Metasia.Editor.Models.States;
 
 namespace Metasia.Editor.ViewModels
 {
@@ -20,19 +21,17 @@ namespace Metasia.Editor.ViewModels
         private TimelineViewModel? _timelineViewModel;
 
         private bool _isTimelineShow = false;
+        private IProjectState _projectState;
 
-        PlayerParentViewModel _playerParentViewModel;
-        public TimelineParentViewModel(PlayerParentViewModel playerParentViewModel, ITimelineViewModelFactory timelineViewModelFactory)
+        public TimelineParentViewModel(ITimelineViewModelFactory timelineViewModelFactory, IProjectState projectState)
         {
-            ArgumentNullException.ThrowIfNull(playerParentViewModel);
             ArgumentNullException.ThrowIfNull(timelineViewModelFactory);
-            _playerParentViewModel = playerParentViewModel;
-
-            _playerParentViewModel.ProjectInstanceChanged += (sender, e) =>
+            _projectState = projectState;
+            _projectState.ProjectLoaded += () =>
             {
-                if (_playerParentViewModel.TargetPlayerViewModel is not null)
+                if (_projectState.CurrentProject is not null)
                 {
-                    CurrentTimelineViewModel = timelineViewModelFactory.Create(_playerParentViewModel.TargetPlayerViewModel);
+                    CurrentTimelineViewModel = timelineViewModelFactory.Create();
                     IsTimelineShow = true;
                 }
                 else
@@ -41,9 +40,10 @@ namespace Metasia.Editor.ViewModels
                 }
             };
 
-            if (_playerParentViewModel.TargetPlayerViewModel is not null)
+            if (_projectState.CurrentProject is not null)
             {
-                CurrentTimelineViewModel = timelineViewModelFactory.Create(_playerParentViewModel.TargetPlayerViewModel);
+                CurrentTimelineViewModel = timelineViewModelFactory.Create();
+                IsTimelineShow = true;
             }
         }
     }

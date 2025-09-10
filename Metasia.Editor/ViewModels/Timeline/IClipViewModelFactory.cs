@@ -1,4 +1,5 @@
 using Metasia.Core.Objects;
+using Metasia.Editor.Models.EditCommands;
 
 namespace Metasia.Editor.ViewModels.Timeline;
 

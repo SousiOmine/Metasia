@@ -1,18 +1,15 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Threading;
-using System.Timers;
 using System.Windows.Input;
 using DynamicData;
 using Metasia.Core.Coordinate;
 using Metasia.Core.Objects;
 using Metasia.Core.Project;
 using Metasia.Editor.Models.EditCommands;
+using Metasia.Editor.Models.States;
 using Metasia.Editor.Services;
 using Metasia.Editor.Services.Audio;
 using ReactiveUI;
-using SkiaSharp;
 
 namespace Metasia.Editor.ViewModels
 {
@@ -24,13 +21,11 @@ namespace Metasia.Editor.ViewModels
 		public int audioVolume { get; set; } = 100;
 		private int sliderMaximum = 100;
 		private int sliderMinimum = 0;
-		private System.Timers.Timer? timer;
 		
 		public ProjectInfo TargetProjectInfo { get; private set; }
 		
 		public TimelineObject TargetTimeline { get; private set; }
 		
-		public IEditCommandManager HistoryManager { get; private set; }
 
 		public event EventHandler? ProjectChanged;
 
@@ -51,7 +46,7 @@ namespace Metasia.Editor.ViewModels
 			get => frame;
 			set {
 				this.RaiseAndSetIfChanged(ref frame, value);
-				ViewPaintRequest?.Invoke();
+				playbackState.RequestReRendering();
 			}
 		}
 
@@ -75,7 +70,6 @@ namespace Metasia.Editor.ViewModels
 		
 		public ObservableCollection<ClipObject> SelectingObjects = new();
 
-		public Action? ViewPaintRequest;
 		public Action? PlayStart;
 
         public ICommand NextFrame { get; }
@@ -83,26 +77,29 @@ namespace Metasia.Editor.ViewModels
 		public ICommand Play { get; }
 		public ICommand Pause { get; }
 		public ICommand PlayPauseToggle { get; }
-		
-		public bool CanUndo => HistoryManager.CanUndo;
-		public bool CanRedo => HistoryManager.CanRedo;
-
-		private IAudioPlaybackService audioPlaybackService;
-		
-		public PlayerViewModel(TimelineObject targetTimeline, ProjectInfo projectInfo, IEditCommandManager historyManager, IAudioPlaybackService audioPlaybackService)
+		private IPlaybackState playbackState;
+		public PlayerViewModel(TimelineObject targetTimeline, 
+			ProjectInfo projectInfo, 
+			ISelectionState selectionState,
+			IPlaybackState playbackState)
 		{
 			TargetTimeline = targetTimeline;
 			TargetProjectInfo = projectInfo;
-			HistoryManager = historyManager;
-			this.audioPlaybackService = audioPlaybackService;
+
+			this.playbackState = playbackState;
+			selectionState.SelectionChanged += () =>
+			{
+				SelectingObjects.Clear();
+				SelectingObjects.AddRange(selectionState.SelectedClips);
+			};
 
             NextFrame = ReactiveCommand.Create(() =>
             {
-                Frame++;
+                playbackState.Seek(Frame + 1);
             });
             PreviousFrame = ReactiveCommand.Create(() =>
             {
-                Frame--;
+                playbackState.Seek(Frame - 1);
             });
 			Play = ReactiveCommand.Create(PlayMethod);
 			Pause = ReactiveCommand.Create(PauseMethod);
@@ -118,28 +115,24 @@ namespace Metasia.Editor.ViewModels
 				}
 			});
 
+			playbackState.PlaybackFrameChanged += () =>
+			{
+				Frame = playbackState.CurrentFrame;
+			};
+			playbackState.PlaybackStarted += () =>
+			{
+				IsPlaying = true;
+			};
+			playbackState.PlaybackPaused += () =>
+			{
+				IsPlaying = false;
+			};
+			playbackState.PlaybackSeeked += () =>
+			{
+				Frame = playbackState.CurrentFrame;
+			};
+
             NotifyProjectChanged();
-		}
-		
-
-		
-		public bool RunEditCommand(IEditCommand command)
-		{
-			HistoryManager.Execute(command);
-			NotifyProjectChanged();
-			return true;
-		}
-
-		public void Undo()
-		{
-			HistoryManager.Undo();
-			NotifyProjectChanged();
-		}
-		
-		public void Redo()
-		{
-			HistoryManager.Redo();
-			NotifyProjectChanged();
 		}
 
 		/// <summary>
@@ -148,7 +141,7 @@ namespace Metasia.Editor.ViewModels
 		public void NotifyProjectChanged()
 		{
 			//再生されてなければ再描写する
-			if(IsPlaying == false) ViewPaintRequest?.Invoke();
+			if(playbackState.IsPlaying == false) playbackState.RequestReRendering();
 
 			SliderMaximum = TargetTimeline.EndFrame;
 
@@ -157,35 +150,12 @@ namespace Metasia.Editor.ViewModels
 
 		private void PlayMethod()
 		{
-			try
-			{
-				timer = new System.Timers.Timer(1000.0 / TargetProjectInfo.Framerate);
-				timer.Elapsed += Timer_Elapsed;
-				timer.Start();
-				IsPlaying = true;
-				PlayStart?.Invoke();
-
-				long startSample = (long)(Frame / (double)TargetProjectInfo.Framerate * 44100);
-				audioPlaybackService.Play(TargetTimeline, TargetProjectInfo, startSample, 1.0);
-			}
-			catch (Exception ex)
-			{
-				timer?.Stop();
-				IsPlaying = false;
-				Debug.WriteLine($"Audio playback failed: {ex.Message}");
-			}
+			playbackState.Play();
 		}
 
 		private void PauseMethod()
 		{
-			if(timer is not null) timer.Stop();
-			IsPlaying = false;
-			audioPlaybackService.Pause();
-		}
-
-		private void Timer_Elapsed(object? sender, ElapsedEventArgs e)
-		{
-			Frame++;
+			playbackState.Pause();
 		}
 
 	}

@@ -14,6 +14,9 @@ using Metasia.Editor.ViewModels;
 using SkiaSharp;
 using static System.Net.Mime.MediaTypeNames;
 using SoundIOSharp;
+using Microsoft.Extensions.DependencyInjection;
+using Metasia.Editor.Models.States;
+using System.Diagnostics;
 
 namespace Metasia.Editor.Views;
 
@@ -24,10 +27,7 @@ public partial class PlayerView : UserControl
 		get { return this.DataContext as PlayerViewModel; }
 	}
 
-
 	object renderLock = new object();
-
-	private IAudioService audioService;
 
 	public PlayerView()
     {
@@ -35,14 +35,23 @@ public partial class PlayerView : UserControl
 		
 		this.DataContextChanged += (s, e) =>
 		{
-			if (VM is not null) VM.ViewPaintRequest = () => { skiaCanvas.InvalidateSurface(); };
-			if (VM is not null) VM.PlayStart = PlayStart;
+			try
+			{
+				var playbackState = App.Current?.Services?.GetRequiredService<IPlaybackState>();
+				if (playbackState is not null)
+				{
+					playbackState.ReRenderingRequested += () => { skiaCanvas.InvalidateSurface(); };
+					playbackState.PlaybackFrameChanged += () => { skiaCanvas.InvalidateSurface(); };
+				}
+			}
+			catch (InvalidOperationException ex)
+			{
+				Debug.WriteLine($"Failed to resolve IPlaybackState: {ex.Message}");
+			}
 
 			skiaCanvas.InvalidateSurface();
-		};
-		
-		audioService = new SoundIOService();
-    }
+		};    
+	}
 	
 	private void SKCanvasView_PaintSurface(object? sender, Avalonia.Labs.Controls.SKPaintSurfaceEventArgs e)
 	{
@@ -62,11 +71,6 @@ public partial class PlayerView : UserControl
 
 			bitmap.Dispose();
 		}
-
-	}
-
-	private void PlayStart()
-	{
 
 	}
 

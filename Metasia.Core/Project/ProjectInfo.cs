@@ -33,5 +33,22 @@ namespace Metasia.Core.Project
             get => _size;
             set => _size = value;
         }
+
+        /// <summary>
+        /// パラメータなしのコンストラクタ
+        /// </summary>
+        [Obsolete("パラメータなしのコンストラクタは非推奨です。FramerateとSizeを指定して初期化してください。")]
+        public ProjectInfo()
+        {
+            // デフォルト値を設定
+            Framerate = 30;
+            Size = new SKSize(1920, 1080);
+        }
+
+        public ProjectInfo(int framerate, SKSize size)
+        {
+            Framerate = framerate;
+            Size = size;
+        }
     }
 }

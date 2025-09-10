@@ -4,5 +4,5 @@ namespace Metasia.Editor.ViewModels.Timeline;
 
 public interface ILayerButtonViewModelFactory
 {
-    LayerButtonViewModel Create(TimelineViewModel parentTimelineViewModel, LayerObject targetLayerObject);
+    LayerButtonViewModel Create(LayerObject targetLayerObject);
 }

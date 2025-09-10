@@ -1,27 +1,25 @@
 using System;
 using Metasia.Core.Objects;
 using Metasia.Core.Project;
-using Metasia.Editor.Models.EditCommands;
-using Metasia.Editor.Services.Audio;
+using Metasia.Editor.Models.States;
 
 namespace Metasia.Editor.ViewModels;
 
 public class PlayerViewModelFactory : IPlayerViewModelFactory
 {
-    private readonly IEditCommandManager editCommandManager;
-    private readonly IAudioPlaybackService audioPlaybackService;
-
-    public PlayerViewModelFactory(IEditCommandManager editCommandManager, IAudioPlaybackService audioPlaybackService)
+    private readonly ISelectionState selectionState;
+    private readonly IPlaybackState playbackState;
+    public PlayerViewModelFactory(ISelectionState selectionState, IPlaybackState playbackState)
     {
-        ArgumentNullException.ThrowIfNull(editCommandManager);
-        ArgumentNullException.ThrowIfNull(audioPlaybackService);
-        this.editCommandManager = editCommandManager;
-        this.audioPlaybackService = audioPlaybackService;
+        ArgumentNullException.ThrowIfNull(selectionState);
+        ArgumentNullException.ThrowIfNull(playbackState);
+        this.selectionState = selectionState;
+        this.playbackState = playbackState;
     }
     public PlayerViewModel Create(TimelineObject timeline, ProjectInfo projectInfo)
     {
         ArgumentNullException.ThrowIfNull(timeline);
         ArgumentNullException.ThrowIfNull(projectInfo);
-        return new PlayerViewModel(timeline, projectInfo, editCommandManager, audioPlaybackService);
+        return new PlayerViewModel(timeline, projectInfo, selectionState, playbackState);
     }
 }
