@@ -49,7 +49,7 @@ namespace Metasia.Core.Objects
         public string Contents { get; set; }
 
         [EditableProperty("TextSize")]
-        [ValueRange(0, 99999, 0, 500)]
+        [ValueRange(0, 2000, 0, 500)]
         public MetaNumberParam<double> TextSize { get; set; }
 
         private string typefaceName;
