@@ -78,19 +78,28 @@ namespace Metasia.Editor.ViewModels
 		public ICommand Pause { get; }
 		public ICommand PlayPauseToggle { get; }
 		private IPlaybackState playbackState;
+		private IEditCommandManager _editCommandManager;
 		public PlayerViewModel(TimelineObject targetTimeline, 
 			ProjectInfo projectInfo, 
 			ISelectionState selectionState,
-			IPlaybackState playbackState)
+			IPlaybackState playbackState,
+			IEditCommandManager editCommandManager)
 		{
 			TargetTimeline = targetTimeline;
 			TargetProjectInfo = projectInfo;
 
 			this.playbackState = playbackState;
+			_editCommandManager = editCommandManager;
 			selectionState.SelectionChanged += () =>
 			{
 				SelectingObjects.Clear();
 				SelectingObjects.AddRange(selectionState.SelectedClips);
+			};
+
+			_editCommandManager.CommandExecuted += (sender, command) =>
+			{
+				//コマンドが実行された時に再描写を要求する
+				playbackState.RequestReRendering();
 			};
 
             NextFrame = ReactiveCommand.Create(() =>
