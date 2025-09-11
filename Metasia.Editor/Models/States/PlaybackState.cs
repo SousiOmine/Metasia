@@ -17,10 +17,9 @@ public class PlaybackState : IPlaybackState
 
     public bool IsPlaying { get; private set; }
 
-    /// <summary>
-    /// プレビュー再生時のサンプリングレート（Hz）
-    /// </summary>
-    public int PreviewSamplingRate { get; } = 44100;
+    public int SamplingRate { get; } = 44100;
+
+    public int AudioChannels { get; } = 2;
 
     public event Action? PlaybackStarted;
     public event Action? PlaybackPaused;
@@ -74,8 +73,8 @@ public class PlaybackState : IPlaybackState
             IsPlaying = true;
             PlaybackStarted?.Invoke();
 
-            long startSample = (long)(CurrentFrame / (double)_projectState.CurrentProjectInfo!.Framerate * PreviewSamplingRate);
-            _audioPlaybackService.Play(_projectState.CurrentTimeline!, _projectState.CurrentProjectInfo!, startSample, 1.0, PreviewSamplingRate);
+            long startSample = (long)(CurrentFrame / (double)_projectState.CurrentProjectInfo!.Framerate * SamplingRate);
+            _audioPlaybackService.Play(_projectState.CurrentTimeline!, _projectState.CurrentProjectInfo!, startSample, 1.0, SamplingRate, AudioChannels);
         }
         catch (Exception ex)
         {

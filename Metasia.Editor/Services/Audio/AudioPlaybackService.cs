@@ -23,14 +23,14 @@ namespace Metasia.Editor.Services.Audio
             this.audioService = audioService;
         }
 
-		public void Play(TimelineObject timeline, ProjectInfo projectInfo, long startSample, double speed, int samplingRate)
+		public void Play(TimelineObject timeline, ProjectInfo projectInfo, long startSample, double speed, int samplingRate, int audioChannels)
 		{
             if (IsPlaying) return;
             
 			IsPlaying = true;
             audioService.ClearQueue();
             cancellationTokenSource = new CancellationTokenSource();
-            Task.Run(() => AudioGenerationLoopAsync(timeline, projectInfo, startSample, speed, samplingRate, cancellationTokenSource.Token));
+            Task.Run(() => AudioGenerationLoopAsync(timeline, projectInfo, startSample, speed, samplingRate, audioChannels, cancellationTokenSource.Token));
 		}
 		public void Pause()
 		{
@@ -44,11 +44,11 @@ namespace Metasia.Editor.Services.Audio
             audioService.ClearQueue();
 		}
 
-        private async Task AudioGenerationLoopAsync(TimelineObject timeline, ProjectInfo projectInfo, long startSample, double speed, int samplingRate, CancellationToken cancelToken)
+        private async Task AudioGenerationLoopAsync(TimelineObject timeline, ProjectInfo projectInfo, long startSample, double speed, int samplingRate, int audioChannels, CancellationToken cancelToken)
         {
             try
             {
-                var audioFormat = new AudioFormat(samplingRate, 2);
+                var audioFormat = new AudioFormat(samplingRate, audioChannels);
 
                 long currentSamplePosition = startSample;
 
