@@ -31,6 +31,11 @@ public class MetasiaProjectFile
     /// 音声のサンプリングレート（Hz）
     /// </summary>
     public int AudioSamplingRate { get; set; } = 44100;
+
+    /// <summary>
+    /// 音声のチャンネル数
+    /// </summary>
+    public int AudioChannels { get; set; } = 2;
 }
 
 public class VideoResolution
