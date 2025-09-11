@@ -8,47 +8,43 @@ namespace Metasia.Core.Tests.Project
     public class ProjectInfoTests
     {
         [Test]
-        public void ParameterlessConstructor_SetsDefaultValues()
-        {
-            // Arrange & Act
-            var projectInfo = new ProjectInfo();
-
-            // Assert
-            Assert.That(projectInfo.Framerate, Is.EqualTo(30));
-            Assert.That(projectInfo.Size.Width, Is.EqualTo(1920));
-            Assert.That(projectInfo.Size.Height, Is.EqualTo(1080));
-        }
-
-        [Test]
-        public void ParameterizedConstructor_SetsSpecifiedValues()
+        public void Constructor_SetsAllSpecifiedValues()
         {
             // Arrange
             int expectedFramerate = 60;
             var expectedSize = new SKSize(3840, 2160);
+            int expectedAudioSamplingRate = 48000;
+            int expectedAudioChannels = 2;
 
             // Act
-            var projectInfo = new ProjectInfo(expectedFramerate, expectedSize);
+            var projectInfo = new ProjectInfo(expectedFramerate, expectedSize, expectedAudioSamplingRate, expectedAudioChannels);
 
             // Assert
             Assert.That(projectInfo.Framerate, Is.EqualTo(expectedFramerate));
             Assert.That(projectInfo.Size.Width, Is.EqualTo(expectedSize.Width));
             Assert.That(projectInfo.Size.Height, Is.EqualTo(expectedSize.Height));
+            Assert.That(projectInfo.AudioSamplingRate, Is.EqualTo(expectedAudioSamplingRate));
+            Assert.That(projectInfo.AudioChannels, Is.EqualTo(expectedAudioChannels));
         }
 
         [Test]
         public void Properties_CanBeModified()
         {
             // Arrange
-            var projectInfo = new ProjectInfo();
+            var projectInfo = new ProjectInfo(30, new SKSize(1920, 1080), 44100, 2);
 
             // Act
             projectInfo.Framerate = 24;
             projectInfo.Size = new SKSize(1280, 720);
+            projectInfo.AudioSamplingRate = 48000;
+            projectInfo.AudioChannels = 1;
 
             // Assert
             Assert.That(projectInfo.Framerate, Is.EqualTo(24));
             Assert.That(projectInfo.Size.Width, Is.EqualTo(1280));
             Assert.That(projectInfo.Size.Height, Is.EqualTo(720));
+            Assert.That(projectInfo.AudioSamplingRate, Is.EqualTo(48000));
+            Assert.That(projectInfo.AudioChannels, Is.EqualTo(1));
         }
     }
 }

@@ -136,7 +136,7 @@ public class PlayerParentViewModel : ViewModelBase, IDisposable
             return;
         }
 
-        ProjectInfo projectInfo = new ProjectInfo(_projectState.CurrentProjectInfo.Framerate, new SKSize(_projectState.CurrentProjectInfo.Size.Width, _projectState.CurrentProjectInfo.Size.Height));
+        ProjectInfo projectInfo = new ProjectInfo(_projectState.CurrentProjectInfo.Framerate, new SKSize(_projectState.CurrentProjectInfo.Size.Width, _projectState.CurrentProjectInfo.Size.Height), _projectState.CurrentProjectInfo.AudioSamplingRate, _projectState.CurrentProjectInfo.AudioChannels);
 
         // タイムラインごとに新しいPlayerViewModelを作成
         foreach (TimelineFile timeline in _projectState.CurrentProject.Timelines)

@@ -31,7 +31,7 @@ namespace Metasia.Editor.Services
 
             if (window is null)
             {
-                return (false, string.Empty, new ProjectInfo(60, new SKSize(1920, 1080)), null);
+                return (false, string.Empty, new ProjectInfo(60, new SKSize(1920, 1080), 44100, 2), null);
             }
 
             var dialog = new NewProjectDialog();
@@ -41,10 +41,10 @@ namespace Metasia.Editor.Services
 
             if (result)
             {
-                return (true, dialog.ProjectPath, dialog.ProjectInfo ?? new ProjectInfo(dialog.ProjectInfo.Framerate, dialog.ProjectInfo.Size), dialog.SelectedTemplate);
+                return (true, dialog.ProjectPath, dialog.ProjectInfo ?? new ProjectInfo(dialog.ProjectInfo.Framerate, dialog.ProjectInfo.Size, 44100, 2), dialog.SelectedTemplate);
             }
 
-            return (false, string.Empty, new ProjectInfo(dialog.ProjectInfo.Framerate, dialog.ProjectInfo.Size), null);
+            return (false, string.Empty, new ProjectInfo(dialog.ProjectInfo.Framerate, dialog.ProjectInfo.Size, 44100, 2), null);
         }
 
         private void LoadTemplates()

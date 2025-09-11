@@ -1,5 +1,6 @@
 using Metasia.Core.Objects;
 using Metasia.Core.Project;
+using Metasia.Editor.Models.States;
 
 namespace Metasia.Editor.Services.Audio
 {
@@ -7,7 +8,7 @@ namespace Metasia.Editor.Services.Audio
 	{
         bool IsPlaying { get; }
         long CurrentSample { get; }
-		void Play(TimelineObject timeline, ProjectInfo projectInfo, long startSample, double speed = 1.0);
+		void Play(TimelineObject timeline, ProjectInfo projectInfo, long startSample, double speed, int samplingRate, int audioChannels);
 		void Pause();
 	}
 }

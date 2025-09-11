@@ -16,6 +16,16 @@ public interface IPlaybackState : IDisposable
     bool IsPlaying { get; }
 
     /// <summary>
+    /// プレビュー再生時のサンプリングレート（Hz）
+    /// </summary>
+    int SamplingRate { get; }
+
+    /// <summary>
+    /// プレビュー再生時の音声チャンネル数
+    /// </summary>
+    int AudioChannels { get; }
+
+    /// <summary>
     /// 再生を開始する
     /// </summary>
     

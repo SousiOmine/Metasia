@@ -21,7 +21,7 @@ namespace Metasia.Core.Project
         // デシリアライズ用のデフォルトコンストラクタ
         public MetasiaProject()
         {
-            Info = new ProjectInfo(60, new SKSize(1920, 1080));
+            Info = new ProjectInfo(60, new SKSize(1920, 1080), 44100, 2);
         }
     }
 }

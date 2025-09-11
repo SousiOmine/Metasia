@@ -85,7 +85,7 @@ namespace Metasia.Editor.Views
                     case 2: size = new SKSize(3840, 2160); break;
                 }
 
-                ProjectInfo = new ProjectInfo(framerate, size);
+                ProjectInfo = new ProjectInfo(framerate, size, 44100, 2);
 
                 // テンプレートを取得
                 if (templateComboBox.SelectedIndex > 0)
