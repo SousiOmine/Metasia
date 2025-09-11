@@ -5,12 +5,14 @@ using Avalonia.Input;
 using Avalonia.Markup.Xaml;
 using System.Diagnostics;
 using Metasia.Editor.ViewModels;
+using Metasia.Editor.Models.States;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Metasia.Editor.Views;
 
 public partial class TimelineView : UserControl
 {
-    public double Frame_Per_DIP = 1.0;
+    public double Frame_Per_DIP { get; private set; }
 
     private TimelineViewModel? VM
     {

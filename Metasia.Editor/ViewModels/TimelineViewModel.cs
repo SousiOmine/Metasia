@@ -1,18 +1,12 @@
-﻿using Avalonia;
-using Metasia.Core.Objects;
+﻿using Metasia.Core.Objects;
 using Metasia.Editor.ViewModels.Timeline;
 using ReactiveUI;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Metasia.Editor.Models.EditCommands;
-using Avalonia.Layout;
 using Metasia.Editor.Models.EditCommands.Commands;
-using System.Diagnostics;
-using Metasia.Core.Objects;
+using Metasia.Editor.Models.States;
 
 namespace Metasia.Editor.ViewModels
 {
@@ -36,9 +30,12 @@ namespace Metasia.Editor.ViewModels
             get => _frame_per_DIP;
             set
             {
+                if (_isUpdatingFramePerDIP) return;
+
                 this.RaiseAndSetIfChanged(ref _frame_per_DIP, value);
+                _timelineViewState.Frame_Per_DIP = value;
                 ChangeFramePerDIP();
-            } 
+            }
         }
 
         /// <summary>
@@ -52,12 +49,12 @@ namespace Metasia.Editor.ViewModels
         public ObservableCollection<LayerCanvasViewModel> LayerCanvas { get; } = new();
 
         /// <summary>
-        /// 現在表示しているフレーム PlayerViewModelと連動する
+        /// 現在表示しているフレーム
         /// </summary>
         public int Frame
         {
             get => _frame;
-            set => this.RaiseAndSetIfChanged(ref _frame, value);
+            private set => this.RaiseAndSetIfChanged(ref _frame, value);
         }
 
         /// <summary>
@@ -66,7 +63,7 @@ namespace Metasia.Editor.ViewModels
         public double CursorLeft
         {
             get => _cursorLeft;
-            set => this.RaiseAndSetIfChanged(ref _cursorLeft, value);
+            private set => this.RaiseAndSetIfChanged(ref _cursorLeft, value);
         }
 
         private TimelineObject _timeline;
@@ -75,59 +72,47 @@ namespace Metasia.Editor.ViewModels
         private int _frame;
         private double _cursorLeft;
 
-        private readonly PlayerViewModel PlayerViewModel;
+        private readonly ISelectionState selectionState;
 
-        public event EventHandler? ProjectChanged;
+        private readonly IPlaybackState playbackState;
+        private readonly IEditCommandManager editCommandManager;
+        private readonly IProjectState _projectState;
+        private readonly ITimelineViewState _timelineViewState;
 
-        public TimelineViewModel(PlayerViewModel playerViewModel, ILayerButtonViewModelFactory layerButtonViewModelFactory, ILayerCanvasViewModelFactory layerCanvasViewModelFactory)
+        private bool _isUpdatingFramePerDIP = false;
+
+        public TimelineViewModel(
+            ILayerButtonViewModelFactory layerButtonViewModelFactory,
+            ILayerCanvasViewModelFactory layerCanvasViewModelFactory,
+            ISelectionState selectionState,
+            IPlaybackState playbackState,
+            IProjectState projectState,
+            IEditCommandManager editCommandManager,
+            ITimelineViewState timelineViewState)
         {
-            ArgumentNullException.ThrowIfNull(playerViewModel);
             ArgumentNullException.ThrowIfNull(layerButtonViewModelFactory);
             ArgumentNullException.ThrowIfNull(layerCanvasViewModelFactory);
-            this.PlayerViewModel = playerViewModel;
+            ArgumentNullException.ThrowIfNull(selectionState);
+            ArgumentNullException.ThrowIfNull(projectState);
+            ArgumentNullException.ThrowIfNull(editCommandManager);
+            ArgumentNullException.ThrowIfNull(projectState.CurrentTimeline);
+            this.selectionState = selectionState;
+            this.playbackState = playbackState;
+            _projectState = projectState;
+            this.editCommandManager = editCommandManager;
+            _timelineViewState = timelineViewState;
 
-            //横方向の拡大率は初期３で固定
-            Frame_Per_DIP = 3;
-            _timeline = PlayerViewModel.TargetTimeline;
+            _timelineViewState.Frame_Per_DIP_Changed += OnFramePerDIPChanged;
+            Frame_Per_DIP = _timelineViewState.Frame_Per_DIP;
+            _timeline = _projectState.CurrentTimeline;
 
-            //PlayerViewModel側からフレームの変更があればカーソルの描画位置を反映
-            PlayerViewModel.WhenAnyValue(x => x.Frame).Subscribe
-                (Frame =>
-                {
-                    _frame = Frame;
-                    CursorLeft = Frame * Frame_Per_DIP;
-                });
-
-            this.WhenAnyValue(x => x.Frame).Subscribe
-                (Frame =>
-                {
-                    PlayerViewModel.Frame = Frame;
-                    CursorLeft = Frame * Frame_Per_DIP;
-                });
-
-            // ViewPaintRequestのハンドラを設定
-            PlayerViewModel.ViewPaintRequest += () =>
-            {
-                // タイムラインの更新が必要な場合はここで行う
-                CursorLeft = Frame * Frame_Per_DIP;
-            };
-
-            //プロジェクトに変更が加えられたときには自身のイベントも発火する
-            PlayerViewModel.ProjectChanged += (sender, args) =>
-            {
-                ProjectChanged?.Invoke(this, EventArgs.Empty);
-            };
+            playbackState.PlaybackFrameChanged += OnPlaybackFrameChanged;
 
             foreach (var layer in Timeline.Layers)
             {
-                LayerButtons.Add(layerButtonViewModelFactory.Create(this, layer));
-                LayerCanvas.Add(layerCanvasViewModelFactory.Create(this, PlayerViewModel, layer));
+                LayerButtons.Add(layerButtonViewModelFactory.Create(layer));
+                LayerCanvas.Add(layerCanvasViewModelFactory.Create(this, layer));
             }
-        }
-
-        public bool RunEditCommand(IEditCommand command)
-        {
-            return PlayerViewModel.RunEditCommand(command);
         }
 
 
@@ -136,33 +121,33 @@ namespace Metasia.Editor.ViewModels
             if (isMultiSelect)
             {
                 // 複数選択モード：既に選択されている場合は選択解除、そうでなければ追加
-                if (PlayerViewModel.SelectingObjects.Contains(obj))
+                if (selectionState.SelectedClips.Contains(obj))
                 {
-                    PlayerViewModel.SelectingObjects.Remove(obj);
+                    selectionState.UnselectClip(obj);
                 }
                 else
                 {
-                    PlayerViewModel.SelectingObjects.Add(obj);
+                    selectionState.SelectClip(obj);
                 }
             }
             else
             {
                 // 単一選択モード：既存の選択をクリアして新しいクリップを選択
-                PlayerViewModel.SelectingObjects.Clear();
-                PlayerViewModel.SelectingObjects.Add(obj);
+                selectionState.ClearSelectedClips();
+                selectionState.SelectClip(obj);
             }
         }
 
         public void SeekFrame(int targetFrame)
         {
             // 再生中なら停止
-            if (PlayerViewModel.IsPlaying)
+            if (playbackState.IsPlaying)
             {
-                PlayerViewModel.Pause.Execute(null);
+                playbackState.Pause();
             }
             
             // プレビュー位置を移動
-            Frame = targetFrame;
+            playbackState.Seek(targetFrame);
         }
 
         public void ClipRemove(ClipObject clipObject)
@@ -172,7 +157,7 @@ namespace Metasia.Editor.ViewModels
             if (ownerLayer is not null)
             {
                 IEditCommand command = new ClipRemoveCommand(clipObject, ownerLayer);
-                RunEditCommand(command);
+                editCommandManager.Execute(command);
             }
         }
 
@@ -182,7 +167,7 @@ namespace Metasia.Editor.ViewModels
             int splitFrame = Frame;
             
             // 選択中のクリップをフィルタリング（分割可能なもののみ）
-            var selectedClips = PlayerViewModel.SelectingObjects
+            var selectedClips = selectionState.SelectedClips
                 .Where(clip => clip is ClipObject clipObject && 
                               splitFrame > clipObject.StartFrame && 
                               splitFrame < clipObject.EndFrame)
@@ -200,7 +185,7 @@ namespace Metasia.Editor.ViewModels
                 return;
 
             IEditCommand command = new ClipsSplitCommand(selectedClips, ownerLayers!, splitFrame);
-            RunEditCommand(command);
+            editCommandManager.Execute(command);
         }
 
         public bool CanResizeClip(ClipObject clipObject, int newStartFrame, int newEndFrame)
@@ -212,6 +197,22 @@ namespace Metasia.Editor.ViewModels
                 return ownerLayer.CanPlaceObjectAt(clipObject, newStartFrame, newEndFrame);
             }
             return false;
+        }
+
+        
+        /// <summary>
+        /// リソースの解放処理
+        /// </summary>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                // イベントハンドラーの購読解除
+                _timelineViewState.Frame_Per_DIP_Changed -= OnFramePerDIPChanged;
+                playbackState.PlaybackFrameChanged -= OnPlaybackFrameChanged;
+            }
+
+            base.Dispose(disposing);
         }
 
         private LayerObject? FindOwnerLayer(ClipObject targetObject)
@@ -228,9 +229,22 @@ namespace Metasia.Editor.ViewModels
 
 
 
+        private void OnFramePerDIPChanged()
+        {
+            _isUpdatingFramePerDIP = true;
+            Frame_Per_DIP = _timelineViewState.Frame_Per_DIP;
+            _isUpdatingFramePerDIP = false;
+        }
+
+        private void OnPlaybackFrameChanged()
+        {
+            Frame = playbackState.CurrentFrame;
+            CursorLeft = Frame * _timelineViewState.Frame_Per_DIP;
+        }
+
         private void ChangeFramePerDIP()
         {
-            CursorLeft = Frame * Frame_Per_DIP;
+            CursorLeft = Frame * _frame_per_DIP;
         }
     }
 }

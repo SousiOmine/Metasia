@@ -6,6 +6,7 @@ using Metasia.Editor.ViewModels.Inspector;
 using Metasia.Core.Objects;
 using Metasia.Editor.Models;
 using Metasia.Editor.Models.EditCommands;
+using Metasia.Editor.Models.States;
 
 namespace Metasia.Editor.ViewModels
 {
@@ -18,17 +19,18 @@ namespace Metasia.Editor.ViewModels
             set => this.RaiseAndSetIfChanged(ref _testCharacters, value);
         }
 
-        private PlayerParentViewModel _playerParentViewModel;
-        private PlayerViewModel _playerViewModel;
+        private IEditCommandManager _editCommandManager;
         private string _testCharacters = String.Empty;
-        private ClipObject? _targetObject;
-
-        public InspectorViewModel(PlayerParentViewModel playerParentViewModel)
+        private ISelectionState _selectionState;
+        private IProjectState _projectState;
+        public InspectorViewModel(ISelectionState selectionState, IProjectState projectState, IEditCommandManager editCommandManager)
         {
-            _playerParentViewModel = playerParentViewModel;
+            _selectionState = selectionState;
+            _projectState = projectState;
+            _editCommandManager = editCommandManager;
             PlayerChanged();
 
-            _playerParentViewModel.ProjectInstanceChanged += (sender, args) =>
+            _projectState.ProjectLoaded += () =>
             {
                 TestCharacters = string.Empty;
                 PlayerChanged();
@@ -37,15 +39,15 @@ namespace Metasia.Editor.ViewModels
 
         public void PlayerChanged()
         {
-            if (_playerParentViewModel.TargetPlayerViewModel is not null)
+            if (_projectState.CurrentProject is not null)
             {
-                _playerParentViewModel.TargetPlayerViewModel.SelectingObjects.CollectionChanged += (sender, args) =>
+                _selectionState.SelectionChanged += () =>
                 {
-                    if (_playerParentViewModel.TargetPlayerViewModel.SelectingObjects.Count > 0)
+                    if (_selectionState.SelectedClips.Count > 0)
                     {
                         ClipSettingPanes.Clear();
                         var clipSettingPaneViewModel = new ClipSettingPaneViewModel(this);
-                        clipSettingPaneViewModel.TargetObject = _playerParentViewModel.TargetPlayerViewModel.SelectingObjects.FirstOrDefault();
+                        clipSettingPaneViewModel.TargetObject = _selectionState.SelectedClips.FirstOrDefault();
                         ClipSettingPanes.Add(clipSettingPaneViewModel);
                     }
                     else
@@ -53,13 +55,12 @@ namespace Metasia.Editor.ViewModels
                         ClipSettingPanes.Clear();
                     }
                 };
-                _playerViewModel = _playerParentViewModel.TargetPlayerViewModel;
             }
         }
 
         public void RunEditCommand(IEditCommand editCommand)
         {
-            _playerViewModel.RunEditCommand(editCommand);
+            _editCommandManager.Execute(editCommand);
         }
     }
 }

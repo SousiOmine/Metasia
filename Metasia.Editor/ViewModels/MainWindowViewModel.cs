@@ -9,6 +9,7 @@ using Metasia.Editor.Models;
 using Metasia.Editor.Models.Projects;
 using Metasia.Editor.Models.FileSystem;
 using Metasia.Editor.Models.ProjectGenerate;
+using Metasia.Editor.Models.States;
 
 namespace Metasia.Editor.ViewModels
 {
@@ -29,18 +30,24 @@ namespace Metasia.Editor.ViewModels
         public ICommand Undo { get; }
         public ICommand Redo { get; }
 
+        private IFileDialogService _fileDialogService;
+        private IProjectState _projectState;
+        
         public MainWindowViewModel(
             PlayerParentViewModel playerParentVM,
             TimelineParentViewModel timelineParentVM,
             InspectorViewModel inspectorViewModel,
             ToolsViewModel toolsVM,
-            IKeyBindingService keyBindingService)
+            IKeyBindingService keyBindingService,
+            IFileDialogService fileDialogService,
+            IProjectState projectState)
         {
             PlayerParentVM = playerParentVM;
             TimelineParentVM = timelineParentVM;
             InspectorVM = inspectorViewModel;
             ToolsVM = toolsVM;
-
+            _fileDialogService = fileDialogService;
+            _projectState = projectState;
             LoadEditingProject = ReactiveCommand.Create(LoadEditingProjectExecuteAsync);
             CreateNewProject = ReactiveCommand.Create(CreateNewProjectExecuteAsync);
             OverrideSaveEditingProject = ReactiveCommand.Create(OverrideSaveEditingProjectExecuteAsync);
@@ -83,7 +90,7 @@ namespace Metasia.Editor.ViewModels
                 if (result)
                 {
                     MetasiaEditorProject editorProject = ProjectGenerator.CreateProject(projectPath, projectInfo, selectedTemplate);
-                    PlayerParentVM.LoadProject(editorProject);
+                    await _projectState.LoadProjectAsync(editorProject);
                 }
             }
             catch (Exception ex)
@@ -96,9 +103,9 @@ namespace Metasia.Editor.ViewModels
         {
             try
             {
-                if (PlayerParentVM.CurrentEditorProject is not null)
+                if (_projectState.CurrentProject is not null)
                 {
-                    ProjectSaveLoadManager.Save(PlayerParentVM.CurrentEditorProject);
+                    ProjectSaveLoadManager.Save(_projectState.CurrentProject);
                 }
             }
             catch (Exception ex)
@@ -109,13 +116,11 @@ namespace Metasia.Editor.ViewModels
 
         private async Task LoadEditingProjectExecuteAsync()
         {
-            var folderDialogService = App.Current?.Services?.GetService<IFileDialogService>();
-            if (folderDialogService is null) throw new NullReferenceException("FileDialogService is not found");
-            var folder = await folderDialogService.OpenFolderDialogAsync();
+            var folder = await _fileDialogService.OpenFolderDialogAsync();
             if (folder is null) return;
 
             MetasiaEditorProject editorProject = ProjectSaveLoadManager.Load(new DirectoryEntity(folder.Path.LocalPath));
-            PlayerParentVM.LoadProject(editorProject);
+            await _projectState.LoadProjectAsync(editorProject);
         }
 
         private void UndoExecute()

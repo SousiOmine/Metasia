@@ -24,11 +24,7 @@ public class MetasiaEditorProject
 
     public MetasiaProject CreateMetasiaProject()
     {
-        ProjectInfo projectInfo = new ProjectInfo()
-        {
-            Framerate = ProjectFile.Framerate,
-            Size = new SKSize(ProjectFile.Resolution.Width, ProjectFile.Resolution.Height),
-        };
+        ProjectInfo projectInfo = new ProjectInfo(ProjectFile.Framerate, new SKSize(ProjectFile.Resolution.Width, ProjectFile.Resolution.Height));
 
         MetasiaProject project = new MetasiaProject(projectInfo);
 

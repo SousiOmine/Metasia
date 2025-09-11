@@ -1,4 +1,5 @@
 ﻿using Metasia.Core.Objects;
+using SkiaSharp;
 
 namespace Metasia.Core.Project
 {
@@ -20,7 +21,7 @@ namespace Metasia.Core.Project
         // デシリアライズ用のデフォルトコンストラクタ
         public MetasiaProject()
         {
-            Info = new ProjectInfo();
+            Info = new ProjectInfo(60, new SKSize(1920, 1080));
         }
     }
 }
