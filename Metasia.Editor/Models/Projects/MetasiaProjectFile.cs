@@ -26,6 +26,11 @@ public class MetasiaProjectFile
     /// 動画の解像度
     /// </summary>
     public VideoResolution Resolution { get; set; } = new VideoResolution { Width = 1920, Height = 1080 };
+
+    /// <summary>
+    /// 音声のサンプリングレート（Hz）
+    /// </summary>
+    public int AudioSamplingRate { get; set; } = 44100;
 }
 
 public class VideoResolution

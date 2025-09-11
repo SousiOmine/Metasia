@@ -14,6 +14,7 @@ namespace Metasia.Core.Project
     {
         private int _framerate;
         private SKSize _size;
+        private int _audioSamplingRate;
 
 
         /// <summary>
@@ -35,20 +36,37 @@ namespace Metasia.Core.Project
         }
 
         /// <summary>
-        /// パラメータなしのコンストラクタ
+        /// 音声のサンプリングレート（Hz）
         /// </summary>
-        [Obsolete("パラメータなしのコンストラクタは非推奨です。FramerateとSizeを指定して初期化してください。")]
-        public ProjectInfo()
+        public int AudioSamplingRate
         {
-            // デフォルト値を設定
-            Framerate = 30;
-            Size = new SKSize(1920, 1080);
+            get => _audioSamplingRate;
+            set => _audioSamplingRate = value;
         }
 
-        public ProjectInfo(int framerate, SKSize size)
+        /// <summary>
+        /// デフォルトコンストラクタ 非推奨
+        /// </summary>
+        [Obsolete("Use ProjectInfo(int framerate, SKSize size, int audioSamplingRate) instead")]
+        public ProjectInfo()
+        {
+
+            Framerate = 30;
+            Size = new SKSize(1920, 1080);
+            AudioSamplingRate = 44100;
+        }
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        /// <param name="framerate">フレームレート</param>
+        /// <param name="size">プロジェクトの解像度</param>
+        /// <param name="audioSamplingRate">音声のサンプリングレート（Hz）</param>
+        public ProjectInfo(int framerate, SKSize size, int audioSamplingRate)
         {
             Framerate = framerate;
             Size = size;
+            AudioSamplingRate = audioSamplingRate;
         }
     }
 }
