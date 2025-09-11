@@ -11,19 +11,22 @@ public class PlayerViewModelFactory : IPlayerViewModelFactory
     private readonly ISelectionState selectionState;
     private readonly IPlaybackState playbackState;
     private readonly IEditCommandManager editCommandManager;
-    public PlayerViewModelFactory(ISelectionState selectionState, IPlaybackState playbackState, IEditCommandManager editCommandManager)
+    private readonly IProjectState projectState;
+    public PlayerViewModelFactory(ISelectionState selectionState, IPlaybackState playbackState, IEditCommandManager editCommandManager, IProjectState projectState)
     {
         ArgumentNullException.ThrowIfNull(selectionState);
         ArgumentNullException.ThrowIfNull(playbackState);
         ArgumentNullException.ThrowIfNull(editCommandManager);
+        ArgumentNullException.ThrowIfNull(projectState);
         this.selectionState = selectionState;
         this.playbackState = playbackState;
         this.editCommandManager = editCommandManager;
+        this.projectState = projectState;
     }
     public PlayerViewModel Create(TimelineObject timeline, ProjectInfo projectInfo)
     {
         ArgumentNullException.ThrowIfNull(timeline);
         ArgumentNullException.ThrowIfNull(projectInfo);
-        return new PlayerViewModel(timeline, projectInfo, selectionState, playbackState, editCommandManager);
+        return new PlayerViewModel(timeline, projectInfo, selectionState, playbackState, projectState, editCommandManager);
     }
 }

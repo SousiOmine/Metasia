@@ -83,6 +83,10 @@ namespace Metasia.Editor.ViewModels.Timeline
             {
                 RelocateClips();
             };
+            _projectState.TimelineChanged += () =>
+            {
+                RelocateClips();
+            };
 
             selectionState.SelectionChanged += () =>
             {
@@ -186,10 +190,6 @@ namespace Metasia.Editor.ViewModels.Timeline
 
         private void ChangeFramePerDIP()
         {
-            // foreach (var clip in ClipsAndBlanks)
-            // {
-            //     clip.Frame_Per_DIP = _timelineViewState.Frame_Per_DIP;
-            // }
             Width = TargetLayer.EndFrame * _timelineViewState.Frame_Per_DIP;
         }
     }

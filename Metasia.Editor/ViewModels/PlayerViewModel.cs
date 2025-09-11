@@ -78,17 +78,20 @@ namespace Metasia.Editor.ViewModels
 		public ICommand Pause { get; }
 		public ICommand PlayPauseToggle { get; }
 		private IPlaybackState playbackState;
+		private IProjectState projectState;
 		private IEditCommandManager _editCommandManager;
 		public PlayerViewModel(TimelineObject targetTimeline, 
 			ProjectInfo projectInfo, 
 			ISelectionState selectionState,
 			IPlaybackState playbackState,
+			IProjectState projectState,
 			IEditCommandManager editCommandManager)
 		{
 			TargetTimeline = targetTimeline;
 			TargetProjectInfo = projectInfo;
 
 			this.playbackState = playbackState;
+			this.projectState = projectState;
 			_editCommandManager = editCommandManager;
 			selectionState.SelectionChanged += () =>
 			{
@@ -96,10 +99,21 @@ namespace Metasia.Editor.ViewModels
 				SelectingObjects.AddRange(selectionState.SelectedClips);
 			};
 
+			// コマンドが実行されたりUndoRedoされたときに再描画&タイムライン変更を通知する
 			_editCommandManager.CommandExecuted += (sender, command) =>
 			{
-				//コマンドが実行された時に再描写を要求する
 				playbackState.RequestReRendering();
+				projectState.NotifyTimelineChanged();
+			};
+			_editCommandManager.CommandUndone += (sender, command) =>
+			{
+				playbackState.RequestReRendering();
+				projectState.NotifyTimelineChanged();
+			};
+			_editCommandManager.CommandRedone += (sender, command) =>
+			{
+				playbackState.RequestReRendering();
+				projectState.NotifyTimelineChanged();
 			};
 
             NextFrame = ReactiveCommand.Create(() =>

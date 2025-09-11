@@ -105,4 +105,9 @@ public class ProjectState : IProjectState
     {
         
     }
+
+    public void NotifyTimelineChanged()
+    {
+        TimelineChanged?.Invoke();
+    }
 }
