@@ -15,7 +15,7 @@ public class KariProjectTemplate : IProjectTemplate
 
     public KariProjectTemplate()
     {
-        Template = new MetasiaProject(new ProjectInfo(60, new SKSize(3840, 2160), 44100));
+        Template = new MetasiaProject(new ProjectInfo(60, new SKSize(3840, 2160), 44100, 2));
         Template.LastFrame = 239;
 
         // オブジェクトの作成
