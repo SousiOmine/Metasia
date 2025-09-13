@@ -7,6 +7,7 @@ using Metasia.Core.Objects;
 using Metasia.Editor.Models;
 using Metasia.Editor.Models.EditCommands;
 using Metasia.Editor.Models.States;
+using Metasia.Editor.ViewModels.Inspector;
 
 namespace Metasia.Editor.ViewModels
 {
@@ -19,15 +20,21 @@ namespace Metasia.Editor.ViewModels
             set => this.RaiseAndSetIfChanged(ref _testCharacters, value);
         }
 
-        private IEditCommandManager _editCommandManager;
+        private readonly IEditCommandManager _editCommandManager;
         private string _testCharacters = String.Empty;
-        private ISelectionState _selectionState;
-        private IProjectState _projectState;
-        public InspectorViewModel(ISelectionState selectionState, IProjectState projectState, IEditCommandManager editCommandManager)
+        private readonly ISelectionState _selectionState;
+        private readonly IProjectState _projectState;
+        private readonly IClipSettingPaneViewModelFactory _clipSettingPaneViewModelFactory;
+        public InspectorViewModel(ISelectionState selectionState, IProjectState projectState, IEditCommandManager editCommandManager, IClipSettingPaneViewModelFactory clipSettingPaneViewModelFactory)
         {
+            ArgumentNullException.ThrowIfNull(selectionState);
+            ArgumentNullException.ThrowIfNull(projectState);
+            ArgumentNullException.ThrowIfNull(editCommandManager);
+            ArgumentNullException.ThrowIfNull(clipSettingPaneViewModelFactory);
             _selectionState = selectionState;
             _projectState = projectState;
             _editCommandManager = editCommandManager;
+            _clipSettingPaneViewModelFactory = clipSettingPaneViewModelFactory;
             PlayerChanged();
 
             _projectState.ProjectLoaded += () =>
@@ -46,7 +53,7 @@ namespace Metasia.Editor.ViewModels
                     if (_selectionState.SelectedClips.Count > 0)
                     {
                         ClipSettingPanes.Clear();
-                        var clipSettingPaneViewModel = new ClipSettingPaneViewModel(this);
+                        var clipSettingPaneViewModel = _clipSettingPaneViewModelFactory.Create();
                         clipSettingPaneViewModel.TargetObject = _selectionState.SelectedClips.FirstOrDefault();
                         ClipSettingPanes.Add(clipSettingPaneViewModel);
                     }

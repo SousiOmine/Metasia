@@ -9,6 +9,8 @@ using Metasia.Editor.Models.States;
 using Metasia.Editor.Services;
 using Metasia.Editor.Services.Audio;
 using Metasia.Editor.ViewModels;
+using Metasia.Editor.ViewModels.Inspector;
+using Metasia.Editor.ViewModels.Inspector.Properties;
 using Metasia.Editor.ViewModels.Timeline;
 using Metasia.Editor.Views;
 using Microsoft.Extensions.DependencyInjection;
@@ -60,7 +62,11 @@ namespace Metasia.Editor
                 services.AddTransient<ILayerButtonViewModelFactory, LayerButtonViewModelFactory>();
                 services.AddTransient<ILayerCanvasViewModelFactory, LayerCanvasViewModelFactory>();
                 services.AddTransient<IClipViewModelFactory, ClipViewModelFactory>();
+                services.AddTransient<IPropertyRouterViewModelFactory, PropertyRouterViewModelFactory>();
+                services.AddTransient<IClipSettingPaneViewModelFactory, ClipSettingPaneViewModelFactory>();
+                services.AddTransient<IMetaNumberParamPropertyViewModelFactory, MetaNumberParamPropertyViewModelFactory>();
                 
+
                 services.AddTransient<MainWindowViewModel>();
                 services.AddSingleton<PlayerParentViewModel>();
                 services.AddSingleton<TimelineParentViewModel>();

@@ -4,6 +4,8 @@ using Metasia.Editor.ViewModels.Inspector.Properties;
 using Metasia.Editor.Views.Inspector.Properties;
 using ReactiveUI;
 using Metasia.Core.Coordinate;
+using System;
+using Metasia.Editor.Models.States;
 
 namespace Metasia.Editor.ViewModels.Inspector;
 
@@ -34,27 +36,52 @@ public class PropertyRouterViewModel : ViewModelBase
     private MetaNumberParamPropertyViewModel? _metaNumberParamPropertyVm;
     private bool _isMetaNumberParamProperty;
     private bool _usePlaceholder;
-    public PropertyRouterViewModel(ObjectPropertyFinder.EditablePropertyInfo propertyInfo)
+    private ObjectPropertyFinder.EditablePropertyInfo _propertyInfo;
+    private readonly IMetaNumberParamPropertyViewModelFactory _metaNumberParamPropertyViewModelFactory;
+    private readonly IProjectState _projectState;
+    public PropertyRouterViewModel(
+        ObjectPropertyFinder.EditablePropertyInfo propertyInfo, 
+        IMetaNumberParamPropertyViewModelFactory metaNumberParamPropertyViewModelFactory,
+        IProjectState projectState)
     {
-        if (propertyInfo.Type == typeof(MetaNumberParam<double>))
+        ArgumentNullException.ThrowIfNull(metaNumberParamPropertyViewModelFactory);
+        ArgumentNullException.ThrowIfNull(projectState);
+        _metaNumberParamPropertyViewModelFactory = metaNumberParamPropertyViewModelFactory;
+        _projectState = projectState;
+        _propertyInfo = propertyInfo;
+        _projectState.TimelineChanged += OnTimelineChanged;
+
+
+        RestructureProperty();
+        
+    }
+
+    private void RestructureProperty()
+    {
+        if (_propertyInfo.Type == typeof(MetaNumberParam<double>))
         {
             
-            if (propertyInfo.Min is null || propertyInfo.Max is null || propertyInfo.RecommendedMin is null || propertyInfo.RecommendedMax is null)
+            if (_propertyInfo.Min is null || _propertyInfo.Max is null || _propertyInfo.RecommendedMin is null || _propertyInfo.RecommendedMax is null)
             {
-                MetaNumberParamPropertyVm = new MetaNumberParamPropertyViewModel(propertyInfo.Identifier, (MetaNumberParam<double>)propertyInfo.PropertyValue!);
+                MetaNumberParamPropertyVm = _metaNumberParamPropertyViewModelFactory.Create(_propertyInfo.Identifier, (MetaNumberParam<double>)_propertyInfo.PropertyValue!);
             }
             else
             {
-                MetaNumberParamPropertyVm = new MetaNumberParamPropertyViewModel(propertyInfo.Identifier, (MetaNumberParam<double>)propertyInfo.PropertyValue!, propertyInfo.Min.Value, propertyInfo.Max.Value, propertyInfo.RecommendedMin.Value, propertyInfo.RecommendedMax.Value);
+                MetaNumberParamPropertyVm = _metaNumberParamPropertyViewModelFactory.Create(_propertyInfo.Identifier, (MetaNumberParam<double>)_propertyInfo.PropertyValue!, _propertyInfo.Min.Value, _propertyInfo.Max.Value, _propertyInfo.RecommendedMin.Value, _propertyInfo.RecommendedMax.Value);
             }
             IsMetaNumberParamProperty = true;
             UsePlaceholder = false;
         }
         else
         {
-            PlaceholderText = propertyInfo.Identifier + " " + propertyInfo.Type;
+            PlaceholderText = _propertyInfo.Identifier + " " + _propertyInfo.Type;
             UsePlaceholder = true;
         }
+    }
+
+    private void OnTimelineChanged()
+    {
+        RestructureProperty();
     }
     
 }

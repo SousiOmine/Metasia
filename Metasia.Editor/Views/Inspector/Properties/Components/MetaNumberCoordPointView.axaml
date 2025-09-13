@@ -34,14 +34,15 @@
             <TextBlock IsVisible="{Binding IsSingle}">移動なし</TextBlock>
         </Panel>
         
-        <NumericUpDown Value="{Binding PointValue}"
-                       Minimum="{Binding Min}"
+        <NumericUpDown Minimum="{Binding Min}"
                        Maximum="{Binding Max}"
+                       Value="{Binding PointValue}"
                        Width="130"
                        VerticalAlignment="Center"></NumericUpDown>
-        <Slider Value="{Binding PointValue}"
+        <Slider x:Name="ValueSlider"
                 Minimum="{Binding RecommendedMin}"
                 Maximum="{Binding RecommendedMax}"
+                Value="{Binding SliderPointValue}"
                 Width="100"
                 Height="40"
                 Margin="5,0,10,0"

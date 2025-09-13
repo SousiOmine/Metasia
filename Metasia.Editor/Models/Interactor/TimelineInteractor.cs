@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using Metasia.Core.Coordinate;
 using Metasia.Core.Objects;
 using Metasia.Editor.Models.DragDropData;
 using Metasia.Editor.Models.EditCommands;
@@ -69,6 +71,22 @@ namespace Metasia.Editor.Models.Interactor
                 return new MoveClipsCommand(moveInfos);
             }
             return null;
+        }
+
+        public static IEditCommand? CreateCoordPointsValueChangeCommand(string propertyIdentifier, CoordPoint targetCoordPoint, double afterValue, IEnumerable<ClipObject> selectedClips)
+        {
+            List<CoordPointsValueChangeCommand.CoordPointValueChangeInfo> changeInfos = new();
+            foreach(var clip in selectedClips)
+            {
+                var properties = ObjectPropertyFinder.FindEditableProperties(clip);
+                var property = properties.FirstOrDefault(x => x.Identifier == propertyIdentifier);
+                if(property is null || property.PropertyValue!.GetType() != typeof(MetaNumberParam<double>)) continue;
+                var coordPoints = (MetaNumberParam<double>)property.PropertyValue!;
+                var coordPoint = coordPoints.Params.FirstOrDefault(x => x.Id == targetCoordPoint.Id);
+                if(coordPoint is null) continue;
+                changeInfos.Add(new CoordPointsValueChangeCommand.CoordPointValueChangeInfo(coordPoints, coordPoint, targetCoordPoint.Value, afterValue));
+            }
+            return new CoordPointsValueChangeCommand(changeInfos);
         }
 
         private static LayerObject? FindOwnerLayer(TimelineObject timeline, ClipObject targetObject)

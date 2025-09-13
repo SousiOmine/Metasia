@@ -1,0 +1,25 @@
+using System;
+using Metasia.Editor.Models;
+using Metasia.Editor.ViewModels.Inspector.Properties;
+using Metasia.Editor.Models.States;
+
+namespace Metasia.Editor.ViewModels.Inspector;
+
+public class PropertyRouterViewModelFactory : IPropertyRouterViewModelFactory
+{
+    private readonly IMetaNumberParamPropertyViewModelFactory _metaNumberParamPropertyViewModelFactory;
+    private readonly IProjectState _projectState;
+    public PropertyRouterViewModelFactory(IMetaNumberParamPropertyViewModelFactory metaNumberParamPropertyViewModelFactory, IProjectState projectState)
+    {
+        ArgumentNullException.ThrowIfNull(metaNumberParamPropertyViewModelFactory);
+        ArgumentNullException.ThrowIfNull(projectState);
+        _metaNumberParamPropertyViewModelFactory = metaNumberParamPropertyViewModelFactory;
+        _projectState = projectState;
+    }
+
+    public PropertyRouterViewModel Create(ObjectPropertyFinder.EditablePropertyInfo propertyInfo)
+    {
+        ArgumentNullException.ThrowIfNull(propertyInfo);
+        return new PropertyRouterViewModel(propertyInfo, _metaNumberParamPropertyViewModelFactory, _projectState);
+    }
+}

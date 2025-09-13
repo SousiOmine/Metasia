@@ -34,14 +34,19 @@ public class ClipSettingPaneViewModel : ViewModelBase
 
     public event EventHandler? TargetObjectChanged;
 
-    private InspectorViewModel _inspectorViewModel;
     private ClipObject? _targetObject;
     private bool _isActiveCheck;
-
-    public ClipSettingPaneViewModel(InspectorViewModel inspectorViewModel)
+    private readonly IPropertyRouterViewModelFactory _propertyRouterViewModelFactory;
+    private readonly IEditCommandManager _editCommandManager;
+    public ClipSettingPaneViewModel(
+        IPropertyRouterViewModelFactory propertyRouterViewModelFactory,
+        IEditCommandManager editCommandManager)
     {
+        ArgumentNullException.ThrowIfNull(propertyRouterViewModelFactory);
+        ArgumentNullException.ThrowIfNull(editCommandManager);
         IsActiveCheckCommand = ReactiveCommand.Create(() => { isActiveCheck_Click(); });
-        _inspectorViewModel = inspectorViewModel;
+        _propertyRouterViewModelFactory = propertyRouterViewModelFactory;
+        _editCommandManager = editCommandManager;
     }
 
     private void buildSettingUI()
@@ -55,7 +60,7 @@ public class ClipSettingPaneViewModel : ViewModelBase
         Properties.Clear();
         foreach (var property in editableProperties)
         {
-            Properties.Add(new PropertyRouterViewModel(property));
+            Properties.Add(_propertyRouterViewModelFactory.Create(property));
         }
     }
     
@@ -64,7 +69,7 @@ public class ClipSettingPaneViewModel : ViewModelBase
         if (TargetObject is null) return;
         
         var command = new ClipsIsActiveChangeCommand([TargetObject], IsActiveCheck);
-        _inspectorViewModel.RunEditCommand(command);
+        _editCommandManager.Execute(command);
     }
     
     

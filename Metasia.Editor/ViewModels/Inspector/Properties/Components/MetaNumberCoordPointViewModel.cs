@@ -1,4 +1,6 @@
-﻿using Metasia.Core.Coordinate;
+﻿using System;
+using System.Timers;
+using Metasia.Core.Coordinate;
 using ReactiveUI;
 
 namespace Metasia.Editor.ViewModels.Inspector.Properties.Components;
@@ -16,7 +18,29 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
     public double PointValue
     {
         get => _pointValue;
-        set => this.RaiseAndSetIfChanged(ref _pointValue, value);
+        set {
+            if (_pointValue != value)
+            {
+                _pointValue = Math.Max(Min, Math.Min(Max, value));
+                this.RaisePropertyChanged();
+                // スライダーの値を更新（RecommendedMaxを超える場合はRecommendedMaxに制限）
+                SliderPointValue = Math.Min(RecommendedMax, Math.Max(RecommendedMin, _pointValue));
+            }
+        }
+    }
+
+    public double SliderPointValue
+    {
+        get => _sliderPointValue;
+        set {
+            if (_sliderPointValue != value)
+            {
+                _sliderPointValue = Math.Max(RecommendedMin, Math.Min(RecommendedMax, value));
+                this.RaisePropertyChanged();
+                // スライダー操作時はPointValueを更新
+                PointValue = _sliderPointValue;
+            }
+        }
     }
 
     public int PointFrame
@@ -64,6 +88,7 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
     }
     
     private double _pointValue;
+    private double _sliderPointValue;
     private int _pointFrame;
     private bool _isSingle;
     private bool _isMidpoint;
@@ -73,8 +98,22 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
     private double _recommendedMin = double.MinValue;
     private double _recommendedMax = double.MaxValue;
 
-    public MetaNumberCoordPointViewModel(CoordPoint target, PointType pointType = PointType.Start, double min = double.MinValue, double max = double.MaxValue, double recommendedMin = double.MinValue, double recommendedMax = double.MaxValue)
+    private const double _valueEnterThreshold = 0.2;
+
+    private Timer? _valueEnterTimer;
+    private bool _isValueEnteringFlag = false;
+    private MetaNumberParamPropertyViewModel _parentViewModel;
+    private CoordPoint _target;
+    public MetaNumberCoordPointViewModel(
+        MetaNumberParamPropertyViewModel parentViewModel,
+        CoordPoint target, 
+        PointType pointType = PointType.Start, 
+        double min = double.MinValue, 
+        double max = double.MaxValue, 
+        double recommendedMin = double.MinValue, 
+        double recommendedMax = double.MaxValue)
     {
+        Console.WriteLine("MetaNumberCoordPointViewModel: target.Id: " + target.Id);
         switch (pointType)
         {
             case PointType.Start:
@@ -97,12 +136,52 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
                 IsSingle = true;
                 break;
         }
-        
-        PointValue = target.Value;
-        PointFrame = target.Frame;
+        _parentViewModel = parentViewModel;
+        _target = target;
         Min = min;
         Max = max;
         RecommendedMin = recommendedMin;
         RecommendedMax = recommendedMax;
+        PointValue = target.Value;
+        SliderPointValue = Math.Min(RecommendedMax, Math.Max(RecommendedMin, PointValue));
+        PointFrame = target.Frame;
+
+
+        this.WhenAnyValue(vm => vm.PointValue).Subscribe(_ =>
+        {
+            Console.WriteLine("TryValueEnter: PointValue: " + PointValue + " target.Id: " + _target.Id);
+            TryValueEnter();
+        });
+    }
+
+    private void TryValueEnter()
+    {
+        if(_isValueEnteringFlag)
+        {
+            if (_valueEnterTimer is null)
+            {
+                _valueEnterTimer = new Timer(_valueEnterThreshold * 1000)
+                {
+                    AutoReset = false
+                };
+                _valueEnterTimer.Elapsed += (sender, e) => {
+                    if (PointValue != _target.Value)
+                    {
+                        UpdateValue();
+                        _isValueEnteringFlag = false;
+                    }
+                };
+            }
+            _valueEnterTimer.Stop();
+            _valueEnterTimer.Start();
+        }
+
+        _isValueEnteringFlag = true;
+    }
+
+    private void UpdateValue()
+    {
+        Console.WriteLine("UpdateValue: " + PointValue);
+        _parentViewModel.UpdatePointValue(_target, PointValue);
     }
 }
