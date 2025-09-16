@@ -7,7 +7,7 @@ namespace Metasia.Editor.Models.EditCommands.Commands;
 
 public class CoordPointsValueChangeCommand : IEditCommand
 {
-    public record CoordPointValueChangeInfo(MetaNumberParam<double> targetMetaNumberParam, CoordPoint targetCoordPoint, double beforeValue, double afterValue);
+    public record CoordPointValueChangeInfo(MetaNumberParam<double> targetMetaNumberParam, CoordPoint targetCoordPoint, double valueDifference);
 
     public string Description => "CoordPointsの値を変更";
 
@@ -29,7 +29,7 @@ public class CoordPointsValueChangeCommand : IEditCommand
             var newCoordPoint = new CoordPoint(){
                 Id = changeInfo.targetCoordPoint.Id,
                 Frame = changeInfo.targetCoordPoint.Frame,
-                Value = changeInfo.afterValue,
+                Value = changeInfo.valueDifference + changeInfo.targetCoordPoint.Value,
                 InterpolationLogic = changeInfo.targetCoordPoint.InterpolationLogic.HardCopy()
             };
             changeInfo.targetMetaNumberParam.UpdatePoint(newCoordPoint);
@@ -43,7 +43,7 @@ public class CoordPointsValueChangeCommand : IEditCommand
             var newCoordPoint = new CoordPoint(){
                 Id = changeInfo.targetCoordPoint.Id,
                 Frame = changeInfo.targetCoordPoint.Frame,
-                Value = changeInfo.beforeValue,
+                Value = changeInfo.targetCoordPoint.Value - changeInfo.valueDifference,
                 InterpolationLogic = changeInfo.targetCoordPoint.InterpolationLogic.HardCopy()
             };
             changeInfo.targetMetaNumberParam.UpdatePoint(newCoordPoint);

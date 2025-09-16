@@ -83,15 +83,17 @@ namespace Metasia.Editor.Models.Interactor
                 if(property is null || property.PropertyValue!.GetType() != typeof(MetaNumberParam<double>)) continue;
                 var coordPoints = (MetaNumberParam<double>)property.PropertyValue!;
                 var coordPoint = coordPoints.Params.FirstOrDefault(x => x.Id == targetCoordPoint.Id);
-                if(coordPoint is null && coordPoints.Params.Count == 1)
+                if (coordPoint is not null)
                 {
-                    coordPoint = coordPoints.Params.FirstOrDefault();
+                    var valueDifference = afterValue - beforeValue;
+                    changeInfos.Add(new CoordPointsValueChangeCommand.CoordPointValueChangeInfo(coordPoints, coordPoint, valueDifference));
                 }
-                if(coordPoint is null)
+                else if(coordPoint is null && coordPoints.Params.Count == 1)
                 {
-                    continue;
+                    coordPoint = coordPoints.Params.First();
+                    var valueDifference = afterValue - beforeValue;
+                    changeInfos.Add(new CoordPointsValueChangeCommand.CoordPointValueChangeInfo(coordPoints, coordPoint, valueDifference));
                 }
-                changeInfos.Add(new CoordPointsValueChangeCommand.CoordPointValueChangeInfo(coordPoints, coordPoint, beforeValue, afterValue));
             }
             return new CoordPointsValueChangeCommand(changeInfos);
         }

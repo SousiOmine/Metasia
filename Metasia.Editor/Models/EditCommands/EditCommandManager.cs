@@ -14,7 +14,7 @@ namespace Metasia.Editor.Models.EditCommands
         private readonly Stack<IEditCommand> undoStack = new();
         private readonly Stack<IEditCommand> redoStack = new();
 
-        private readonly Stack<IEditCommand> previewStack = new();
+        private IEditCommand? lastPreviewCommand = null;
 
         public bool CanUndo => undoStack.Count > 0;
         public bool CanRedo => redoStack.Count > 0;
@@ -39,8 +39,9 @@ namespace Metasia.Editor.Models.EditCommands
 
         public void PreviewExecute(IEditCommand command)
         {
+            PreviewUndo();
             command.Execute();
-            previewStack.Push(command);
+            lastPreviewCommand = command;
             CommandPreviewExecuted?.Invoke(this, command);
 
             Console.WriteLine("PreviewExecute: " + command.Description);
@@ -82,16 +83,13 @@ namespace Metasia.Editor.Models.EditCommands
         {
             undoStack.Clear();
             redoStack.Clear();
-            previewStack.Clear();
+            lastPreviewCommand = null;
         }
 
         private void PreviewUndo()
         {
-            foreach (var command in previewStack.Reverse())
-            {
-                command.Undo();
-            }
-            previewStack.Clear();
+            lastPreviewCommand?.Undo();
+            lastPreviewCommand = null;
         }
     }
 }

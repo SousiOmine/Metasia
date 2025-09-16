@@ -193,6 +193,6 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
 
     private void SliderMoving()
     {
-        _parentViewModel.PreviewUpdatePointValue(_target, _target.Value, PointValue);
+        _parentViewModel.PreviewUpdatePointValue(_target, _beforeValue, PointValue);
     }
 }
