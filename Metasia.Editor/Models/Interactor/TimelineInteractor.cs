@@ -83,7 +83,14 @@ namespace Metasia.Editor.Models.Interactor
                 if(property is null || property.PropertyValue!.GetType() != typeof(MetaNumberParam<double>)) continue;
                 var coordPoints = (MetaNumberParam<double>)property.PropertyValue!;
                 var coordPoint = coordPoints.Params.FirstOrDefault(x => x.Id == targetCoordPoint.Id);
-                if(coordPoint is null) continue;
+                if(coordPoint is null && coordPoints.Params.Count == 1)
+                {
+                    coordPoint = coordPoints.Params.FirstOrDefault();
+                }
+                if(coordPoint is null)
+                {
+                    continue;
+                }
                 changeInfos.Add(new CoordPointsValueChangeCommand.CoordPointValueChangeInfo(coordPoints, coordPoint, targetCoordPoint.Value, afterValue));
             }
             return new CoordPointsValueChangeCommand(changeInfos);
