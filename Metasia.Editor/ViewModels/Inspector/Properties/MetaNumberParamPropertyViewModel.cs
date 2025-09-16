@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Metasia.Core.Coordinate;
@@ -21,14 +22,28 @@ public class MetaNumberParamPropertyViewModel : ViewModelBase
     
     public ObservableCollection<MetaNumberCoordPointViewModel> CoordPoints { get; } = new();
 
-    public string PropertyValue
+    public string PropertyValueText
+    {
+        get => _propertyValueText;
+        set => this.RaiseAndSetIfChanged(ref _propertyValueText, value);
+    }
+
+    public MetaNumberParam<double> PropertyValue
     {
         get => _propertyValue;
         set => this.RaiseAndSetIfChanged(ref _propertyValue, value);
     }
-    private MetaNumberParam<double> _target;
+
+    public string PropertyIdentifier
+    {
+        get => _propertyIdentifier;
+        set => this.RaiseAndSetIfChanged(ref _propertyIdentifier, value);
+    }
+
     private string _propertyDisplayName = string.Empty;
-    private string _propertyValue = string.Empty;
+    private string _propertyValueText = string.Empty;
+    private string _propertyIdentifier = string.Empty;
+    private MetaNumberParam<double> _propertyValue;
     private double _min = double.MinValue;
     private double _max = double.MaxValue;
     private double _recommendedMin = double.MinValue;
@@ -45,19 +60,52 @@ public class MetaNumberParamPropertyViewModel : ViewModelBase
         double recommendedMin = double.MinValue, 
         double recommendedMax = double.MaxValue)
     {
-        _target = target;
         _propertyDisplayName = propertyIdentifier;
-        _propertyValue = "100(仮)";
+        _propertyValueText = "100(仮)";
+        _propertyIdentifier = propertyIdentifier;
+        _propertyValue = target;
         _min = min;
         _max = max;
         _recommendedMin = recommendedMin;
         _recommendedMax = recommendedMax;
         _selectionState = selectionState;
         _editCommandManager = editCommandManager;
-        for (int i = 0; i < target.Params.Count; i++)
+        RestructureParams();
+    }
+
+    public void UpdatePointValue(CoordPoint targetCoordPoint, double beforeValue, double value)
+    {
+        var targetPoint = _propertyValue.Params.FirstOrDefault(x => x.Id == targetCoordPoint.Id);
+        if (targetPoint is not null)
         {
-            MetaNumberCoordPointViewModel.PointType pointType = MetaNumberCoordPointViewModel.PointType.Single;
-            if (target.Params.Count == 1)
+            var command = TimelineInteractor.CreateCoordPointsValueChangeCommand(_propertyDisplayName, targetCoordPoint, beforeValue, value, _selectionState.SelectedClips);
+            if (command is not null)
+            {
+                _editCommandManager.Execute(command);
+            }
+        }
+    }
+
+    public void PreviewUpdatePointValue(CoordPoint targetCoordPoint, double beforeValue, double value)
+    {
+        var targetPoint = _propertyValue.Params.FirstOrDefault(x => x.Id == targetCoordPoint.Id);
+        if (targetPoint is not null)
+        {
+            var command = TimelineInteractor.CreateCoordPointsValueChangeCommand(_propertyDisplayName, targetCoordPoint, beforeValue, value, _selectionState.SelectedClips);
+            if (command is not null)
+            {
+                _editCommandManager.PreviewExecute(command);
+            }
+        }
+    }
+
+    private void RestructureParams()
+    {
+        CoordPoints.Clear();
+        for (int i = 0; i < _propertyValue.Params.Count; i++)
+        {
+            MetaNumberCoordPointViewModel.PointType pointType;
+            if (_propertyValue.Params.Count == 1)
             {
                 pointType = MetaNumberCoordPointViewModel.PointType.Single;
             }
@@ -65,7 +113,7 @@ public class MetaNumberParamPropertyViewModel : ViewModelBase
             {
                 pointType = MetaNumberCoordPointViewModel.PointType.Start;
             }
-            else if (i == target.Params.Count - 1)
+            else if (i == _propertyValue.Params.Count - 1)
             {
                 pointType = MetaNumberCoordPointViewModel.PointType.End;
             }
@@ -73,20 +121,7 @@ public class MetaNumberParamPropertyViewModel : ViewModelBase
             {
                 pointType = MetaNumberCoordPointViewModel.PointType.Mid;
             }
-            CoordPoints.Add(new MetaNumberCoordPointViewModel(this, target.Params[i], pointType, _min, _max, _recommendedMin, _recommendedMax));
-        }
-    }
-
-    public void UpdatePointValue(CoordPoint targetCoordPoint, double value)
-    {
-        var targetPoint = _target.Params.FirstOrDefault(x => x.Id == targetCoordPoint.Id);
-        if (targetPoint is not null)
-        {
-            var command = TimelineInteractor.CreateCoordPointsValueChangeCommand(_propertyDisplayName, targetCoordPoint, value, _selectionState.SelectedClips);
-            if (command is not null)
-            {
-                _editCommandManager.Execute(command);
-            }
+            CoordPoints.Add(new MetaNumberCoordPointViewModel(this, _propertyValue.Params[i], pointType, _min, _max, _recommendedMin, _recommendedMax));
         }
     }
     

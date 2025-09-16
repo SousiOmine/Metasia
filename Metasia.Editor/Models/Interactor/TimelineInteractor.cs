@@ -73,7 +73,7 @@ namespace Metasia.Editor.Models.Interactor
             return null;
         }
 
-        public static IEditCommand? CreateCoordPointsValueChangeCommand(string propertyIdentifier, CoordPoint targetCoordPoint, double afterValue, IEnumerable<ClipObject> selectedClips)
+        public static IEditCommand? CreateCoordPointsValueChangeCommand(string propertyIdentifier, CoordPoint targetCoordPoint, double beforeValue, double afterValue, IEnumerable<ClipObject> selectedClips)
         {
             List<CoordPointsValueChangeCommand.CoordPointValueChangeInfo> changeInfos = new();
             foreach(var clip in selectedClips)
@@ -91,7 +91,7 @@ namespace Metasia.Editor.Models.Interactor
                 {
                     continue;
                 }
-                changeInfos.Add(new CoordPointsValueChangeCommand.CoordPointValueChangeInfo(coordPoints, coordPoint, targetCoordPoint.Value, afterValue));
+                changeInfos.Add(new CoordPointsValueChangeCommand.CoordPointValueChangeInfo(coordPoints, coordPoint, beforeValue, afterValue));
             }
             return new CoordPointsValueChangeCommand(changeInfos);
         }

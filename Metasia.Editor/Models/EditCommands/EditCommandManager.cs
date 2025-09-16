@@ -14,50 +14,84 @@ namespace Metasia.Editor.Models.EditCommands
         private readonly Stack<IEditCommand> undoStack = new();
         private readonly Stack<IEditCommand> redoStack = new();
 
+        private readonly Stack<IEditCommand> previewStack = new();
+
         public bool CanUndo => undoStack.Count > 0;
         public bool CanRedo => redoStack.Count > 0;
 
         public event EventHandler<IEditCommand> CommandExecuted = delegate { };
+        public event EventHandler<IEditCommand> CommandPreviewExecuted = delegate { };
         public event EventHandler<IEditCommand> CommandUndone = delegate { };
         public event EventHandler<IEditCommand> CommandRedone = delegate { };
 
         public void Execute(IEditCommand command)
         {
+            PreviewUndo();
+
             command.Execute();
             undoStack.Push(command);
             redoStack.Clear();
             
             CommandExecuted?.Invoke(this, command);
+
+            Console.WriteLine("Execute: " + command.Description);
+        }
+
+        public void PreviewExecute(IEditCommand command)
+        {
+            command.Execute();
+            previewStack.Push(command);
+            CommandPreviewExecuted?.Invoke(this, command);
+
+            Console.WriteLine("PreviewExecute: " + command.Description);
         }
 
         public void Undo()
         {
             if (undoStack.Count > 0)
             {
+                PreviewUndo();
                 var command = undoStack.Pop();
                 command.Undo();
                 redoStack.Push(command);
                 
                 CommandUndone?.Invoke(this, command);
+
+                
             }
+            Console.WriteLine("Undo");
         }
 
         public void Redo()
         {
             if (redoStack.Count > 0)
             {
+                PreviewUndo();
                 var command = redoStack.Pop();
                 command.Execute();
                 undoStack.Push(command);
                 
                 CommandRedone?.Invoke(this, command);
+
+                
             }
+            Console.WriteLine("Redo");
         }
 
         public void Clear()
         {
             undoStack.Clear();
             redoStack.Clear();
+            previewStack.Clear();
+        }
+
+        private void PreviewUndo()
+        {
+            foreach (var command in previewStack.Reverse())
+            {
+                command.Undo();
+            }
+            previewStack.Clear();
         }
     }
 }

@@ -60,7 +60,6 @@ public class PropertyRouterViewModel : ViewModelBase
     {
         if (_propertyInfo.Type == typeof(MetaNumberParam<double>))
         {
-            
             if (_propertyInfo.Min is null || _propertyInfo.Max is null || _propertyInfo.RecommendedMin is null || _propertyInfo.RecommendedMax is null)
             {
                 MetaNumberParamPropertyVm = _metaNumberParamPropertyViewModelFactory.Create(_propertyInfo.Identifier, (MetaNumberParam<double>)_propertyInfo.PropertyValue!);
@@ -71,6 +70,7 @@ public class PropertyRouterViewModel : ViewModelBase
             }
             IsMetaNumberParamProperty = true;
             UsePlaceholder = false;
+            
         }
         else
         {

@@ -24,6 +24,11 @@ namespace Metasia.Editor.Models.EditCommands
         event EventHandler<IEditCommand> CommandExecuted;
 
         /// <summary>
+        /// プレビューに反映するためのコマンドが実行されたときに発火するイベント
+        /// </summary>
+        event EventHandler<IEditCommand> CommandPreviewExecuted;
+
+        /// <summary>
         /// Undoが実行されたときに発火するイベント
         /// </summary>
         event EventHandler<IEditCommand> CommandUndone;
@@ -38,6 +43,12 @@ namespace Metasia.Editor.Models.EditCommands
         /// </summary>
         /// <param name="command">実行するコマンド</param>
         public void Execute(IEditCommand command);
+
+        /// <summary>
+        /// プレビューに反映するためのコマンドを実行する
+        /// </summary>
+        /// <param name="command">実行するコマンド</param>
+        public void PreviewExecute(IEditCommand command);
 
         /// <summary>
         /// Undoを実行する

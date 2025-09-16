@@ -105,6 +105,10 @@ namespace Metasia.Editor.ViewModels
 				playbackState.RequestReRendering();
 				projectState.NotifyTimelineChanged();
 			};
+			_editCommandManager.CommandPreviewExecuted += (sender, command) =>
+			{
+				playbackState.RequestReRendering();
+			};
 			_editCommandManager.CommandUndone += (sender, command) =>
 			{
 				playbackState.RequestReRendering();

@@ -97,11 +97,11 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
     private double _max = double.MaxValue;
     private double _recommendedMin = double.MinValue;
     private double _recommendedMax = double.MaxValue;
-
     private const double _valueEnterThreshold = 0.2;
 
     private Timer? _valueEnterTimer;
     private bool _isValueEnteringFlag = false;
+    private double _beforeValue = 0;
     private MetaNumberParamPropertyViewModel _parentViewModel;
     private CoordPoint _target;
     public MetaNumberCoordPointViewModel(
@@ -113,7 +113,6 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
         double recommendedMin = double.MinValue, 
         double recommendedMax = double.MaxValue)
     {
-        Console.WriteLine("MetaNumberCoordPointViewModel: target.Id: " + target.Id);
         switch (pointType)
         {
             case PointType.Start:
@@ -142,6 +141,7 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
         Max = max;
         RecommendedMin = recommendedMin;
         RecommendedMax = recommendedMax;
+        _beforeValue = target.Value;
         PointValue = target.Value;
         SliderPointValue = Math.Min(RecommendedMax, Math.Max(RecommendedMin, PointValue));
         PointFrame = target.Frame;
@@ -149,7 +149,6 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
 
         this.WhenAnyValue(vm => vm.PointValue).Subscribe(_ =>
         {
-            Console.WriteLine("TryValueEnter: PointValue: " + PointValue + " target.Id: " + _target.Id);
             TryValueEnter();
         });
     }
@@ -165,7 +164,7 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
                     AutoReset = false
                 };
                 _valueEnterTimer.Elapsed += (sender, e) => {
-                    if (PointValue != _target.Value)
+                    if (PointValue != _beforeValue)
                     {
                         UpdateValue();
                         _isValueEnteringFlag = false;
@@ -174,14 +173,26 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
             }
             _valueEnterTimer.Stop();
             _valueEnterTimer.Start();
+            SliderMoving();
+        }
+        else
+        {
+            _beforeValue = PointValue;
         }
 
         _isValueEnteringFlag = true;
+
+        //Console.WriteLine("TryValueEnter: _beforeValue: " + _beforeValue + " PointValue: " + PointValue);
     }
 
     private void UpdateValue()
     {
         Console.WriteLine("UpdateValue: " + PointValue);
-        _parentViewModel.UpdatePointValue(_target, PointValue);
+        _parentViewModel.UpdatePointValue(_target, _beforeValue, PointValue);
+    }
+
+    private void SliderMoving()
+    {
+        _parentViewModel.PreviewUpdatePointValue(_target, _target.Value, PointValue);
     }
 }
