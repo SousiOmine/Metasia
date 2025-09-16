@@ -98,10 +98,14 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
     private double _recommendedMin = double.MinValue;
     private double _recommendedMax = double.MaxValue;
     private const double _valueEnterThreshold = 0.2;
+    private const double _frameEnterThreshold = 0.2;
 
     private Timer? _valueEnterTimer;
+    private Timer? _frameEnterTimer;
     private bool _isValueEnteringFlag = false;
+    private bool _isFrameEnteringFlag = false;
     private double _beforeValue = 0;
+    private int _beforeFrame = 0;
     private MetaNumberParamPropertyViewModel _parentViewModel;
     private CoordPoint _target;
     public MetaNumberCoordPointViewModel(
@@ -151,6 +155,10 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
         {
             TryValueEnter();
         });
+        this.WhenAnyValue(vm => vm.PointFrame).Subscribe(_ =>
+        {
+            TryFrameEnter();
+        });
     }
 
     private void TryValueEnter()
@@ -173,7 +181,7 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
             }
             _valueEnterTimer.Stop();
             _valueEnterTimer.Start();
-            SliderMoving();
+            ValueSliderMoving();
         }
         else
         {
@@ -181,18 +189,44 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
         }
 
         _isValueEnteringFlag = true;
-
-        //Console.WriteLine("TryValueEnter: _beforeValue: " + _beforeValue + " PointValue: " + PointValue);
     }
 
     private void UpdateValue()
     {
-        Console.WriteLine("UpdateValue: " + PointValue);
         _parentViewModel.UpdatePointValue(_target, _beforeValue, PointValue);
     }
 
-    private void SliderMoving()
+    private void ValueSliderMoving()
     {
         _parentViewModel.PreviewUpdatePointValue(_target, _beforeValue, PointValue);
+    }
+
+    private void TryFrameEnter()
+    {
+        if(_isFrameEnteringFlag)
+        {
+            if(_frameEnterTimer is null)
+            {
+                _frameEnterTimer = new Timer(_frameEnterThreshold * 1000)
+                {
+                    AutoReset = false
+                };
+                _frameEnterTimer.Elapsed += (sender, e) => {
+                    if(PointFrame != _beforeFrame)
+                    {
+                        _parentViewModel.UpdatePointFrame(_target, _beforeFrame, PointFrame);
+                        _isFrameEnteringFlag = false;
+                    }
+                };
+            }
+            _frameEnterTimer.Stop();
+            _frameEnterTimer.Start();
+        }
+        else
+        {
+            _beforeFrame = PointFrame;
+        }
+
+        _isFrameEnteringFlag = true;
     }
 }

@@ -5,6 +5,7 @@ using System.Linq;
 using Metasia.Core.Coordinate;
 using Metasia.Editor.Models;
 using Metasia.Editor.Models.EditCommands;
+using Metasia.Editor.Models.EditCommands.Commands;
 using Metasia.Editor.Models.Interactor;
 using Metasia.Editor.Models.States;
 using Metasia.Editor.ViewModels.Inspector.Properties.Components;
@@ -95,6 +96,19 @@ public class MetaNumberParamPropertyViewModel : ViewModelBase
             if (command is not null)
             {
                 _editCommandManager.PreviewExecute(command);
+            }
+        }
+    }
+
+    public void UpdatePointFrame(CoordPoint targetCoordPoint, int beforeFrame, int frame)
+    {
+        var targetPoint = _propertyValue.Params.FirstOrDefault(x => x.Id == targetCoordPoint.Id);
+        if (targetPoint is not null)
+        {
+            var command = new CoordPointFrameChangeCommand(_propertyValue, targetCoordPoint, beforeFrame, frame);
+            if (command is not null)
+            {
+                _editCommandManager.Execute(command);
             }
         }
     }
