@@ -18,27 +18,46 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
     public double PointValue
     {
         get => _pointValue;
-        set {
-            if (_pointValue != value)
+        set
+        {
+            var clamped = Math.Max(Min, Math.Min(Max, value));
+            if (AreClose(_pointValue, clamped))
             {
-                _pointValue = Math.Max(Min, Math.Min(Max, value));
-                this.RaisePropertyChanged();
-                // スライダーの値を更新（RecommendedMaxを超える場合はRecommendedMaxに制限）
-                SliderPointValue = Math.Min(RecommendedMax, Math.Max(RecommendedMin, _pointValue));
+                return;
             }
+
+            var previous = _pointValue;
+            _pointValue = clamped;
+            this.RaisePropertyChanged();
+
+            var sliderValue = Math.Min(RecommendedMax, Math.Max(RecommendedMin, _pointValue));
+            if (!AreClose(_sliderPointValue, sliderValue))
+            {
+                _sliderPointValue = sliderValue;
+                this.RaisePropertyChanged(nameof(SliderPointValue));
+            }
+
+            TryValueEnter(previous);
         }
     }
 
     public double SliderPointValue
     {
         get => _sliderPointValue;
-        set {
-            if (_sliderPointValue != value)
+        set
+        {
+            var clamped = Math.Max(RecommendedMin, Math.Min(RecommendedMax, value));
+            if (AreClose(_sliderPointValue, clamped))
             {
-                _sliderPointValue = Math.Max(RecommendedMin, Math.Min(RecommendedMax, value));
-                this.RaisePropertyChanged();
-                // スライダー操作時はPointValueを更新
-                PointValue = _sliderPointValue;
+                return;
+            }
+
+            _sliderPointValue = clamped;
+            this.RaisePropertyChanged();
+
+            if (!AreClose(_pointValue, clamped))
+            {
+                PointValue = clamped;
             }
         }
     }
@@ -86,6 +105,8 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
         get => _recommendedMax;
         set => this.RaiseAndSetIfChanged(ref _recommendedMax, value);
     }
+
+    public string TargetId => _target.Id;
     
     private double _pointValue;
     private double _sliderPointValue;
@@ -99,6 +120,7 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
     private double _recommendedMax = double.MaxValue;
     private const double _valueEnterThreshold = 0.2;
     private const double _frameEnterThreshold = 0.2;
+    private const double _doubleComparisonTolerance = 1e-6;
 
     private Timer? _valueEnterTimer;
     private Timer? _frameEnterTimer;
@@ -106,8 +128,10 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
     private bool _isFrameEnteringFlag = false;
     private double _beforeValue = 0;
     private int _beforeFrame = 0;
+    private bool _suppressChangeEvents = false;
     private MetaNumberParamPropertyViewModel _parentViewModel;
     private CoordPoint _target;
+
     public MetaNumberCoordPointViewModel(
         MetaNumberParamPropertyViewModel parentViewModel,
         CoordPoint target, 
@@ -117,6 +141,28 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
         double recommendedMin = double.MinValue, 
         double recommendedMax = double.MaxValue)
     {
+        _parentViewModel = parentViewModel;
+        _target = target;
+        RefreshFromTarget(target, pointType, min, max, recommendedMin, recommendedMax);
+        this.WhenAnyValue(vm => vm.PointFrame).Subscribe(_ =>
+        {
+            TryFrameEnter();
+        });
+    }
+
+    public void RefreshFromTarget(
+        CoordPoint target,
+        PointType pointType,
+        double min,
+        double max,
+        double recommendedMin,
+        double recommendedMax)
+    {
+        _suppressChangeEvents = true;
+
+        _target = target;
+
+        // Update type related flags/labels
         switch (pointType)
         {
             case PointType.Start:
@@ -137,63 +183,77 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
             case PointType.Single:
                 Label = "移動なし";
                 IsSingle = true;
+                IsMidpoint = false;
                 break;
         }
-        _parentViewModel = parentViewModel;
-        _target = target;
+
         Min = min;
         Max = max;
         RecommendedMin = recommendedMin;
         RecommendedMax = recommendedMax;
-        _beforeValue = target.Value;
+
+        // Refresh values
         PointValue = target.Value;
         SliderPointValue = Math.Min(RecommendedMax, Math.Max(RecommendedMin, PointValue));
         PointFrame = target.Frame;
 
-
-        this.WhenAnyValue(vm => vm.PointValue).Subscribe(_ =>
-        {
-            TryValueEnter();
-        });
-        this.WhenAnyValue(vm => vm.PointFrame).Subscribe(_ =>
-        {
-            TryFrameEnter();
-        });
+        _suppressChangeEvents = false;
     }
 
-    private void TryValueEnter()
+    private void TryValueEnter(double previousValue)
     {
-        if(_isValueEnteringFlag)
+        if (_suppressChangeEvents)
         {
-            if (_valueEnterTimer is null)
-            {
-                _valueEnterTimer = new Timer(_valueEnterThreshold * 1000)
-                {
-                    AutoReset = false
-                };
-                _valueEnterTimer.Elapsed += (sender, e) => {
-                    if (PointValue != _beforeValue)
-                    {
-                        UpdateValue();
-                        _isValueEnteringFlag = false;
-                    }
-                };
-            }
+            return;
+        }
+
+        if (!_isValueEnteringFlag)
+        {
+            _beforeValue = previousValue;
+            _isValueEnteringFlag = true;
+        }
+
+        if (AreClose(PointValue, _beforeValue))
+        {
+            _isValueEnteringFlag = false;
+            return;
+        }
+
+        EnsureValueEnterTimer();
+        ValueSliderMoving();
+
+        if (_valueEnterTimer is not null)
+        {
             _valueEnterTimer.Stop();
             _valueEnterTimer.Start();
-            ValueSliderMoving();
         }
-        else
-        {
-            _beforeValue = PointValue;
-        }
-
-        _isValueEnteringFlag = true;
     }
 
-    private void UpdateValue()
+    private void EnsureValueEnterTimer()
     {
-        _parentViewModel.UpdatePointValue(_target, _beforeValue, PointValue);
+        if (_valueEnterTimer is not null)
+        {
+            return;
+        }
+
+        _valueEnterTimer = new Timer(_valueEnterThreshold * 1000)
+        {
+            AutoReset = false
+        };
+        _valueEnterTimer.Elapsed += (_, _) =>
+        {
+            if (!AreClose(PointValue, _beforeValue))
+            {
+                _parentViewModel.UpdatePointValue(_target, _beforeValue, PointValue);
+            }
+
+            _isValueEnteringFlag = false;
+        };
+    }
+
+    private static bool AreClose(double left, double right)
+    {
+        return Math.Abs(left - right) <= _doubleComparisonTolerance;
     }
 
     private void ValueSliderMoving()
@@ -203,6 +263,10 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
 
     private void TryFrameEnter()
     {
+        if (_suppressChangeEvents)
+        {
+            return;
+        }
         if(_isFrameEnteringFlag)
         {
             if(_frameEnterTimer is null)

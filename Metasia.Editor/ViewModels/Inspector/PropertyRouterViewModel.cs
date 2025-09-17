@@ -60,16 +60,20 @@ public class PropertyRouterViewModel : ViewModelBase
     {
         if (_propertyInfo.Type == typeof(MetaNumberParam<double>))
         {
-            if (_propertyInfo.Min is null || _propertyInfo.Max is null || _propertyInfo.RecommendedMin is null || _propertyInfo.RecommendedMax is null)
+            if (MetaNumberParamPropertyVm is null)
             {
-                MetaNumberParamPropertyVm = _metaNumberParamPropertyViewModelFactory.Create(_propertyInfo.Identifier, (MetaNumberParam<double>)_propertyInfo.PropertyValue!);
+                if (_propertyInfo.Min is null || _propertyInfo.Max is null || _propertyInfo.RecommendedMin is null || _propertyInfo.RecommendedMax is null)
+                {
+                    MetaNumberParamPropertyVm = _metaNumberParamPropertyViewModelFactory.Create(_propertyInfo.Identifier, (MetaNumberParam<double>)_propertyInfo.PropertyValue!);
+                }
+                else
+                {
+                    MetaNumberParamPropertyVm = _metaNumberParamPropertyViewModelFactory.Create(_propertyInfo.Identifier, (MetaNumberParam<double>)_propertyInfo.PropertyValue!, _propertyInfo.Min.Value, _propertyInfo.Max.Value, _propertyInfo.RecommendedMin.Value, _propertyInfo.RecommendedMax.Value);
+                }
+                IsMetaNumberParamProperty = true;
+                UsePlaceholder = false;
             }
-            else
-            {
-                MetaNumberParamPropertyVm = _metaNumberParamPropertyViewModelFactory.Create(_propertyInfo.Identifier, (MetaNumberParam<double>)_propertyInfo.PropertyValue!, _propertyInfo.Min.Value, _propertyInfo.Max.Value, _propertyInfo.RecommendedMin.Value, _propertyInfo.RecommendedMax.Value);
-            }
-            IsMetaNumberParamProperty = true;
-            UsePlaceholder = false;
+            
             
         }
         else

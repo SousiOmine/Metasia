@@ -51,10 +51,12 @@ public class MetaNumberParamPropertyViewModel : ViewModelBase
     private double _recommendedMax = double.MaxValue;
     private ISelectionState _selectionState;
     private IEditCommandManager _editCommandManager;
+    private IProjectState _projectState;
     public MetaNumberParamPropertyViewModel(
         ISelectionState selectionState,
         string propertyIdentifier, 
         IEditCommandManager editCommandManager,
+        IProjectState projectState,
         MetaNumberParam<double> target, 
         double min = double.MinValue, 
         double max = double.MaxValue, 
@@ -71,6 +73,8 @@ public class MetaNumberParamPropertyViewModel : ViewModelBase
         _recommendedMax = recommendedMax;
         _selectionState = selectionState;
         _editCommandManager = editCommandManager;
+        _projectState = projectState;
+        _projectState.TimelineChanged += OnTimelineChanged;
         RestructureParams();
     }
 
@@ -113,29 +117,89 @@ public class MetaNumberParamPropertyViewModel : ViewModelBase
         }
     }
 
+    private void OnTimelineChanged()
+    {
+        RestructureParams();
+    }
+
     private void RestructureParams()
     {
-        CoordPoints.Clear();
-        for (int i = 0; i < _propertyValue.Params.Count; i++)
+        var desiredPoints = _propertyValue.Params.ToList();
+        var desiredIds = desiredPoints.Select(p => p.Id).ToHashSet();
+
+        // Remove VMs that no longer exist
+        for (int idx = CoordPoints.Count - 1; idx >= 0; idx--)
         {
-            MetaNumberCoordPointViewModel.PointType pointType;
-            if (_propertyValue.Params.Count == 1)
+            var vm = CoordPoints[idx];
+            if (!desiredIds.Contains(vm.TargetId))
             {
-                pointType = MetaNumberCoordPointViewModel.PointType.Single;
+                CoordPoints.RemoveAt(idx);
             }
-            else if (i == 0)
+        }
+
+        // Reorder existing VMs and insert missing ones according to desired order
+        for (int i = 0; i < desiredPoints.Count; i++)
+        {
+            var point = desiredPoints[i];
+            var desiredId = point.Id;
+
+            MetaNumberCoordPointViewModel.PointType ComputePointType(int index, int count)
             {
-                pointType = MetaNumberCoordPointViewModel.PointType.Start;
+                if (count == 1) return MetaNumberCoordPointViewModel.PointType.Single;
+                if (index == 0) return MetaNumberCoordPointViewModel.PointType.Start;
+                if (index == count - 1) return MetaNumberCoordPointViewModel.PointType.End;
+                return MetaNumberCoordPointViewModel.PointType.Mid;
             }
-            else if (i == _propertyValue.Params.Count - 1)
+
+            var desiredType = ComputePointType(i, desiredPoints.Count);
+
+            if (i < CoordPoints.Count && CoordPoints[i].TargetId == desiredId)
             {
-                pointType = MetaNumberCoordPointViewModel.PointType.End;
+                // Update in place
+                CoordPoints[i].RefreshFromTarget(point, desiredType, _min, _max, _recommendedMin, _recommendedMax);
             }
             else
             {
-                pointType = MetaNumberCoordPointViewModel.PointType.Mid;
+                // Find existing VM with the desired id
+                int existingIndex = -1;
+                for (int j = 0; j < CoordPoints.Count; j++)
+                {
+                    if (CoordPoints[j].TargetId == desiredId)
+                    {
+                        existingIndex = j;
+                        break;
+                    }
+                }
+
+                if (existingIndex >= 0)
+                {
+                    // Move to correct position and refresh
+                    if (existingIndex != i)
+                    {
+                        CoordPoints.Move(existingIndex, i);
+                    }
+                    CoordPoints[i].RefreshFromTarget(point, desiredType, _min, _max, _recommendedMin, _recommendedMax);
+                }
+                else
+                {
+                    // Insert new VM at the correct position
+                    var newVm = new MetaNumberCoordPointViewModel(this, point, desiredType, _min, _max, _recommendedMin, _recommendedMax);
+                    if (i <= CoordPoints.Count)
+                    {
+                        CoordPoints.Insert(i, newVm);
+                    }
+                    else
+                    {
+                        CoordPoints.Add(newVm);
+                    }
+                }
             }
-            CoordPoints.Add(new MetaNumberCoordPointViewModel(this, _propertyValue.Params[i], pointType, _min, _max, _recommendedMin, _recommendedMax));
+        }
+
+        // Trim any trailing items if collection is longer than desired
+        while (CoordPoints.Count > desiredPoints.Count)
+        {
+            CoordPoints.RemoveAt(CoordPoints.Count - 1);
         }
     }
     
