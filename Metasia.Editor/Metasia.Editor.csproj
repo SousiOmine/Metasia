@@ -30,6 +30,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Metasia.Core\Metasia.Core.csproj" />
+    <ProjectReference Include="..\Metasia.Editor.Plugin\Metasia.Editor.Plugin.csproj" />
   </ItemGroup>
 
 
