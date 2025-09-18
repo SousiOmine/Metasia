@@ -8,6 +8,11 @@
         string PluginIdentifier { get; }
 
         /// <summary>
+        /// エディタプラグインのバージョン MAJOR.MINOR.PATCH形式を推奨
+        /// </summary>
+        string PluginVersion { get; }
+
+        /// <summary>
         /// エディタプラグインの名前
         /// </summary>
         string PluginName { get; }
