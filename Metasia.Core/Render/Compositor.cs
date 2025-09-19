@@ -1,3 +1,4 @@
+using Metasia.Core.Media;
 using Metasia.Core.Objects;
 using SkiaSharp;
 
@@ -16,7 +17,12 @@ namespace Metasia.Core.Render
         /// <param name="renderResolution">レンダリング解像度</param>
         /// <param name="projectResolution">プロジェクトの解像度</param>
         /// <returns>合成後のビットマップ</returns>
-        public SKBitmap RenderFrame(IRenderable root, int frame, SKSize renderResolution, SKSize projectResolution)
+        public SKBitmap RenderFrame(
+            IRenderable root,
+            int frame,
+            SKSize renderResolution,
+            SKSize projectResolution,
+            IImageFileAccessor imageFileAccessor)
         {
             ArgumentNullException.ThrowIfNull(root);
             if (renderResolution.Width <= 0 || renderResolution.Height <= 0) throw new ArgumentOutOfRangeException("Render resolution must be positive");
