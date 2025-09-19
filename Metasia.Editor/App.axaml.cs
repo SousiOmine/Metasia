@@ -5,6 +5,7 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Metasia.Editor.Models.EditCommands;
+using Metasia.Editor.Models.Media;
 using Metasia.Editor.Models.States;
 using Metasia.Editor.Services;
 using Metasia.Editor.Services.Audio;
@@ -56,6 +57,8 @@ namespace Metasia.Editor
                 services.AddSingleton<ISelectionState, SelectionState>();
                 services.AddSingleton<IPlaybackState, PlaybackState>();
                 services.AddSingleton<ITimelineViewState, TimelineViewState>();
+
+                services.AddSingleton<MediaAccessorRouter>();
 
                 services.AddTransient<IPlayerViewModelFactory, PlayerViewModelFactory>();
                 services.AddTransient<ITimelineViewModelFactory, TimelineViewModelFactory>();
