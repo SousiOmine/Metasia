@@ -1,0 +1,14 @@
+using SkiaSharp;
+
+namespace Metasia.Core.Media;
+
+public class EmptyImageFileAccessor : IImageFileAccessor
+{
+    public ImageFileAccessorResult GetBitmap(MediaPath path, SKSize size)
+    {
+        return new ImageFileAccessorResult(){
+            IsSucceed = false,
+            Bitmap = null,
+        };
+    }
+}
