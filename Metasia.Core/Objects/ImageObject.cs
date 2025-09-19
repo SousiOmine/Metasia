@@ -1,7 +1,9 @@
+using System.Diagnostics;
 using Metasia.Core.Attributes;
 using Metasia.Core.Coordinate;
 using Metasia.Core.Media;
 using Metasia.Core.Render;
+using SkiaSharp;
 
 namespace Metasia.Core.Objects;
 
@@ -38,6 +40,35 @@ public class ImageObject : ClipObject, IRenderable
 
     public RenderNode Render(RenderContext context)
     {
-        throw new NotImplementedException();
+		int relativeFrame = context.Frame - StartFrame;
+        if(ImagePath is not null)
+		{
+			try
+			{
+				var imageFileAccessorResult = context.ImageFileAccessor.GetBitmap(ImagePath);
+				if(imageFileAccessorResult.IsSucceed && imageFileAccessorResult.Bitmap is not null)
+				{
+					var transform = new Transform()
+					{
+						Position = new SKPoint((float)X.Get(relativeFrame), (float)Y.Get(relativeFrame)),
+						Scale = (float)Scale.Get(relativeFrame) / 100,
+						Rotation = (float)Rotation.Get(relativeFrame),
+						Alpha = (100.0f - (float)Alpha.Get(relativeFrame)) / 100,
+					};
+					return new RenderNode()
+					{
+						Bitmap = imageFileAccessorResult.Bitmap,
+						LogicalSize = new SKSize(imageFileAccessorResult.Bitmap.Width, imageFileAccessorResult.Bitmap.Height),
+						Transform = transform,
+					};
+				}
+			}
+			catch (Exception ex)
+			{
+				Debug.WriteLine($"Failed to load image: {ex.Message}");
+			}
+		}
+		Debug.WriteLine($"Failed to load image: {ImagePath}");
+		return new RenderNode();
     }
 }

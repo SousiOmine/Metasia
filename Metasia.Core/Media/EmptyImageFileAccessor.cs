@@ -4,7 +4,7 @@ namespace Metasia.Core.Media;
 
 public class EmptyImageFileAccessor : IImageFileAccessor
 {
-    public ImageFileAccessorResult GetBitmap(MediaPath path, SKSize size)
+    public ImageFileAccessorResult GetBitmap(MediaPath path)
     {
         return new ImageFileAccessorResult(){
             IsSucceed = false,

@@ -28,7 +28,7 @@ namespace Metasia.Core.Tests.Render
             var mockRenderable = new Mock<IRenderable>();
             mockRenderable.Setup(x => x.Render(It.IsAny<RenderContext>())).Returns(node);
 
-            using var resultBitmap = compositor.RenderFrame(mockRenderable.Object, 0, new SKSize(192, 108), new SKSize(3840, 2160), null);
+            using var resultBitmap = compositor.RenderFrame(mockRenderable.Object, 0, new SKSize(192, 108), new SKSize(3840, 2160), null, null);
 
             Assert.That(resultBitmap, Is.Not.Null);
             Assert.That(resultBitmap.Width, Is.EqualTo(192));

@@ -1,3 +1,4 @@
+using Metasia.Core.Media;
 using SkiaSharp;
 
 namespace Metasia.Core.Render
@@ -10,7 +11,11 @@ namespace Metasia.Core.Render
 
         public SKSize RenderResolution { get; init; }
 
-        public RenderContext(int frame, SKSize projectResolution, SKSize renderResolution)
+        public IImageFileAccessor ImageFileAccessor { get; init; }
+
+        public IVideoFileAccessor VideoFileAccessor { get; init; }
+
+        public RenderContext(int frame, SKSize projectResolution, SKSize renderResolution, IImageFileAccessor imageFileAccessor, IVideoFileAccessor videoFileAccessor)
         {
             Frame = frame;
 
@@ -25,6 +30,9 @@ namespace Metasia.Core.Render
             
             ProjectResolution = projectResolution;
             RenderResolution = renderResolution;
+
+            ImageFileAccessor = imageFileAccessor;
+            VideoFileAccessor = videoFileAccessor;
         }
     }
 }
