@@ -68,6 +68,7 @@ namespace Metasia.Editor
                 services.AddTransient<IPropertyRouterViewModelFactory, PropertyRouterViewModelFactory>();
                 services.AddTransient<IClipSettingPaneViewModelFactory, ClipSettingPaneViewModelFactory>();
                 services.AddTransient<IMetaNumberParamPropertyViewModelFactory, MetaNumberParamPropertyViewModelFactory>();
+                services.AddTransient<IMediaPathPropertyViewModelFactory, MediaPathPropertyViewModelFactory>();
                 
 
                 services.AddTransient<MainWindowViewModel>();

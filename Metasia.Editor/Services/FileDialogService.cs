@@ -36,6 +36,24 @@ namespace Metasia.Editor.Services
             return files.Count >= 1 ? files[0] : null;
 		}
 
+        public async Task<IStorageFile?> OpenFileDialogAsync(string title, string[] patterns)
+        {
+            var files = await _target.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions()
+            {
+                Title = title,
+                AllowMultiple = false,
+                FileTypeFilter = new FilePickerFileType[]
+                {
+                    new("File")
+                    {
+                        Patterns = patterns
+                    }
+                }
+			});
+
+            return files.Count >= 1 ? files[0] : null;
+        }
+
         public async Task<IStorageFolder?> OpenFolderDialogAsync()
         {
             var folders = await _target.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions()

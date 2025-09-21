@@ -12,8 +12,11 @@
 
         <TextBlock Text="{Binding PlaceholderText}" IsVisible="{Binding UsePlaceholder}"/>
         <Border IsVisible="{Binding IsMetaNumberParamProperty}">
-            <views_properties:MetaNumberParamPropertyView DataContext="{Binding MetaNumberParamPropertyVm}"/>
-
+            <views_properties:MetaNumberParamPropertyView 
+                DataContext="{Binding MetaNumberParamPropertyVm}"/>
+        </Border>
+        <Border IsVisible="{Binding IsMediaPathProperty}">
+            <views_properties:MediaPathPropertyView DataContext="{Binding MediaPathPropertyVm}"/>
         </Border>
     </StackPanel>
 </UserControl>
