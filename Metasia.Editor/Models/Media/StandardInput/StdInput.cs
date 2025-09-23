@@ -8,7 +8,13 @@ public class StdInput : IImageFileAccessor
 {
     public ImageFileAccessorResult GetBitmap(MediaPath path)
     {
-        SKBitmap bitmap = SKBitmap.Decode(MediaPath.GetFullPath(path, ""));
+        var fullPath = MediaPath.GetFullPath(path, "");
+        if (!File.Exists(fullPath))
+        {
+            return new ImageFileAccessorResult { IsSucceed = false, Bitmap = null };
+        }
+
+        SKBitmap bitmap = SKBitmap.Decode(fullPath);
         return new ImageFileAccessorResult { IsSucceed = true, Bitmap = bitmap };
     }
 }

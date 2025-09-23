@@ -22,6 +22,7 @@ public class MediaPathPropertyViewModelFactory : IMediaPathPropertyViewModelFact
 
     public MediaPathPropertyViewModel Create(string propertyIdentifier, MediaPath target)
     {
+        ArgumentNullException.ThrowIfNull(target);
         return new MediaPathPropertyViewModel(propertyIdentifier, target, _editCommandManager, _fileDialogService);
     }
 }

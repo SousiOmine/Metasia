@@ -1,13 +1,17 @@
 using System.IO;
+using System.Xml.Serialization;
 
 namespace Metasia.Core.Media
 {
     public class MediaPath
     {
-        public string FileName { get; init; } = string.Empty;
-        public string Directory { get; init; } = string.Empty;
+        [XmlElement("FileName")]
+        public string FileName { get; set; } = string.Empty;
+        [XmlElement("Directory")]
+        public string Directory { get; set; } = string.Empty;
 
-        public PathType PathType { get; init; } = PathType.Absolute;
+        [XmlElement("PathType")]
+        public PathType PathType { get; set; } = PathType.Absolute;
 
         /// <summary>
         /// 絶対パスからMediaPathを作成する

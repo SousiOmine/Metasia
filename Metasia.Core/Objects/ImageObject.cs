@@ -26,7 +26,7 @@ public class ImageObject : ClipObject, IRenderable
 	public MetaNumberParam<double> Rotation { get; set; } = new MetaNumberParam<double>(0);
 
     [EditableProperty("ImagePath")]
-    public MediaPath? ImagePath { get; set; } = null;
+    public MediaPath ImagePath { get; set; } = new MediaPath();
 
     public ImageObject()
 	{
@@ -41,7 +41,7 @@ public class ImageObject : ClipObject, IRenderable
     public RenderNode Render(RenderContext context)
     {
 		int relativeFrame = context.Frame - StartFrame;
-        if(ImagePath is not null)
+        if(ImagePath is not null || !string.IsNullOrEmpty(ImagePath?.FileName))
 		{
 			try
 			{
