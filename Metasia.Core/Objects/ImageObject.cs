@@ -41,12 +41,12 @@ public class ImageObject : ClipObject, IRenderable
     public RenderNode Render(RenderContext context)
     {
 		int relativeFrame = context.Frame - StartFrame;
-        if(ImagePath is not null || !string.IsNullOrEmpty(ImagePath?.FileName))
+        if(ImagePath is not null && !string.IsNullOrEmpty(ImagePath?.FileName))
 		{
 			try
 			{
 				var imageFileAccessorResult = context.ImageFileAccessor.GetBitmap(ImagePath);
-				if(imageFileAccessorResult.IsSucceed && imageFileAccessorResult.Bitmap is not null)
+				if(imageFileAccessorResult.IsSuccessful && imageFileAccessorResult.Bitmap is not null)
 				{
 					var transform = new Transform()
 					{

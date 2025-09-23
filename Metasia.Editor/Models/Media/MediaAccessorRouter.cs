@@ -22,13 +22,13 @@ public class MediaAccessorRouter : IImageFileAccessor, IVideoFileAccessor
             if(accessor is IImageFileAccessor imageAccessor)
             {
                 var result = imageAccessor.GetBitmap(path);
-                if(result.IsSucceed)
+                if(result.IsSuccessful)
                 {
                     return result;
                 }
             }
         }
-        return new ImageFileAccessorResult { IsSucceed = false, Bitmap = null };
+        return new ImageFileAccessorResult { IsSuccessful = false, Bitmap = null };
     }
 
     public VideoFileAccessorResult GetBitmap(MediaPath path, DateTime time)

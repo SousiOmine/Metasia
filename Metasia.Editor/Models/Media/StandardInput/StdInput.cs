@@ -11,10 +11,10 @@ public class StdInput : IImageFileAccessor
         var fullPath = MediaPath.GetFullPath(path, "");
         if (!File.Exists(fullPath))
         {
-            return new ImageFileAccessorResult { IsSucceed = false, Bitmap = null };
+            return new ImageFileAccessorResult { IsSuccessful = false, Bitmap = null };
         }
 
         SKBitmap bitmap = SKBitmap.Decode(fullPath);
-        return new ImageFileAccessorResult { IsSucceed = true, Bitmap = bitmap };
+        return new ImageFileAccessorResult { IsSuccessful = true, Bitmap = bitmap };
     }
 }

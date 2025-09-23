@@ -7,7 +7,7 @@ public class EmptyImageFileAccessor : IImageFileAccessor
     public ImageFileAccessorResult GetBitmap(MediaPath path)
     {
         return new ImageFileAccessorResult(){
-            IsSucceed = false,
+            IsSuccessful = false,
             Bitmap = null,
         };
     }

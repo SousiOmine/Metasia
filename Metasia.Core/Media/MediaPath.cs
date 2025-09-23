@@ -23,19 +23,49 @@ namespace Metasia.Core.Media
         /// <returns>MediaPath</returns>
         public static MediaPath CreateFromPath(string directory, string fileName, string projectDir, PathType pathType)
         {
-            if(directory.Contains(fileName)) throw new ArgumentException("directory must not contain fileName");
+            // Validate inputs
+            ArgumentNullException.ThrowIfNull(directory);
+            ArgumentNullException.ThrowIfNull(fileName);
+            ArgumentNullException.ThrowIfNull(projectDir);
 
-            if(pathType == PathType.ProjectRelative)
+            if (directory.Length == 0) throw new ArgumentException("directory cannot be empty", nameof(directory));
+            if (fileName.Length == 0) throw new ArgumentException("fileName cannot be empty", nameof(fileName));
+            if (projectDir.Length == 0) throw new ArgumentException("projectDir cannot be empty", nameof(projectDir));
+
+            // fileName must not contain directory separator characters
+            if (fileName.IndexOfAny(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }) >= 0)
+                throw new ArgumentException("fileName must not contain directory separator characters", nameof(fileName));
+
+            // Ensure directory does not end with fileName (segment‑safe check)
+            if (string.Equals(Path.GetFileName(directory), fileName, StringComparison.OrdinalIgnoreCase))
+                throw new ArgumentException("directory must not contain fileName as its last segment", nameof(directory));
+
+            // Resolve directory based on path type
+            if (pathType == PathType.ProjectRelative)
             {
-                directory = Path.GetRelativePath(projectDir, directory);
+                try
+                {
+                    directory = Path.GetRelativePath(projectDir, directory);
+                }
+                catch (Exception ex)
+                {
+                    throw new ArgumentException("Failed to get relative path", ex);
+                }
             }
-            else if(pathType == PathType.Absolute)
+            else if (pathType == PathType.Absolute)
             {
-                directory = Path.GetFullPath(directory);
+                try
+                {
+                    directory = Path.GetFullPath(directory);
+                }
+                catch (Exception ex)
+                {
+                    throw new ArgumentException("Failed to get full path", ex);
+                }
             }
             else
             {
-                throw new ArgumentException("pathType must be PathType.ProjectRelative or PathType.Absolute");
+                throw new ArgumentException("pathType must be PathType.ProjectRelative or PathType.Absolute", nameof(pathType));
             }
 
             string pathToSave = directory.Replace(Path.DirectorySeparatorChar, '/');

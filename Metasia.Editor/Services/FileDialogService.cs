@@ -38,6 +38,20 @@ namespace Metasia.Editor.Services
 
         public async Task<IStorageFile?> OpenFileDialogAsync(string title, string[] patterns)
         {
+            ArgumentNullException.ThrowIfNull(title);
+            if (string.IsNullOrWhiteSpace(title))
+                throw new ArgumentException("Title cannot be empty or whitespace.", nameof(title));
+
+            ArgumentNullException.ThrowIfNull(patterns);
+            if (patterns.Length == 0)
+                throw new ArgumentException("Patterns array must contain at least one pattern.", nameof(patterns));
+            foreach (var p in patterns)
+            {
+                ArgumentNullException.ThrowIfNull(p);
+                if (string.IsNullOrWhiteSpace(p))
+                    throw new ArgumentException("Pattern cannot be empty or whitespace.", nameof(patterns));
+            }
+
             var files = await _target.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions()
             {
                 Title = title,
@@ -49,7 +63,7 @@ namespace Metasia.Editor.Services
                         Patterns = patterns
                     }
                 }
-			});
+            });
 
             return files.Count >= 1 ? files[0] : null;
         }
