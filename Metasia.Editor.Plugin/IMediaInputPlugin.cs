@@ -1,6 +1,6 @@
 namespace Metasia.Editor.Plugin;
 
-public interface IMediaInputPlugin : IPlugin
+public interface IMediaInputPlugin : IEditorPlugin
 {
     
 }

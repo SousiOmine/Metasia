@@ -1,6 +1,6 @@
 ﻿namespace Metasia.Editor.Plugin
 {
-    public interface IPlugin
+    public interface IEditorPlugin
     {
         /// <summary>
         /// エディタプラグインの識別子
