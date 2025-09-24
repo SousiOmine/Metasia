@@ -31,5 +31,7 @@
         /// </summary>
         IEnumerable<SupportEnvironment> SupportedEnvironments { get; }
 
+        void Initialize();
+
     }
 }

@@ -9,6 +9,7 @@ using Metasia.Editor.Models.Media;
 using Metasia.Editor.Models.States;
 using Metasia.Editor.Services;
 using Metasia.Editor.Services.Audio;
+using Metasia.Editor.Services.PluginService;
 using Metasia.Editor.ViewModels;
 using Metasia.Editor.ViewModels.Inspector;
 using Metasia.Editor.ViewModels.Inspector.Properties;
@@ -59,6 +60,7 @@ namespace Metasia.Editor
                 services.AddSingleton<ITimelineViewState, TimelineViewState>();
 
                 services.AddSingleton<MediaAccessorRouter>();
+                services.AddSingleton<IPluginService, PluginService>();
 
                 services.AddTransient<IPlayerViewModelFactory, PlayerViewModelFactory>();
                 services.AddTransient<ITimelineViewModelFactory, TimelineViewModelFactory>();
@@ -81,6 +83,9 @@ namespace Metasia.Editor
                     ValidateScopes = true, 
                     ValidateOnBuild = true 
                 });
+
+                // プラグインを読み込み
+                Services.GetRequiredService<IPluginService>().LoadPluginsAsync();
 
                 // DIコンテナが設定された後にViewModelを作成
                 mainWindow.DataContext = Services.GetRequiredService<MainWindowViewModel>();
