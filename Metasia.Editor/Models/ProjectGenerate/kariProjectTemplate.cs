@@ -5,6 +5,7 @@ using Metasia.Core.Objects;
 using Metasia.Core.Coordinate;
 using Metasia.Core.Objects.AudioEffects;
 using Metasia.Core.Coordinate.InterpolationLogic;
+using Metasia.Core.Media;
 
 namespace Metasia.Editor.Models.ProjectGenerate;
 
@@ -77,6 +78,13 @@ public class KariProjectTemplate : IProjectTemplate
         foursec.X.SetSinglePoint(-1800);
         foursec.Y.SetSinglePoint(900);
 
+        ImageObject image = new ImageObject("image")
+        {
+            StartFrame = 120,
+            EndFrame = 239
+        };
+        
+
         // レイヤーの作成
         LayerObject layer1 = new LayerObject("layer1", "Layer 1");
         LayerObject layer2 = new LayerObject("layer2", "Layer 2");
@@ -125,6 +133,7 @@ public class KariProjectTemplate : IProjectTemplate
         TimelineObject mainTL = new TimelineObject("RootTimeline");
 
         layer1.Objects.Add(kariHello);
+        layer1.Objects.Add(image);
         layer2.Objects.Add(kariHello2);
         layer3.Objects.Add(text);
         layer4.Objects.Add(onesec);

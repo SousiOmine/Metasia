@@ -1,3 +1,4 @@
+using Metasia.Core.Media;
 using Metasia.Core.Objects;
 using SkiaSharp;
 
@@ -16,11 +17,17 @@ namespace Metasia.Core.Render
         /// <param name="renderResolution">レンダリング解像度</param>
         /// <param name="projectResolution">プロジェクトの解像度</param>
         /// <returns>合成後のビットマップ</returns>
-        public SKBitmap RenderFrame(IRenderable root, int frame, SKSize renderResolution, SKSize projectResolution)
+        public SKBitmap RenderFrame(
+            IRenderable root,
+            int frame,
+            SKSize renderResolution,
+            SKSize projectResolution,
+            IImageFileAccessor imageFileAccessor,
+            IVideoFileAccessor videoFileAccessor)
         {
             ArgumentNullException.ThrowIfNull(root);
-            if (renderResolution.Width <= 0 || renderResolution.Height <= 0) throw new ArgumentOutOfRangeException("Render resolution must be positive");
-            if (projectResolution.Width <= 0 || projectResolution.Height <= 0) throw new ArgumentOutOfRangeException("Project resolution must be positive");
+            if (renderResolution.Width <= 0 || renderResolution.Height <= 0) throw new ArgumentOutOfRangeException(nameof(renderResolution), "Render resolution must be positive");
+            if (projectResolution.Width <= 0 || projectResolution.Height <= 0) throw new ArgumentOutOfRangeException(nameof(projectResolution), "Project resolution must be positive");
             
             var resultBitmap = new SKBitmap((int)renderResolution.Width, (int)renderResolution.Height);
             using (SKCanvas canvas = new SKCanvas(resultBitmap))
@@ -28,7 +35,7 @@ namespace Metasia.Core.Render
                 //下地は黒で塗りつぶす
 			    canvas.Clear(SKColors.Black);
 
-                var context = new RenderContext(frame, projectResolution, renderResolution);
+                var context = new RenderContext(frame, projectResolution, renderResolution, imageFileAccessor, videoFileAccessor);
                 var rootNode = root.Render(context);
 
                 ProcessNode(canvas, rootNode, projectResolution, renderResolution);

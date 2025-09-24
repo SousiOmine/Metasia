@@ -6,6 +6,7 @@ using ReactiveUI;
 using Metasia.Core.Coordinate;
 using System;
 using Metasia.Editor.Models.States;
+using Metasia.Core.Media;
 
 namespace Metasia.Editor.ViewModels.Inspector;
 
@@ -21,6 +22,16 @@ public class PropertyRouterViewModel : ViewModelBase
         get => _metaNumberParamPropertyVm;
         set => this.RaiseAndSetIfChanged(ref _metaNumberParamPropertyVm, value);
     }
+    public bool IsMediaPathProperty
+    {
+        get => _isMediaPathProperty;
+        set => this.RaiseAndSetIfChanged(ref _isMediaPathProperty, value);
+    }
+    public MediaPathPropertyViewModel? MediaPathPropertyVm
+    {
+        get => _mediaPathPropertyVm;
+        set => this.RaiseAndSetIfChanged(ref _mediaPathPropertyVm, value);
+    }
     public string PlaceholderText { 
         get => _placeholderText;
         set => this.RaiseAndSetIfChanged(ref _placeholderText, value);
@@ -34,19 +45,25 @@ public class PropertyRouterViewModel : ViewModelBase
 
     private string _placeholderText = string.Empty;
     private MetaNumberParamPropertyViewModel? _metaNumberParamPropertyVm;
-    private bool _isMetaNumberParamProperty;
+    private MediaPathPropertyViewModel? _mediaPathPropertyVm;
+    private bool _isMetaNumberParamProperty = false;
+    private bool _isMediaPathProperty = false;
     private bool _usePlaceholder;
     private ObjectPropertyFinder.EditablePropertyInfo _propertyInfo;
     private readonly IMetaNumberParamPropertyViewModelFactory _metaNumberParamPropertyViewModelFactory;
+    private readonly IMediaPathPropertyViewModelFactory _mediaPathPropertyViewModelFactory;
     private readonly IProjectState _projectState;
     public PropertyRouterViewModel(
         ObjectPropertyFinder.EditablePropertyInfo propertyInfo, 
         IMetaNumberParamPropertyViewModelFactory metaNumberParamPropertyViewModelFactory,
+        IMediaPathPropertyViewModelFactory mediaPathPropertyViewModelFactory,
         IProjectState projectState)
     {
         ArgumentNullException.ThrowIfNull(metaNumberParamPropertyViewModelFactory);
+        ArgumentNullException.ThrowIfNull(mediaPathPropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(projectState);
         _metaNumberParamPropertyViewModelFactory = metaNumberParamPropertyViewModelFactory;
+        _mediaPathPropertyViewModelFactory = mediaPathPropertyViewModelFactory;
         _projectState = projectState;
         _propertyInfo = propertyInfo;
         _projectState.TimelineChanged += OnTimelineChanged;
@@ -73,8 +90,15 @@ public class PropertyRouterViewModel : ViewModelBase
                 IsMetaNumberParamProperty = true;
                 UsePlaceholder = false;
             }
-            
-            
+        }
+        else if (_propertyInfo.Type == typeof(MediaPath))
+        {
+            if (MediaPathPropertyVm is null)
+            {
+                MediaPathPropertyVm = _mediaPathPropertyViewModelFactory.Create(_propertyInfo.Identifier, (MediaPath)_propertyInfo.PropertyValue!);
+                IsMediaPathProperty = true;
+                UsePlaceholder = false;
+            }
         }
         else
         {

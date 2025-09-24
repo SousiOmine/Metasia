@@ -17,6 +17,8 @@ using SoundIOSharp;
 using Microsoft.Extensions.DependencyInjection;
 using Metasia.Editor.Models.States;
 using System.Diagnostics;
+using Metasia.Core.Media;
+using Metasia.Editor.Models.Media;
 
 namespace Metasia.Editor.Views;
 
@@ -26,6 +28,8 @@ public partial class PlayerView : UserControl
 	{
 		get { return this.DataContext as PlayerViewModel; }
 	}
+
+	private MediaAccessorRouter mediaAccessorRouter;
 
 	object renderLock = new object();
 
@@ -43,6 +47,7 @@ public partial class PlayerView : UserControl
 					playbackState.ReRenderingRequested += () => { skiaCanvas.InvalidateSurface(); };
 					playbackState.PlaybackFrameChanged += () => { skiaCanvas.InvalidateSurface(); };
 				}
+				mediaAccessorRouter = App.Current?.Services?.GetRequiredService<MediaAccessorRouter>();
 			}
 			catch (InvalidOperationException ex)
 			{
@@ -58,7 +63,7 @@ public partial class PlayerView : UserControl
 		if (VM is null || VM.TargetTimeline is null) return;
 
 		var compositor = new Compositor();
-		var bitmap = compositor.RenderFrame(VM.TargetTimeline, VM.Frame, new SKSize(384, 216), new SKSize(3840, 2160));
+		var bitmap = compositor.RenderFrame(VM.TargetTimeline, VM.Frame, new SKSize(384, 216), new SKSize(3840, 2160), mediaAccessorRouter, mediaAccessorRouter);
 
 		lock (renderLock)
 		{
