@@ -21,16 +21,14 @@ namespace Metasia.Core.Media
         /// <param name="projectDir">プロジェクトファイルのあるディレクトリ</param>
         /// <param name="pathType">パスをどのような形で扱うか(絶対パス、プロジェクト基準の相対パスなど)</param>
         /// <returns>MediaPath</returns>
-        public static MediaPath CreateFromPath(string directory, string fileName, string projectDir, PathType pathType)
+        public static MediaPath CreateFromPath(string directory, string fileName, string? projectDir, PathType pathType)
         {
             // Validate inputs
             ArgumentNullException.ThrowIfNull(directory);
             ArgumentNullException.ThrowIfNull(fileName);
-            ArgumentNullException.ThrowIfNull(projectDir);
 
             if (directory.Length == 0) throw new ArgumentException("directory cannot be empty", nameof(directory));
             if (fileName.Length == 0) throw new ArgumentException("fileName cannot be empty", nameof(fileName));
-            if (projectDir.Length == 0) throw new ArgumentException("projectDir cannot be empty", nameof(projectDir));
 
             // fileName must not contain directory separator characters
             if (fileName.IndexOfAny(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }) >= 0)
@@ -45,7 +43,7 @@ namespace Metasia.Core.Media
             {
                 try
                 {
-                    directory = Path.GetRelativePath(projectDir, directory);
+                    directory = Path.GetRelativePath(projectDir ?? "", directory);
                 }
                 catch (Exception ex)
                 {
@@ -84,7 +82,7 @@ namespace Metasia.Core.Media
         /// <param name="mediaPath">MediaPath</param>
         /// <param name="projectDir">プロジェクトファイルのあるディレクトリ</param>
         /// <returns>絶対パス</returns>
-        public static string GetFullPath(MediaPath mediaPath, string projectDir)
+        public static string GetFullPath(MediaPath mediaPath, string? projectDir)
         {
             string separatorApplied = mediaPath.Directory.Replace('/', Path.DirectorySeparatorChar);
             if(mediaPath.PathType == PathType.Absolute)
@@ -93,7 +91,7 @@ namespace Metasia.Core.Media
             }
             else if(mediaPath.PathType == PathType.ProjectRelative)
             {
-                return Path.Combine(projectDir, separatorApplied, mediaPath.FileName);
+                return Path.Combine(projectDir ?? "", separatorApplied, mediaPath.FileName);
             }
             else
             {
