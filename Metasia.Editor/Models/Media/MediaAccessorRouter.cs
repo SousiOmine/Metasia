@@ -31,13 +31,13 @@ public class MediaAccessorRouter : IImageFileAccessor, IVideoFileAccessor
         return new ImageFileAccessorResult { IsSuccessful = false, Bitmap = null };
     }
 
-    public VideoFileAccessorResult GetBitmap(MediaPath path, DateTime time)
+    public VideoFileAccessorResult GetBitmap(MediaPath path, TimeSpan time, string? projectDir)
     {
         foreach(var accessor in Accessors)
         {
             if(accessor is IVideoFileAccessor videoAccessor)
             {
-                var result = videoAccessor.GetBitmap(path, time);
+                var result = videoAccessor.GetBitmap(path, time, projectDir);
                 if(result.IsSuccessful)
                 {
                     return result;
@@ -47,13 +47,13 @@ public class MediaAccessorRouter : IImageFileAccessor, IVideoFileAccessor
         return new VideoFileAccessorResult { IsSuccessful = false, Bitmap = null };
     }
 
-    public VideoFileAccessorResult GetBitmap(MediaPath path, int frame)
+    public VideoFileAccessorResult GetBitmap(MediaPath path, int frame, string? projectDir)
     {
         foreach(var accessor in Accessors)
         {
             if(accessor is IVideoFileAccessor videoAccessor)
             {
-                var result = videoAccessor.GetBitmap(path, frame);
+                var result = videoAccessor.GetBitmap(path, frame, projectDir);
                 if(result.IsSuccessful)
                 {
                     return result;
