@@ -12,6 +12,7 @@ using Metasia.Core.Attributes;
 namespace Metasia.Core.Objects
 {
     [Serializable]
+    [ClipTypeIdentifier("Text")]
     public class Text : ClipObject, IRenderable
     {
         [EditableProperty("X")]

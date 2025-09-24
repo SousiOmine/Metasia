@@ -17,6 +17,7 @@ using Metasia.Core.Attributes;
 namespace Metasia.Core.Objects
 {
 	[Serializable]
+	[ClipTypeIdentifier("HelloObject")]
 	public class kariHelloObject : ClipObject, IRenderable, IAudible
 	{
 		[EditableProperty("X")]
