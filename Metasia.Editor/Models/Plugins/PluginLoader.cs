@@ -29,7 +29,7 @@ namespace Metasia.Editor.Models.Plugins
             try{
                 if (Directory.Exists(EDITOR_PLUGINS_PATH))
                 {
-                    var pluginFiles = Directory.GetFiles(EDITOR_PLUGINS_PATH, "*.dll");
+                    var pluginFiles = Directory.GetFiles(EDITOR_PLUGINS_PATH, "*.dll", SearchOption.AllDirectories);
                     foreach (var pluginFile in pluginFiles)
                     {
                         var assembly = Assembly.LoadFrom(pluginFile);

@@ -4,6 +4,6 @@ namespace Metasia.Core.Media;
 
 public class VideoFileAccessorResult
 {
-    public bool IsSucceed { get; set; } = false;
+    public bool IsSuccessful { get; set; } = false;
     public SKBitmap? Bitmap { get; set; } = null;
 }

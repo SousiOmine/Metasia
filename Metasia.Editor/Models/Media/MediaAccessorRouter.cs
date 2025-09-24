@@ -38,13 +38,13 @@ public class MediaAccessorRouter : IImageFileAccessor, IVideoFileAccessor
             if(accessor is IVideoFileAccessor videoAccessor)
             {
                 var result = videoAccessor.GetBitmap(path, time);
-                if(result.IsSucceed)
+                if(result.IsSuccessful)
                 {
                     return result;
                 }
             }
         }
-        return new VideoFileAccessorResult { IsSucceed = false, Bitmap = null };
+        return new VideoFileAccessorResult { IsSuccessful = false, Bitmap = null };
     }
 
     public VideoFileAccessorResult GetBitmap(MediaPath path, int frame)
@@ -54,12 +54,12 @@ public class MediaAccessorRouter : IImageFileAccessor, IVideoFileAccessor
             if(accessor is IVideoFileAccessor videoAccessor)
             {
                 var result = videoAccessor.GetBitmap(path, frame);
-                if(result.IsSucceed)
+                if(result.IsSuccessful)
                 {
                     return result;
                 }
             }
         }
-        return new VideoFileAccessorResult { IsSucceed = false, Bitmap = null };
+        return new VideoFileAccessorResult { IsSuccessful = false, Bitmap = null };
     }
 }
