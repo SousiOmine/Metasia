@@ -13,6 +13,7 @@ using Metasia.Editor.Models.DragDropData;
 using Metasia.Editor.Models.Interactor;
 using Metasia.Editor.Models.States;
 using Metasia.Editor.Models.EditCommands;
+using Metasia.Editor.ViewModels.Dialogs;
 
 namespace Metasia.Editor.ViewModels.Timeline
 {
@@ -36,6 +37,8 @@ namespace Metasia.Editor.ViewModels.Timeline
         /// ドロップ処理のコマンド
         /// </summary>
         public ICommand HandleDropCommand { get; }
+        public Interaction<NewObjectSelectViewModel, IMetasiaObject?> NewObjectSelectInteraction { get; } = new();
+        public ICommand NewClipCommand { get; }
 
         private TimelineViewModel parentTimeline;
         public LayerObject TargetLayer { get; private set; }
@@ -69,6 +72,17 @@ namespace Metasia.Editor.ViewModels.Timeline
                 execute: ExecuteHandleDrop,
                 canExecute: this.WhenAnyValue(x => x.TargetLayer).Select(layer => layer != null)
             );
+            NewClipCommand = ReactiveCommand.CreateFromTask(async () => 
+            {
+                var vm = new NewObjectSelectViewModel();
+                var result = await NewObjectSelectInteraction.Handle(vm);
+
+                if (result is not null)
+                {
+                    //TODO: クリップ新規追加処理
+                    Console.WriteLine("New Clip Selected");
+                }
+            });
 
             _timelineViewState.Frame_Per_DIP_Changed += () =>
             {
