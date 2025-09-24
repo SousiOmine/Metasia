@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Metasia.Editor.Plugin;
@@ -26,11 +26,12 @@ namespace Metasia.Editor.Models.Plugins
 
         private static async Task LoadPluginsAsync()
         {
-            try{
-                if (Directory.Exists(EDITOR_PLUGINS_PATH))
+            if (Directory.Exists(EDITOR_PLUGINS_PATH))
+            {
+                var pluginFiles = Directory.GetFiles(EDITOR_PLUGINS_PATH, "*.dll", SearchOption.AllDirectories);
+                foreach (var pluginFile in pluginFiles)
                 {
-                    var pluginFiles = Directory.GetFiles(EDITOR_PLUGINS_PATH, "*.dll", SearchOption.AllDirectories);
-                    foreach (var pluginFile in pluginFiles)
+                    try
                     {
                         var assembly = Assembly.LoadFrom(pluginFile);
                         foreach (var type in assembly.GetTypes())
@@ -44,14 +45,13 @@ namespace Metasia.Editor.Models.Plugins
                             }
                         }
                     }
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine(e.Message);
+                    }
                 }
-                // TODO: Coreプラグイン実装時にここでCoreプラグインを読み込む
             }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-            }
-            
+            // TODO: Coreプラグイン実装時にここでCoreプラグインを読み込む
         }
     }
 }
