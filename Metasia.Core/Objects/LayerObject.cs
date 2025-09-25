@@ -1,4 +1,6 @@
 ﻿using Metasia.Core.Graphics;
+using Metasia.Core.Objects.AudioEffects;
+using Metasia.Core.Objects.VisualEffects;
 using Metasia.Core.Render;
 using Metasia.Core.Sounds;
 using Metasia.Core.Xml;
@@ -12,7 +14,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Text.Json.Serialization;
 using System.Xml.Serialization;
-using Metasia.Core.Objects.AudioEffects;
 using Metasia.Core.Attributes;
 
 namespace Metasia.Core.Objects
@@ -30,6 +31,11 @@ namespace Metasia.Core.Objects
         public double Volume { get; set; } = 100;
 
         public List<AudioEffectBase> AudioEffects { get; set; } = new();
+
+        /// <summary>
+        /// 描画エフェクトのリスト
+        /// </summary>
+        public List<VisualEffectBase> VisualEffects { get; } = new List<VisualEffectBase>();
 
         /// <summary>
         /// レイヤー名

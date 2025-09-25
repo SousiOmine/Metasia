@@ -2,6 +2,7 @@ using System.Diagnostics;
 using Metasia.Core.Attributes;
 using Metasia.Core.Coordinate;
 using Metasia.Core.Media;
+using Metasia.Core.Objects.VisualEffects;
 using Metasia.Core.Render;
 using SkiaSharp;
 
@@ -28,6 +29,11 @@ public class ImageObject : ClipObject, IRenderable
 
 	[EditableProperty("ImagePath")]
 	public MediaPath ImagePath { get; set; } = new MediaPath();
+
+	/// <summary>
+	/// 描画エフェクトのリスト
+	/// </summary>
+	public List<VisualEffectBase> VisualEffects { get; } = new List<VisualEffectBase>();
 
 	public ImageObject()
 	{

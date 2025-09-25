@@ -1,4 +1,7 @@
+using Metasia.Core.Objects.AudioEffects;
+using Metasia.Core.Objects.VisualEffects;
 using Metasia.Core.Render;
+using Metasia.Core.Sounds;
 using Metasia.Core.Xml;
 using SkiaSharp;
 using System;
@@ -7,11 +10,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Metasia.Core.Coordinate;
-using Metasia.Core.Sounds;
 using System.Diagnostics;
 using System.Text.Json.Serialization;
 using System.Xml.Serialization;
-using Metasia.Core.Objects.AudioEffects;
 using Metasia.Core.Attributes;
 
 namespace Metasia.Core.Objects
@@ -39,6 +40,11 @@ namespace Metasia.Core.Objects
 		[ValueRange(0, 99999, 0, 200)]
 		public double Volume { get; set; } = 100;
 		public List<AudioEffectBase> AudioEffects { get; set; } = new();
+
+		/// <summary>
+		/// 描画エフェクトのリスト
+		/// </summary>
+		public List<VisualEffectBase> VisualEffects { get; } = new List<VisualEffectBase>();
 		
 		private SKBitmap myBitmap = new(200, 200);
 		private int audio_offset = 0;

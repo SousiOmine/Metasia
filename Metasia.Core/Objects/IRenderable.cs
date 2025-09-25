@@ -1,3 +1,4 @@
+using Metasia.Core.Objects.VisualEffects;
 using Metasia.Core.Render;
 
 namespace Metasia.Core.Objects
@@ -13,5 +14,10 @@ namespace Metasia.Core.Objects
         /// <param name="context"></param>
         /// <returns></returns>
         RenderNode Render(RenderContext context);
+
+        /// <summary>
+        /// 描画エフェクトのリスト
+        /// </summary>
+        List<VisualEffectBase> VisualEffects { get; }
     }
 }

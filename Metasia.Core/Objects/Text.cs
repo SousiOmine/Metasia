@@ -1,4 +1,5 @@
 ﻿using Metasia.Core.Coordinate;
+using Metasia.Core.Objects.VisualEffects;
 using Metasia.Core.Render;
 using Metasia.Core.Xml;
 using SkiaSharp;
@@ -52,6 +53,11 @@ namespace Metasia.Core.Objects
         [EditableProperty("TextSize")]
         [ValueRange(0, 2000, 0, 500)]
         public MetaNumberParam<double> TextSize { get; set; }
+
+        /// <summary>
+        /// 描画エフェクトのリスト
+        /// </summary>
+        public List<VisualEffectBase> VisualEffects { get; } = new List<VisualEffectBase>();
 
         private string typefaceName;
         private SKTypeface? _typeface;
@@ -130,12 +136,28 @@ namespace Metasia.Core.Objects
             };
 
 
-            return new RenderNode()
+            var renderNode = new RenderNode()
             {
                 Bitmap = bitmap,
                 LogicalSize = logicalSize,
                 Transform = transform,
             };
+
+            // 描画エフェクトを適用
+            var effectContext = new VisualEffectContext
+            {
+                Time = relativeFrame / (double)context.ProjectResolution.Height,
+                Project = null, // プロジェクト情報は現在のコンテキストから取得できない場合はnull
+                OriginalPosition = new System.Numerics.Vector2((float)X.Get(relativeFrame), (float)Y.Get(relativeFrame)),
+                OriginalSize = new System.Numerics.Vector2(logicalSize.Width, logicalSize.Height)
+            };
+
+            foreach (var effect in VisualEffects.Where(e => e.IsActive))
+            {
+                renderNode = effect.Apply(renderNode, effectContext);
+            }
+
+            return renderNode;
         }
 
         private bool LoadTypeface()

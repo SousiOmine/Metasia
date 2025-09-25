@@ -1,5 +1,8 @@
 ﻿﻿using Metasia.Core.Graphics;
+using Metasia.Core.Objects.AudioEffects;
+using Metasia.Core.Objects.VisualEffects;
 using Metasia.Core.Render;
+using Metasia.Core.Sounds;
 using Metasia.Core.Xml;
 using SkiaSharp;
 using System;
@@ -8,11 +11,9 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
-using Metasia.Core.Sounds;
 using System.Diagnostics;
 using System.Text.Json.Serialization;
 using System.Xml.Serialization;
-using Metasia.Core.Objects.AudioEffects;
 using Metasia.Core.Attributes;
 
 namespace Metasia.Core.Objects
@@ -32,6 +33,11 @@ namespace Metasia.Core.Objects
 		public double Volume { get; set; } = 100;
 
 		public List<AudioEffectBase> AudioEffects { get; set; } = new();
+
+		/// <summary>
+		/// 描画エフェクトのリスト
+		/// </summary>
+		public List<VisualEffectBase> VisualEffects { get; } = new List<VisualEffectBase>();
 
         public TimelineObject(string id) : base(id)
 		{
