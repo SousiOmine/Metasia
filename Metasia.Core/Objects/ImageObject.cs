@@ -7,9 +7,10 @@ using SkiaSharp;
 
 namespace Metasia.Core.Objects;
 
+[ClipTypeIdentifier("ImageObject")]
 public class ImageObject : ClipObject, IRenderable
 {
-    [EditableProperty("X")]
+	[EditableProperty("X")]
 	[ValueRange(-99999, 99999, -2000, 2000)]
 	public MetaNumberParam<double> X { get; set; } = new MetaNumberParam<double>(0);
 	[EditableProperty("Y")]
@@ -25,10 +26,10 @@ public class ImageObject : ClipObject, IRenderable
 	[ValueRange(-99999, 99999, 0, 360)]
 	public MetaNumberParam<double> Rotation { get; set; } = new MetaNumberParam<double>(0);
 
-    [EditableProperty("ImagePath")]
-    public MediaPath ImagePath { get; set; } = new MediaPath();
+	[EditableProperty("ImagePath")]
+	public MediaPath ImagePath { get; set; } = new MediaPath();
 
-    public ImageObject()
+	public ImageObject()
 	{
 
 	}
@@ -38,15 +39,15 @@ public class ImageObject : ClipObject, IRenderable
 
 	}
 
-    public RenderNode Render(RenderContext context)
-    {
+	public RenderNode Render(RenderContext context)
+	{
 		int relativeFrame = context.Frame - StartFrame;
-        if(ImagePath is not null && !string.IsNullOrEmpty(ImagePath?.FileName))
+		if (ImagePath is not null && !string.IsNullOrEmpty(ImagePath?.FileName))
 		{
 			try
 			{
 				var imageFileAccessorResult = context.ImageFileAccessor.GetBitmap(ImagePath);
-				if(imageFileAccessorResult.IsSuccessful && imageFileAccessorResult.Bitmap is not null)
+				if (imageFileAccessorResult.IsSuccessful && imageFileAccessorResult.Bitmap is not null)
 				{
 					var transform = new Transform()
 					{
@@ -70,5 +71,5 @@ public class ImageObject : ClipObject, IRenderable
 		}
 		Debug.WriteLine($"Failed to load image: {ImagePath}");
 		return new RenderNode();
-    }
+	}
 }

@@ -17,8 +17,14 @@
 	<i:Interaction.Behaviors>
 		<behaviors:LayerClipDropBehavior DropCommand="{Binding HandleDropCommand}" FramePerDIP="{Binding Frame_Per_DIP}"/>
 	</i:Interaction.Behaviors>
-	
-	<ItemsControl ItemsSource="{Binding ClipsAndBlanks}" 
+
+	<UserControl.ContextFlyout>
+		<MenuFlyout>
+			<MenuItem Header="クリップを追加" Command="{Binding NewClipCommand}"/>
+		</MenuFlyout>
+	</UserControl.ContextFlyout>
+
+	<ItemsControl ItemsSource="{Binding ClipsAndBlanks}"
 	              Background="Transparent">
 		<ItemsControl.ItemsPanel>
 			<ItemsPanelTemplate>
@@ -37,12 +43,6 @@
 				<views_controls:ClipView Height="50"/>
 			</DataTemplate>
 		</ItemsControl.ItemTemplate>
-		
-		<ItemsControl.ContextFlyout>
-			<MenuFlyout>
-				<MenuItem Header="クリップを追加" Command="{Binding NewClipCommand}"/>
-			</MenuFlyout>
-		</ItemsControl.ContextFlyout>
 	</ItemsControl>
-	
+
 </UserControl>

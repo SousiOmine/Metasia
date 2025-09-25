@@ -2,12 +2,33 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:Metasia.Editor.ViewModels.Dialogs"
         mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="450"
         x:Class="Metasia.Editor.Views.Dialogs.NewObjectSelectWindow"
-        Title="NewObjectSelectWindow"
-        Width="450" Height="450">
-    <StackPanel>
-        <TextBlock Text="新規オブジェクト"></TextBlock>
-        <TextBox Watermark="名前"></TextBox>
-    </StackPanel>
+        Title="新規オブジェクトの追加"
+        Width="450" Height="450"
+        x:DataType="vm:NewObjectSelectViewModel">
+    <Grid RowDefinitions="Auto, *, Auto">
+        <TextBlock Grid.Row="0" Text="追加するオブジェクトタイプを選択してください" Margin="10" FontSize="16"/>
+
+        <ListBox Grid.Row="1"
+                 ItemsSource="{Binding AvailableObjectTypes}"
+                 SelectedItem="{Binding SelectedObjectType}"
+                 Margin="10">
+            <ListBox.ItemTemplate>
+                <DataTemplate x:DataType="vm:ObjectTypeInfo">
+                    <Grid ColumnDefinitions="Auto, *" Margin="5">
+                        <TextBlock Grid.Column="0" Text="{Binding DisplayName}" FontSize="14"/>
+                        <TextBlock Grid.Column="1" Text="{Binding Description}"
+                                   Foreground="Gray" FontSize="12" Margin="10,0,0,0"/>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="10">
+            <Button Content="キャンセル" Command="{Binding CancelCommand}" Margin="0,0,10,0" Width="80"/>
+            <Button Content="追加" Command="{Binding OkCommand}" Width="80"/>
+        </StackPanel>
+    </Grid>
 </Window>
