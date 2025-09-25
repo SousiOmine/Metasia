@@ -18,7 +18,6 @@ using Metasia.Core.Attributes;
 namespace Metasia.Core.Objects
 {
     [Serializable]
-    [ClipTypeIdentifier("Layer")]
     public class LayerObject : ClipObject, IRenderable, IAudible
     {
         /// <summary>

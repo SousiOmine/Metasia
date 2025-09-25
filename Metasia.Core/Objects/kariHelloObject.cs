@@ -22,19 +22,19 @@ namespace Metasia.Core.Objects
 	{
 		[EditableProperty("X")]
 		[ValueRange(-99999, 99999, -2000, 2000)]
-		public MetaNumberParam<double> X { get; set; }
+		public MetaNumberParam<double> X { get; set; } = new MetaNumberParam<double>(0);
 		[EditableProperty("Y")]
 		[ValueRange(-99999, 99999, -2000, 2000)]
-		public MetaNumberParam<double> Y { get; set; }
+		public MetaNumberParam<double> Y { get; set; } = new MetaNumberParam<double>(0);
 		[EditableProperty("Scale")]
 		[ValueRange(0, 99999, 0, 1000)]
-		public MetaNumberParam<double> Scale { get; set; }
+		public MetaNumberParam<double> Scale { get; set; } = new MetaNumberParam<double>(100);
 		[EditableProperty("Alpha")]
 		[ValueRange(0, 100, 0, 100)]
-		public MetaNumberParam<double> Alpha { get; set; }
+		public MetaNumberParam<double> Alpha { get; set; } = new MetaNumberParam<double>(0);
 		[EditableProperty("Rotation")]
 		[ValueRange(-99999, 99999, 0, 360)]
-		public MetaNumberParam<double> Rotation { get; set; }
+		public MetaNumberParam<double> Rotation { get; set; } = new MetaNumberParam<double>(0);
 		[EditableProperty("AudioVolume")]
 		[ValueRange(0, 99999, 0, 200)]
 		public double Volume { get; set; } = 100;
@@ -50,18 +50,9 @@ namespace Metasia.Core.Objects
 
 		public kariHelloObject(string id) : base(id)
 		{
-			InitializeParameters();
 			InitializeBitmap();
 		}
 
-		private void InitializeParameters()
-		{
-			X = new MetaNumberParam<double>(0);
-			Y = new MetaNumberParam<double>(0);
-			Scale = new MetaNumberParam<double>(100);
-			Alpha = new MetaNumberParam<double>(0);
-			Rotation = new MetaNumberParam<double>(0);
-		}
 
 		private void InitializeBitmap()
 		{

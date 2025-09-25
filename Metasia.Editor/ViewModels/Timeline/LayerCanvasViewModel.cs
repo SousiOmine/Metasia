@@ -13,6 +13,7 @@ using Metasia.Editor.Models.DragDropData;
 using Metasia.Editor.Models.Interactor;
 using Metasia.Editor.Models.States;
 using Metasia.Editor.Models.EditCommands;
+using Metasia.Editor.Models.EditCommands.Commands;
 using Metasia.Editor.ViewModels.Dialogs;
 
 namespace Metasia.Editor.ViewModels.Timeline
@@ -72,15 +73,14 @@ namespace Metasia.Editor.ViewModels.Timeline
                 execute: ExecuteHandleDrop,
                 canExecute: this.WhenAnyValue(x => x.TargetLayer).Select(layer => layer != null)
             );
-            NewClipCommand = ReactiveCommand.CreateFromTask(async () => 
+            NewClipCommand = ReactiveCommand.CreateFromTask(async () =>
             {
                 var vm = new NewObjectSelectViewModel();
                 var result = await NewObjectSelectInteraction.Handle(vm);
 
-                if (result is not null)
+                if (result is not null && result is ClipObject clipObject)
                 {
-                    //TODO: クリップ新規追加処理
-                    Console.WriteLine("New Clip Selected");
+                    AddNewClip(clipObject);
                 }
             });
 
@@ -144,6 +144,23 @@ namespace Metasia.Editor.ViewModels.Timeline
         {
             // フレーム位置にプレビューを移動
             parentTimeline.SeekFrame(frame);
+        }
+
+        private void AddNewClip(ClipObject clipObject)
+        {
+            // 新しいクリップを適切な位置に追加（現在のカーソル位置か、レイヤーの最後）
+            int startFrame = parentTimeline.Frame;
+
+            // クリップの基本プロパティを設定
+            clipObject.StartFrame = startFrame;
+            clipObject.EndFrame = startFrame + 100; // デフォルトで100フレーム
+
+            // コマンドマネージャーに追加操作を記録
+            var addCommand = new AddClipCommand(TargetLayer, clipObject);
+            editCommandManager.Execute(addCommand);
+
+            // UIを更新
+            RelocateClips();
         }
 
         /// <summary>
