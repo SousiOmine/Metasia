@@ -4,6 +4,8 @@ using Avalonia.Controls;
 using Microsoft.Extensions.DependencyInjection;
 using Metasia.Editor.Services;
 using Metasia.Editor.ViewModels;
+using Metasia.Editor.ViewModels.Dialogs;
+using Metasia.Editor.Views.Dialogs;
 
 namespace Metasia.Editor.Views
 {

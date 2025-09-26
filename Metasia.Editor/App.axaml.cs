@@ -12,10 +12,12 @@ using Metasia.Editor.Models.States;
 using Metasia.Editor.Services;
 using Metasia.Editor.Services.Audio;
 using Metasia.Editor.ViewModels;
+using Metasia.Editor.ViewModels.Dialogs;
 using Metasia.Editor.ViewModels.Inspector;
 using Metasia.Editor.ViewModels.Inspector.Properties;
 using Metasia.Editor.ViewModels.Timeline;
 using Metasia.Editor.Views;
+using Metasia.Editor.Views.Dialogs;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Metasia.Editor

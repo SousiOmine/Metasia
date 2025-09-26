@@ -1,9 +1,9 @@
 using System;
 using System.Reactive.Disposables;
 using Avalonia.Controls;
-using Metasia.Editor.ViewModels;
+using Metasia.Editor.ViewModels.Dialogs;
 
-namespace Metasia.Editor.Views
+namespace Metasia.Editor.Views.Dialogs
 {
     public partial class SettingsWindow : Window
     {

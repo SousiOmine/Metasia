@@ -5,7 +5,7 @@ using Metasia.Core.Project;
 using Metasia.Editor.Services;
 using ReactiveUI;
 
-namespace Metasia.Editor.ViewModels
+namespace Metasia.Editor.ViewModels.Dialogs
 {
     /// <summary>
     /// 設定ウィンドウのViewModel
