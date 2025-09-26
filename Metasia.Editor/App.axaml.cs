@@ -1,6 +1,8 @@
 
 
 using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
@@ -32,7 +34,7 @@ namespace Metasia.Editor
             AvaloniaXamlLoader.Load(this);
         }
 
-        public override void OnFrameworkInitializationCompleted()
+        public override async void OnFrameworkInitializationCompleted()
         {
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
@@ -48,6 +50,7 @@ namespace Metasia.Editor
                 services.AddSingleton<IFileDialogService>(new FileDialogService(mainWindow));
                 services.AddSingleton<INewProjectDialogService, NewProjectDialogService>();
                 services.AddSingleton<IKeyBindingService, KeyBindingService>();
+                services.AddSingleton<ISettingsService, SettingsService>();
 
                 services.AddSingleton<IEditCommandManager, EditCommandManager>();
                 services.AddSingleton<IAudioService, SoundIOService>();
@@ -76,6 +79,7 @@ namespace Metasia.Editor
                 services.AddSingleton<TimelineParentViewModel>();
                 services.AddSingleton<InspectorViewModel>();
                 services.AddSingleton<ToolsViewModel>();
+                services.AddTransient<SettingsViewModel>();
                 Services = services.BuildServiceProvider(new ServiceProviderOptions 
                 { 
                     ValidateScopes = true, 
@@ -84,6 +88,21 @@ namespace Metasia.Editor
 
                 // DIコンテナが設定された後にViewModelを作成
                 mainWindow.DataContext = Services.GetRequiredService<MainWindowViewModel>();
+                
+                // 起動時に設定を読み込む
+                var settingsService = Services.GetRequiredService<ISettingsService>();
+                try
+                {
+                    await settingsService.LoadSettingsAsync();
+                }
+                catch (Exception ex)
+                {
+                    // 設定の読み込みに失敗した場合のエラーログ出力
+                    // SettingsService内部でも例外処理が行われているが、
+                    // 呼び出し元でも失敗を観測できるようにログ出力
+                    Console.WriteLine($"アプリケーション起動時の設定読み込みに失敗しました: {ex.Message}");
+                    Debug.WriteLine($"アプリケーション起動時の設定読み込みに失敗しました: {ex}");
+                }
             }
 
             base.OnFrameworkInitializationCompleted();

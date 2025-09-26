@@ -39,7 +39,7 @@
 
 			</MenuItem>
 			<MenuItem Header="設定">
-
+				<MenuItem Header="環境設定" Command="{Binding OpenSettings}"/>
 			</MenuItem>
 			<MenuItem Header="編集">
 				<MenuItem Header="元に戻す" Command="{Binding Undo}"/>

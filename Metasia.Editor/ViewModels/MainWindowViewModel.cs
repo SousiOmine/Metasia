@@ -10,6 +10,8 @@ using Metasia.Editor.Models.Projects;
 using Metasia.Editor.Models.FileSystem;
 using Metasia.Editor.Models.ProjectGenerate;
 using Metasia.Editor.Models.States;
+using System.Reactive;
+using System.Reactive.Linq;
 
 namespace Metasia.Editor.ViewModels
 {
@@ -29,6 +31,8 @@ namespace Metasia.Editor.ViewModels
 
         public ICommand Undo { get; }
         public ICommand Redo { get; }
+        public ICommand OpenSettings { get; }
+        public Interaction<Unit, bool> SettingsInteraction { get; } = new();
 
         private IFileDialogService _fileDialogService;
         private IProjectState _projectState;
@@ -48,9 +52,11 @@ namespace Metasia.Editor.ViewModels
             ToolsVM = toolsVM;
             _fileDialogService = fileDialogService;
             _projectState = projectState;
+            
             LoadEditingProject = ReactiveCommand.Create(LoadEditingProjectExecuteAsync);
             CreateNewProject = ReactiveCommand.Create(CreateNewProjectExecuteAsync);
             OverrideSaveEditingProject = ReactiveCommand.Create(OverrideSaveEditingProjectExecuteAsync);
+            OpenSettings = ReactiveCommand.CreateFromTask(OpenSettingsExecuteAsync);
 
             Undo = ReactiveCommand.Create(UndoExecute);
             Redo = ReactiveCommand.Create(RedoExecute);
@@ -136,6 +142,19 @@ namespace Metasia.Editor.ViewModels
             if (PlayerParentVM.TargetPlayerViewModel is not null)
             {
                 PlayerParentVM.TryRedo();
+            }
+        }
+
+        private async Task OpenSettingsExecuteAsync()
+        {
+            try
+            {
+                var result = await SettingsInteraction.Handle(Unit.Default);
+                // 結果を使用する必要がある場合はここで処理
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"設定ウィンドウの表示に失敗しました: {ex.Message}");
             }
         }
     }
