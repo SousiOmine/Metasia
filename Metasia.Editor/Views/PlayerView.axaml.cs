@@ -54,16 +54,16 @@ public partial class PlayerView : UserControl
 				Debug.WriteLine($"Failed to resolve IPlaybackState: {ex.Message}");
 			}
 
-			skiaCanvas.InvalidateSurface();
 		};    
 	}
 	
 	private void SKCanvasView_PaintSurface(object? sender, Avalonia.Labs.Controls.SKPaintSurfaceEventArgs e)
 	{
-		if (VM is null || VM.TargetTimeline is null) return;
+		if (VM is null || VM.TargetTimeline is null || VM.TargetProjectInfo is null) return;
 
 		var compositor = new Compositor();
-		var bitmap = compositor.RenderFrame(VM.TargetTimeline, VM.Frame, new SKSize(384, 216), new SKSize(3840, 2160), mediaAccessorRouter, mediaAccessorRouter);
+		var projectInfo = VM.TargetProjectInfo;
+		var bitmap = compositor.RenderFrame(VM.TargetTimeline, VM.Frame, new SKSize(384, 216), projectInfo.Size, mediaAccessorRouter, mediaAccessorRouter, projectInfo);
 
 		lock (renderLock)
 		{

@@ -31,29 +31,40 @@ public class MediaPathPropertyViewModel : ViewModelBase
     private readonly MediaPath _target;
     private readonly IEditCommandManager _editCommandManager;
     private readonly IFileDialogService _fileDialogService;
+    private readonly IProjectState _projectState;
 
     public MediaPathPropertyViewModel(
         string propertyIdentifier,
         MediaPath target,
         IEditCommandManager editCommandManager,
-        IFileDialogService fileDialogService
+        IFileDialogService fileDialogService,
+        IProjectState projectState
     )
     {
         ArgumentNullException.ThrowIfNull(target);
         ArgumentNullException.ThrowIfNull(editCommandManager);
         ArgumentNullException.ThrowIfNull(fileDialogService);
+        ArgumentNullException.ThrowIfNull(projectState);
         
         _propertyDisplayName = propertyIdentifier;
         _target = target;
         _editCommandManager = editCommandManager;
         _fileDialogService = fileDialogService;
+        _projectState = projectState;
         _fileName = target?.FileName ?? "";
         OpenFileCommand = ReactiveCommand.Create(OpenFileCommandExecute);
+
+        _projectState.TimelineChanged += TimelineChanged;
+    }
+
+    private void TimelineChanged()
+    {
+        _fileName = _target?.FileName ?? "";
     }
 
     private async void OpenFileCommandExecute()
     {
-        var file = await _fileDialogService.OpenFileDialogAsync("ファイルを開く", ["*.png", "*.jpg", "*.jpeg", "*.bmp"]);
+        var file = await _fileDialogService.OpenFileDialogAsync("ファイルを開く", ["*.png", "*.jpg", "*.jpeg", "*.bmp", "*.mp4", "*.avi", "*.mov", "*.wmv"]);
 
         if (file is null) return;
 

@@ -1,5 +1,6 @@
 using Metasia.Core.Media;
 using Metasia.Core.Objects;
+using Metasia.Core.Project;
 using SkiaSharp;
 
 namespace Metasia.Core.Render
@@ -23,9 +24,11 @@ namespace Metasia.Core.Render
             SKSize renderResolution,
             SKSize projectResolution,
             IImageFileAccessor imageFileAccessor,
-            IVideoFileAccessor videoFileAccessor)
+            IVideoFileAccessor videoFileAccessor,
+            ProjectInfo projectInfo)
         {
             ArgumentNullException.ThrowIfNull(root);
+            ArgumentNullException.ThrowIfNull(projectInfo);
             if (renderResolution.Width <= 0 || renderResolution.Height <= 0) throw new ArgumentOutOfRangeException(nameof(renderResolution), "Render resolution must be positive");
             if (projectResolution.Width <= 0 || projectResolution.Height <= 0) throw new ArgumentOutOfRangeException(nameof(projectResolution), "Project resolution must be positive");
             
@@ -35,7 +38,7 @@ namespace Metasia.Core.Render
                 //下地は黒で塗りつぶす
 			    canvas.Clear(SKColors.Black);
 
-                var context = new RenderContext(frame, projectResolution, renderResolution, imageFileAccessor, videoFileAccessor);
+                var context = new RenderContext(frame, projectResolution, renderResolution, imageFileAccessor, videoFileAccessor, projectInfo);
                 var rootNode = root.Render(context);
 
                 ProcessNode(canvas, rootNode, projectResolution, renderResolution);
