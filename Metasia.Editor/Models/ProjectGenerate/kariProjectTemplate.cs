@@ -4,6 +4,7 @@ using SkiaSharp;
 using Metasia.Core.Objects;
 using Metasia.Core.Coordinate;
 using Metasia.Core.Objects.AudioEffects;
+using Metasia.Core.Objects.VisualEffects;
 using Metasia.Core.Coordinate.InterpolationLogic;
 using Metasia.Core.Media;
 
@@ -128,6 +129,40 @@ public class KariProjectTemplate : IProjectTemplate
         jsClip.X.AddPoint(new CoordPoint() { Value = 2300, Frame = 239 });
         // クリップをレイヤー5に追加
         layer5.Objects.Add(jsClip);
+
+        // VisualEffect付きのオブジェクトを追加
+        kariHelloObject visualEffectObj = new kariHelloObject("visualEffectObj")
+        {
+            StartFrame = 120,
+            EndFrame = 239,
+        };
+        visualEffectObj.X.SetSinglePoint(500);
+        visualEffectObj.Y.SetSinglePoint(500);
+        visualEffectObj.Scale.SetSinglePoint(150);
+        visualEffectObj.Rotation.SetSinglePoint(0);
+        
+        // OpacityEffectを追加
+        var opacityEffect = new OpacityEffect()
+        {
+            Id = "opacityEffect1",
+            Opacity = 0.7,
+            IsActive = true
+        };
+        visualEffectObj.VisualEffects.Add(opacityEffect);
+        
+        // ClipEffectを追加
+        var clipEffect = new ClipEffect()
+        {
+            Id = "clipEffect1",
+            Left = 0.2,
+            Right = 0.2,
+            Top = 0.1,
+            Bottom = 0.1,
+            IsActive = true
+        };
+        visualEffectObj.VisualEffects.Add(clipEffect);
+
+        layer2.Objects.Add(visualEffectObj);
 
         // メインタイムラインの作成と設定
         TimelineObject mainTL = new TimelineObject("RootTimeline");

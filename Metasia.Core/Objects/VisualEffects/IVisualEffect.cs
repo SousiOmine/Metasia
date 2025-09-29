@@ -5,11 +5,8 @@ namespace Metasia.Core.Objects.VisualEffects
     /// <summary>
     /// 描画エフェクトのインターフェース
     /// </summary>
-    public interface IVisualEffect
+    public interface IVisualEffect : IMetasiaObject
     {
-        string Id { get; set; }
-        bool IsActive { get; set; }
-
         /// <summary>
         /// エフェクトを描画ノードに適用する
         /// </summary>

@@ -93,13 +93,29 @@ namespace Metasia.Core.Objects
 				Rotation = (float)Rotation.Get(relativeFrame),
 				Alpha = (100.0f - (float)Alpha.Get(relativeFrame)) / 100,
 			};
-			
-			return new RenderNode()
+
+			var renderNode = new RenderNode()
 			{
 				Bitmap = bitmap,
 				LogicalSize = new SKSize(bitmap.Width, bitmap.Height),
 				Transform = transform,
 			};
+
+			// 描画エフェクトを適用
+			var effectContext = new VisualEffectContext
+			{
+				Time = relativeFrame / (double)context.ProjectResolution.Height,
+				Project = null, // プロジェクト情報は現在のコンテキストから取得できない場合はnull
+				OriginalPosition = new System.Numerics.Vector2((float)X.Get(relativeFrame), (float)Y.Get(relativeFrame)),
+				OriginalSize = new System.Numerics.Vector2(bitmap.Width, bitmap.Height)
+			};
+
+			foreach (var effect in VisualEffects.Where(e => e.IsActive))
+			{
+				renderNode = effect.Apply(renderNode, effectContext);
+			}
+
+			return renderNode;
 		}
 
 
