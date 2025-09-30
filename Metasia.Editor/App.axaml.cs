@@ -70,6 +70,7 @@ namespace Metasia.Editor
                 services.AddTransient<IMetaNumberParamPropertyViewModelFactory, MetaNumberParamPropertyViewModelFactory>();
                 services.AddTransient<IMediaPathPropertyViewModelFactory, MediaPathPropertyViewModelFactory>();
                 services.AddTransient<IStringPropertyViewModelFactory, StringPropertyViewModelFactory>();
+                services.AddTransient<IDoublePropertyViewModelFactory, DoublePropertyViewModelFactory>();
                 
 
                 services.AddTransient<MainWindowViewModel>();

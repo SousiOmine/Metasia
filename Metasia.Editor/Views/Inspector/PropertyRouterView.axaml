@@ -21,5 +21,8 @@
         <Border IsVisible="{Binding IsStringProperty}">
             <views_properties:StringPropertyView DataContext="{Binding StringPropertyVm}"/>
         </Border>
+        <Border IsVisible="{Binding IsDoubleProperty}">
+            <views_properties:DoublePropertyView DataContext="{Binding DoublePropertyVm}"/>
+        </Border>
     </StackPanel>
 </UserControl>

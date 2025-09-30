@@ -10,22 +10,25 @@ public class PropertyRouterViewModelFactory : IPropertyRouterViewModelFactory
     private readonly IMetaNumberParamPropertyViewModelFactory _metaNumberParamPropertyViewModelFactory;
     private readonly IMediaPathPropertyViewModelFactory _mediaPathPropertyViewModelFactory;
     private readonly IStringPropertyViewModelFactory _stringPropertyViewModelFactory;
+    private readonly IDoublePropertyViewModelFactory _doublePropertyViewModelFactory;
     private readonly IProjectState _projectState;
-    public PropertyRouterViewModelFactory(IMetaNumberParamPropertyViewModelFactory metaNumberParamPropertyViewModelFactory, IMediaPathPropertyViewModelFactory mediaPathPropertyViewModelFactory, IStringPropertyViewModelFactory stringPropertyViewModelFactory, IProjectState projectState)
+    public PropertyRouterViewModelFactory(IMetaNumberParamPropertyViewModelFactory metaNumberParamPropertyViewModelFactory, IMediaPathPropertyViewModelFactory mediaPathPropertyViewModelFactory, IStringPropertyViewModelFactory stringPropertyViewModelFactory, IDoublePropertyViewModelFactory doublePropertyViewModelFactory, IProjectState projectState)
     {
         ArgumentNullException.ThrowIfNull(metaNumberParamPropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(mediaPathPropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(stringPropertyViewModelFactory);
+        ArgumentNullException.ThrowIfNull(doublePropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(projectState);
         _metaNumberParamPropertyViewModelFactory = metaNumberParamPropertyViewModelFactory;
         _mediaPathPropertyViewModelFactory = mediaPathPropertyViewModelFactory;
         _stringPropertyViewModelFactory = stringPropertyViewModelFactory;
+        _doublePropertyViewModelFactory = doublePropertyViewModelFactory;
         _projectState = projectState;
     }
 
     public PropertyRouterViewModel Create(ObjectPropertyFinder.EditablePropertyInfo propertyInfo)
     {
         ArgumentNullException.ThrowIfNull(propertyInfo);
-        return new PropertyRouterViewModel(propertyInfo, _metaNumberParamPropertyViewModelFactory, _mediaPathPropertyViewModelFactory, _stringPropertyViewModelFactory, _projectState);
+        return new PropertyRouterViewModel(propertyInfo, _metaNumberParamPropertyViewModelFactory, _mediaPathPropertyViewModelFactory, _stringPropertyViewModelFactory, _doublePropertyViewModelFactory, _projectState);
     }
 }

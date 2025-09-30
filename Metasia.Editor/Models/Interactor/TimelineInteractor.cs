@@ -112,6 +112,36 @@ namespace Metasia.Editor.Models.Interactor
             return changeInfos.Count > 0 ? new StringValueChangeCommand(changeInfos) : null;
         }
 
+        public static IEditCommand? CreateDoubleValueChangeCommand(string propertyIdentifier, double beforeValue, double afterValue, IEnumerable<ClipObject> selectedClips)
+        {
+            List<DoubleValueChangeCommand.DoubleValueChangeInfo> changeInfos = new();
+            foreach(var clip in selectedClips)
+            {
+                var properties = ObjectPropertyFinder.FindEditableProperties(clip);
+                var property = properties.FirstOrDefault(x => x.Identifier == propertyIdentifier);
+                if(property is null || property.PropertyValue is not double) continue;
+
+                var valueDifference = afterValue - beforeValue;
+                changeInfos.Add(new DoubleValueChangeCommand.DoubleValueChangeInfo(clip, propertyIdentifier, valueDifference));
+            }
+            return changeInfos.Count > 0 ? new DoubleValueChangeCommand(changeInfos) : null;
+        }
+
+        public static bool TryGetDoubleProperty(string propertyIdentifier, ClipObject clip, out double value)
+        {
+            value = default;
+
+            var properties = ObjectPropertyFinder.FindEditableProperties(clip);
+            var property = properties.FirstOrDefault(x => x.Identifier == propertyIdentifier);
+            if (property is null || property.PropertyValue is not double doubleValue)
+            {
+                return false;
+            }
+
+            value = doubleValue;
+            return true;
+        }
+
         private static LayerObject? FindOwnerLayer(TimelineObject timeline, ClipObject targetObject)
         {
             foreach (var layer in timeline.Layers)
