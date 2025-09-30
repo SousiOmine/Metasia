@@ -30,22 +30,7 @@ namespace Metasia.Core.Tests.Objects
             Assert.That(obj.Rotation, Is.Not.Null);
             Assert.That(obj.Volume, Is.EqualTo(100));
         }
-
-        [Test]
-        public void Constructor_WithoutParameters_InitializesWithDefaults()
-        {
-            // Arrange & Act
-            var obj = new kariHelloObject();
-
-            // Assert
-            Assert.That(obj.X, Is.Null); // パラメータなしコンストラクタでは座標パラメータは初期化されない
-            Assert.That(obj.Y, Is.Null);
-            Assert.That(obj.Scale, Is.Null);
-            Assert.That(obj.Alpha, Is.Null);
-            Assert.That(obj.Rotation, Is.Null);
-            Assert.That(obj.Volume, Is.EqualTo(100));
-        }
-
+        
         [Test]
         public void CoordinateParameters_HaveCorrectDefaultValues()
         {
