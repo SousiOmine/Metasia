@@ -1,0 +1,19 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:Metasia.Editor.ViewModels.Inspector.Properties"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="50"
+             x:Class="Metasia.Editor.Views.Inspector.Properties.StringPropertyView"
+             x:DataType="vm:StringPropertyViewModel">
+    <StackPanel Orientation="Horizontal" Margin="2">
+        <TextBlock Text="{Binding PropertyDisplayName}" 
+                   VerticalAlignment="Center" 
+                   Width="70" 
+                   Margin="2"/>
+        <TextBox Text="{Binding PropertyValue, Mode=TwoWay}"
+                 Width="250"
+                 VerticalAlignment="Center"
+                 Watermark="テキストを入力"/>
+    </StackPanel>
+</UserControl>

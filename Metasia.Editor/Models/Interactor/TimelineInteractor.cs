@@ -98,6 +98,20 @@ namespace Metasia.Editor.Models.Interactor
             return new CoordPointsValueChangeCommand(changeInfos);
         }
 
+        public static IEditCommand? CreateStringValueChangeCommand(string propertyIdentifier, string beforeValue, string afterValue, IEnumerable<ClipObject> selectedClips)
+        {
+            List<StringValueChangeCommand.StringValueChangeInfo> changeInfos = new();
+            foreach(var clip in selectedClips)
+            {
+                var properties = ObjectPropertyFinder.FindEditableProperties(clip);
+                var property = properties.FirstOrDefault(x => x.Identifier == propertyIdentifier);
+                if(property is null || property.PropertyValue!.GetType() != typeof(string)) continue;
+                
+                changeInfos.Add(new StringValueChangeCommand.StringValueChangeInfo(clip, propertyIdentifier, beforeValue, afterValue));
+            }
+            return changeInfos.Count > 0 ? new StringValueChangeCommand(changeInfos) : null;
+        }
+
         private static LayerObject? FindOwnerLayer(TimelineObject timeline, ClipObject targetObject)
         {
             foreach (var layer in timeline.Layers)
