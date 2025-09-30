@@ -11,8 +11,9 @@ using ReactiveUI;
 
 namespace Metasia.Editor.ViewModels.Inspector.Properties;
 
-public class DoublePropertyViewModel : ViewModelBase
+public class DoublePropertyViewModel : ViewModelBase, IDisposable
 {
+    private bool _disposed = false;
     public string PropertyDisplayName
     {
         get => _propertyDisplayName;
@@ -42,6 +43,15 @@ public class DoublePropertyViewModel : ViewModelBase
         get => _propertyValue;
         set
         {
+            if (_suppressChangeEvents)
+            {
+                // イベントを抑制している場合は内部状態のみ更新
+                _propertyValue = value;
+                _propertyValueText = value.ToString(CultureInfo.InvariantCulture);
+                _sliderValue = value;
+                return;
+            }
+
             if (Math.Abs(_propertyValue - value) < double.Epsilon)
             {
                 return;
@@ -253,20 +263,26 @@ public class DoublePropertyViewModel : ViewModelBase
         currentValue = Math.Max(_min, Math.Min(_max, currentValue));
         if (Math.Abs(_propertyValue - currentValue) > double.Epsilon)
         {
-            _suppressChangeEvents = true;
-            _propertyValue = currentValue;
-            _propertyValueText = currentValue.ToString(CultureInfo.InvariantCulture);
-
-            // SliderValueも更新
-            if (Math.Abs(_sliderValue - currentValue) > double.Epsilon)
+            try
             {
-                _sliderValue = currentValue;
-                this.RaisePropertyChanged(nameof(SliderValue));
-            }
+                _suppressChangeEvents = true;
+                _propertyValue = currentValue;
+                _propertyValueText = currentValue.ToString(CultureInfo.InvariantCulture);
 
-            this.RaisePropertyChanged(nameof(PropertyValue));
-            this.RaisePropertyChanged(nameof(PropertyValueText));
-            _suppressChangeEvents = false;
+                // SliderValueも更新
+                if (Math.Abs(_sliderValue - currentValue) > double.Epsilon)
+                {
+                    _sliderValue = currentValue;
+                    this.RaisePropertyChanged(nameof(SliderValue));
+                }
+
+                this.RaisePropertyChanged(nameof(PropertyValue));
+                this.RaisePropertyChanged(nameof(PropertyValueText));
+            }
+            finally
+            {
+                _suppressChangeEvents = false;
+            }
         }
 
         EnsureValueEnterTimer();
@@ -368,5 +384,38 @@ public class DoublePropertyViewModel : ViewModelBase
             beforeValue,
             value,
             _selectionState.SelectedClips);
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposed)
+        {
+            if (disposing)
+            {
+                // イベント購読を解除
+                if (_editCommandManager != null)
+                {
+                    _editCommandManager.CommandExecuted -= OnCommandChanged;
+                    _editCommandManager.CommandUndone -= OnCommandChanged;
+                    _editCommandManager.CommandRedone -= OnCommandChanged;
+                }
+
+                // タイマーを破棄
+                if (_valueEnterTimer != null)
+                {
+                    _valueEnterTimer.Stop();
+                    _valueEnterTimer.Dispose();
+                    _valueEnterTimer = null;
+                }
+            }
+
+            _disposed = true;
+        }
     }
 }
