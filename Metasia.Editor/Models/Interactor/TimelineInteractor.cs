@@ -105,7 +105,7 @@ namespace Metasia.Editor.Models.Interactor
             {
                 var properties = ObjectPropertyFinder.FindEditableProperties(clip);
                 var property = properties.FirstOrDefault(x => x.Identifier == propertyIdentifier);
-                if(property is null || property.PropertyValue!.GetType() != typeof(string)) continue;
+                if(property is null || property.PropertyValue is not string) continue;
                 
                 changeInfos.Add(new StringValueChangeCommand.StringValueChangeInfo(clip, propertyIdentifier, beforeValue, afterValue));
             }

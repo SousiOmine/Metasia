@@ -302,6 +302,8 @@ namespace Metasia.Editor.Services
         }
 
         /// <summary>
+        /// ウィンドウ内でテキスト入力要素がフォーカスされているかを判定する
+        /// </summary>
         private static bool IsTextInputFocused(Window window)
         {
             var focusedElement = window.FocusManager?.GetFocusedElement();
@@ -328,7 +330,6 @@ namespace Metasia.Editor.Services
 
             return false;
         }
-
         private static bool IsTextInputElement(IInputElement element)
         {
             return element is TextBox;
