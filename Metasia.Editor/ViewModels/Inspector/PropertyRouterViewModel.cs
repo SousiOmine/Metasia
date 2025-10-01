@@ -1,4 +1,4 @@
-﻿using Metasia.Editor.Models;
+using Metasia.Editor.Models;
 using Metasia.Core.Objects;
 using Metasia.Editor.ViewModels.Inspector.Properties;
 using Metasia.Editor.Views.Inspector.Properties;
@@ -32,6 +32,26 @@ public class PropertyRouterViewModel : ViewModelBase
         get => _mediaPathPropertyVm;
         set => this.RaiseAndSetIfChanged(ref _mediaPathPropertyVm, value);
     }
+    public bool IsStringProperty
+    {
+        get => _isStringProperty;
+        set => this.RaiseAndSetIfChanged(ref _isStringProperty, value);
+    }
+    public StringPropertyViewModel? StringPropertyVm
+    {
+        get => _stringPropertyVm;
+        set => this.RaiseAndSetIfChanged(ref _stringPropertyVm, value);
+    }
+    public bool IsDoubleProperty
+    {
+        get => _isDoubleProperty;
+        set => this.RaiseAndSetIfChanged(ref _isDoubleProperty, value);
+    }
+    public DoublePropertyViewModel? DoublePropertyVm
+    {
+        get => _doublePropertyVm;
+        set => this.RaiseAndSetIfChanged(ref _doublePropertyVm, value);
+    }
     public string PlaceholderText { 
         get => _placeholderText;
         set => this.RaiseAndSetIfChanged(ref _placeholderText, value);
@@ -46,24 +66,36 @@ public class PropertyRouterViewModel : ViewModelBase
     private string _placeholderText = string.Empty;
     private MetaNumberParamPropertyViewModel? _metaNumberParamPropertyVm;
     private MediaPathPropertyViewModel? _mediaPathPropertyVm;
+    private StringPropertyViewModel? _stringPropertyVm;
+    private DoublePropertyViewModel? _doublePropertyVm;
     private bool _isMetaNumberParamProperty = false;
     private bool _isMediaPathProperty = false;
+    private bool _isStringProperty = false;
+    private bool _isDoubleProperty = false;
     private bool _usePlaceholder;
     private ObjectPropertyFinder.EditablePropertyInfo _propertyInfo;
     private readonly IMetaNumberParamPropertyViewModelFactory _metaNumberParamPropertyViewModelFactory;
     private readonly IMediaPathPropertyViewModelFactory _mediaPathPropertyViewModelFactory;
+    private readonly IStringPropertyViewModelFactory _stringPropertyViewModelFactory;
+    private readonly IDoublePropertyViewModelFactory _doublePropertyViewModelFactory;
     private readonly IProjectState _projectState;
     public PropertyRouterViewModel(
-        ObjectPropertyFinder.EditablePropertyInfo propertyInfo, 
+        ObjectPropertyFinder.EditablePropertyInfo propertyInfo,
         IMetaNumberParamPropertyViewModelFactory metaNumberParamPropertyViewModelFactory,
         IMediaPathPropertyViewModelFactory mediaPathPropertyViewModelFactory,
+        IStringPropertyViewModelFactory stringPropertyViewModelFactory,
+        IDoublePropertyViewModelFactory doublePropertyViewModelFactory,
         IProjectState projectState)
     {
         ArgumentNullException.ThrowIfNull(metaNumberParamPropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(mediaPathPropertyViewModelFactory);
+        ArgumentNullException.ThrowIfNull(stringPropertyViewModelFactory);
+        ArgumentNullException.ThrowIfNull(doublePropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(projectState);
         _metaNumberParamPropertyViewModelFactory = metaNumberParamPropertyViewModelFactory;
         _mediaPathPropertyViewModelFactory = mediaPathPropertyViewModelFactory;
+        _stringPropertyViewModelFactory = stringPropertyViewModelFactory;
+        _doublePropertyViewModelFactory = doublePropertyViewModelFactory;
         _projectState = projectState;
         _propertyInfo = propertyInfo;
         _projectState.TimelineChanged += OnTimelineChanged;
@@ -97,6 +129,28 @@ public class PropertyRouterViewModel : ViewModelBase
             {
                 MediaPathPropertyVm = _mediaPathPropertyViewModelFactory.Create(_propertyInfo.Identifier, (MediaPath)_propertyInfo.PropertyValue!);
                 IsMediaPathProperty = true;
+                UsePlaceholder = false;
+            }
+        }
+        else if (_propertyInfo.Type == typeof(string))
+        {
+            if (StringPropertyVm is null)
+            {
+                StringPropertyVm = _stringPropertyViewModelFactory.Create(_propertyInfo.Identifier, (string)_propertyInfo.PropertyValue!);
+                IsStringProperty = true;
+                UsePlaceholder = false;
+            }
+        }
+        else if (_propertyInfo.Type == typeof(double))
+        {
+            if (DoublePropertyVm is null)
+            {
+                var min = _propertyInfo.Min ?? double.MinValue;
+                var max = _propertyInfo.Max ?? double.MaxValue;
+                var recommendMin = _propertyInfo.RecommendedMin ?? min;
+                var recommendMax = _propertyInfo.RecommendedMax ?? max;
+                DoublePropertyVm = _doublePropertyViewModelFactory.Create(_propertyInfo.Identifier, (double)_propertyInfo.PropertyValue!, min, max, recommendMin, recommendMax);
+                IsDoubleProperty = true;
                 UsePlaceholder = false;
             }
         }

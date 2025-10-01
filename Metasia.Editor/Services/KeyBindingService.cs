@@ -1,7 +1,11 @@
 using System.Collections.Generic;
 using System.Windows.Input;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Input;
+using Avalonia.Input.TextInput;
+using Avalonia;
+using Avalonia.VisualTree;
 using Metasia.Editor.Models.KeyBinding;
 using Metasia.Editor.Services.KeyBinding;
 using System.IO;
@@ -59,7 +63,7 @@ namespace Metasia.Editor.Services
                             var avaloniaKeyBinding = new Avalonia.Input.KeyBinding
                             {
                                 Gesture = keyBinding.Gesture,
-                                Command = command
+                                Command = new TextInputGuardCommand(targetWindow, command)
                             };
                             targetWindow.KeyBindings.Add(avaloniaKeyBinding);
                         }
@@ -298,6 +302,79 @@ namespace Metasia.Editor.Services
         }
 
         /// <summary>
+        /// ウィンドウ内でテキスト入力要素がフォーカスされているかを判定する
+        /// </summary>
+        private static bool IsTextInputFocused(Window window)
+        {
+            var focusedElement = window.FocusManager?.GetFocusedElement();
+            if (focusedElement is null)
+            {
+                return false;
+            }
+
+            if (IsTextInputElement(focusedElement))
+            {
+                return true;
+            }
+
+            if (focusedElement is Visual visual)
+            {
+                foreach (var ancestor in visual.GetVisualAncestors())
+                {
+                    if (ancestor is IInputElement ancestorElement && IsTextInputElement(ancestorElement))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+        private static bool IsTextInputElement(IInputElement element)
+        {
+            return element is TextBox;
+        }
+
+        private sealed class TextInputGuardCommand : ICommand
+        {
+            private readonly Window _window;
+            private readonly ICommand _inner;
+
+            public TextInputGuardCommand(Window window, ICommand inner)
+            {
+                _window = window ?? throw new ArgumentNullException(nameof(window));
+                _inner = inner ?? throw new ArgumentNullException(nameof(inner));
+            }
+
+            public event EventHandler? CanExecuteChanged
+            {
+                add => _inner.CanExecuteChanged += value;
+                remove => _inner.CanExecuteChanged -= value;
+            }
+
+            public bool CanExecute(object? parameter)
+            {
+                if (IsTextInputFocused(_window))
+                {
+                    return false;
+                }
+
+                return _inner.CanExecute(parameter);
+            }
+
+            public void Execute(object? parameter)
+            {
+                if (IsTextInputFocused(_window))
+                {
+                    return;
+                }
+
+                if (_inner.CanExecute(parameter))
+                {
+                    _inner.Execute(parameter);
+                }
+            }
+        }
         /// KeyModifiersから文字列リストを取得
         /// </summary>
         private List<string> GetModifierStrings(KeyModifiers modifiers)
