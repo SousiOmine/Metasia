@@ -44,7 +44,7 @@ public class VideoObject : ClipObject, IRenderable
 
 	}
 
-	public RenderNode Render(RenderContext context)
+	public Task<RenderNode> RenderAsync(RenderContext context, CancellationToken cancellationToken = default)
 	{
 		int relativeFrame = context.Frame - StartFrame;
 		if (VideoPath is not null && !string.IsNullOrEmpty(VideoPath?.FileName))
@@ -62,12 +62,12 @@ public class VideoObject : ClipObject, IRenderable
 						Rotation = (float)Rotation.Get(relativeFrame),
 						Alpha = (100.0f - (float)Alpha.Get(relativeFrame)) / 100,
 					};
-					return new RenderNode()
+					return Task.FromResult(new RenderNode()
 					{
 						Bitmap = imageFileAccessorResult.Bitmap,
 						LogicalSize = new SKSize(imageFileAccessorResult.Bitmap.Width, imageFileAccessorResult.Bitmap.Height),
 						Transform = transform,
-					};
+					});
 				}
 			}
 			catch (Exception ex)
@@ -76,6 +76,6 @@ public class VideoObject : ClipObject, IRenderable
 			}
 		}
 		Debug.WriteLine($"Failed to load video: {VideoPath}");
-		return new RenderNode();
+		return Task.FromResult(new RenderNode());
 	}
 }

@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
@@ -22,7 +24,7 @@ using Metasia.Editor.Models.Media;
 
 namespace Metasia.Editor.Views;
 
-public partial class PlayerView : UserControl
+public partial class PlayerView : UserControl, IDisposable
 {
 	private PlayerViewModel? VM
 	{
@@ -30,8 +32,9 @@ public partial class PlayerView : UserControl
 	}
 
 	private MediaAccessorRouter mediaAccessorRouter;
-
-	object renderLock = new object();
+	private readonly SemaphoreSlim _renderSemaphore = new SemaphoreSlim(1, 1);
+	private CancellationTokenSource _renderCts = new CancellationTokenSource();
+	private readonly object _renderLock = new object();
 
 	public PlayerView()
     {
@@ -54,29 +57,97 @@ public partial class PlayerView : UserControl
 				Debug.WriteLine($"Failed to resolve IPlaybackState: {ex.Message}");
 			}
 
+			skiaCanvas.InvalidateSurface();
 		};    
 	}
 	
 	private void SKCanvasView_PaintSurface(object? sender, Avalonia.Labs.Controls.SKPaintSurfaceEventArgs e)
 	{
-		if (VM is null || VM.TargetTimeline is null || VM.TargetProjectInfo is null) return;
-
-		var compositor = new Compositor();
-		var projectInfo = VM.TargetProjectInfo;
-		var bitmap = compositor.RenderFrame(VM.TargetTimeline, VM.Frame, new SKSize(384, 216), projectInfo.Size, mediaAccessorRouter, mediaAccessorRouter, projectInfo);
-
-		lock (renderLock)
-		{
-			SKImageInfo info = e.Info;
-			SKSurface surface = e.Surface;
-			SKCanvas canvas = surface.Canvas;
-			canvas.Clear(SKColors.Green);
-
-			canvas.DrawBitmap(bitmap, 0, 0);
-
-			bitmap.Dispose();
-		}
-
+		_ = HandlePaintAsync(e);
 	}
 
+	private async Task HandlePaintAsync(Avalonia.Labs.Controls.SKPaintSurfaceEventArgs e)
+	{
+		if (VM is null || VM.TargetTimeline is null || VM.TargetProjectInfo is null) return;
+
+		// 前のレンダリングをキャンセル
+		_renderCts.Cancel();
+		_renderCts.Dispose();
+		_renderCts = new CancellationTokenSource();
+
+		try
+		{
+			// 排他制御で並行レンダリングを防止
+			await _renderSemaphore.WaitAsync(_renderCts.Token);
+
+			try
+			{
+				// キャンセルトークンをチェック
+				if (_renderCts.Token.IsCancellationRequested)
+					return;
+
+				var compositor = new Compositor();
+				var projectInfo = VM.TargetProjectInfo;
+				var bitmap = await compositor.RenderFrameAsync(
+					VM.TargetTimeline,
+					VM.Frame,
+					new SKSize(384, 216),
+					new SKSize(3840, 2160),
+					mediaAccessorRouter,
+					mediaAccessorRouter,
+					projectInfo,
+					_renderCts.Token);
+
+				// キャンセルチェック
+				if (_renderCts.Token.IsCancellationRequested)
+				{
+					bitmap?.Dispose();
+					return;
+				}
+
+				lock (_renderLock)
+				{
+					// 最終的なキャンセルチェック
+					if (_renderCts.Token.IsCancellationRequested)
+					{
+						bitmap?.Dispose();
+						return;
+					}
+
+					SKImageInfo info = e.Info;
+					SKSurface surface = e.Surface;
+					SKCanvas canvas = surface.Canvas;
+					canvas.Clear(SKColors.Green);
+
+					if (bitmap != null)
+					{
+						canvas.DrawBitmap(bitmap, 0, 0);
+						bitmap.Dispose();
+					}
+				}
+			}
+			finally
+			{
+				_renderSemaphore.Release();
+			}
+		}
+		catch (OperationCanceledException)
+		{
+			// キャンセルされた場合は無視
+			Debug.WriteLine("Rendering was cancelled");
+		}
+		catch (Exception ex)
+		{
+			// その他の例外をログに記録
+			Debug.WriteLine($"Error during rendering: {ex.Message}");
+			Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+		}
+	}
+
+	public void Dispose()
+	{
+		_renderCts?.Cancel();
+		_renderCts?.Dispose();
+		_renderSemaphore?.Dispose();
+	}
 }

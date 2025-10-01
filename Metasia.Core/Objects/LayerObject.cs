@@ -1,4 +1,4 @@
-﻿using Metasia.Core.Graphics;
+using Metasia.Core.Graphics;
 using Metasia.Core.Render;
 using Metasia.Core.Sounds;
 using Metasia.Core.Xml;
@@ -53,8 +53,10 @@ namespace Metasia.Core.Objects
             Objects = new();
         }
 
-        public RenderNode Render(RenderContext context)
+        public async Task<RenderNode> RenderAsync(RenderContext context, CancellationToken cancellationToken = default)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             List<IRenderable> ApplicateObjects = new();
             foreach (var obj in Objects)
             {
@@ -70,7 +72,8 @@ namespace Metasia.Core.Objects
 
             foreach (var obj in ApplicateObjects)
             {
-                nodes.Add(obj.Render(context));
+                cancellationToken.ThrowIfCancellationRequested();
+                nodes.Add(await obj.RenderAsync(context, cancellationToken));
             }
 
             return new RenderNode()

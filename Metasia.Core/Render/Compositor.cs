@@ -11,48 +11,63 @@ namespace Metasia.Core.Render
     public class Compositor
     {
         /// <summary>
-        /// 指定フレームの最終的なビットマップを生成する
+        /// 指定フレームの最終的なビットマップを非同期に生成する
         /// </summary>
         /// <param name="root">描画ツリーの√となるオブジェクト(TimelineObjectなど)</param>
         /// <param name="frame">描画するフレームの番号</param>
         /// <param name="renderResolution">レンダリング解像度</param>
         /// <param name="projectResolution">プロジェクトの解像度</param>
+        /// <param name="cancellationToken">キャンセルトークン</param>
         /// <returns>合成後のビットマップ</returns>
-        public SKBitmap RenderFrame(
+        public async Task<SKBitmap> RenderFrameAsync(
             IRenderable root,
             int frame,
             SKSize renderResolution,
             SKSize projectResolution,
             IImageFileAccessor imageFileAccessor,
             IVideoFileAccessor videoFileAccessor,
-            ProjectInfo projectInfo)
+            ProjectInfo projectInfo,
+            CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(root);
-            ArgumentNullException.ThrowIfNull(projectInfo);
             if (renderResolution.Width <= 0 || renderResolution.Height <= 0) throw new ArgumentOutOfRangeException(nameof(renderResolution), "Render resolution must be positive");
             if (projectResolution.Width <= 0 || projectResolution.Height <= 0) throw new ArgumentOutOfRangeException(nameof(projectResolution), "Project resolution must be positive");
-            
+
+            cancellationToken.ThrowIfCancellationRequested();
+
             var resultBitmap = new SKBitmap((int)renderResolution.Width, (int)renderResolution.Height);
-            using (SKCanvas canvas = new SKCanvas(resultBitmap))
+            try
             {
+                using SKCanvas canvas = new(resultBitmap);
                 //下地は黒で塗りつぶす
-			    canvas.Clear(SKColors.Black);
+                canvas.Clear(SKColors.Black);
+
+                cancellationToken.ThrowIfCancellationRequested();
 
                 var context = new RenderContext(frame, projectResolution, renderResolution, imageFileAccessor, videoFileAccessor, projectInfo);
-                var rootNode = root.Render(context);
+                var rootNode = await root.RenderAsync(context, cancellationToken);
 
-                ProcessNode(canvas, rootNode, projectResolution, renderResolution);
+                cancellationToken.ThrowIfCancellationRequested();
+
+                await ProcessNodeAsync(canvas, rootNode, projectResolution, renderResolution, cancellationToken);
             }
-            
+            catch
+            {
+                resultBitmap.Dispose();
+                throw;
+            }
+
             return resultBitmap;
         }
 
-        private void ProcessNode(SKCanvas canvas, RenderNode node, SKSize projectResolution, SKSize renderResolution)
+        private async Task ProcessNodeAsync(SKCanvas canvas, RenderNode node, SKSize projectResolution, SKSize renderResolution, CancellationToken cancellationToken = default)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             // 子ノードを再帰的に描画
             foreach (var child in node.Children)
             {
-                ProcessNode(canvas, child, projectResolution, renderResolution);
+                await ProcessNodeAsync(canvas, child, projectResolution, renderResolution, cancellationToken);
             }
 
             if (node.Bitmap is not null)

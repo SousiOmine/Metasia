@@ -69,8 +69,10 @@ namespace Metasia.Core.Objects
 			}
 		}
 
-		public RenderNode Render(RenderContext context)
+		public Task<RenderNode> RenderAsync(RenderContext context, CancellationToken cancellationToken = default)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+
 			//このオブジェクトのStartFrameを基準としたフレーム
 			int relativeFrame = context.Frame - StartFrame;
 			var bitmap = new SKBitmap(200, 200);
@@ -88,12 +90,12 @@ namespace Metasia.Core.Objects
 				Alpha = (100.0f - (float)Alpha.Get(relativeFrame)) / 100,
 			};
 			
-			return new RenderNode()
+			return Task.FromResult(new RenderNode()
 			{
 				Bitmap = bitmap,
 				LogicalSize = new SKSize(bitmap.Width, bitmap.Height),
 				Transform = transform,
-			};
+			});
 		}
 
 

@@ -39,8 +39,10 @@ public class ImageObject : ClipObject, IRenderable
 
 	}
 
-	public RenderNode Render(RenderContext context)
+	public Task<RenderNode> RenderAsync(RenderContext context, CancellationToken cancellationToken = default)
 	{
+		cancellationToken.ThrowIfCancellationRequested();
+
 		int relativeFrame = context.Frame - StartFrame;
 		if (ImagePath is not null && !string.IsNullOrEmpty(ImagePath?.FileName))
 		{
@@ -56,12 +58,12 @@ public class ImageObject : ClipObject, IRenderable
 						Rotation = (float)Rotation.Get(relativeFrame),
 						Alpha = (100.0f - (float)Alpha.Get(relativeFrame)) / 100,
 					};
-					return new RenderNode()
+					return Task.FromResult(new RenderNode()
 					{
 						Bitmap = imageFileAccessorResult.Bitmap,
 						LogicalSize = new SKSize(imageFileAccessorResult.Bitmap.Width, imageFileAccessorResult.Bitmap.Height),
 						Transform = transform,
-					};
+					});
 				}
 			}
 			catch (Exception ex)
@@ -70,6 +72,6 @@ public class ImageObject : ClipObject, IRenderable
 			}
 		}
 		Debug.WriteLine($"Failed to load image: {ImagePath}");
-		return new RenderNode();
+		return Task.FromResult(new RenderNode());
 	}
 }
