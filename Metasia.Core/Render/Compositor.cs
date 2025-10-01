@@ -36,20 +36,18 @@ namespace Metasia.Core.Render
             var resultBitmap = new SKBitmap((int)renderResolution.Width, (int)renderResolution.Height);
             try
             {
-                using (SKCanvas canvas = new SKCanvas(resultBitmap))
-                {
-                    //下地は黒で塗りつぶす
-		        canvas.Clear(SKColors.Black);
+                using SKCanvas canvas = new(resultBitmap);
+                //下地は黒で塗りつぶす
+                canvas.Clear(SKColors.Black);
 
-                    cancellationToken.ThrowIfCancellationRequested();
+                cancellationToken.ThrowIfCancellationRequested();
 
-                    var context = new RenderContext(frame, projectResolution, renderResolution, imageFileAccessor, videoFileAccessor);
-                    var rootNode = await root.RenderAsync(context, cancellationToken);
+                var context = new RenderContext(frame, projectResolution, renderResolution, imageFileAccessor, videoFileAccessor);
+                var rootNode = await root.RenderAsync(context, cancellationToken);
 
-                    cancellationToken.ThrowIfCancellationRequested();
+                cancellationToken.ThrowIfCancellationRequested();
 
-                    await ProcessNodeAsync(canvas, rootNode, projectResolution, renderResolution, cancellationToken);
-                }
+                await ProcessNodeAsync(canvas, rootNode, projectResolution, renderResolution, cancellationToken);
             }
             catch
             {
