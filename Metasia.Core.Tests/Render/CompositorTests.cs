@@ -22,7 +22,7 @@ namespace Metasia.Core.Tests.Render
 		/// Verify that a single node with a bitmap is rendered correctly.
 		/// </summary>
 		[Test]
-		public void RenderFrame_SingleNode_DrawBitmap()
+		public async Task RenderFrame_SingleNode_DrawBitmap()
 		{
 			var node = new RenderNode()
 			{
@@ -31,9 +31,9 @@ namespace Metasia.Core.Tests.Render
 			};
 
 			var mockRenderable = new Mock<IRenderable>();
-			mockRenderable.Setup(x => x.Render(It.IsAny<RenderContext>())).Returns(node);
+			mockRenderable.Setup(x => x.RenderAsync(It.IsAny<RenderContext>(), It.IsAny<CancellationToken>())).ReturnsAsync(node);
 
-			using var resultBitmap = compositor.RenderFrame(mockRenderable.Object, 0, new SKSize(192, 108), new SKSize(3840, 2160), new EmptyImageFileAccessor(), new EmptyVideoFileAccessor());
+			using var resultBitmap = await compositor.RenderFrameAsync(mockRenderable.Object, 0, new SKSize(192, 108), new SKSize(3840, 2160), new EmptyImageFileAccessor(), new EmptyVideoFileAccessor());
 
 			Assert.That(resultBitmap, Is.Not.Null);
 			Assert.That(resultBitmap.Width, Is.EqualTo(192));
@@ -49,7 +49,7 @@ namespace Metasia.Core.Tests.Render
 		/// Verify that a node with a scale transform is rendered at the expected size and position.
 		/// </summary>
 		[Test]
-		public void RenderFrame_NodeWithScale_RenderedCorrectly()
+		public async Task RenderFrame_NodeWithScale_RenderedCorrectly()
 		{
 			var node = new RenderNode()
 			{
@@ -59,9 +59,9 @@ namespace Metasia.Core.Tests.Render
 			};
 
 			var mockRenderable = new Mock<IRenderable>();
-			mockRenderable.Setup(x => x.Render(It.IsAny<RenderContext>())).Returns(node);
+			mockRenderable.Setup(x => x.RenderAsync(It.IsAny<RenderContext>(), It.IsAny<CancellationToken>())).ReturnsAsync(node);
 
-			using var resultBitmap = compositor.RenderFrame(mockRenderable.Object, 0, new SKSize(200, 200), new SKSize(200, 200), new EmptyImageFileAccessor(), new EmptyVideoFileAccessor());
+			using var resultBitmap = await compositor.RenderFrameAsync(mockRenderable.Object, 0, new SKSize(200, 200), new SKSize(200, 200), new EmptyImageFileAccessor(), new EmptyVideoFileAccessor());
 
 			// The scaled bitmap should occupy a 100x100 area centred in the 200x200 canvas.
 			Assert.That(resultBitmap.GetPixel(100, 100), Is.EqualTo(SKColors.Blue));
@@ -71,7 +71,7 @@ namespace Metasia.Core.Tests.Render
 		/// Ensure that rotation is applied to the bitmap.
 		/// </summary>
 		[Test]
-		public void RenderFrame_NodeWithRotation_RotatesBitmap()
+		public async Task RenderFrame_NodeWithRotation_RotatesBitmap()
 		{
 			var node = new RenderNode()
 			{
@@ -81,9 +81,9 @@ namespace Metasia.Core.Tests.Render
 			};
 
 			var mockRenderable = new Mock<IRenderable>();
-			mockRenderable.Setup(x => x.Render(It.IsAny<RenderContext>())).Returns(node);
+			mockRenderable.Setup(x => x.RenderAsync(It.IsAny<RenderContext>(), It.IsAny<CancellationToken>())).ReturnsAsync(node);
 
-			using var resultBitmap = compositor.RenderFrame(mockRenderable.Object, 0, new SKSize(100, 100), new SKSize(100, 100), new EmptyImageFileAccessor(), new EmptyVideoFileAccessor());
+			using var resultBitmap = await compositor.RenderFrameAsync(mockRenderable.Object, 0, new SKSize(100, 100), new SKSize(100, 100), new EmptyImageFileAccessor(), new EmptyVideoFileAccessor());
 
 			// After a 90° rotation, the original top‑left pixel should now appear at the top‑right corner of the drawn area.
 			// We check that a pixel near the expected location has the green colour.
@@ -95,7 +95,7 @@ namespace Metasia.Core.Tests.Render
 		/// Verify that the alpha value of the transform is respected when drawing.
 		/// </summary>
 		[Test]
-		public void RenderFrame_NodeWithAlpha_AlphaApplied()
+		public async Task RenderFrame_NodeWithAlpha_AlphaApplied()
 		{
 			var node = new RenderNode()
 			{
@@ -105,10 +105,9 @@ namespace Metasia.Core.Tests.Render
 			};
 
 			var mockRenderable = new Mock<IRenderable>();
-			mockRenderable.Setup(x => x.Render(It.IsAny<RenderContext>())).Returns(node);
+			mockRenderable.Setup(x => x.RenderAsync(It.IsAny<RenderContext>(), It.IsAny<CancellationToken>())).ReturnsAsync(node);
 
-			using var resultBitmap = compositor.RenderFrame(mockRenderable.Object, 0, new SKSize(200, 200), new SKSize(200, 200), new EmptyImageFileAccessor(), new EmptyVideoFileAccessor());
-
+			using var resultBitmap = await compositor.RenderFrameAsync(mockRenderable.Object, 0, new SKSize(200, 200), new SKSize(200, 200), new EmptyImageFileAccessor(), new EmptyVideoFileAccessor());
 			var expected = SKColors.Yellow.WithAlpha((byte)(0.5f * 255));
 			Assert.That(resultBitmap.GetPixel(100, 100), Is.EqualTo(new SKColor(127, 127, 0, 255)));
             // Expected color is yellow with half intensity due to paint color tinting
@@ -118,7 +117,7 @@ namespace Metasia.Core.Tests.Render
 		/// Test that child nodes are rendered recursively.
 		/// </summary>
 		[Test]
-		public void RenderFrame_WithChildNodes_RendersAll()
+		public async Task RenderFrame_WithChildNodes_RendersAll()
 		{
 			var child = new RenderNode()
 			{
@@ -136,11 +135,9 @@ namespace Metasia.Core.Tests.Render
 			};
 
 			var mockRenderable = new Mock<IRenderable>();
-			mockRenderable.Setup(x => x.Render(It.IsAny<RenderContext>())).Returns(parent);
+			mockRenderable.Setup(x => x.RenderAsync(It.IsAny<RenderContext>(), It.IsAny<CancellationToken>())).ReturnsAsync(parent);
 
-			using var resultBitmap = compositor.RenderFrame(mockRenderable.Object, 0, new SKSize(200, 200), new SKSize(200, 200), new EmptyImageFileAccessor(), new EmptyVideoFileAccessor());
-
-			// Verify both colours appear in the final bitmap.
+			using var resultBitmap = await compositor.RenderFrameAsync(mockRenderable.Object, 0, new SKSize(200, 200), new SKSize(200, 200), new EmptyImageFileAccessor(), new EmptyVideoFileAccessor());
 			Assert.That(resultBitmap.GetPixel(50, 100), Is.EqualTo(SKColors.Cyan));
 			Assert.That(resultBitmap.GetPixel(150, 100), Is.EqualTo(SKColors.Magenta));
 		}

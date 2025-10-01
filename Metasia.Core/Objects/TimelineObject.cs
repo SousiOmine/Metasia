@@ -1,17 +1,6 @@
-﻿﻿using Metasia.Core.Graphics;
 using Metasia.Core.Render;
 using Metasia.Core.Xml;
-using SkiaSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 using Metasia.Core.Sounds;
-using System.Diagnostics;
-using System.Text.Json.Serialization;
-using System.Xml.Serialization;
 using Metasia.Core.Objects.AudioEffects;
 using Metasia.Core.Attributes;
 
@@ -43,14 +32,18 @@ namespace Metasia.Core.Objects
 			Layers = new();
         }
 
-        public RenderNode Render(RenderContext context)
+        public async Task<RenderNode> RenderAsync(RenderContext context, CancellationToken cancellationToken = default)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+
 			var nodes = new List<RenderNode>();
 
             foreach (var layer in Layers)
 			{
+				cancellationToken.ThrowIfCancellationRequested();
+
 				if (!layer.IsActive) continue;
-				nodes.Add(layer.Render(context));
+				nodes.Add(await layer.RenderAsync(context, cancellationToken));
 			}
 
 			return new RenderNode()

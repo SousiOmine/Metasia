@@ -1,4 +1,4 @@
-﻿using Metasia.Core.Coordinate;
+using Metasia.Core.Coordinate;
 using Metasia.Core.Render;
 using Metasia.Core.Xml;
 using SkiaSharp;
@@ -78,9 +78,10 @@ namespace Metasia.Core.Objects
             LoadTypeface();
         }
 
-        [Obsolete]
-        public RenderNode Render(RenderContext context)
+        public Task<RenderNode> RenderAsync(RenderContext context, CancellationToken cancellationToken = default)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             //このオブジェクトのStartFrameを基準としたフレーム
             int relativeFrame = context.Frame - StartFrame;
             SKPaint skPaint = new SKPaint()
@@ -98,7 +99,7 @@ namespace Metasia.Core.Objects
 
             if (bitmapWidth <= 0 || bitmapHeight <= 0 || string.IsNullOrEmpty(Contents))
             {
-                return new RenderNode();
+                return Task.FromResult(new RenderNode());
             }
 
             var logicalSize = new SKSize(bitmapWidth, bitmapHeight);
@@ -109,6 +110,8 @@ namespace Metasia.Core.Objects
                 canvas.Clear();
                 canvas.DrawText(Contents, -textBounds.Left, -textBounds.Top, skPaint);
             }
+
+            cancellationToken.ThrowIfCancellationRequested();
 
             //縦横のレンダリング倍率
             float renderScaleWidth = context.RenderResolution.Width / context.ProjectResolution.Width;
@@ -130,12 +133,12 @@ namespace Metasia.Core.Objects
             };
 
 
-            return new RenderNode()
+            return Task.FromResult(new RenderNode()
             {
                 Bitmap = bitmap,
                 LogicalSize = logicalSize,
                 Transform = transform,
-            };
+            });
         }
 
         private bool LoadTypeface()

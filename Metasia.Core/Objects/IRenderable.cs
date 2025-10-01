@@ -8,10 +8,11 @@ namespace Metasia.Core.Objects
     public interface IRenderable
     {
         /// <summary>
-        /// 描画情報をRenderNodeとして生成する
+        /// 描画情報をRenderNodeとして非同期に生成する
         /// </summary>
         /// <param name="context"></param>
+        /// <param name="cancellationToken">キャンセルトークン</param>
         /// <returns></returns>
-        RenderNode Render(RenderContext context);
+        Task<RenderNode> RenderAsync(RenderContext context, CancellationToken cancellationToken = default);
     }
 }
