@@ -2,6 +2,7 @@ using System.Xml.Serialization;
 using Metasia.Core.Objects;
 using System.Text;
 using Metasia.Core.Coordinate.InterpolationLogic;
+using System.Reflection;
 
 namespace Metasia.Core.Xml
 {
@@ -16,9 +17,26 @@ namespace Metasia.Core.Xml
             var interpolationLogicType = typeof(IInterpolationLogic);
 
             // 読み込まれている全てのアセンブリから型を検索
+            // プラグイン読み込みに失敗したアセンブリがあっても継続できるようにエラーハンドリングを追加
             includedTypes = AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(assembly => assembly.GetTypes())
-                .Where(t => !t.IsInterface && !t.IsAbstract && 
+                .SelectMany(assembly =>
+                {
+                    try
+                    {
+                        return assembly.GetTypes();
+                    }
+                    catch (ReflectionTypeLoadException ex)
+                    {
+                        // 部分的に読み込めた型のみを返す (nullを除外)
+                        return ex.Types.OfType<Type>();
+                    }
+                    catch
+                    {
+                        // その他の例外の場合は空の配列を返す
+                        return Array.Empty<Type>();
+                    }
+                })
+                .Where(t => t != null && !t.IsInterface && !t.IsAbstract && 
                             // ★ IMetasiaObject または IInterpolationLogic を実装する型を全て検索
                             (metasiaObjectType.IsAssignableFrom(t) || interpolationLogicType.IsAssignableFrom(t)))
                 .Distinct()
@@ -27,8 +45,7 @@ namespace Metasia.Core.Xml
 
         public static string Serialize(IMetasiaObject obj)
         {
-            if (obj == null)
-                throw new ArgumentNullException(nameof(obj));
+            ArgumentNullException.ThrowIfNull(obj);
 
             Type objType = obj.GetType();
             XmlSerializer serializer = new XmlSerializer(objType, includedTypes);
@@ -41,8 +58,7 @@ namespace Metasia.Core.Xml
 
         public static T Deserialize<T>(string xml) where T : class, IMetasiaObject
         {
-            if (string.IsNullOrEmpty(xml))
-                throw new ArgumentException("XML cannot be null or empty", nameof(xml));
+            ArgumentNullException.ThrowIfNull(xml);
 
             XmlSerializer serializer = new XmlSerializer(typeof(T), includedTypes);
             using (var reader = new StringReader(xml))

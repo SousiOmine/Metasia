@@ -44,7 +44,7 @@ public class VideoObject : ClipObject, IRenderable
 
 	}
 
-	public Task<RenderNode> RenderAsync(RenderContext context, CancellationToken cancellationToken = default)
+	public async Task<RenderNode> RenderAsync(RenderContext context, CancellationToken cancellationToken = default)
 	{
 		int relativeFrame = context.Frame - StartFrame;
 		if (VideoPath is not null && !string.IsNullOrEmpty(VideoPath?.FileName))
@@ -52,7 +52,7 @@ public class VideoObject : ClipObject, IRenderable
 			try
 			{
 				TimeSpan time = TimeSpan.FromSeconds((relativeFrame) / context.ProjectInfo.Framerate + VideoStartSeconds.Get(relativeFrame));
-				var imageFileAccessorResult = context.VideoFileAccessor.GetBitmap(VideoPath, time, "");
+				var imageFileAccessorResult = await context.VideoFileAccessor.GetBitmapAsync(VideoPath, time, "");
 				if (imageFileAccessorResult.IsSuccessful && imageFileAccessorResult.Bitmap is not null)
 				{
 					var transform = new Transform()
@@ -62,12 +62,12 @@ public class VideoObject : ClipObject, IRenderable
 						Rotation = (float)Rotation.Get(relativeFrame),
 						Alpha = (100.0f - (float)Alpha.Get(relativeFrame)) / 100,
 					};
-					return Task.FromResult(new RenderNode()
+					return new RenderNode()
 					{
 						Bitmap = imageFileAccessorResult.Bitmap,
 						LogicalSize = new SKSize(imageFileAccessorResult.Bitmap.Width, imageFileAccessorResult.Bitmap.Height),
 						Transform = transform,
-					});
+					};
 				}
 			}
 			catch (Exception ex)
@@ -76,6 +76,6 @@ public class VideoObject : ClipObject, IRenderable
 			}
 		}
 		Debug.WriteLine($"Failed to load video: {VideoPath}");
-		return Task.FromResult(new RenderNode());
+		return new RenderNode();
 	}
 }

@@ -4,11 +4,11 @@ namespace Metasia.Core.Media;
 
 public class EmptyImageFileAccessor : IImageFileAccessor
 {
-    public ImageFileAccessorResult GetBitmap(MediaPath path)
+    public async Task<ImageFileAccessorResult> GetBitmapAsync(MediaPath path)
     {
-        return new ImageFileAccessorResult(){
+        return await Task.FromResult(new ImageFileAccessorResult(){
             IsSuccessful = false,
             Bitmap = null,
-        };
+        });
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Metasia.Core.Media;
 using Metasia.Editor.Models.Media.StandardInput;
 using SkiaSharp;
@@ -15,13 +16,13 @@ public class MediaAccessorRouter : IImageFileAccessor, IVideoFileAccessor
         Accessors.Add(new StdInput());
     }
     
-    public ImageFileAccessorResult GetBitmap(MediaPath path)
+    public async Task<ImageFileAccessorResult> GetBitmapAsync(MediaPath path)
     {
         foreach(var accessor in Accessors)
         {
             if(accessor is IImageFileAccessor imageAccessor)
             {
-                var result = imageAccessor.GetBitmap(path);
+                var result = await imageAccessor.GetBitmapAsync(path);
                 if(result.IsSuccessful)
                 {
                     return result;
@@ -31,13 +32,13 @@ public class MediaAccessorRouter : IImageFileAccessor, IVideoFileAccessor
         return new ImageFileAccessorResult { IsSuccessful = false, Bitmap = null };
     }
 
-    public VideoFileAccessorResult GetBitmap(MediaPath path, TimeSpan time, string? projectDir)
+    public async Task<VideoFileAccessorResult> GetBitmapAsync(MediaPath path, TimeSpan time, string? projectDir)
     {
         foreach(var accessor in Accessors)
         {
             if(accessor is IVideoFileAccessor videoAccessor)
             {
-                var result = videoAccessor.GetBitmap(path, time, projectDir);
+                var result = await videoAccessor.GetBitmapAsync(path, time, projectDir);
                 if(result.IsSuccessful)
                 {
                     return result;
@@ -47,13 +48,13 @@ public class MediaAccessorRouter : IImageFileAccessor, IVideoFileAccessor
         return new VideoFileAccessorResult { IsSuccessful = false, Bitmap = null };
     }
 
-    public VideoFileAccessorResult GetBitmap(MediaPath path, int frame, string? projectDir)
+    public async Task<VideoFileAccessorResult> GetBitmapAsync(MediaPath path, int frame, string? projectDir)
     {
         foreach(var accessor in Accessors)
         {
             if(accessor is IVideoFileAccessor videoAccessor)
             {
-                var result = videoAccessor.GetBitmap(path, frame, projectDir);
+                var result = await videoAccessor.GetBitmapAsync(path, frame, projectDir);
                 if(result.IsSuccessful)
                 {
                     return result;
