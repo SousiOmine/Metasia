@@ -21,6 +21,7 @@ using Metasia.Editor.Models.States;
 using System.Diagnostics;
 using Metasia.Core.Media;
 using Metasia.Editor.Models.Media;
+using Avalonia.Threading;
 
 namespace Metasia.Editor.Views;
 
@@ -34,7 +35,8 @@ public partial class PlayerView : UserControl, IDisposable
 	private MediaAccessorRouter mediaAccessorRouter;
 	private readonly SemaphoreSlim _renderSemaphore = new SemaphoreSlim(1, 1);
 	private CancellationTokenSource _renderCts = new CancellationTokenSource();
-	private readonly object _renderLock = new object();
+	private readonly object _bitmapLock = new object();
+	private SKBitmap? _latestBitmap;
 
 	public PlayerView()
     {
@@ -47,8 +49,8 @@ public partial class PlayerView : UserControl, IDisposable
 				var playbackState = App.Current?.Services?.GetRequiredService<IPlaybackState>();
 				if (playbackState is not null)
 				{
-					playbackState.ReRenderingRequested += () => { skiaCanvas.InvalidateSurface(); };
-					playbackState.PlaybackFrameChanged += () => { skiaCanvas.InvalidateSurface(); };
+					playbackState.ReRenderingRequested += RequestRender;
+					playbackState.PlaybackFrameChanged += RequestRender;
 				}
 				mediaAccessorRouter = App.Current?.Services?.GetRequiredService<MediaAccessorRouter>();
 			}
@@ -57,34 +59,56 @@ public partial class PlayerView : UserControl, IDisposable
 				Debug.WriteLine($"Failed to resolve IPlaybackState: {ex.Message}");
 			}
 
-			skiaCanvas.InvalidateSurface();
+			RequestRender();
 		};    
 	}
 	
 	private void SKCanvasView_PaintSurface(object? sender, Avalonia.Labs.Controls.SKPaintSurfaceEventArgs e)
 	{
-		_ = HandlePaintAsync(e);
+		SKSurface surface = e.Surface;
+		SKCanvas canvas = surface.Canvas;
+		canvas.Clear(SKColors.Green);
+
+		lock (_bitmapLock)
+		{
+			if (_latestBitmap is not null)
+			{
+				canvas.DrawBitmap(_latestBitmap, 0, 0);
+			}
+		}
+
+		if (_latestBitmap is null)
+		{
+			RequestRender();
+		}
 	}
 
-	private async Task HandlePaintAsync(Avalonia.Labs.Controls.SKPaintSurfaceEventArgs e)
+	private void RequestRender()
 	{
-		if (VM is null || VM.TargetTimeline is null || VM.TargetProjectInfo is null) return;
+		_ = HandlePaintAsync();
+	}
 
-		// 前のレンダリングをキャンセル
-		_renderCts.Cancel();
-		_renderCts.Dispose();
+	private async Task HandlePaintAsync()
+	{
+		if (VM is null || VM.TargetTimeline is null || VM.TargetProjectInfo is null || mediaAccessorRouter is null) return;
+
+		var previousCts = _renderCts;
+		previousCts.Cancel();
 		_renderCts = new CancellationTokenSource();
+		previousCts.Dispose();
+
+		var cancellationToken = _renderCts.Token;
 
 		try
 		{
-			// 排他制御で並行レンダリングを防止
-			await _renderSemaphore.WaitAsync(_renderCts.Token);
+			await _renderSemaphore.WaitAsync(cancellationToken);
 
 			try
 			{
-				// キャンセルトークンをチェック
-				if (_renderCts.Token.IsCancellationRequested)
+				if (cancellationToken.IsCancellationRequested)
+				{
 					return;
+				}
 
 				var compositor = new Compositor();
 				var projectInfo = VM.TargetProjectInfo;
@@ -96,35 +120,27 @@ public partial class PlayerView : UserControl, IDisposable
 					mediaAccessorRouter,
 					mediaAccessorRouter,
 					projectInfo,
-					_renderCts.Token);
+					cancellationToken);
 
-				// キャンセルチェック
-				if (_renderCts.Token.IsCancellationRequested)
+				if (cancellationToken.IsCancellationRequested)
 				{
 					bitmap?.Dispose();
 					return;
 				}
 
-				lock (_renderLock)
+				lock (_bitmapLock)
 				{
-					// 最終的なキャンセルチェック
-					if (_renderCts.Token.IsCancellationRequested)
-					{
-						bitmap?.Dispose();
-						return;
-					}
-
-					SKImageInfo info = e.Info;
-					SKSurface surface = e.Surface;
-					SKCanvas canvas = surface.Canvas;
-					canvas.Clear(SKColors.Green);
-
-					if (bitmap != null)
-					{
-						canvas.DrawBitmap(bitmap, 0, 0);
-						bitmap.Dispose();
-					}
+					_latestBitmap?.Dispose();
+					_latestBitmap = bitmap;
 				}
+
+				Dispatcher.UIThread.Post(() =>
+				{
+					if (!cancellationToken.IsCancellationRequested)
+					{
+						skiaCanvas.InvalidateSurface();
+					}
+				});
 			}
 			finally
 			{
@@ -133,12 +149,10 @@ public partial class PlayerView : UserControl, IDisposable
 		}
 		catch (OperationCanceledException)
 		{
-			// キャンセルされた場合は無視
 			Debug.WriteLine("Rendering was cancelled");
 		}
 		catch (Exception ex)
 		{
-			// その他の例外をログに記録
 			Debug.WriteLine($"Error during rendering: {ex.Message}");
 			Debug.WriteLine($"Stack trace: {ex.StackTrace}");
 		}
@@ -149,5 +163,10 @@ public partial class PlayerView : UserControl, IDisposable
 		_renderCts?.Cancel();
 		_renderCts?.Dispose();
 		_renderSemaphore?.Dispose();
+		lock (_bitmapLock)
+		{
+			_latestBitmap?.Dispose();
+			_latestBitmap = null;
+		}
 	}
 }
