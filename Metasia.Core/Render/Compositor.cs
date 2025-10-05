@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Metasia.Core.Media;
 using Metasia.Core.Objects;
 using Metasia.Core.Project;
@@ -95,8 +96,18 @@ namespace Metasia.Core.Render
                 canvas.RotateDegrees(node.Transform.Rotation, destRect.MidX, destRect.MidY);
                 using (var paint = new SKPaint { Color = SKColors.White.WithAlpha((byte)(node.Transform.Alpha * 255)) })
                 {
-                    // DrawBitmapで、Bitmapを指定した矩形(destRect)に描画する
-                    canvas.DrawBitmap(node.Bitmap, destRect, paint);
+                    try
+                    {
+                        if (node.Bitmap is not null && node.Bitmap.Width > 0 && node.Bitmap.Height > 0 && !cancellationToken.IsCancellationRequested)
+                        {
+                            // DrawBitmapで、Bitmapを指定した矩形(destRect)に描画する
+                            canvas.DrawBitmap(node.Bitmap, destRect, paint);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Failed to draw bitmap: {ex.Message}");
+                    }
                 }
                 canvas.Restore();
             }
