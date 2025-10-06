@@ -38,6 +38,10 @@ public partial class PlayerView : UserControl, IDisposable
 	private readonly object _bitmapLock = new object();
 	private SKBitmap? _latestBitmap;
 
+	// フレームレート調整用のフィールド
+	private int _pendingFrameRequest = -1;
+	private bool _isRendering = false;
+
 	public PlayerView()
     {
         InitializeComponent();
@@ -85,84 +89,96 @@ public partial class PlayerView : UserControl, IDisposable
 
 	private void RequestRender()
 	{
-		_ = HandlePaintAsync();
+		if (VM is null) return;
+
+		var currentFrame = VM.Frame;
+
+		// レンダリング中の場合は次のフレーム要求を記録
+		if (_isRendering)
+		{
+			_pendingFrameRequest = currentFrame;
+			return;
+		}
+
+		_ = HandlePaintAsync(currentFrame);
 	}
 
-	private async Task HandlePaintAsync()
+	private async Task HandlePaintAsync(int requestedFrame)
 	{
 		if (VM is null || VM.TargetTimeline is null || VM.TargetProjectInfo is null || mediaAccessorRouter is null) return;
 
-		var previousCts = _renderCts;
-		previousCts.Cancel();
-		_renderCts = new CancellationTokenSource();
-		previousCts.Dispose();
-
-		var cancellationToken = _renderCts.Token;
+		_isRendering = true;
 
 		try
 		{
-			await _renderSemaphore.WaitAsync(cancellationToken);
+			await _renderSemaphore.WaitAsync();
 
 			try
 			{
-				if (cancellationToken.IsCancellationRequested)
+				// 最新のフレーム要求を取得
+				if (_pendingFrameRequest != -1)
 				{
-					return;
+					requestedFrame = _pendingFrameRequest;
+					_pendingFrameRequest = -1;
 				}
 
-				var compositor = new Compositor();
-				var projectInfo = VM.TargetProjectInfo;
-				var targetFrame = VM.Frame;
-				var bitmap = await compositor.RenderFrameAsync(
-					VM.TargetTimeline,
-					targetFrame,
-					new SKSize(384, 216),
-					new SKSize(3840, 2160),
-					mediaAccessorRouter,
-					mediaAccessorRouter,
-					projectInfo,
-					cancellationToken);
-
-				if (cancellationToken.IsCancellationRequested)
+				// 現在のフレームが変わっていなければレンダリング
+				if (requestedFrame == VM.Frame)
 				{
-					bitmap?.Dispose();
-					return;
-				}
+					var compositor = new Compositor();
+					var projectInfo = VM.TargetProjectInfo;
 
-				if (targetFrame != VM.Frame)
-				{
-					bitmap?.Dispose();
-					RequestRender();
-					return;
-				}
+					var bitmap = await compositor.RenderFrameAsync(
+						VM.TargetTimeline,
+						requestedFrame,
+						new SKSize(384, 216),
+						new SKSize(3840, 2160),
+						mediaAccessorRouter,
+						mediaAccessorRouter,
+						projectInfo);
 
-				lock (_bitmapLock)
-				{
-					_latestBitmap?.Dispose();
-					_latestBitmap = bitmap;
-				}
-
-				Dispatcher.UIThread.Post(() =>
-				{
-					if (!cancellationToken.IsCancellationRequested && targetFrame == VM.Frame)
+					// フレームが変わっていなければビットマップを更新
+					if (requestedFrame == VM.Frame)
 					{
-						skiaCanvas.InvalidateSurface();
+						lock (_bitmapLock)
+						{
+							_latestBitmap?.Dispose();
+							_latestBitmap = bitmap;
+						}
+
+						Dispatcher.UIThread.Post(() =>
+						{
+							if (requestedFrame == VM.Frame)
+							{
+								skiaCanvas.InvalidateSurface();
+							}
+						});
 					}
-				});
+					else
+					{
+						bitmap?.Dispose();
+					}
+				}
+
+				// レンダリング中に新しい要求があれば再帰的に処理
+				if (_pendingFrameRequest != -1)
+				{
+					_ = HandlePaintAsync(_pendingFrameRequest);
+					_pendingFrameRequest = -1;
+				}
 			}
 			finally
 			{
 				_renderSemaphore.Release();
 			}
 		}
-		catch (OperationCanceledException)
-		{
-			Debug.WriteLine("Rendering was cancelled");
-		}
 		catch (Exception ex)
 		{
 			Debug.WriteLine($"Error during rendering: {ex.Message}");
-			Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+		}
+		finally
+		{
+			_isRendering = false;
 		}
 	}
 
