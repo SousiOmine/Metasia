@@ -51,7 +51,7 @@ public class VideoObject : ClipObject, IRenderable
 		{
 			try
 			{
-				TimeSpan time = TimeSpan.FromSeconds((relativeFrame) / context.ProjectInfo.Framerate + VideoStartSeconds.Get(relativeFrame));
+				TimeSpan time = TimeSpan.FromSeconds((double)(relativeFrame) / context.ProjectInfo.Framerate + VideoStartSeconds.Get(relativeFrame));
 				var imageFileAccessorResult = await context.VideoFileAccessor.GetBitmapAsync(VideoPath, time, "");
 				if (imageFileAccessorResult.IsSuccessful && imageFileAccessorResult.Bitmap is not null)
 				{

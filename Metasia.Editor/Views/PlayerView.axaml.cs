@@ -112,9 +112,10 @@ public partial class PlayerView : UserControl, IDisposable
 
 				var compositor = new Compositor();
 				var projectInfo = VM.TargetProjectInfo;
+				var targetFrame = VM.Frame;
 				var bitmap = await compositor.RenderFrameAsync(
 					VM.TargetTimeline,
-					VM.Frame,
+					targetFrame,
 					new SKSize(384, 216),
 					new SKSize(3840, 2160),
 					mediaAccessorRouter,
@@ -128,6 +129,13 @@ public partial class PlayerView : UserControl, IDisposable
 					return;
 				}
 
+				if (targetFrame != VM.Frame)
+				{
+					bitmap?.Dispose();
+					RequestRender();
+					return;
+				}
+
 				lock (_bitmapLock)
 				{
 					_latestBitmap?.Dispose();
@@ -136,7 +144,7 @@ public partial class PlayerView : UserControl, IDisposable
 
 				Dispatcher.UIThread.Post(() =>
 				{
-					if (!cancellationToken.IsCancellationRequested)
+					if (!cancellationToken.IsCancellationRequested && targetFrame == VM.Frame)
 					{
 						skiaCanvas.InvalidateSurface();
 					}

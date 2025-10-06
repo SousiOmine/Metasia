@@ -1,6 +1,6 @@
 using System;
 using System.Diagnostics;
-using System.Timers;
+using Avalonia.Threading;
 using Metasia.Editor.Services.Audio;
 
 namespace Metasia.Editor.Models.States;
@@ -27,82 +27,104 @@ public class PlaybackState : IPlaybackState
 
     public event Action? PlaybackFrameChanged;
     public event Action? ReRenderingRequested;
-    private IProjectState _projectState;
-    private IAudioPlaybackService _audioPlaybackService;
+    private readonly IProjectState _projectState;
+    private readonly IAudioPlaybackService _audioPlaybackService;
 
     private int _currentFrame;
 
-    private System.Timers.Timer? timer;
+    private DispatcherTimer? timer;
+    private readonly Stopwatch _playbackStopwatch = new();
+    private int _frameAtPlaybackStart;
 
     public PlaybackState(IProjectState projectState, IAudioPlaybackService audioPlaybackService)
     {
         CurrentFrame = 0;
         IsPlaying = false;
-        _projectState = projectState;
-        _audioPlaybackService = audioPlaybackService;
+        _projectState = projectState ?? throw new ArgumentNullException(nameof(projectState));
+        _audioPlaybackService = audioPlaybackService ?? throw new ArgumentNullException(nameof(audioPlaybackService));
     }
 
     public void Pause()
     {
-        if(timer is not null) {
-            timer.Stop();
-            timer.Elapsed -= Timer_Elapsed;
-            timer.Dispose();
-            timer = null;
-        }
-		IsPlaying = false;
-		_audioPlaybackService.Pause();
-		PlaybackPaused?.Invoke();
-
+        StopPlaybackTimer();
+        IsPlaying = false;
+        _audioPlaybackService.Pause();
+        _playbackStopwatch.Reset();
+        PlaybackPaused?.Invoke();
     }
 
     public void Play()
     {
-        if (timer is not null)
+        if (_projectState.CurrentProjectInfo is null || _projectState.CurrentTimeline is null)
         {
-            timer.Stop();
-            timer.Elapsed -= Timer_Elapsed;
-            timer.Dispose();
-            timer = null;
+            Debug.WriteLine("PlaybackState.Play skipped: project or timeline is not ready.");
+            return;
         }
+
+        StopPlaybackTimer();
+
         try
         {
-            timer = new System.Timers.Timer(1000 / _projectState.CurrentProjectInfo!.Framerate);
-            timer.Elapsed += Timer_Elapsed;
+            _frameAtPlaybackStart = CurrentFrame;
+            _playbackStopwatch.Restart();
+
+            timer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(5)
+            };
+            timer.Tick += Timer_Tick;
             timer.Start();
+
             IsPlaying = true;
             PlaybackStarted?.Invoke();
 
-            long startSample = (long)(CurrentFrame / (double)_projectState.CurrentProjectInfo!.Framerate * SamplingRate);
-            _audioPlaybackService.Play(_projectState.CurrentTimeline!, _projectState.CurrentProjectInfo!, startSample, 1.0, SamplingRate, AudioChannels);
+            long startSample = (long)(CurrentFrame / (double)_projectState.CurrentProjectInfo.Framerate * SamplingRate);
+            _audioPlaybackService.Play(_projectState.CurrentTimeline, _projectState.CurrentProjectInfo, startSample, 1.0, SamplingRate, AudioChannels);
         }
         catch (Exception ex)
         {
-            if (timer is not null)
-            {
-                timer.Stop();
-                timer.Elapsed -= Timer_Elapsed;
-                timer.Dispose();
-                timer = null;
-            }
+            StopPlaybackTimer();
             IsPlaying = false;
+            _playbackStopwatch.Reset();
             Debug.WriteLine($"PlaybackState.Play failed: {ex.Message}");
             throw;
         }
-
     }
 
     public void Seek(int frame)
     {
+        if (_projectState.CurrentTimeline is not null)
+        {
+            frame = Math.Max(frame, _projectState.CurrentTimeline.StartFrame);
+        }
+
         CurrentFrame = frame;
+        _playbackStopwatch.Reset();
+        _frameAtPlaybackStart = CurrentFrame;
+
         PlaybackSeeked?.Invoke();
+
         // シーク時は強制的に再生停止
         Pause();
     }
 
-    private void Timer_Elapsed(object? sender, ElapsedEventArgs e)
+    private void Timer_Tick(object? sender, EventArgs e)
     {
-        CurrentFrame++;
+        if (_projectState.CurrentProjectInfo is null || _projectState.CurrentTimeline is null)
+        {
+            return;
+        }
+
+        var elapsedSeconds = _playbackStopwatch.Elapsed.TotalSeconds;
+        var elapsedFrames = (int)Math.Floor(elapsedSeconds * _projectState.CurrentProjectInfo.Framerate);
+        var newFrame = _frameAtPlaybackStart + elapsedFrames;
+
+        newFrame = Math.Max(newFrame, _projectState.CurrentTimeline.StartFrame);
+
+        if (newFrame != CurrentFrame)
+        {
+            CurrentFrame = newFrame;
+        }
     }
 
     public void RequestReRendering()
@@ -112,6 +134,17 @@ public class PlaybackState : IPlaybackState
 
     public void Dispose()
     {
-        timer?.Dispose();
+        StopPlaybackTimer();
+    }
+
+    private void StopPlaybackTimer()
+    {
+        if (timer is not null)
+        {
+            timer.Stop();
+            timer.Tick -= Timer_Tick;
+            timer = null;
+        }
+        _playbackStopwatch.Stop();
     }
 }
