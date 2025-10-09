@@ -12,16 +12,15 @@ public class EmptyProjectTemplate : IProjectTemplate
     public EmptyProjectTemplate(ProjectInfo projectInfo)
     {
         Template = new MetasiaProject(projectInfo);
-        Template.LastFrame = projectInfo.Framerate * 5;
+        Template.LastFrame = projectInfo.Framerate * 10;
 
-        // 基本レイヤーの作成
-        LayerObject layer1 = new LayerObject("layer1", "Layer 1");
+        TimelineObject mainTL = new("RootTimeline");
+        for (int i = 1; i <= 100; i++)
+        {
+            var layer = new LayerObject($"layer{i}", $"Layer {i}") { StartFrame = 0, EndFrame = int.MaxValue };
+            mainTL.Layers.Add(layer);
+        }
 
-        // メインタイムラインの作成と設定
-        TimelineObject mainTL = new TimelineObject("RootTimeline");
-        mainTL.Layers.Add(layer1);
-
-        // タイムラインをプロジェクトに追加
         Template.Timelines.Add(mainTL);
     }
-} 
+}
