@@ -58,11 +58,13 @@ namespace Metasia.Core.Objects
 
         public Text(string id) : base(id)
         {
+            typefaceName = "LINE Seed JP_TTF";
             LoadTypeface();
         }
 
         public Text()
         {
+            typefaceName = "LINE Seed JP_TTF";
             LoadTypeface();
         }
 
