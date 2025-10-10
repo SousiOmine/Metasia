@@ -158,6 +158,7 @@ namespace Metasia.Editor.ViewModels
             {
                 IEditCommand command = new ClipRemoveCommand(clipObject, ownerLayer);
                 editCommandManager.Execute(command);
+                selectionState.UnselectClip(clipObject);
             }
         }
 
