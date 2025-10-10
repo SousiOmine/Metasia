@@ -4,9 +4,11 @@ namespace Metasia.Editor.Models.States;
 
 public class TimelineViewState : ITimelineViewState
 {
-    public double Frame_Per_DIP { 
+    public double Frame_Per_DIP
+    {
         get => _frame_per_DIP;
-        set {
+        set
+        {
             _frame_per_DIP = value;
             Frame_Per_DIP_Changed?.Invoke();
         }

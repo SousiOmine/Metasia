@@ -49,7 +49,7 @@ namespace Metasia.Editor.Services.PluginService
 
         private void RegisterMediaInputPlugins()
         {
-            foreach(var plugin in MediaInputPlugins)
+            foreach (var plugin in MediaInputPlugins)
             {
                 _mediaAccessorRouter.Accessors.Add(plugin);
             }

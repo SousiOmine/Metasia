@@ -6,7 +6,7 @@ namespace Metasia.Editor.Models;
 
 public class ObjectPropertyFinder
 {
-	public record EditablePropertyInfo(
+    public record EditablePropertyInfo(
         Type Type,
         string Identifier,
         object? PropertyValue,
@@ -25,7 +25,7 @@ public class ObjectPropertyFinder
 
         foreach (var prop in type.GetProperties())
         {
-            if(Attribute.GetCustomAttribute(prop, typeof(EditablePropertyAttribute)) is not EditablePropertyAttribute editablePropertyAttribute)
+            if (Attribute.GetCustomAttribute(prop, typeof(EditablePropertyAttribute)) is not EditablePropertyAttribute editablePropertyAttribute)
                 continue;
 
             var rangeAttr = Attribute.GetCustomAttribute(prop, typeof(ValueRangeAttribute)) as ValueRangeAttribute;

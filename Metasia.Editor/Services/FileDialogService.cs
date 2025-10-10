@@ -6,8 +6,8 @@ using Avalonia.Platform.Storage;
 
 namespace Metasia.Editor.Services
 {
-	public class FileDialogService : IFileDialogService
-	{
+    public class FileDialogService : IFileDialogService
+    {
         //Avalonia公式サンプルの https://github.com/AvaloniaUI/AvaloniaUI.QuickGuides/tree/main/IoCFileOps を参考にした
         private readonly Window _target;
 
@@ -16,9 +16,9 @@ namespace Metasia.Editor.Services
             _target = target;
         }
 
-		public async Task<IStorageFile?> OpenFileDialogAsync()
-		{
-			var files = await _target.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions()
+        public async Task<IStorageFile?> OpenFileDialogAsync()
+        {
+            var files = await _target.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions()
             {
                 Title = "ファイルを開く",
                 AllowMultiple = false,
@@ -29,12 +29,12 @@ namespace Metasia.Editor.Services
                         Patterns = new string[] { "*.mtpj" }
                     }
                 }
-			});
+            });
 
             // filesの要素数が1以上の場合は最初の要素を返し、
             // そうでない場合(空の場合)はnullを返す
             return files.Count >= 1 ? files[0] : null;
-		}
+        }
 
         public async Task<IStorageFile?> OpenFileDialogAsync(string title, string[] patterns)
         {
@@ -93,5 +93,5 @@ namespace Metasia.Editor.Services
                 }
             });
         }
-	}
+    }
 }

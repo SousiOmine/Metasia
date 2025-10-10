@@ -9,7 +9,7 @@ namespace Metasia.Core.Xml
     public class MetasiaObjectXmlSerializer
     {
         private static readonly Type[] includedTypes;
-        
+
         static MetasiaObjectXmlSerializer()
         {
             var metasiaObjectType = typeof(IMetasiaObject);
@@ -36,7 +36,7 @@ namespace Metasia.Core.Xml
                         return Array.Empty<Type>();
                     }
                 })
-                .Where(t => t != null && !t.IsInterface && !t.IsAbstract && 
+                .Where(t => t != null && !t.IsInterface && !t.IsAbstract &&
                             // ★ IMetasiaObject または IInterpolationLogic を実装する型を全て検索
                             (metasiaObjectType.IsAssignableFrom(t) || interpolationLogicType.IsAssignableFrom(t)))
                 .Distinct()
@@ -64,7 +64,7 @@ namespace Metasia.Core.Xml
             using (var reader = new StringReader(xml))
             {
                 var result = serializer.Deserialize(reader) as T;
-                if (result is null) 
+                if (result is null)
                     throw new InvalidOperationException($"デシリアライズに失敗しました。型: {typeof(T).Name}");
                 return result;
             }

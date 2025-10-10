@@ -48,4 +48,4 @@ namespace Metasia.Editor.Services.KeyBinding
                 return "Unknown";
         }
     }
-} 
+}

@@ -17,5 +17,5 @@ public class StdInput : IImageFileAccessor
 
         SKBitmap bitmap = SKBitmap.Decode(fullPath);
         return new ImageFileAccessorResult { IsSuccessful = true, Bitmap = bitmap };
-    } 
+    }
 }

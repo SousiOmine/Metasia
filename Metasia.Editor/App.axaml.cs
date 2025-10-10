@@ -27,7 +27,7 @@ namespace Metasia.Editor
         /// DIコンテナのサービスプロバイダ
         /// </summary>
         public IServiceProvider? Services { get; private set; }
-        
+
         public override void Initialize()
         {
             AvaloniaXamlLoader.Load(this);
@@ -73,17 +73,17 @@ namespace Metasia.Editor
                 services.AddTransient<IMediaPathPropertyViewModelFactory, MediaPathPropertyViewModelFactory>();
                 services.AddTransient<IStringPropertyViewModelFactory, StringPropertyViewModelFactory>();
                 services.AddTransient<IDoublePropertyViewModelFactory, DoublePropertyViewModelFactory>();
-                
+
 
                 services.AddTransient<MainWindowViewModel>();
                 services.AddSingleton<PlayerParentViewModel>();
                 services.AddSingleton<TimelineParentViewModel>();
                 services.AddSingleton<InspectorViewModel>();
                 services.AddSingleton<ToolsViewModel>();
-                Services = services.BuildServiceProvider(new ServiceProviderOptions 
-                { 
-                    ValidateScopes = true, 
-                    ValidateOnBuild = true 
+                Services = services.BuildServiceProvider(new ServiceProviderOptions
+                {
+                    ValidateScopes = true,
+                    ValidateOnBuild = true
                 });
 
                 // プラグインを読み込み

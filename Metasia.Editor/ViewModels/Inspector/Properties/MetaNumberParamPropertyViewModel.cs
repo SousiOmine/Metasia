@@ -20,7 +20,7 @@ public class MetaNumberParamPropertyViewModel : ViewModelBase
         get => _propertyDisplayName;
         set => this.RaiseAndSetIfChanged(ref _propertyDisplayName, value);
     }
-    
+
     public ObservableCollection<MetaNumberCoordPointViewModel> CoordPoints { get; } = new();
 
     public string PropertyValueText
@@ -54,13 +54,13 @@ public class MetaNumberParamPropertyViewModel : ViewModelBase
     private IProjectState _projectState;
     public MetaNumberParamPropertyViewModel(
         ISelectionState selectionState,
-        string propertyIdentifier, 
+        string propertyIdentifier,
         IEditCommandManager editCommandManager,
         IProjectState projectState,
-        MetaNumberParam<double> target, 
-        double min = double.MinValue, 
-        double max = double.MaxValue, 
-        double recommendedMin = double.MinValue, 
+        MetaNumberParam<double> target,
+        double min = double.MinValue,
+        double max = double.MaxValue,
+        double recommendedMin = double.MinValue,
         double recommendedMax = double.MaxValue)
     {
         _propertyDisplayName = propertyIdentifier;
@@ -202,5 +202,5 @@ public class MetaNumberParamPropertyViewModel : ViewModelBase
             CoordPoints.RemoveAt(CoordPoints.Count - 1);
         }
     }
-    
+
 }

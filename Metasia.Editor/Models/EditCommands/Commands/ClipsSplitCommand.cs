@@ -23,38 +23,38 @@ namespace Metasia.Editor.Models.EditCommands.Commands
             {
                 throw new ArgumentNullException(nameof(targetClips), "分割対象のクリップコレクションがnullです。");
             }
-            
+
             if (ownerLayers == null)
             {
                 throw new ArgumentNullException(nameof(ownerLayers), "所有レイヤーコレクションがnullです。");
             }
-            
+
             // リストに変換
             _targetClips = targetClips.ToList();
             _ownerLayers = ownerLayers.ToList();
-            
+
             // コレクションの数を検証
             if (_targetClips.Count == 0)
             {
                 throw new ArgumentException("分割対象のクリップがありません。", nameof(targetClips));
             }
-            
+
             if (_ownerLayers.Count == 0)
             {
                 throw new ArgumentException("所有レイヤーがありません。", nameof(ownerLayers));
             }
-            
+
             if (_targetClips.Count != _ownerLayers.Count)
             {
                 throw new ArgumentException("クリップとレイヤーの数が一致しません。", nameof(ownerLayers));
             }
-            
+
             // 分割フレームの検証（非負であることを確認）
             if (splitFrame < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(splitFrame), "分割フレームは0以上である必要があります。");
             }
-            
+
             _splitFrame = splitFrame;
 
             // 各クリップの元のインデックスを保存
@@ -75,22 +75,22 @@ namespace Metasia.Editor.Models.EditCommands.Commands
                     throw new ArgumentException($"クリップ '{targetClip.Id}' はフレーム {_splitFrame} で分割できません。");
                 }
             }
-            
+
             // すべてのクリップを分割（TimelineViewModelで事前にフィルタリング済み）
             for (int i = 0; i < _targetClips.Count; i++)
             {
                 var targetClip = _targetClips[i];
                 var ownerLayer = _ownerLayers[i];
-                
+
                 // クリップを分割
                 var splitResult = targetClip.SplitAtFrame(_splitFrame);
-                
+
                 // 分割結果の各要素がnullかチェック
                 if (splitResult.Item1 is null || splitResult.Item2 is null)
                 {
                     throw new InvalidOperationException($"クリップ '{targetClip.Id}' のフレーム {_splitFrame} での分割に失敗しました。分割結果のクリップがnullです。");
                 }
-                
+
                 var firstClip = splitResult.Item1;
                 var secondClip = splitResult.Item2;
 

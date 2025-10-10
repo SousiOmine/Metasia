@@ -39,8 +39,8 @@ namespace Metasia.Core.Objects
         public string TypefaceName
         {
             get { return typefaceName; }
-            set 
-            { 
+            set
+            {
                 typefaceName = value;
                 LoadTypeface();
             }
@@ -83,7 +83,7 @@ namespace Metasia.Core.Objects
             };
             SKRect textBounds = new();
             skPaint.MeasureText(Contents, ref textBounds);
-            
+
             int bitmapWidth = (int)textBounds.Width;
             int bitmapHeight = (int)textBounds.Height;
 
@@ -134,7 +134,7 @@ namespace Metasia.Core.Objects
         private bool LoadTypeface()
         {
             _typeface = SKTypeface.FromFamilyName(TypefaceName);
-            if(_typeface.FamilyName != TypefaceName)
+            if (_typeface.FamilyName != TypefaceName)
             {
                 using (var ms = new MemoryStream(Properties.Resources.LINESeedJP_TTF_Rg))
                 {

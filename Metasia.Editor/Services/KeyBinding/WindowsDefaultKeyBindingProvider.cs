@@ -42,7 +42,7 @@ namespace Metasia.Editor.Services.KeyBinding
         public override List<KeyBindingDefinition> GetDefaultKeyBindings()
         {
             var keyBindings = GetCommonKeyBindings();
-            
+
             // Windows固有のキーバインディングを追加
             keyBindings.AddRange(new List<KeyBindingDefinition>
             {
@@ -71,4 +71,4 @@ namespace Metasia.Editor.Services.KeyBinding
             return GetCommonModifierKeys();
         }
     }
-} 
+}

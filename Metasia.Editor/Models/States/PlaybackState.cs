@@ -7,9 +7,11 @@ namespace Metasia.Editor.Models.States;
 
 public class PlaybackState : IPlaybackState
 {
-    public int CurrentFrame { 
+    public int CurrentFrame
+    {
         get => _currentFrame;
-        private set {
+        private set
+        {
             _currentFrame = value;
             PlaybackFrameChanged?.Invoke();
         }

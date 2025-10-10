@@ -22,14 +22,14 @@ namespace Metasia.Editor.Tests.Models.EditCommands.Commands
             // テスト用のレイヤーを作成
             var layer1 = new LayerObject();
             var layer2 = new LayerObject();
-            
+
             // テスト用のクリップを作成
             var clip1 = new ClipObject("test-clip-1")
             {
                 StartFrame = 10,
                 EndFrame = 50
             };
-            
+
             var clip2 = new ClipObject("test-clip-2")
             {
                 StartFrame = 60,
@@ -38,7 +38,7 @@ namespace Metasia.Editor.Tests.Models.EditCommands.Commands
 
             layer1.Objects.Add(clip1);
             layer2.Objects.Add(clip2);
-            
+
             _targetClips.Add(clip1);
             _targetClips.Add(clip2);
             _ownerLayers.Add(layer1);
@@ -61,11 +61,11 @@ namespace Metasia.Editor.Tests.Models.EditCommands.Commands
             // clip1は分割されているはず
             var layer1Clips = _ownerLayers[0].Objects.OrderBy(c => c.StartFrame).ToList();
             Assert.That(layer1Clips.Count, Is.EqualTo(2));
-            
+
             // 前半クリップ (10-29)
             Assert.That(layer1Clips[0].StartFrame, Is.EqualTo(10));
             Assert.That(layer1Clips[0].EndFrame, Is.EqualTo(29));
-            
+
             // 後半クリップ (30-50)
             Assert.That(layer1Clips[1].StartFrame, Is.EqualTo(30));
             Assert.That(layer1Clips[1].EndFrame, Is.EqualTo(50));
@@ -88,7 +88,7 @@ namespace Metasia.Editor.Tests.Models.EditCommands.Commands
             var originalClip1End = _targetClips[0].EndFrame;
             var originalClip2Start = _targetClips[1].StartFrame;
             var originalClip2End = _targetClips[1].EndFrame;
-            
+
             _command = new ClipsSplitCommand(splittableClips, splittableLayers, splitFrame);
             _command.Execute();
 
@@ -99,11 +99,11 @@ namespace Metasia.Editor.Tests.Models.EditCommands.Commands
             // 元の状態に戻っているはず
             var layer1Clips = _ownerLayers[0].Objects.ToList();
             var layer2Clips = _ownerLayers[1].Objects.ToList();
-            
+
             Assert.That(layer1Clips.Count, Is.EqualTo(1));
             Assert.That(layer1Clips[0].StartFrame, Is.EqualTo(originalClip1Start));
             Assert.That(layer1Clips[0].EndFrame, Is.EqualTo(originalClip1End));
-            
+
             Assert.That(layer2Clips.Count, Is.EqualTo(1));
             Assert.That(layer2Clips[0].StartFrame, Is.EqualTo(originalClip2Start));
             Assert.That(layer2Clips[0].EndFrame, Is.EqualTo(originalClip2End));
@@ -116,10 +116,10 @@ namespace Metasia.Editor.Tests.Models.EditCommands.Commands
             var layer = new LayerObject();
             var clip = new ClipObject("boundary-test") { StartFrame = 0, EndFrame = 100 };
             layer.Objects.Add(clip);
-            
+
             var clips = new List<ClipObject> { clip };
             var layers = new List<LayerObject> { layer };
-            
+
             int splitFrame = 1; // 最小限の分割
             _command = new ClipsSplitCommand(clips, layers, splitFrame);
 
@@ -129,11 +129,11 @@ namespace Metasia.Editor.Tests.Models.EditCommands.Commands
             // Assert
             var layerClips = layer.Objects.OrderBy(c => c.StartFrame).ToList();
             Assert.That(layerClips.Count, Is.EqualTo(2));
-            
+
             // 前半クリップ (0-0)
             Assert.That(layerClips[0].StartFrame, Is.EqualTo(0));
             Assert.That(layerClips[0].EndFrame, Is.EqualTo(0));
-            
+
             // 後半クリップ (1-100)
             Assert.That(layerClips[1].StartFrame, Is.EqualTo(1));
             Assert.That(layerClips[1].EndFrame, Is.EqualTo(100));
@@ -147,8 +147,8 @@ namespace Metasia.Editor.Tests.Models.EditCommands.Commands
             var splittableLayers = new List<LayerObject> { _ownerLayers[0] };
             int splitFrame = 30;
             _command = new ClipsSplitCommand(
-                (IEnumerable<ClipObject>)splittableClips, 
-                (IEnumerable<LayerObject>)splittableLayers, 
+                (IEnumerable<ClipObject>)splittableClips,
+                (IEnumerable<LayerObject>)splittableLayers,
                 splitFrame
             );
 
@@ -166,16 +166,16 @@ namespace Metasia.Editor.Tests.Models.EditCommands.Commands
             // Arrange - 両方のクリップが分割されるように設定
             var clip1 = new ClipObject("clip1") { StartFrame = 10, EndFrame = 50 };
             var clip2 = new ClipObject("clip2") { StartFrame = 20, EndFrame = 60 };
-            
+
             var layer1 = new LayerObject();
             var layer2 = new LayerObject();
-            
+
             layer1.Objects.Add(clip1);
             layer2.Objects.Add(clip2);
-            
+
             var clips = new List<ClipObject> { clip1, clip2 };
             var layers = new List<LayerObject> { layer1, layer2 };
-            
+
             int splitFrame = 30;
             _command = new ClipsSplitCommand(clips, layers, splitFrame);
 
@@ -188,7 +188,7 @@ namespace Metasia.Editor.Tests.Models.EditCommands.Commands
             Assert.That(layer1Clips.Count, Is.EqualTo(2));
             Assert.That(layer1Clips[0].EndFrame, Is.EqualTo(29));
             Assert.That(layer1Clips[1].StartFrame, Is.EqualTo(30));
-            
+
             // clip2も分割されている
             var layer2Clips = layer2.Objects.OrderBy(c => c.StartFrame).ToList();
             Assert.That(layer2Clips.Count, Is.EqualTo(2));
@@ -202,12 +202,12 @@ namespace Metasia.Editor.Tests.Models.EditCommands.Commands
             // Arrange - 分割位置を正確にテスト
             var layer = new LayerObject();
             var clip = new ClipObject("test-clip") { StartFrame = 20, EndFrame = 80 };
-            
+
             layer.Objects.Add(clip);
-            
+
             var clips = new List<ClipObject> { clip };
             var layers = new List<LayerObject> { layer };
-            
+
             int splitFrame = 50;
             _command = new ClipsSplitCommand(clips, layers, splitFrame);
 
@@ -217,11 +217,11 @@ namespace Metasia.Editor.Tests.Models.EditCommands.Commands
             // Assert
             var layerClips = layer.Objects.OrderBy(c => c.StartFrame).ToList();
             Assert.That(layerClips.Count, Is.EqualTo(2));
-            
+
             // 前半クリップ (20-49)
             Assert.That(layerClips[0].StartFrame, Is.EqualTo(20));
             Assert.That(layerClips[0].EndFrame, Is.EqualTo(49));
-            
+
             // 後半クリップ (50-80)
             Assert.That(layerClips[1].StartFrame, Is.EqualTo(50));
             Assert.That(layerClips[1].EndFrame, Is.EqualTo(80));
@@ -270,13 +270,13 @@ namespace Metasia.Editor.Tests.Models.EditCommands.Commands
                 StartFrame = 10,
                 EndFrame = 50
             };
-            
+
             var layer = new LayerObject();
             layer.Objects.Add(nonSplittableClip);
-            
+
             var clips = new List<ClipObject> { nonSplittableClip };
             var layers = new List<LayerObject> { layer };
-            
+
             int splitFrame = 5; // クリップの開始フレームより前
             _command = new ClipsSplitCommand(clips, layers, splitFrame);
 
@@ -294,13 +294,13 @@ namespace Metasia.Editor.Tests.Models.EditCommands.Commands
                 StartFrame = 10,
                 EndFrame = 50
             };
-            
+
             var layer = new LayerObject();
             layer.Objects.Add(boundaryClip);
-            
+
             var clips = new List<ClipObject> { boundaryClip };
             var layers = new List<LayerObject> { layer };
-            
+
             int splitFrame = 10; // クリップの開始フレームと同じ
             _command = new ClipsSplitCommand(clips, layers, splitFrame);
 
@@ -318,13 +318,13 @@ namespace Metasia.Editor.Tests.Models.EditCommands.Commands
                 StartFrame = 10,
                 EndFrame = 50
             };
-            
+
             var layer = new LayerObject();
             layer.Objects.Add(endFrameClip);
-            
+
             var clips = new List<ClipObject> { endFrameClip };
             var layers = new List<LayerObject> { layer };
-            
+
             int splitFrame = 50; // クリップの終了フレームと同じ
             _command = new ClipsSplitCommand(clips, layers, splitFrame);
 

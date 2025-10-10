@@ -16,7 +16,7 @@ public class StringPropertyViewModel : ViewModelBase
         get => _propertyDisplayName;
         set => this.RaiseAndSetIfChanged(ref _propertyDisplayName, value);
     }
-    
+
     public string PropertyValue
     {
         get => _propertyValue;
@@ -48,7 +48,7 @@ public class StringPropertyViewModel : ViewModelBase
     private IEditCommandManager _editCommandManager;
     private IProjectState _projectState;
     private const double _valueEnterThreshold = 0.2;
-    
+
     private Timer? _valueEnterTimer;
     private bool _isValueEnteringFlag = false;
     private string _beforeValue = string.Empty;
@@ -56,7 +56,7 @@ public class StringPropertyViewModel : ViewModelBase
 
     public StringPropertyViewModel(
         ISelectionState selectionState,
-        string propertyIdentifier, 
+        string propertyIdentifier,
         IEditCommandManager editCommandManager,
         IProjectState projectState,
         string target)
@@ -146,9 +146,9 @@ public class StringPropertyViewModel : ViewModelBase
     private IEditCommand? CreateStringValueChangeCommand(string beforeValue, string value)
     {
         return TimelineInteractor.CreateStringValueChangeCommand(
-            _propertyIdentifier, 
-            beforeValue, 
-            value, 
+            _propertyIdentifier,
+            beforeValue,
+            value,
             _selectionState.SelectedClips);
     }
 }

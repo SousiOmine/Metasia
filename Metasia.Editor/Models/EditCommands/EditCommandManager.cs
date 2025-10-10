@@ -31,7 +31,7 @@ namespace Metasia.Editor.Models.EditCommands
             command.Execute();
             undoStack.Push(command);
             redoStack.Clear();
-            
+
             CommandExecuted?.Invoke(this, command);
 
             Console.WriteLine("Execute: " + command.Description);
@@ -55,10 +55,10 @@ namespace Metasia.Editor.Models.EditCommands
                 var command = undoStack.Pop();
                 command.Undo();
                 redoStack.Push(command);
-                
+
                 CommandUndone?.Invoke(this, command);
 
-                
+
             }
             Console.WriteLine("Undo");
         }
@@ -71,10 +71,10 @@ namespace Metasia.Editor.Models.EditCommands
                 var command = redoStack.Pop();
                 command.Execute();
                 undoStack.Push(command);
-                
+
                 CommandRedone?.Invoke(this, command);
 
-                
+
             }
             Console.WriteLine("Redo");
         }

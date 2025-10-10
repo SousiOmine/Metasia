@@ -13,7 +13,7 @@ namespace Metasia.Editor.Models.Plugins
         private const string EDITOR_PLUGINS_FOLDER_NAME = "Plugins";
 
         private static List<IEditorPlugin> editorPlugins = [];
-        
+
         public static async Task<IEnumerable<IEditorPlugin>> LoadEditorPluginsAsync()
         {
             if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, EDITOR_PLUGINS_FOLDER_NAME)))

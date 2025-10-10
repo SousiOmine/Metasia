@@ -32,4 +32,4 @@ namespace Metasia.Editor.Models.KeyBinding
         [JsonPropertyName("modifiers")]
         public List<string> Modifiers { get; set; } = new List<string>();
     }
-} 
+}

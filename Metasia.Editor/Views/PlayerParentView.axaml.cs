@@ -13,7 +13,7 @@ public partial class PlayerParentView : UserControl
 
         this.DataContextChanged += (s, e) =>
         {
-            if(DataContext is not null) Console.WriteLine("PlayerParentView DataContextChanged");
+            if (DataContext is not null) Console.WriteLine("PlayerParentView DataContextChanged");
         };
     }
 }

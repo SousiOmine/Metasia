@@ -245,7 +245,7 @@ namespace Metasia.Core.Tests.Objects
             // Assert
             Assert.That(firstLayer.Objects.Count, Is.EqualTo(2)); // objBeforeSplit + objSpanningSplitの前半
             Assert.That(secondLayer.Objects.Count, Is.EqualTo(2)); // objAfterSplit + objSpanningSplitの後半
-            
+
             // 分割前のオブジェクトは最初のレイヤーに
             Assert.That(firstLayer.Objects.Any(o => o.Id == "obj1"), Is.True);
             // 分割後のオブジェクトは2番目のレイヤーに
@@ -338,4 +338,4 @@ namespace Metasia.Core.Tests.Objects
             Assert.That(secondLayer.Objects.Count, Is.EqualTo(0));
         }
     }
-} 
+}

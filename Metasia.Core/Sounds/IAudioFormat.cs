@@ -9,7 +9,7 @@ namespace Metasia.Core.Sounds
         /// サンプルレート（Hz）
         /// </summary>
         int SampleRate { get; }
-        
+
         /// <summary>
         /// チャンネル数
         /// </summary>

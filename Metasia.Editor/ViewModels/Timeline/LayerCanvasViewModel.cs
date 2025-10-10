@@ -59,7 +59,7 @@ namespace Metasia.Editor.ViewModels.Timeline
             IProjectState projectState,
             ISelectionState selectionState,
             IEditCommandManager editCommandManager,
-            ITimelineViewState timelineViewState) 
+            ITimelineViewState timelineViewState)
         {
             this.parentTimeline = parentTimeline;
             TargetLayer = targetLayer;
@@ -135,7 +135,7 @@ namespace Metasia.Editor.ViewModels.Timeline
             }
         }
 
-        
+
         /// <summary>
         /// 空のエリアがクリックされたときに呼び出されるメソッド
         /// </summary>

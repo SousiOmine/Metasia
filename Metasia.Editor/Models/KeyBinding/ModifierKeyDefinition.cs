@@ -38,4 +38,4 @@ namespace Metasia.Editor.Models.KeyBinding
         [JsonPropertyName("description")]
         public string Description { get; set; } = string.Empty;
     }
-} 
+}

@@ -21,7 +21,7 @@ public class KariProjectTemplate : IProjectTemplate
 
         // オブジェクトの作成
         kariHelloObject kariHello = new kariHelloObject("karihello")
-        { 
+        {
             EndFrame = 120,
         };
         kariHello.Rotation.AddPoint(new CoordPoint() { Value = 90, Frame = 120 });
@@ -36,7 +36,7 @@ public class KariProjectTemplate : IProjectTemplate
         kariHello2.Scale.SetSinglePoint(50);
         kariHello2.X.AddPoint(new CoordPoint() { Value = 1000, Frame = 10 });
 
-        kariHello2.AudioEffects.Add(new VolumeFadeEffect(){In = 1, Out = 1});
+        kariHello2.AudioEffects.Add(new VolumeFadeEffect() { In = 1, Out = 1 });
 
         Text text = new Text("konnichiwa")
         {
@@ -83,7 +83,7 @@ public class KariProjectTemplate : IProjectTemplate
             StartFrame = 120,
             EndFrame = 239
         };
-        
+
 
         // レイヤーの作成
         LayerObject layer1 = new LayerObject("layer1", "Layer 1");
@@ -121,9 +121,15 @@ public class KariProjectTemplate : IProjectTemplate
         // X パラメータに5つの中間点を設定し、1つは JavaScriptLogic を使用
         jsClip.X.SetSinglePoint(-1300);
         jsClip.X.AddPoint(new CoordPoint() { Value = -400, Frame = 60 });
-        jsClip.X.AddPoint(new CoordPoint() { Value = 500, Frame = 120, InterpolationLogic = new JavaScriptLogic() {
-            JSLogic = "StartValue + (EndValue - StartValue) * Math.pow((NowFrame - StartFrame) / (EndFrame - StartFrame), 2)"
-        } });
+        jsClip.X.AddPoint(new CoordPoint()
+        {
+            Value = 500,
+            Frame = 120,
+            InterpolationLogic = new JavaScriptLogic()
+            {
+                JSLogic = "StartValue + (EndValue - StartValue) * Math.pow((NowFrame - StartFrame) / (EndFrame - StartFrame), 2)"
+            }
+        });
         jsClip.X.AddPoint(new CoordPoint() { Value = 1400, Frame = 180 });
         jsClip.X.AddPoint(new CoordPoint() { Value = 2300, Frame = 239 });
         // クリップをレイヤー5に追加

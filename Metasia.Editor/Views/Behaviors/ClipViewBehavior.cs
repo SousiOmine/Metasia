@@ -21,19 +21,19 @@ namespace Metasia.Editor.Views.Behaviors
     {
         public static readonly StyledProperty<ICommand?> CommandProperty =
             AvaloniaProperty.Register<ClipViewBehavior, ICommand?>(nameof(Command));
-        
+
         public static readonly StyledProperty<double> DragThresholdProperty =
             AvaloniaProperty.Register<ClipViewBehavior, double>(nameof(DragThreshold), 5.0);
-        
+
         public static readonly StyledProperty<double> FramePerDIPProperty =
             AvaloniaProperty.Register<ClipViewBehavior, double>(nameof(FramePerDIP), 1.0);
-        
+
         public ICommand? Command
         {
             get => GetValue(CommandProperty);
             set => SetValue(CommandProperty, value);
         }
-        
+
         public double DragThreshold
         {
             get => GetValue(DragThresholdProperty);
@@ -45,16 +45,16 @@ namespace Metasia.Editor.Views.Behaviors
             get => GetValue(FramePerDIPProperty);
             set => SetValue(FramePerDIPProperty, value);
         }
-        
+
         // マウス操作の状態管理
         private DateTime _mousePressStartTime;
         private bool _hasStartedDrag = false;
         private const int CLICK_THRESHOLD_MS = 300;
-        
+
         private Point? _mousePressStartPoint;
         private bool _isDragReady = false;
         private bool _isHandleDragging = false;
-        
+
         protected override void OnAttached()
         {
             base.OnAttached();
@@ -63,12 +63,12 @@ namespace Metasia.Editor.Views.Behaviors
                 AssociatedObject.PointerPressed += OnPointerPressed;
                 AssociatedObject.PointerMoved += OnPointerMoved;
                 AssociatedObject.PointerReleased += OnPointerReleased;
-                
+
                 // ハンドルのイベントを登録
                 AssociatedObject.AttachedToVisualTree += OnAttachedToVisualTree;
             }
         }
-        
+
         protected override void OnDetaching()
         {
             base.OnDetaching();
@@ -80,7 +80,7 @@ namespace Metasia.Editor.Views.Behaviors
                 AssociatedObject.AttachedToVisualTree -= OnAttachedToVisualTree;
             }
         }
-        
+
         private void OnAttachedToVisualTree(object? sender, VisualTreeAttachmentEventArgs e)
         {
             // ハンドル要素を取得してイベントを登録
@@ -88,14 +88,14 @@ namespace Metasia.Editor.Views.Behaviors
             {
                 var startHandle = control.FindControl<Border>("StartHandle");
                 var endHandle = control.FindControl<Border>("EndHandle");
-                
+
                 if (startHandle != null)
                 {
                     startHandle.PointerPressed += Handle_PointerPressed;
                     startHandle.PointerMoved += Handle_PointerMoved;
                     startHandle.PointerReleased += Handle_PointerReleased;
                 }
-                
+
                 if (endHandle != null)
                 {
                     endHandle.PointerPressed += Handle_PointerPressed;
@@ -104,13 +104,13 @@ namespace Metasia.Editor.Views.Behaviors
                 }
             }
         }
-        
+
         private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
         {
             // マウスボタンが押された時間を記録
             _mousePressStartTime = DateTime.Now;
             _hasStartedDrag = false;
-            
+
             if (e.GetCurrentPoint(AssociatedObject).Properties.IsLeftButtonPressed)
             {
                 // 左クリックの場合、ドラッグの準備を開始
@@ -127,11 +127,11 @@ namespace Metasia.Editor.Views.Behaviors
                 }
             }
         }
-        
+
         private async void OnPointerMoved(object? sender, PointerEventArgs e)
         {
             var currentPoint = e.GetCurrentPoint(AssociatedObject).Position;
-            
+
             // ドラッグの準備ができていて、左ボタンが押されていて、移動距離が閾値を超えている場合
             if (_isDragReady && e.GetCurrentPoint(AssociatedObject).Properties.IsLeftButtonPressed && _mousePressStartPoint.HasValue && Math.Abs(currentPoint.X - _mousePressStartPoint.Value.X) > DragThreshold)
             {
@@ -140,24 +140,24 @@ namespace Metasia.Editor.Views.Behaviors
                 await StartDragDropAsync(e);
             }
         }
-        
+
         private void OnPointerReleased(object? sender, PointerReleasedEventArgs e)
         {
             // マウスボタンが押されていた時間と現在時刻の差を計算
             var pressDuration = (DateTime.Now - _mousePressStartTime).TotalMilliseconds;
-            
+
             // 短時間クリックかつドラッグが開始されていない場合のみ選択処理
             if (pressDuration < CLICK_THRESHOLD_MS && !_hasStartedDrag)
             {
                 TryClipSelect(e.KeyModifiers, e);
             }
-            
+
             // 状態をリセット
             _isDragReady = false;
             _hasStartedDrag = false;
             _mousePressStartPoint = null;
         }
-        
+
         private void TryClipSelect(KeyModifiers modifiers, PointerEventArgs? pointerEventArgs)
         {
             var vm = AssociatedObject?.DataContext as ClipViewModel;
@@ -167,7 +167,7 @@ namespace Metasia.Editor.Views.Behaviors
             var keyBindingService = App.Current?.Services?.GetService<IKeyBindingService>();
             var multiSelectModifier = keyBindingService?.GetModifierForAction("MultiSelectClip");
 
-            bool isMultiSelect = multiSelectModifier.HasValue && 
+            bool isMultiSelect = multiSelectModifier.HasValue &&
                                 keyBindingService != null && keyBindingService.IsModifierKeyPressed(multiSelectModifier.Value, modifiers);
 
             // クリックされた位置からフレームを計算してViewModelに通知
@@ -180,7 +180,7 @@ namespace Metasia.Editor.Views.Behaviors
                 var frameOffset = (int)(relativePositionX / FramePerDIP);
                 // クリップの開始フレームにオフセットを加算して絶対フレーム位置を算出
                 var targetFrame = vm.TargetObject.StartFrame + frameOffset;
-                
+
                 vm.ClipClick(isMultiSelect, targetFrame);
             }
         }
@@ -210,7 +210,7 @@ namespace Metasia.Editor.Views.Behaviors
 
             e.Pointer.Capture(handle);
             e.Handled = true;
-            
+
             _isHandleDragging = true;
         }
 
@@ -279,10 +279,10 @@ namespace Metasia.Editor.Views.Behaviors
                 {
                     clipView.NotifyDragStarted();
                 }
-                
+
                 var dragData = new DataObject();
                 dragData.Set(DragDropFormats.ClipsMove, new ClipsMoveDragData(vm, CalculateTargetFrame(_mousePressStartPoint.Value.X)));
-                        
+
                 // 実際のドラッグ&ドロップを開始
                 await DragDrop.DoDragDrop(e, dragData, DragDropEffects.Move);
             }

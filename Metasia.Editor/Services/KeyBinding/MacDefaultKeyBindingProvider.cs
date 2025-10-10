@@ -44,7 +44,7 @@ namespace Metasia.Editor.Services.KeyBinding
         public override List<KeyBindingDefinition> GetDefaultKeyBindings()
         {
             var keyBindings = GetCommonKeyBindings();
-            
+
             // Mac固有のキーバインディングを追加
             keyBindings.AddRange(new List<KeyBindingDefinition>
             {
@@ -71,11 +71,11 @@ namespace Metasia.Editor.Services.KeyBinding
         public override List<ModifierKeyDefinition> GetDefaultModifierKeys()
         {
             var modifierKeys = GetCommonModifierKeys();
-            
+
             // Mac固有の修飾キー設定があれば追加
             // 例：Optionキー（Alt）の動作をMac風にカスタマイズ
-            
+
             return modifierKeys;
         }
     }
-} 
+}

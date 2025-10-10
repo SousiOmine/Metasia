@@ -38,7 +38,7 @@ public partial class TimelineView : UserControl
             TimescaleScroll.Offset += new Vector((-10 * e.Delta.Y) + (-10 * e.Delta.X), 0);
 
             LinesScroll.Offset = new Vector(TimescaleScroll.Offset.X, LinesScroll.Offset.Y);
-            
+
             // マウスホイールのイベントを無効にする
             e.Handled = true;
         }, Avalonia.Interactivity.RoutingStrategies.Tunnel);

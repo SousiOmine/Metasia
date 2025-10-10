@@ -25,12 +25,12 @@ namespace Metasia.Core.Objects
         /// </summary>
         public bool IsActive { get; set; } = true;
 
-		/// <summary>
-		/// オブジェクトの初期化
-		/// </summary>
-		/// <param name="id">オブジェクト固有のID</param>
+        /// <summary>
+        /// オブジェクトの初期化
+        /// </summary>
+        /// <param name="id">オブジェクト固有のID</param>
 
-		public ClipObject(string id)
+        public ClipObject(string id)
         {
             if (string.IsNullOrWhiteSpace(id))
             {
@@ -50,7 +50,7 @@ namespace Metasia.Core.Objects
         /// <returns>存在すればtrue</returns>
         public bool IsExistFromFrame(int frame)
         {
-            if(frame >= StartFrame && frame <= EndFrame) return true;
+            if (frame >= StartFrame && frame <= EndFrame) return true;
             else return false;
         }
 

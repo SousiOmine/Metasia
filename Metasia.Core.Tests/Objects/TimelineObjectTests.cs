@@ -278,4 +278,4 @@ namespace Metasia.Core.Tests.Objects
             Assert.That(secondTimeline.Layers.Count, Is.GreaterThan(0));
         }
     }
-} 
+}

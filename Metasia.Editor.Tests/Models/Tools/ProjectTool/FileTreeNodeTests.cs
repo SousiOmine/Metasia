@@ -67,10 +67,10 @@ namespace Metasia.Editor.Tests.Models.Tools.ProjectTool
             // Arrange
             var mockFile1 = new Mock<IFileEntity>();
             mockFile1.Setup(f => f.Name).Returns("file1.txt");
-            
+
             var mockFile2 = new Mock<IFileEntity>();
             mockFile2.Setup(f => f.Name).Returns("file2.txt");
-            
+
             var mockSubDir = new Mock<IDirectoryEntity>();
             mockSubDir.Setup(d => d.Name).Returns("subdir");
             mockSubDir.Setup(d => d.GetSubordinates()).Returns(new IResourceEntity[] { });
@@ -78,11 +78,11 @@ namespace Metasia.Editor.Tests.Models.Tools.ProjectTool
             var mockDirEntity = new Mock<IDirectoryEntity>();
             mockDirEntity.Setup(d => d.Name).Returns("TestDirectory");
             mockDirEntity.Setup(d => d.Path).Returns("/path/to/TestDirectory");
-            mockDirEntity.Setup(d => d.GetSubordinates()).Returns(new IResourceEntity[] 
-            { 
-                mockFile1.Object, 
+            mockDirEntity.Setup(d => d.GetSubordinates()).Returns(new IResourceEntity[]
+            {
+                mockFile1.Object,
                 mockFile2.Object,
-                mockSubDir.Object 
+                mockSubDir.Object
             });
 
             // Act
@@ -93,7 +93,7 @@ namespace Metasia.Editor.Tests.Models.Tools.ProjectTool
             Assert.That(node.ResourceEntity, Is.EqualTo(mockDirEntity.Object));
             Assert.That(node.SubNodes, Is.Not.Null);
             Assert.That(node.SubNodes.Count, Is.EqualTo(3));
-            
+
             var titles = node.SubNodes.Select(n => n.Title).ToList();
             Assert.That(titles, Does.Contain("file1.txt"));
             Assert.That(titles, Does.Contain("file2.txt"));
@@ -164,15 +164,15 @@ namespace Metasia.Editor.Tests.Models.Tools.ProjectTool
 
             // Assert
             Assert.That(rootNode.SubNodes.Count, Is.EqualTo(1));
-            
+
             var nestedDirNode = rootNode.SubNodes[0];
             Assert.That(nestedDirNode.Title, Is.EqualTo("NestedDir"));
             Assert.That(nestedDirNode.SubNodes, Is.Not.Null);
             Assert.That(nestedDirNode.SubNodes.Count, Is.EqualTo(1));
-            
+
             var nestedFileNode = nestedDirNode.SubNodes![0];
             Assert.That(nestedFileNode.Title, Is.EqualTo("nested.txt"));
             Assert.That(nestedFileNode.SubNodes, Is.Null);
         }
     }
-} 
+}

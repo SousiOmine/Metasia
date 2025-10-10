@@ -23,7 +23,7 @@ public class PlayerParentViewModel : ViewModelBase, IDisposable
         {
             // 以前のコマンド登録を解除
             UnregisterPlayerCommands();
-            
+
             this.RaiseAndSetIfChanged(ref _targetPlayerViewModel, value);
             if (value is not null)
             {
@@ -31,7 +31,7 @@ public class PlayerParentViewModel : ViewModelBase, IDisposable
                 // 新しいPlayerViewModelのコマンドを登録
                 RegisterPlayerCommands(value);
             }
-        } 
+        }
     }
 
     public string TargetTimelineName
@@ -99,7 +99,7 @@ public class PlayerParentViewModel : ViewModelBase, IDisposable
     // public void LoadProject(MetasiaEditorProject editorProject)
     // {
     //     _projectState.LoadProjectAsync(editorProject);
-        
+
     // }
 
 
@@ -112,7 +112,7 @@ public class PlayerParentViewModel : ViewModelBase, IDisposable
         }
         return false;
     }
-    
+
     public bool TryRedo()
     {
         if (_editCommandManager.CanRedo)

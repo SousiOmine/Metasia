@@ -21,7 +21,7 @@ namespace Metasia.Editor.ViewModels.Timeline
             get;
             set;
         }
-        
+
         public bool IsSelecting
         {
             get => isSelecting;
@@ -36,11 +36,11 @@ namespace Metasia.Editor.ViewModels.Timeline
         public double Frame_Per_DIP
         {
             get => _frame_per_DIP;
-            private set 
+            private set
             {
                 this.RaiseAndSetIfChanged(ref _frame_per_DIP, value);
                 RecalculateSize();
-            } 
+            }
         }
 
         public double StartFrame
@@ -89,7 +89,7 @@ namespace Metasia.Editor.ViewModels.Timeline
             this._timelineViewState = timelineViewState;
             // 削除コマンドの初期化
             RemoveClipCommand = ReactiveCommand.Create(() => parentTimeline.ClipRemove(TargetObject));
-            
+
             // 分割コマンドの初期化
             SplitClipCommand = ReactiveCommand.Create(() => parentTimeline.SplitSelectedClips());
 
@@ -113,7 +113,7 @@ namespace Metasia.Editor.ViewModels.Timeline
         {
             // まず通常の選択処理を実行
             parentTimeline.ClipSelect(TargetObject, isMultiSelect);
-            
+
             if (targetFrame >= 0)
             {
                 // 次にプレビュー位置を移動

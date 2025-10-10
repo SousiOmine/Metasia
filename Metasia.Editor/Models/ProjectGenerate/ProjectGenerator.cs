@@ -44,7 +44,7 @@ public class ProjectGenerator
 
         foreach (var timeline in project.Timelines)
         {
-            TimelineFile timelineFile = new TimelineFile(new FileEntity(Path.Combine(projectPath,"Timelines", $"{timeline.Id}.mttl")), timeline);
+            TimelineFile timelineFile = new TimelineFile(new FileEntity(Path.Combine(projectPath, "Timelines", $"{timeline.Id}.mttl")), timeline);
             editorProject.Timelines.Add(timelineFile);
         }
 
@@ -53,5 +53,5 @@ public class ProjectGenerator
 
         return editorProject;
     }
-    
+
 }

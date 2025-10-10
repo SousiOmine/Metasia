@@ -54,7 +54,7 @@ namespace Metasia.Editor.Models.EditCommands
         /// Undoを実行する
         /// </summary>
         public void Undo();
-        
+
 
         /// <summary>
         /// Undoしたコマンドを再実行(Redo)する

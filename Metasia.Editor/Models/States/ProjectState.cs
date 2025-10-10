@@ -12,7 +12,7 @@ namespace Metasia.Editor.Models.States;
 /// </summary>
 public class ProjectState : IProjectState
 {
-    
+
     private TimelineObject? _currentTimeline;
 
     /// <summary>
@@ -103,7 +103,7 @@ public class ProjectState : IProjectState
 
     public void Dispose()
     {
-        
+
     }
 
     public void NotifyTimelineChanged()

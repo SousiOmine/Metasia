@@ -19,10 +19,10 @@ namespace Metasia.Editor.Tests.Models.Projects
         {
             _testDirectory = Path.Combine(Path.GetTempPath(), "MetasiaTimelineFileTests");
             Directory.CreateDirectory(_testDirectory);
-            
+
             _timelineFilePath = Path.Combine(_testDirectory, "test.mttl");
             File.WriteAllText(_timelineFilePath, "");
-            
+
             _fileEntity = new FileEntity(_timelineFilePath);
             _timeline = new TimelineObject("test-timeline");
         }
@@ -80,7 +80,7 @@ namespace Metasia.Editor.Tests.Models.Projects
         {
             // Arrange
             var timelineFile = new TimelineFile(_fileEntity, _timeline);
-            
+
             var newFilePath = Path.Combine(_testDirectory, "new.mttl");
             File.WriteAllText(newFilePath, "");
             var newFileEntity = new FileEntity(newFilePath);
@@ -95,4 +95,4 @@ namespace Metasia.Editor.Tests.Models.Projects
             Assert.That(timelineFile.Timeline, Is.EqualTo(newTimeline));
         }
     }
-} 
+}

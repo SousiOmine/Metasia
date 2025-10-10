@@ -9,8 +9,8 @@ using Metasia.Core.Sounds;
 
 namespace Metasia.Editor.Services.Audio
 {
-	public class AudioPlaybackService : IAudioPlaybackService
-	{
+    public class AudioPlaybackService : IAudioPlaybackService
+    {
         public bool IsPlaying { get; private set; }
 
         public long CurrentSample { get; private set; }
@@ -23,26 +23,26 @@ namespace Metasia.Editor.Services.Audio
             this.audioService = audioService;
         }
 
-		public void Play(TimelineObject timeline, ProjectInfo projectInfo, long startSample, double speed, int samplingRate, int audioChannels)
-		{
+        public void Play(TimelineObject timeline, ProjectInfo projectInfo, long startSample, double speed, int samplingRate, int audioChannels)
+        {
             if (IsPlaying) return;
-            
-			IsPlaying = true;
+
+            IsPlaying = true;
             audioService.ClearQueue();
             cancellationTokenSource = new CancellationTokenSource();
             Task.Run(() => AudioGenerationLoopAsync(timeline, projectInfo, startSample, speed, samplingRate, audioChannels, cancellationTokenSource.Token));
-		}
-		public void Pause()
-		{
+        }
+        public void Pause()
+        {
             if (!IsPlaying) return;
 
-			IsPlaying = false;
+            IsPlaying = false;
             cancellationTokenSource?.Cancel();
             cancellationTokenSource?.Dispose();
             //cancellationTokenSource = null;
 
             audioService.ClearQueue();
-		}
+        }
 
         private async Task AudioGenerationLoopAsync(TimelineObject timeline, ProjectInfo projectInfo, long startSample, double speed, int samplingRate, int audioChannels, CancellationToken cancelToken)
         {
@@ -97,5 +97,5 @@ namespace Metasia.Editor.Services.Audio
                 IsPlaying = false;
             }
         }
-	}
+    }
 }

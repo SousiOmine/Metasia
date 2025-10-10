@@ -140,4 +140,4 @@ namespace Metasia.Editor.Tests.Models.FileSystem
             Assert.That(fileEntity.Path, Does.Contain("subdir"));
         }
     }
-} 
+}

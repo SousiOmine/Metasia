@@ -85,11 +85,11 @@ namespace Metasia.Core.Render
                 // LogicalSize を基準に、最終的な描画矩形（サイズと位置）を計算
                 float finalWidth = node.LogicalSize.Width * totalScaleX;
                 float finalHeight = node.LogicalSize.Height * totalScaleY;
-                
+
                 var canvasSize = canvas.DeviceClipBounds;
                 float finalX = (node.Transform.Position.X * renderScaleWidth) + (canvasSize.Width / 2f) - (finalWidth / 2f);
                 float finalY = (-node.Transform.Position.Y * renderScaleHeight) + (canvasSize.Height / 2f) - (finalHeight / 2f);
-                
+
                 var destRect = SKRect.Create(finalX, finalY, finalWidth, finalHeight);
 
                 // Transformの回転と不透明度を適用

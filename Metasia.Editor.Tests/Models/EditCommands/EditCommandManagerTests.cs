@@ -243,4 +243,4 @@ namespace Metasia.Editor.Tests.Models.EditCommands
             Assert.That(_manager.CanRedo, Is.False);
         }
     }
-} 
+}

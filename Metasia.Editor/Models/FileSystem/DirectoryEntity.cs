@@ -22,7 +22,7 @@ namespace Metasia.Editor.Models.FileSystem
                 throw new DirectoryNotFoundException(path + "が見つかりません DirectoryEntity");
             }
         }
-        
+
         public IEnumerable<IResourceEntity> GetSubordinates()
         {
             string[] directories = Directory.GetDirectories(Path, "*");
@@ -38,7 +38,7 @@ namespace Metasia.Editor.Models.FileSystem
             {
                 filesCollection.Add(new FileEntity(file));
             }
-            
+
             return filesCollection;
         }
     }

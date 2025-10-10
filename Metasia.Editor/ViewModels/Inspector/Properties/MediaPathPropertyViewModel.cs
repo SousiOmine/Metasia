@@ -18,13 +18,14 @@ public class MediaPathPropertyViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _propertyDisplayName, value);
     }
 
-    public string FileName{
+    public string FileName
+    {
         get => _fileName;
         set => this.RaiseAndSetIfChanged(ref _fileName, value);
     }
 
     public ICommand OpenFileCommand { get; }
-    
+
     private string _propertyDisplayName;
     private string _fileName;
 
@@ -45,7 +46,7 @@ public class MediaPathPropertyViewModel : ViewModelBase
         ArgumentNullException.ThrowIfNull(editCommandManager);
         ArgumentNullException.ThrowIfNull(fileDialogService);
         ArgumentNullException.ThrowIfNull(projectState);
-        
+
         _propertyDisplayName = propertyIdentifier;
         _target = target;
         _editCommandManager = editCommandManager;
@@ -74,6 +75,6 @@ public class MediaPathPropertyViewModel : ViewModelBase
         var mediaPath = MediaPath.CreateFromPath(directory, fileName, "", PathType.Absolute);
 
         _editCommandManager.Execute(new MediaPathChangeCommand(_target, mediaPath));
-        
+
     }
 }

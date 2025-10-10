@@ -25,6 +25,6 @@ namespace Metasia.Core.Sounds
             Format = format;
             Samples = samples;
         }
-        
+
     }
 }

@@ -27,170 +27,170 @@ namespace Metasia.Editor.Views;
 
 public partial class PlayerView : UserControl, IDisposable
 {
-	private PlayerViewModel? VM
-	{
-		get { return this.DataContext as PlayerViewModel; }
-	}
+    private PlayerViewModel? VM
+    {
+        get { return this.DataContext as PlayerViewModel; }
+    }
 
-	private MediaAccessorRouter mediaAccessorRouter;
-	private readonly SemaphoreSlim _renderSemaphore = new SemaphoreSlim(1, 1);
-	private CancellationTokenSource _renderCts = new CancellationTokenSource();
-	private readonly object _bitmapLock = new object();
-	private SKBitmap? _latestBitmap;
+    private MediaAccessorRouter mediaAccessorRouter;
+    private readonly SemaphoreSlim _renderSemaphore = new SemaphoreSlim(1, 1);
+    private CancellationTokenSource _renderCts = new CancellationTokenSource();
+    private readonly object _bitmapLock = new object();
+    private SKBitmap? _latestBitmap;
 
-	// フレームレート調整用のフィールド
-	private int _pendingFrameRequest = -1;
-	private bool _isRendering = false;
+    // フレームレート調整用のフィールド
+    private int _pendingFrameRequest = -1;
+    private bool _isRendering = false;
 
-	public PlayerView()
+    public PlayerView()
     {
         InitializeComponent();
-		
-		this.DataContextChanged += (s, e) =>
-		{
-			try
-			{
-				var playbackState = App.Current?.Services?.GetRequiredService<IPlaybackState>();
-				if (playbackState is not null)
-				{
-					playbackState.ReRenderingRequested += RequestRender;
-					playbackState.PlaybackFrameChanged += RequestRender;
-				}
-				mediaAccessorRouter = App.Current?.Services?.GetRequiredService<MediaAccessorRouter>();
-			}
-			catch (InvalidOperationException ex)
-			{
-				Debug.WriteLine($"Failed to resolve IPlaybackState: {ex.Message}");
-			}
 
-			RequestRender();
-		};    
-	}
-	
-	private void SKCanvasView_PaintSurface(object? sender, Avalonia.Labs.Controls.SKPaintSurfaceEventArgs e)
-	{
-		SKSurface surface = e.Surface;
-		SKCanvas canvas = surface.Canvas;
-		canvas.Clear(SKColors.Green);
+        this.DataContextChanged += (s, e) =>
+        {
+            try
+            {
+                var playbackState = App.Current?.Services?.GetRequiredService<IPlaybackState>();
+                if (playbackState is not null)
+                {
+                    playbackState.ReRenderingRequested += RequestRender;
+                    playbackState.PlaybackFrameChanged += RequestRender;
+                }
+                mediaAccessorRouter = App.Current?.Services?.GetRequiredService<MediaAccessorRouter>();
+            }
+            catch (InvalidOperationException ex)
+            {
+                Debug.WriteLine($"Failed to resolve IPlaybackState: {ex.Message}");
+            }
 
-		lock (_bitmapLock)
-		{
-			if (_latestBitmap is not null)
-			{
-				canvas.DrawBitmap(_latestBitmap, 0, 0);
-			}
-		}
+            RequestRender();
+        };
+    }
 
-		if (_latestBitmap is null)
-		{
-			RequestRender();
-		}
-	}
+    private void SKCanvasView_PaintSurface(object? sender, Avalonia.Labs.Controls.SKPaintSurfaceEventArgs e)
+    {
+        SKSurface surface = e.Surface;
+        SKCanvas canvas = surface.Canvas;
+        canvas.Clear(SKColors.Green);
 
-	private void RequestRender()
-	{
-		if (VM is null) return;
+        lock (_bitmapLock)
+        {
+            if (_latestBitmap is not null)
+            {
+                canvas.DrawBitmap(_latestBitmap, 0, 0);
+            }
+        }
 
-		var currentFrame = VM.Frame;
+        if (_latestBitmap is null)
+        {
+            RequestRender();
+        }
+    }
 
-		// レンダリング中の場合は次のフレーム要求を記録
-		if (_isRendering)
-		{
-			_pendingFrameRequest = currentFrame;
-			return;
-		}
+    private void RequestRender()
+    {
+        if (VM is null) return;
 
-		_ = HandlePaintAsync(currentFrame);
-	}
+        var currentFrame = VM.Frame;
 
-	private async Task HandlePaintAsync(int requestedFrame)
-	{
-		if (VM is null || VM.TargetTimeline is null || VM.TargetProjectInfo is null || mediaAccessorRouter is null) return;
+        // レンダリング中の場合は次のフレーム要求を記録
+        if (_isRendering)
+        {
+            _pendingFrameRequest = currentFrame;
+            return;
+        }
 
-		_isRendering = true;
+        _ = HandlePaintAsync(currentFrame);
+    }
 
-		try
-		{
-			await _renderSemaphore.WaitAsync();
+    private async Task HandlePaintAsync(int requestedFrame)
+    {
+        if (VM is null || VM.TargetTimeline is null || VM.TargetProjectInfo is null || mediaAccessorRouter is null) return;
 
-			try
-			{
-				// 最新のフレーム要求を取得
-				if (_pendingFrameRequest != -1)
-				{
-					requestedFrame = _pendingFrameRequest;
-					_pendingFrameRequest = -1;
-				}
+        _isRendering = true;
 
-				// 現在のフレームが変わっていなければレンダリング
-				if (requestedFrame == VM.Frame)
-				{
-					var compositor = new Compositor();
-					var projectInfo = VM.TargetProjectInfo;
+        try
+        {
+            await _renderSemaphore.WaitAsync();
 
-					var bitmap = await compositor.RenderFrameAsync(
-						VM.TargetTimeline,
-						requestedFrame,
-						new SKSize(384, 216),
-						new SKSize(3840, 2160),
-						mediaAccessorRouter,
-						mediaAccessorRouter,
-						projectInfo);
+            try
+            {
+                // 最新のフレーム要求を取得
+                if (_pendingFrameRequest != -1)
+                {
+                    requestedFrame = _pendingFrameRequest;
+                    _pendingFrameRequest = -1;
+                }
 
-					// フレームが変わっていなければビットマップを更新
-					if (requestedFrame == VM.Frame)
-					{
-						lock (_bitmapLock)
-						{
-							_latestBitmap?.Dispose();
-							_latestBitmap = bitmap;
-						}
+                // 現在のフレームが変わっていなければレンダリング
+                if (requestedFrame == VM.Frame)
+                {
+                    var compositor = new Compositor();
+                    var projectInfo = VM.TargetProjectInfo;
 
-						Dispatcher.UIThread.Post(() =>
-						{
-							if (requestedFrame == VM.Frame)
-							{
-								skiaCanvas.InvalidateSurface();
-							}
-						});
-					}
-					else
-					{
-						bitmap?.Dispose();
-					}
-				}
+                    var bitmap = await compositor.RenderFrameAsync(
+                        VM.TargetTimeline,
+                        requestedFrame,
+                        new SKSize(384, 216),
+                        new SKSize(3840, 2160),
+                        mediaAccessorRouter,
+                        mediaAccessorRouter,
+                        projectInfo);
 
-				// レンダリング中に新しい要求があれば再帰的に処理
-				if (_pendingFrameRequest != -1)
-				{
-					_ = HandlePaintAsync(_pendingFrameRequest);
-					_pendingFrameRequest = -1;
-				}
-			}
-			finally
-			{
-				_renderSemaphore.Release();
-			}
-		}
-		catch (Exception ex)
-		{
-			Debug.WriteLine($"Error during rendering: {ex.Message}");
-		}
-		finally
-		{
-			_isRendering = false;
-		}
-	}
+                    // フレームが変わっていなければビットマップを更新
+                    if (requestedFrame == VM.Frame)
+                    {
+                        lock (_bitmapLock)
+                        {
+                            _latestBitmap?.Dispose();
+                            _latestBitmap = bitmap;
+                        }
 
-	public void Dispose()
-	{
-		_renderCts?.Cancel();
-		_renderCts?.Dispose();
-		_renderSemaphore?.Dispose();
-		lock (_bitmapLock)
-		{
-			_latestBitmap?.Dispose();
-			_latestBitmap = null;
-		}
-	}
+                        Dispatcher.UIThread.Post(() =>
+                        {
+                            if (requestedFrame == VM.Frame)
+                            {
+                                skiaCanvas.InvalidateSurface();
+                            }
+                        });
+                    }
+                    else
+                    {
+                        bitmap?.Dispose();
+                    }
+                }
+
+                // レンダリング中に新しい要求があれば再帰的に処理
+                if (_pendingFrameRequest != -1)
+                {
+                    _ = HandlePaintAsync(_pendingFrameRequest);
+                    _pendingFrameRequest = -1;
+                }
+            }
+            finally
+            {
+                _renderSemaphore.Release();
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error during rendering: {ex.Message}");
+        }
+        finally
+        {
+            _isRendering = false;
+        }
+    }
+
+    public void Dispose()
+    {
+        _renderCts?.Cancel();
+        _renderCts?.Dispose();
+        _renderSemaphore?.Dispose();
+        lock (_bitmapLock)
+        {
+            _latestBitmap?.Dispose();
+            _latestBitmap = null;
+        }
+    }
 }

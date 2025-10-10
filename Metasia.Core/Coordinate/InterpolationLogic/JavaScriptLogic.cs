@@ -5,18 +5,18 @@ namespace Metasia.Core.Coordinate.InterpolationLogic;
 public class JavaScriptLogic : InterpolationLogicBase
 {
     public override string Identify { get; } = "JavaScriptLogic";
-    
+
     public string JSLogic = """
 if(StartValue == EndValue) return StartValue;
 StartValue + (EndValue - StartValue) * (NowFrame - StartFrame) / (EndFrame - StartFrame)
 """;
-    
+
     private Engine jsEngine = new Engine(opts => opts
         .MaxStatements(10000)
         .LimitRecursion(10000)
         .TimeoutInterval(TimeSpan.FromMilliseconds(100))
     );
-    
+
     public override double Calculate(double startValue, double endValue, int nowFrame, int startFrame, int endFrame)
     {
         jsEngine.SetValue("StartValue", startValue)
@@ -29,12 +29,12 @@ StartValue + (EndValue - StartValue) * (NowFrame - StartFrame) / (EndFrame - Sta
             double midValue = jsEngine.Evaluate(JSLogic).AsNumber();
             return midValue;
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             throw new Exception("JavaScriptLogic Calculate Error", e);
         }
     }
-    
+
     /// <summary>
     /// 自身をハードコピーします。
     /// </summary>

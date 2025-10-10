@@ -17,22 +17,22 @@ namespace Metasia.Editor.Views.Behaviors
     {
         public static readonly StyledProperty<ICommand?> DropCommandProperty =
             AvaloniaProperty.Register<LayerClipDropBehavior, ICommand?>(nameof(DropCommand));
-        
+
         public static readonly StyledProperty<double> FramePerDIPProperty =
             AvaloniaProperty.Register<LayerClipDropBehavior, double>(nameof(FramePerDIP), 1.0);
-        
+
         public ICommand? DropCommand
         {
             get => GetValue(DropCommandProperty);
             set => SetValue(DropCommandProperty, value);
         }
-        
+
         public double FramePerDIP
         {
             get => GetValue(FramePerDIPProperty);
             set => SetValue(FramePerDIPProperty, value);
         }
-        
+
         protected override void OnAttached()
         {
             base.OnAttached();
@@ -44,7 +44,7 @@ namespace Metasia.Editor.Views.Behaviors
                 AssociatedObject.AddHandler(DragDrop.DropEvent, OnDrop);
             }
         }
-        
+
         protected override void OnDetaching()
         {
             base.OnDetaching();
@@ -55,7 +55,7 @@ namespace Metasia.Editor.Views.Behaviors
                 AssociatedObject.RemoveHandler(DragDrop.DropEvent, OnDrop);
             }
         }
-        
+
         private void OnDragEnter(object? sender, DragEventArgs e)
         {
             var dropInfo = CreateDropTargetInfo(e);
@@ -69,7 +69,7 @@ namespace Metasia.Editor.Views.Behaviors
             }
             e.Handled = true;
         }
-        
+
         private void OnDragOver(object? sender, DragEventArgs e)
         {
             var dropInfo = CreateDropTargetInfo(e);
@@ -83,7 +83,7 @@ namespace Metasia.Editor.Views.Behaviors
             }
             e.Handled = true;
         }
-        
+
         private void OnDrop(object? sender, DragEventArgs e)
         {
             var dropInfo = CreateDropTargetInfo(e);
@@ -93,7 +93,7 @@ namespace Metasia.Editor.Views.Behaviors
             }
             e.Handled = true;
         }
-        
+
         private ClipsDropTargetContext? CreateDropTargetInfo(DragEventArgs e)
         {
             if (e.Data.Get(DragDropFormats.ClipsMove) is ClipsMoveDragData clipsMoveDragData && AssociatedObject is not null)
@@ -114,6 +114,6 @@ namespace Metasia.Editor.Views.Behaviors
             return (int)(positionX / FramePerDIP);
         }
 
-        
+
     }
-} 
+}

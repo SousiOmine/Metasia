@@ -6,7 +6,7 @@ namespace Metasia.Editor.Models.FileSystem
     public interface IResourceEntity
     {
         public string Path { get; }
-        
+
         public string? Name { get; }
     }
 }

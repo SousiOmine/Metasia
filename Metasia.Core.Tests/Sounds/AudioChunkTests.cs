@@ -78,7 +78,7 @@ namespace Metasia.Core.Tests.Sounds
             var mockFormat = new Mock<IAudioFormat>();
             mockFormat.Setup(f => f.SampleRate).Returns(44100);
             mockFormat.Setup(f => f.ChannelCount).Returns(0);
-            
+
             var samples = new double[] { 0.1, 0.2 };
 
             // Act & Assert

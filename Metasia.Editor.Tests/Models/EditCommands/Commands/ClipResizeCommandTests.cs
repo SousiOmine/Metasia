@@ -114,4 +114,4 @@ namespace Metasia.Editor.Tests.Models.EditCommands.Commands
             Assert.That(_targetObject.EndFrame, Is.EqualTo(30));
         }
     }
-} 
+}

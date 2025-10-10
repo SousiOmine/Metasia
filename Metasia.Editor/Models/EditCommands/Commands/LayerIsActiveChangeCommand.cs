@@ -2,10 +2,10 @@ using Metasia.Core.Objects;
 
 namespace Metasia.Editor.Models.EditCommands.Commands;
 
-public class LayerIsActiveChangeCommand: IEditCommand
+public class LayerIsActiveChangeCommand : IEditCommand
 {
     public string Description { get; } = string.Empty;
-    
+
     private LayerObject _targetLayerObject;
     private bool _afterActive;
     private bool _beforeActive;

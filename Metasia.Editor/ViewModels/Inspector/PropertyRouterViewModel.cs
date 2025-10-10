@@ -52,7 +52,8 @@ public class PropertyRouterViewModel : ViewModelBase
         get => _doublePropertyVm;
         set => this.RaiseAndSetIfChanged(ref _doublePropertyVm, value);
     }
-    public string PlaceholderText { 
+    public string PlaceholderText
+    {
         get => _placeholderText;
         set => this.RaiseAndSetIfChanged(ref _placeholderText, value);
     }
@@ -102,7 +103,7 @@ public class PropertyRouterViewModel : ViewModelBase
 
 
         RestructureProperty();
-        
+
     }
 
     private void RestructureProperty()
@@ -165,5 +166,5 @@ public class PropertyRouterViewModel : ViewModelBase
     {
         RestructureProperty();
     }
-    
+
 }

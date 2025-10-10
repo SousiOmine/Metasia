@@ -193,4 +193,4 @@ namespace Metasia.Core.Tests.Objects
             Assert.That(secondText.TypefaceName, Is.Not.EqualTo("New Font"));
         }
     }
-} 
+}

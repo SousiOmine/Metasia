@@ -30,7 +30,7 @@ namespace Metasia.Core.Tests.Objects
             Assert.That(obj.Rotation, Is.Not.Null);
             Assert.That(obj.Volume, Is.EqualTo(100));
         }
-        
+
         [Test]
         public void CoordinateParameters_HaveCorrectDefaultValues()
         {
@@ -144,7 +144,7 @@ namespace Metasia.Core.Tests.Objects
             Assert.That(firstHello.Scale.Get(0), Is.EqualTo(150));
             Assert.That(firstHello.Alpha.Get(0), Is.EqualTo(25));
             Assert.That(firstHello.Rotation.Get(0), Is.EqualTo(45));
-            
+
             Assert.That(secondHello.X.Get(0), Is.EqualTo(100));
             Assert.That(secondHello.Y.Get(0), Is.EqualTo(200));
             Assert.That(secondHello.Scale.Get(0), Is.EqualTo(150));
@@ -208,4 +208,4 @@ namespace Metasia.Core.Tests.Objects
             Assert.That(secondHello.AudioEffects.Count, Is.GreaterThan(0));
         }
     }
-} 
+}

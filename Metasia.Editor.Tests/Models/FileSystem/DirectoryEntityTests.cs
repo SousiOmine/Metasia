@@ -82,13 +82,13 @@ namespace Metasia.Editor.Tests.Models.FileSystem
 
             // Assert
             Assert.That(subordinates.Count, Is.EqualTo(4));
-            
+
             var directories = subordinates.OfType<DirectoryEntity>().ToList();
             var files = subordinates.OfType<FileEntity>().ToList();
-            
+
             Assert.That(directories.Count, Is.EqualTo(2));
             Assert.That(files.Count, Is.EqualTo(2));
-            
+
             Assert.That(directories.Any(d => d.Name == "subdir1"), Is.True);
             Assert.That(directories.Any(d => d.Name == "subdir2"), Is.True);
             Assert.That(files.Any(f => f.Name == "file1.txt"), Is.True);
@@ -101,10 +101,10 @@ namespace Metasia.Editor.Tests.Models.FileSystem
             // Arrange
             string subDir = Path.Combine(_testDirectory, "subdir");
             Directory.CreateDirectory(subDir);
-            
+
             string nestedDir = Path.Combine(subDir, "nested");
             Directory.CreateDirectory(nestedDir);
-            
+
             string nestedFile = Path.Combine(subDir, "nested.txt");
             File.WriteAllText(nestedFile, "nested content");
 
@@ -154,7 +154,7 @@ namespace Metasia.Editor.Tests.Models.FileSystem
             try
             {
                 string dirName = "MetasiaDirectoryEntityTests";
-                
+
                 // Act
                 var dirEntity = new DirectoryEntity(dirName);
 
@@ -168,4 +168,4 @@ namespace Metasia.Editor.Tests.Models.FileSystem
             }
         }
     }
-} 
+}

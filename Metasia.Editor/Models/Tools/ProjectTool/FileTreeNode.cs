@@ -6,10 +6,10 @@ namespace Metasia.Editor.Models.Tools.ProjectTool
     public class FileTreeNode
     {
         public string? Title { get; }
-        
+
         public IResourceEntity? ResourceEntity { get; }
         public ObservableCollection<FileTreeNode>? SubNodes { get; }
-        
+
         public FileTreeNode(string? Title)
         {
             this.Title = Title;
@@ -20,7 +20,7 @@ namespace Metasia.Editor.Models.Tools.ProjectTool
             this.Title = Title;
             SubNodes = subNodes;
         }
-        
+
         public FileTreeNode(IResourceEntity resourceEntity)
         {
             this.ResourceEntity = resourceEntity;

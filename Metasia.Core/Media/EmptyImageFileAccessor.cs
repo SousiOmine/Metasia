@@ -6,7 +6,8 @@ public class EmptyImageFileAccessor : IImageFileAccessor
 {
     public async Task<ImageFileAccessorResult> GetBitmapAsync(MediaPath path)
     {
-        return await Task.FromResult(new ImageFileAccessorResult(){
+        return await Task.FromResult(new ImageFileAccessorResult()
+        {
             IsSuccessful = false,
             Bitmap = null,
         });

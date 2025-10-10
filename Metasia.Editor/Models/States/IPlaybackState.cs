@@ -28,7 +28,7 @@ public interface IPlaybackState : IDisposable
     /// <summary>
     /// 再生を開始する
     /// </summary>
-    
+
     void Play();
 
     /// <summary>

@@ -22,30 +22,30 @@ namespace Metasia.Editor.Models.FileSystem
                 case ".jpeg":
                     FileType = FileTypes.Image;
                     break;
-                
+
                 case ".mp3":
                 case ".wav":
                     FileType = FileTypes.Audio;
                     break;
-                
+
                 case ".avi":
                 case ".mp4":
                     FileType = FileTypes.Video;
                     break;
-                
+
                 case ".txt":
                     FileType = FileTypes.Text;
                     break;
-                
+
                 case ".mttl":
                     FileType = FileTypes.MetasiaTimeline;
                     break;
-                
+
                 case ".mtpj":
                     FileType = FileTypes.MetasiaProjectConfig;
                     break;
-                
-                
+
+
                 default:
                     FileType = FileTypes.Other;
                     break;

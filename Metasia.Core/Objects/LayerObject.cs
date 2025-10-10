@@ -136,7 +136,7 @@ namespace Metasia.Core.Objects
 
                 long childStartPosition = overlapStartSample - objStartSample;
                 long overlapLength = overlapEndSample - overlapStartSample;
-                
+
                 // 子オブジェクトの長さを計算
                 double childDuration = (clipObject.EndFrame - clipObject.StartFrame) / framerate;
                 var chunk = obj.GetAudioChunk(new GetAudioContext(context.Format, childStartPosition, overlapLength, context.ProjectFrameRate, childDuration));
@@ -174,17 +174,17 @@ namespace Metasia.Core.Objects
         public override (ClipObject firstClip, ClipObject secondClip) SplitAtFrame(int splitFrame)
         {
             var result = base.SplitAtFrame(splitFrame);
-            
+
             var firstLayer = (LayerObject)result.firstClip;
             var secondLayer = (LayerObject)result.secondClip;
-            
+
             firstLayer.Id = Id + "_part1";
             secondLayer.Id = Id + "_part2";
-            
+
             // オブジェクトを分割フレームに基づいて振り分ける
             firstLayer.Objects = new ObservableCollection<ClipObject>();
             secondLayer.Objects = new ObservableCollection<ClipObject>();
-            
+
             foreach (var obj in Objects)
             {
                 if (obj.EndFrame < splitFrame)
@@ -203,7 +203,7 @@ namespace Metasia.Core.Objects
                     secondLayer.Objects.Add(splitResult.secondClip);
                 }
             }
-            
+
             return (firstLayer, secondLayer);
         }
 

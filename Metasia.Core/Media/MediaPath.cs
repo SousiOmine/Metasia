@@ -85,11 +85,11 @@ namespace Metasia.Core.Media
         public static string GetFullPath(MediaPath mediaPath, string? projectDir)
         {
             string separatorApplied = mediaPath.Directory.Replace('/', Path.DirectorySeparatorChar);
-            if(mediaPath.PathType == PathType.Absolute)
+            if (mediaPath.PathType == PathType.Absolute)
             {
                 return Path.Combine(separatorApplied, mediaPath.FileName);
             }
-            else if(mediaPath.PathType == PathType.ProjectRelative)
+            else if (mediaPath.PathType == PathType.ProjectRelative)
             {
                 return Path.Combine(projectDir ?? "", separatorApplied, mediaPath.FileName);
             }

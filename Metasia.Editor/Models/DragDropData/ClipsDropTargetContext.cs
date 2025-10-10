@@ -14,12 +14,12 @@ namespace Metasia.Editor.Models.DragDropData
         /// ドラッグイベント呼び出し元のクリップを掴むマウスのクリップから見た相対フレーム
         /// </summary>
         public int DraggingFrameOffsetX { get; set; }
-        
+
         /// <summary>
         /// レイヤーキャンバスにおけるドロップ位置のフレーム
         /// </summary>
         public int DropPositionFrame { get; set; }
-        
+
         /// <summary>
         /// ドロップ可能かどうか
         /// </summary>
@@ -41,4 +41,4 @@ namespace Metasia.Editor.Models.DragDropData
             CanDrop = canDrop;
         }
     }
-} 
+}

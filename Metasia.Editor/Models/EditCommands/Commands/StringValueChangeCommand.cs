@@ -19,7 +19,7 @@ public class StringValueChangeCommand : IEditCommand
 
     public StringValueChangeCommand(IEnumerable<StringValueChangeInfo> changeInfos)
     {
-        if(!changeInfos.Any())
+        if (!changeInfos.Any())
         {
             throw new ArgumentException("changeInfos is empty");
         }
@@ -28,7 +28,7 @@ public class StringValueChangeCommand : IEditCommand
 
     public void Execute()
     {
-        foreach(var changeInfo in _changeInfos)
+        foreach (var changeInfo in _changeInfos)
         {
             var property = ResolveProperty(changeInfo.targetClip, changeInfo.propertyIdentifier);
             if (property is not null)
@@ -40,7 +40,7 @@ public class StringValueChangeCommand : IEditCommand
 
     public void Undo()
     {
-        foreach(var changeInfo in _changeInfos)
+        foreach (var changeInfo in _changeInfos)
         {
             var property = ResolveProperty(changeInfo.targetClip, changeInfo.propertyIdentifier);
             if (property is not null)

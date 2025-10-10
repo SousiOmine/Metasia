@@ -9,7 +9,7 @@ public class StringPropertyViewModelFactory : IStringPropertyViewModelFactory
     private readonly ISelectionState selectionState;
     private readonly IEditCommandManager editCommandManager;
     private readonly IProjectState projectState;
-    
+
     public StringPropertyViewModelFactory(ISelectionState selectionState, IEditCommandManager editCommandManager, IProjectState projectState)
     {
         ArgumentNullException.ThrowIfNull(selectionState);
@@ -19,7 +19,7 @@ public class StringPropertyViewModelFactory : IStringPropertyViewModelFactory
         this.editCommandManager = editCommandManager;
         this.projectState = projectState;
     }
-    
+
     public StringPropertyViewModel Create(string propertyIdentifier, string target)
     {
         ArgumentNullException.ThrowIfNull(propertyIdentifier);

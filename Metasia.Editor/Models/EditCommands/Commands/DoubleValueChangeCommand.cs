@@ -19,7 +19,7 @@ public class DoubleValueChangeCommand : IEditCommand
 
     public DoubleValueChangeCommand(IEnumerable<DoubleValueChangeInfo> changeInfos)
     {
-        if(!changeInfos.Any())
+        if (!changeInfos.Any())
         {
             throw new ArgumentException("changeInfos is empty");
         }
@@ -28,7 +28,7 @@ public class DoubleValueChangeCommand : IEditCommand
 
     public void Execute()
     {
-        foreach(var changeInfo in _changeInfos)
+        foreach (var changeInfo in _changeInfos)
         {
             var property = ResolveProperty(changeInfo.targetClip, changeInfo.propertyIdentifier);
             if (property is not null)
@@ -42,7 +42,7 @@ public class DoubleValueChangeCommand : IEditCommand
 
     public void Undo()
     {
-        foreach(var changeInfo in _changeInfos)
+        foreach (var changeInfo in _changeInfos)
         {
             var property = ResolveProperty(changeInfo.targetClip, changeInfo.propertyIdentifier);
             if (property is not null)

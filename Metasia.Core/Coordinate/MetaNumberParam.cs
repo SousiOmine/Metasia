@@ -38,7 +38,7 @@ public class MetaNumberParam<T> where T : struct, INumber<T>
 
     public MetaNumberParam(T initialValue)
     {
-        _params = [new CoordPoint(){Value = double.CreateChecked(initialValue)}];
+        _params = [new CoordPoint() { Value = double.CreateChecked(initialValue) }];
     }
 
     public T Get(int frame)
@@ -78,7 +78,7 @@ public class MetaNumberParam<T> where T : struct, INumber<T>
 
     public void SetSinglePoint(T value)
     {
-        _params = [new CoordPoint(){Value = double.CreateChecked(value)}];
+        _params = [new CoordPoint() { Value = double.CreateChecked(value) }];
     }
 
     /// <summary>
@@ -96,10 +96,10 @@ public class MetaNumberParam<T> where T : struct, INumber<T>
     {
         var firstHalf = new MetaNumberParam<T>();
         var secondHalf = new MetaNumberParam<T>();
-        
+
         // 分割フレームの値を計算
         T splitValue = Get(splitFrame);
-        
+
         // 前半部分：分割フレームより前のポイントをコピー
         foreach (var point in _params.Where(p => p.Frame < splitFrame))
         {
@@ -111,7 +111,7 @@ public class MetaNumberParam<T> where T : struct, INumber<T>
             };
             firstHalf._params.Add(newPoint);
         }
-        
+
         // 後半部分：分割フレーム以降のポイントをコピー（フレームを調整）
         foreach (var point in _params.Where(p => p.Frame >= splitFrame))
         {
@@ -123,7 +123,7 @@ public class MetaNumberParam<T> where T : struct, INumber<T>
             };
             secondHalf._params.Add(newPoint);
         }
-        
+
         // 境界ポイントを追加（既に分割フレーム位置にポイントがある場合は追加しない）
         // 境界ポイントには、分割フレーム位置にあるポイントのJSロジックを使用する
         CoordPoint boundaryPointForFirstHalf = new CoordPoint
@@ -131,13 +131,13 @@ public class MetaNumberParam<T> where T : struct, INumber<T>
             Frame = splitFrame,
             Value = double.CreateChecked(splitValue)
         };
-        
+
         CoordPoint boundaryPointForSecondHalf = new CoordPoint
         {
             Frame = 0,
             Value = double.CreateChecked(splitValue)
         };
-        
+
         // 分割フレーム位置にあるポイントを探して、そのJSロジックを境界ポイントに設定
         var splitFramePoint = _params.FirstOrDefault(p => p.Frame == splitFrame);
         if (splitFramePoint != null)
@@ -155,7 +155,7 @@ public class MetaNumberParam<T> where T : struct, INumber<T>
                 boundaryPointForSecondHalf.InterpolationLogic = nearestPoint.InterpolationLogic;
             }
         }
-        
+
         if (firstHalf._params.Count == 0 || firstHalf._params.Last().Frame < splitFrame - 1)
         {
             // 前半の最終フレームをsplitFrame-1に設定
@@ -164,16 +164,16 @@ public class MetaNumberParam<T> where T : struct, INumber<T>
             boundaryPointForFirstHalf.Value = double.CreateChecked(Get(splitFrame - 1));
             firstHalf._params.Add(boundaryPointForFirstHalf);
         }
-        
+
         if (secondHalf._params.Count == 0 || secondHalf._params[0].Frame > 0)
         {
             secondHalf._params.Insert(0, boundaryPointForSecondHalf);
         }
-        
+
         return (firstHalf, secondHalf);
     }
 
-    
+
     protected T CalculateMidValue(int frame)
     {
         Sort();

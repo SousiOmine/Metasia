@@ -15,15 +15,15 @@ public class MediaAccessorRouter : IImageFileAccessor, IVideoFileAccessor
     {
         Accessors.Add(new StdInput());
     }
-    
+
     public async Task<ImageFileAccessorResult> GetBitmapAsync(MediaPath path)
     {
-        foreach(var accessor in Accessors)
+        foreach (var accessor in Accessors)
         {
-            if(accessor is IImageFileAccessor imageAccessor)
+            if (accessor is IImageFileAccessor imageAccessor)
             {
                 var result = await imageAccessor.GetBitmapAsync(path);
-                if(result.IsSuccessful)
+                if (result.IsSuccessful)
                 {
                     return result;
                 }
@@ -34,12 +34,12 @@ public class MediaAccessorRouter : IImageFileAccessor, IVideoFileAccessor
 
     public async Task<VideoFileAccessorResult> GetBitmapAsync(MediaPath path, TimeSpan time, string? projectDir)
     {
-        foreach(var accessor in Accessors)
+        foreach (var accessor in Accessors)
         {
-            if(accessor is IVideoFileAccessor videoAccessor)
+            if (accessor is IVideoFileAccessor videoAccessor)
             {
                 var result = await videoAccessor.GetBitmapAsync(path, time, projectDir);
-                if(result.IsSuccessful)
+                if (result.IsSuccessful)
                 {
                     return result;
                 }
@@ -50,12 +50,12 @@ public class MediaAccessorRouter : IImageFileAccessor, IVideoFileAccessor
 
     public async Task<VideoFileAccessorResult> GetBitmapAsync(MediaPath path, int frame, string? projectDir)
     {
-        foreach(var accessor in Accessors)
+        foreach (var accessor in Accessors)
         {
-            if(accessor is IVideoFileAccessor videoAccessor)
+            if (accessor is IVideoFileAccessor videoAccessor)
             {
                 var result = await videoAccessor.GetBitmapAsync(path, frame, projectDir);
-                if(result.IsSuccessful)
+                if (result.IsSuccessful)
                 {
                     return result;
                 }

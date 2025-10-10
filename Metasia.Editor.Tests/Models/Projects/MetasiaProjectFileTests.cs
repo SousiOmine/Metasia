@@ -112,4 +112,4 @@ namespace Metasia.Editor.Tests.Models.Projects
             Assert.That(resolution.Height, Is.EqualTo(1080.25f));
         }
     }
-} 
+}

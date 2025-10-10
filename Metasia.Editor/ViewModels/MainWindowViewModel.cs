@@ -32,7 +32,7 @@ namespace Metasia.Editor.ViewModels
 
         private IFileDialogService _fileDialogService;
         private IProjectState _projectState;
-        
+
         public MainWindowViewModel(
             PlayerParentViewModel playerParentVM,
             TimelineParentViewModel timelineParentVM,

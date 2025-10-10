@@ -11,7 +11,7 @@ public class SoundIOService : IAudioService
     private readonly SoundIODevice device;
     private readonly SoundIOOutStream outStream;
     private Action<IntPtr, double>? write_sample;
-    
+
     private readonly ConcurrentQueue<double> soundQueue = new();
 
     public SoundIOService()
@@ -22,11 +22,11 @@ public class SoundIOService : IAudioService
 
         device = soundIo.GetOutputDevice(soundIo.DefaultOutputDeviceIndex);
         if (device is null) throw new InvalidOperationException("出力オーディオデバイスが見つかりませんでした");
-        
+
         outStream = device.CreateOutStream();
         outStream.WriteCallback = (min, max) => write_callback(outStream, min, max);
         outStream.SampleRate = 44100;
-        
+
         if (device.SupportsFormat(SoundIODevice.Float32FE))
         {
             outStream.Format = SoundIODevice.Float32FE;
@@ -51,7 +51,7 @@ public class SoundIOService : IAudioService
         {
             throw new InvalidOperationException("出力可能なフォーマットが見つかりませんでした");
         }
-        
+
         outStream.Open();
         outStream.Start();
     }
@@ -69,9 +69,9 @@ public class SoundIOService : IAudioService
     }
 
     public void ClearQueue()
-	{
-		soundQueue.Clear();
-	}
+    {
+        soundQueue.Clear();
+    }
 
     public long GetQueuedSamplesCount()
     {
@@ -84,15 +84,15 @@ public class SoundIOService : IAudioService
         device.RemoveReference();
         soundIo.Dispose();
     }
-    
+
     //チャンネル数が違う音声を変換する
     private double[] ConvertChannel(double[] pulse, byte before_channel, byte after_channel)
     {
-        if(before_channel == after_channel)
+        if (before_channel == after_channel)
             return pulse;
         throw new InvalidOperationException("チャンネル数の変換は実装されていません");
     }
-    
+
     private void write_callback(SoundIOOutStream outStream, int min, int max)
     {
         if (write_sample is null) throw new InvalidOperationException("write_sample is null");
@@ -105,10 +105,10 @@ public class SoundIOService : IAudioService
         {
             frames_left = 1470;
         }
-			
+
         int frame_count = 0;
 
-        for (;;)
+        for (; ; )
         {
             frame_count = frames_left;
             var results = outStream.BeginWrite(ref frame_count);
@@ -117,14 +117,14 @@ public class SoundIOService : IAudioService
                 break;
 
             SoundIOChannelLayout layout = outStream.Layout;
-            
+
             if (soundQueue.Count > 0)
             {
                 int count = soundQueue.Count;
                 for (int frame = 0; frame < frame_count && frame < count; frame += 1)
                 {
                     double sample = 0;
-						
+
                     for (int channel = 0; channel < layout.ChannelCount; channel += 1)
                     {
                         soundQueue.TryDequeue(out sample);
@@ -138,7 +138,7 @@ public class SoundIOService : IAudioService
             {
                 for (int frame = 0; frame < frame_count; frame += 1)
                 {
-						
+
                     for (int channel = 0; channel < layout.ChannelCount; channel += 1)
                     {
 
@@ -148,7 +148,7 @@ public class SoundIOService : IAudioService
                     }
                 }
             }
-            
+
             outStream.EndWrite();
 
             frames_left -= frame_count;
@@ -156,7 +156,7 @@ public class SoundIOService : IAudioService
                 break;
         }
     }
-    
+
     static unsafe void write_sample_s16ne(IntPtr ptr, double sample)
     {
         short* buf = (short*)ptr;

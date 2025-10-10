@@ -8,7 +8,7 @@ public partial class ClipView : UserControl
     {
         InitializeComponent();
     }
-    
+
     // ClipViewBehaviorからのドラッグ開始通知用メソッド
     public void NotifyDragStarted()
     {

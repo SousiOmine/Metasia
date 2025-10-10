@@ -9,10 +9,10 @@ namespace Metasia.Editor.Models.FileSystem
         Audio,
         Image,
         Text,
-        
+
         MetasiaTimeline,
         MetasiaProjectConfig,
-        
+
         Other,
     }
 }

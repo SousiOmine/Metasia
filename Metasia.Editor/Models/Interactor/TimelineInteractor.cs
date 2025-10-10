@@ -19,7 +19,7 @@ namespace Metasia.Editor.Models.Interactor
             LayerObject? GetLayerByOffset(LayerObject currentLayer, int offset)
             {
                 if (timeline?.Layers is null) return null;
-            
+
                 int currentIndex = timeline.Layers.IndexOf(currentLayer);
                 int newIndex = currentIndex + offset;
 
@@ -30,7 +30,7 @@ namespace Metasia.Editor.Models.Interactor
 
             // クリップの新しい左端位置を計算（ドロップ位置 - クリップ内オフセット）
             int newStartFrame = dropInfo.DropPositionFrame - dropInfo.DraggingFrameOffsetX;
-            
+
             // 元のクリップの開始フレームと比較して移動量を算出
             int originalStartFrame = dropInfo.ReferenceClipVM.TargetObject.StartFrame;
             int moveFrame = newStartFrame - originalStartFrame;
@@ -66,7 +66,7 @@ namespace Metasia.Editor.Models.Interactor
 
                 moveInfos.Add(new ClipMoveInfo(targetObject, sourceLayer, newLayer, targetObject.StartFrame, targetObject.EndFrame, targetObject.StartFrame + moveFrame, targetObject.EndFrame + moveFrame));
             }
-            if(moveInfos.Count > 0)
+            if (moveInfos.Count > 0)
             {
                 return new MoveClipsCommand(moveInfos);
             }
@@ -76,11 +76,11 @@ namespace Metasia.Editor.Models.Interactor
         public static IEditCommand? CreateCoordPointsValueChangeCommand(string propertyIdentifier, CoordPoint targetCoordPoint, double beforeValue, double afterValue, IEnumerable<ClipObject> selectedClips)
         {
             List<CoordPointsValueChangeCommand.CoordPointValueChangeInfo> changeInfos = new();
-            foreach(var clip in selectedClips)
+            foreach (var clip in selectedClips)
             {
                 var properties = ObjectPropertyFinder.FindEditableProperties(clip);
                 var property = properties.FirstOrDefault(x => x.Identifier == propertyIdentifier);
-                if(property is null || property.PropertyValue!.GetType() != typeof(MetaNumberParam<double>)) continue;
+                if (property is null || property.PropertyValue!.GetType() != typeof(MetaNumberParam<double>)) continue;
                 var coordPoints = (MetaNumberParam<double>)property.PropertyValue!;
                 var coordPoint = coordPoints.Params.FirstOrDefault(x => x.Id == targetCoordPoint.Id);
                 if (coordPoint is not null)
@@ -88,7 +88,7 @@ namespace Metasia.Editor.Models.Interactor
                     var valueDifference = afterValue - beforeValue;
                     changeInfos.Add(new CoordPointsValueChangeCommand.CoordPointValueChangeInfo(coordPoints, coordPoint, valueDifference));
                 }
-                else if(coordPoint is null && coordPoints.Params.Count == 1)
+                else if (coordPoint is null && coordPoints.Params.Count == 1)
                 {
                     coordPoint = coordPoints.Params.First();
                     var valueDifference = afterValue - beforeValue;
@@ -101,12 +101,12 @@ namespace Metasia.Editor.Models.Interactor
         public static IEditCommand? CreateStringValueChangeCommand(string propertyIdentifier, string beforeValue, string afterValue, IEnumerable<ClipObject> selectedClips)
         {
             List<StringValueChangeCommand.StringValueChangeInfo> changeInfos = new();
-            foreach(var clip in selectedClips)
+            foreach (var clip in selectedClips)
             {
                 var properties = ObjectPropertyFinder.FindEditableProperties(clip);
                 var property = properties.FirstOrDefault(x => x.Identifier == propertyIdentifier);
-                if(property is null || property.PropertyValue is not string) continue;
-                
+                if (property is null || property.PropertyValue is not string) continue;
+
                 changeInfos.Add(new StringValueChangeCommand.StringValueChangeInfo(clip, propertyIdentifier, beforeValue, afterValue));
             }
             return changeInfos.Count > 0 ? new StringValueChangeCommand(changeInfos) : null;
@@ -115,11 +115,11 @@ namespace Metasia.Editor.Models.Interactor
         public static IEditCommand? CreateDoubleValueChangeCommand(string propertyIdentifier, double beforeValue, double afterValue, IEnumerable<ClipObject> selectedClips)
         {
             List<DoubleValueChangeCommand.DoubleValueChangeInfo> changeInfos = new();
-            foreach(var clip in selectedClips)
+            foreach (var clip in selectedClips)
             {
                 var properties = ObjectPropertyFinder.FindEditableProperties(clip);
                 var property = properties.FirstOrDefault(x => x.Identifier == propertyIdentifier);
-                if(property is null || property.PropertyValue is not double) continue;
+                if (property is null || property.PropertyValue is not double) continue;
 
                 var valueDifference = afterValue - beforeValue;
                 changeInfos.Add(new DoubleValueChangeCommand.DoubleValueChangeInfo(clip, propertyIdentifier, valueDifference));

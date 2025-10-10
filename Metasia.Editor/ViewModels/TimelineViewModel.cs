@@ -145,7 +145,7 @@ namespace Metasia.Editor.ViewModels
             {
                 playbackState.Pause();
             }
-            
+
             // プレビュー位置を移動
             playbackState.Seek(targetFrame);
         }
@@ -166,21 +166,21 @@ namespace Metasia.Editor.ViewModels
         {
             // 現在のフレーム位置で選択中のクリップを分割
             int splitFrame = Frame;
-            
+
             // 選択中のクリップをフィルタリング（分割可能なもののみ）
             var selectedClips = selectionState.SelectedClips
-                .Where(clip => clip is ClipObject clipObject && 
-                              splitFrame > clipObject.StartFrame && 
+                .Where(clip => clip is ClipObject clipObject &&
+                              splitFrame > clipObject.StartFrame &&
                               splitFrame < clipObject.EndFrame)
                 .Cast<ClipObject>()
                 .ToList();
-            
+
             if (selectedClips.Count == 0)
                 return;
-            
+
             // 各クリップのオーナーレイヤーを取得
             var ownerLayers = selectedClips.Select(clip => FindOwnerLayer(clip)).ToList();
-            
+
             // すべてのクリップにオーナーレイヤーがあるか確認
             if (ownerLayers.Any(layer => layer is null))
                 return;
@@ -200,7 +200,7 @@ namespace Metasia.Editor.ViewModels
             return false;
         }
 
-        
+
         /// <summary>
         /// リソースの解放処理
         /// </summary>

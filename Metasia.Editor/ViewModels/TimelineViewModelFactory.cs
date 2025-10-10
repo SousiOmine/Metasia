@@ -16,10 +16,10 @@ public class TimelineViewModelFactory : ITimelineViewModelFactory
     private readonly IProjectState _projectState;
     private readonly ITimelineViewState _timelineViewState;
     public TimelineViewModelFactory(
-        ILayerButtonViewModelFactory layerButtonViewModelFactory, 
-        ILayerCanvasViewModelFactory layerCanvasViewModelFactory, 
-        ISelectionState selectionState, 
-        IPlaybackState playbackState, 
+        ILayerButtonViewModelFactory layerButtonViewModelFactory,
+        ILayerCanvasViewModelFactory layerCanvasViewModelFactory,
+        ISelectionState selectionState,
+        IPlaybackState playbackState,
         IEditCommandManager editCommandManager,
         IProjectState projectState,
         ITimelineViewState timelineViewState)

@@ -12,16 +12,18 @@ namespace Metasia.Editor.ViewModels.Inspector;
 
 public class ClipSettingPaneViewModel : ViewModelBase
 {
-    public ClipObject? TargetObject { 
+    public ClipObject? TargetObject
+    {
         get => _targetObject;
-        set {
+        set
+        {
             if (_targetObject == value) return;
             _targetObject = value;
             TargetObjectChanged?.Invoke(this, EventArgs.Empty);
             buildSettingUI();
-        } 
+        }
     }
-    
+
     public bool IsActiveCheck
     {
         get => _isActiveCheck;
@@ -29,7 +31,7 @@ public class ClipSettingPaneViewModel : ViewModelBase
     }
 
     public ObservableCollection<PropertyRouterViewModel> Properties { get; set; } = new();
-    
+
     public ICommand IsActiveCheckCommand { get; set; }
 
     public event EventHandler? TargetObjectChanged;
@@ -52,7 +54,7 @@ public class ClipSettingPaneViewModel : ViewModelBase
     private void buildSettingUI()
     {
         if (TargetObject is null) return;
-        
+
         IsActiveCheck = TargetObject.IsActive;
 
         var editableProperties = ObjectPropertyFinder.FindEditableProperties(TargetObject);
@@ -63,14 +65,14 @@ public class ClipSettingPaneViewModel : ViewModelBase
             Properties.Add(_propertyRouterViewModelFactory.Create(property));
         }
     }
-    
+
     private void isActiveCheck_Click()
     {
         if (TargetObject is null) return;
-        
+
         var command = new ClipsIsActiveChangeCommand([TargetObject], IsActiveCheck);
         _editCommandManager.Execute(command);
     }
-    
-    
+
+
 }

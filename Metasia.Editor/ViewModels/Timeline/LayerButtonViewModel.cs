@@ -21,7 +21,7 @@ namespace Metasia.Editor.ViewModels.Timeline
         }
 
         private string _buttonText = "Layer";
-        public LayerButtonViewModel(LayerObject targetLayerObject, IEditCommandManager editCommandManager) 
+        public LayerButtonViewModel(LayerObject targetLayerObject, IEditCommandManager editCommandManager)
         {
 
             ButtonClick = ReactiveCommand.Create(() =>

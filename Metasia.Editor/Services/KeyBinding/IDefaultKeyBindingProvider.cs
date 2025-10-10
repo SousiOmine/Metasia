@@ -18,4 +18,4 @@ namespace Metasia.Editor.Services.KeyBinding
         /// </summary>
         List<ModifierKeyDefinition> GetDefaultModifierKeys();
     }
-} 
+}

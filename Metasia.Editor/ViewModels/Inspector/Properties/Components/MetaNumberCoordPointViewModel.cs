@@ -14,7 +14,7 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
         End,
         Single
     }
-    
+
     public double PointValue
     {
         get => _pointValue;
@@ -72,13 +72,13 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
         get => _isSingle;
         set => this.RaiseAndSetIfChanged(ref _isSingle, value);
     }
-    
+
     public bool IsMidpoint
     {
         get => _isMidpoint;
         set => this.RaiseAndSetIfChanged(ref _isMidpoint, value);
     }
-    
+
     public string Label
     {
         get => _label;
@@ -107,7 +107,7 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
     }
 
     public string TargetId => _target.Id;
-    
+
     private double _pointValue;
     private double _sliderPointValue;
     private int _pointFrame;
@@ -134,11 +134,11 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
 
     public MetaNumberCoordPointViewModel(
         MetaNumberParamPropertyViewModel parentViewModel,
-        CoordPoint target, 
-        PointType pointType = PointType.Start, 
-        double min = double.MinValue, 
-        double max = double.MaxValue, 
-        double recommendedMin = double.MinValue, 
+        CoordPoint target,
+        PointType pointType = PointType.Start,
+        double min = double.MinValue,
+        double max = double.MaxValue,
+        double recommendedMin = double.MinValue,
         double recommendedMax = double.MaxValue)
     {
         _parentViewModel = parentViewModel;
@@ -267,16 +267,17 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
         {
             return;
         }
-        if(_isFrameEnteringFlag)
+        if (_isFrameEnteringFlag)
         {
-            if(_frameEnterTimer is null)
+            if (_frameEnterTimer is null)
             {
                 _frameEnterTimer = new Timer(_frameEnterThreshold * 1000)
                 {
                     AutoReset = false
                 };
-                _frameEnterTimer.Elapsed += (sender, e) => {
-                    if(PointFrame != _beforeFrame)
+                _frameEnterTimer.Elapsed += (sender, e) =>
+                {
+                    if (PointFrame != _beforeFrame)
                     {
                         _parentViewModel.UpdatePointFrame(_target, _beforeFrame, PointFrame);
                         _isFrameEnteringFlag = false;

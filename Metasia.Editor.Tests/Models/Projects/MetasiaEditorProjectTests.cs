@@ -20,7 +20,7 @@ namespace Metasia.Editor.Tests.Models.Projects
             _testDirectory = Path.Combine(Path.GetTempPath(), "MetasiaEditorProjectTests");
             Directory.CreateDirectory(_testDirectory);
             _projectPath = new DirectoryEntity(_testDirectory);
-            
+
             _projectFile = new MetasiaProjectFile
             {
                 Framerate = 30,
@@ -72,15 +72,15 @@ namespace Metasia.Editor.Tests.Models.Projects
         {
             // Arrange
             var editorProject = new MetasiaEditorProject(_projectPath, _projectFile);
-            
+
             var timeline1 = new TimelineObject("timeline1");
             var timeline2 = new TimelineObject("timeline2");
-            
+
             string timelinePath1 = Path.Combine(_testDirectory, "timeline1.mttl");
             string timelinePath2 = Path.Combine(_testDirectory, "timeline2.mttl");
             File.WriteAllText(timelinePath1, "");
             File.WriteAllText(timelinePath2, "");
-            
+
             editorProject.Timelines.Add(new TimelineFile(new FileEntity(timelinePath1), timeline1));
             editorProject.Timelines.Add(new TimelineFile(new FileEntity(timelinePath2), timeline2));
 
@@ -131,4 +131,4 @@ namespace Metasia.Editor.Tests.Models.Projects
             Assert.That(editorProject.ProjectFile.Resolution.Height, Is.EqualTo(2160));
         }
     }
-} 
+}

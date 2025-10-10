@@ -16,116 +16,116 @@ using Metasia.Core.Attributes;
 
 namespace Metasia.Core.Objects
 {
-	[Serializable]
-	[ClipTypeIdentifier("HelloObject")]
-	public class kariHelloObject : ClipObject, IRenderable, IAudible
-	{
-		[EditableProperty("X")]
-		[ValueRange(-99999, 99999, -2000, 2000)]
-		public MetaNumberParam<double> X { get; set; } = new MetaNumberParam<double>(0);
-		[EditableProperty("Y")]
-		[ValueRange(-99999, 99999, -2000, 2000)]
-		public MetaNumberParam<double> Y { get; set; } = new MetaNumberParam<double>(0);
-		[EditableProperty("Scale")]
-		[ValueRange(0, 99999, 0, 1000)]
-		public MetaNumberParam<double> Scale { get; set; } = new MetaNumberParam<double>(100);
-		[EditableProperty("Alpha")]
-		[ValueRange(0, 100, 0, 100)]
-		public MetaNumberParam<double> Alpha { get; set; } = new MetaNumberParam<double>(0);
-		[EditableProperty("Rotation")]
-		[ValueRange(-99999, 99999, 0, 360)]
-		public MetaNumberParam<double> Rotation { get; set; } = new MetaNumberParam<double>(0);
-		[EditableProperty("AudioVolume")]
-		[ValueRange(0, 99999, 0, 200)]
-		public double Volume { get; set; } = 100;
-		public List<AudioEffectBase> AudioEffects { get; set; } = new();
-		
-		private SKBitmap myBitmap = new(200, 200);
-		private int audio_offset = 0;
+    [Serializable]
+    [ClipTypeIdentifier("HelloObject")]
+    public class kariHelloObject : ClipObject, IRenderable, IAudible
+    {
+        [EditableProperty("X")]
+        [ValueRange(-99999, 99999, -2000, 2000)]
+        public MetaNumberParam<double> X { get; set; } = new MetaNumberParam<double>(0);
+        [EditableProperty("Y")]
+        [ValueRange(-99999, 99999, -2000, 2000)]
+        public MetaNumberParam<double> Y { get; set; } = new MetaNumberParam<double>(0);
+        [EditableProperty("Scale")]
+        [ValueRange(0, 99999, 0, 1000)]
+        public MetaNumberParam<double> Scale { get; set; } = new MetaNumberParam<double>(100);
+        [EditableProperty("Alpha")]
+        [ValueRange(0, 100, 0, 100)]
+        public MetaNumberParam<double> Alpha { get; set; } = new MetaNumberParam<double>(0);
+        [EditableProperty("Rotation")]
+        [ValueRange(-99999, 99999, 0, 360)]
+        public MetaNumberParam<double> Rotation { get; set; } = new MetaNumberParam<double>(0);
+        [EditableProperty("AudioVolume")]
+        [ValueRange(0, 99999, 0, 200)]
+        public double Volume { get; set; } = 100;
+        public List<AudioEffectBase> AudioEffects { get; set; } = new();
 
-		public kariHelloObject()
-		{
-			InitializeBitmap();
-		}
+        private SKBitmap myBitmap = new(200, 200);
+        private int audio_offset = 0;
 
-		public kariHelloObject(string id) : base(id)
-		{
-			InitializeBitmap();
-		}
+        public kariHelloObject()
+        {
+            InitializeBitmap();
+        }
+
+        public kariHelloObject(string id) : base(id)
+        {
+            InitializeBitmap();
+        }
 
 
-		private void InitializeBitmap()
-		{
-			var skPaint = new SKPaint()
-			{
-				TextSize = 80,
-				TextAlign = SKTextAlign.Center,
-				Color = SKColors.Red
-			};
-			using (SKCanvas canvas = new SKCanvas(myBitmap))
-			{
-				canvas.Clear(SKColors.Brown);
-				canvas.DrawText("Hello", 100, 100, skPaint);
-			}
-		}
+        private void InitializeBitmap()
+        {
+            var skPaint = new SKPaint()
+            {
+                TextSize = 80,
+                TextAlign = SKTextAlign.Center,
+                Color = SKColors.Red
+            };
+            using (SKCanvas canvas = new SKCanvas(myBitmap))
+            {
+                canvas.Clear(SKColors.Brown);
+                canvas.DrawText("Hello", 100, 100, skPaint);
+            }
+        }
 
-		public Task<RenderNode> RenderAsync(RenderContext context, CancellationToken cancellationToken = default)
-		{
-			cancellationToken.ThrowIfCancellationRequested();
+        public Task<RenderNode> RenderAsync(RenderContext context, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
 
-			//このオブジェクトのStartFrameを基準としたフレーム
-			int relativeFrame = context.Frame - StartFrame;
-			var bitmap = new SKBitmap(200, 200);
-			
-			using (SKCanvas canvas = new SKCanvas(bitmap))
-			{
-				canvas.DrawBitmap(myBitmap, (bitmap.Width - myBitmap.Width) / 2, (bitmap.Height - myBitmap.Height) / 2);
-			}
+            //このオブジェクトのStartFrameを基準としたフレーム
+            int relativeFrame = context.Frame - StartFrame;
+            var bitmap = new SKBitmap(200, 200);
 
-			var transform = new Transform()
-			{
-				Position = new SKPoint((float)X.Get(relativeFrame), (float)Y.Get(relativeFrame)),
-				Scale = (float)Scale.Get(relativeFrame) / 100,
-				Rotation = (float)Rotation.Get(relativeFrame),
-				Alpha = (100.0f - (float)Alpha.Get(relativeFrame)) / 100,
-			};
-			
-			return Task.FromResult(new RenderNode()
-			{
-				Bitmap = bitmap,
-				LogicalSize = new SKSize(bitmap.Width, bitmap.Height),
-				Transform = transform,
-			});
-		}
+            using (SKCanvas canvas = new SKCanvas(bitmap))
+            {
+                canvas.DrawBitmap(myBitmap, (bitmap.Width - myBitmap.Width) / 2, (bitmap.Height - myBitmap.Height) / 2);
+            }
+
+            var transform = new Transform()
+            {
+                Position = new SKPoint((float)X.Get(relativeFrame), (float)Y.Get(relativeFrame)),
+                Scale = (float)Scale.Get(relativeFrame) / 100,
+                Rotation = (float)Rotation.Get(relativeFrame),
+                Alpha = (100.0f - (float)Alpha.Get(relativeFrame)) / 100,
+            };
+
+            return Task.FromResult(new RenderNode()
+            {
+                Bitmap = bitmap,
+                LogicalSize = new SKSize(bitmap.Width, bitmap.Height),
+                Transform = transform,
+            });
+        }
 
 
         public IAudioChunk GetAudioChunk(GetAudioContext context)
         {
-			IAudioChunk chunk = new AudioChunk(context.Format, context.RequiredLength);
-			double frequency = 440;
+            IAudioChunk chunk = new AudioChunk(context.Format, context.RequiredLength);
+            double frequency = 440;
 
-			for (long i = 0; i < context.RequiredLength; i++)
-			{
-				// currentSampleは、このオブジェクトの先頭からのサンプル位置
-				long currentSample = context.StartSamplePosition + i;
-        
-				var time = currentSample / (double)context.Format.SampleRate;
-				var pulse = Math.Sin(time * (frequency * 2.0 * Math.PI)) * 0.5 * Volume / 100;
+            for (long i = 0; i < context.RequiredLength; i++)
+            {
+                // currentSampleは、このオブジェクトの先頭からのサンプル位置
+                long currentSample = context.StartSamplePosition + i;
 
-				for (int ch = 0; ch < context.Format.ChannelCount; ch++)
-				{
-					chunk.Samples[i * context.Format.ChannelCount + ch] = pulse;
-				}
-			}
+                var time = currentSample / (double)context.Format.SampleRate;
+                var pulse = Math.Sin(time * (frequency * 2.0 * Math.PI)) * 0.5 * Volume / 100;
 
-			AudioEffectContext effectContext = new AudioEffectContext(this, context);
+                for (int ch = 0; ch < context.Format.ChannelCount; ch++)
+                {
+                    chunk.Samples[i * context.Format.ChannelCount + ch] = pulse;
+                }
+            }
 
-			foreach (var effect in AudioEffects)
-			{
-				chunk = effect.Apply(chunk, effectContext);
-			}
+            AudioEffectContext effectContext = new AudioEffectContext(this, context);
 
-			return chunk;
+            foreach (var effect in AudioEffects)
+            {
+                chunk = effect.Apply(chunk, effectContext);
+            }
+
+            return chunk;
         }
 
         /// <summary>

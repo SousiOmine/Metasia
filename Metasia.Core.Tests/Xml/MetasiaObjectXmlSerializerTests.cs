@@ -48,7 +48,7 @@ public class MetasiaObjectXmlSerializerTests
             IsActive = true,
             Volume = 80.0
         };
-        
+
         // LayerObjectを追加
         var layer = new LayerObject("layer_id", "TestLayer")
         {

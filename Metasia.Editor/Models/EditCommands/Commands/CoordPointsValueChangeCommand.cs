@@ -15,7 +15,7 @@ public class CoordPointsValueChangeCommand : IEditCommand
 
     public CoordPointsValueChangeCommand(IEnumerable<CoordPointValueChangeInfo> changeInfos)
     {
-        if(!changeInfos.Any())
+        if (!changeInfos.Any())
         {
             throw new ArgumentException("changeInfos is empty");
         }
@@ -24,9 +24,10 @@ public class CoordPointsValueChangeCommand : IEditCommand
 
     public void Execute()
     {
-        foreach(var changeInfo in _changeInfos)
+        foreach (var changeInfo in _changeInfos)
         {
-            var newCoordPoint = new CoordPoint(){
+            var newCoordPoint = new CoordPoint()
+            {
                 Id = changeInfo.targetCoordPoint.Id,
                 Frame = changeInfo.targetCoordPoint.Frame,
                 Value = changeInfo.valueDifference + changeInfo.targetCoordPoint.Value,
@@ -38,9 +39,10 @@ public class CoordPointsValueChangeCommand : IEditCommand
 
     public void Undo()
     {
-        foreach(var changeInfo in _changeInfos)
+        foreach (var changeInfo in _changeInfos)
         {
-            var newCoordPoint = new CoordPoint(){
+            var newCoordPoint = new CoordPoint()
+            {
                 Id = changeInfo.targetCoordPoint.Id,
                 Frame = changeInfo.targetCoordPoint.Frame,
                 Value = changeInfo.targetCoordPoint.Value - changeInfo.valueDifference,

@@ -30,8 +30,8 @@ namespace Metasia.Core.Tests.Objects.AudioEffects
         {
             // Arrange
             IAudioChunk input = null;
-            var mockContext = new Mock<AudioEffectContext>(MockBehavior.Strict, 
-                new Mock<IAudible>().Object, 
+            var mockContext = new Mock<AudioEffectContext>(MockBehavior.Strict,
+                new Mock<IAudible>().Object,
                 new GetAudioContext(_stereoFormat, 0, 100, 60.0, 1.0));
 
             // Act
@@ -52,9 +52,9 @@ namespace Metasia.Core.Tests.Objects.AudioEffects
             var mockChunk = new Mock<IAudioChunk>();
             mockChunk.Setup(c => c.Samples).Returns((double[])null);
             mockChunk.Setup(c => c.Format).Returns(_stereoFormat);
-            
-            var mockContext = new Mock<AudioEffectContext>(MockBehavior.Strict, 
-                new Mock<IAudible>().Object, 
+
+            var mockContext = new Mock<AudioEffectContext>(MockBehavior.Strict,
+                new Mock<IAudible>().Object,
                 new GetAudioContext(_stereoFormat, 0, 100, 60.0, 1.0));
 
             // Act
@@ -76,9 +76,9 @@ namespace Metasia.Core.Tests.Objects.AudioEffects
             mockChunk.Setup(c => c.Samples).Returns(new double[0]);
             mockChunk.Setup(c => c.Format).Returns(_stereoFormat);
             mockChunk.Setup(c => c.Length).Returns(0);
-            
-            var mockContext = new Mock<AudioEffectContext>(MockBehavior.Strict, 
-                new Mock<IAudible>().Object, 
+
+            var mockContext = new Mock<AudioEffectContext>(MockBehavior.Strict,
+                new Mock<IAudible>().Object,
                 new GetAudioContext(_stereoFormat, 0, 100, 60.0, 1.0));
 
             // Act
@@ -98,12 +98,12 @@ namespace Metasia.Core.Tests.Objects.AudioEffects
             // Arrange
             _effect.In = 0f;
             _effect.Out = 0f;
-            
+
             var samples = new double[] { 0.5, 0.5, 0.5, 0.5 }; // 2 samples, 2 channels
             var chunk = new AudioChunk(_stereoFormat, samples);
-            
-            var mockContext = new Mock<AudioEffectContext>(MockBehavior.Strict, 
-                new Mock<IAudible>().Object, 
+
+            var mockContext = new Mock<AudioEffectContext>(MockBehavior.Strict,
+                new Mock<IAudible>().Object,
                 new GetAudioContext(_stereoFormat, 0, 100, 60.0, 1.0));
 
             // Act
@@ -123,7 +123,7 @@ namespace Metasia.Core.Tests.Objects.AudioEffects
             // Arrange
             _effect.In = 0.1f; // 0.1秒のフェードイン
             _effect.Out = 0f;  // フェードアウトなし
-            
+
             // 44100Hz, 2chで0.2秒分のサンプルを作成
             int sampleRate = 44100;
             int channels = 2;
@@ -133,10 +133,10 @@ namespace Metasia.Core.Tests.Objects.AudioEffects
             {
                 samples[i] = 1.0; // 全て1.0の信号
             }
-            
+
             var format = new AudioFormat(sampleRate, channels);
             var chunk = new AudioChunk(format, samples);
-            
+
             var getAudioContext = new GetAudioContext(format, 0, totalSamples, 60.0, 0.2);
             var context = new AudioEffectContext(new Mock<IAudible>().Object, getAudioContext);
 
@@ -147,7 +147,7 @@ namespace Metasia.Core.Tests.Objects.AudioEffects
             Assert.That(result, Is.Not.Null);
             Assert.That(result, Is.Not.SameAs(chunk));
             Assert.That(result.Samples, Is.Not.Null);
-            
+
             // フェードイン期間中のサンプルが徐々に増加していることを確認
             int fadeInSamples = (int)(0.1f * sampleRate);
             for (int i = 0; i < fadeInSamples; i++)
@@ -159,7 +159,7 @@ namespace Metasia.Core.Tests.Objects.AudioEffects
                     Assert.That(result.Samples[index], Is.EqualTo(1.0 * expectedMultiplier).Within(0.001));
                 }
             }
-            
+
             // フェードイン終了後のサンプルは1.0のまま
             for (int i = fadeInSamples; i < totalSamples; i++)
             {
@@ -181,7 +181,7 @@ namespace Metasia.Core.Tests.Objects.AudioEffects
             // Arrange
             _effect.In = 0f;   // フェードインなし
             _effect.Out = 0.1f; // 0.1秒のフェードアウト
-            
+
             // 44100Hz, 2chで0.2秒分のサンプルを作成
             int sampleRate = 44100;
             int channels = 2;
@@ -191,10 +191,10 @@ namespace Metasia.Core.Tests.Objects.AudioEffects
             {
                 samples[i] = 1.0; // 全て1.0の信号
             }
-            
+
             var format = new AudioFormat(sampleRate, channels);
             var chunk = new AudioChunk(format, samples);
-            
+
             var getAudioContext = new GetAudioContext(format, 0, totalSamples, 60.0, 0.2);
             var context = new AudioEffectContext(new Mock<IAudible>().Object, getAudioContext);
 
@@ -205,12 +205,12 @@ namespace Metasia.Core.Tests.Objects.AudioEffects
             Assert.That(result, Is.Not.Null);
             Assert.That(result, Is.Not.SameAs(chunk));
             Assert.That(result.Samples, Is.Not.Null);
-            
+
             // フェードアウト期間中のサンプルが徐々に減少していることを確認
             int fadeOutSamples = (int)(0.1f * sampleRate);
             long totalObjectSamples = (long)(0.2 * sampleRate);
             long fadeOutStart = totalObjectSamples - fadeOutSamples;
-            
+
             for (long i = 0; i < fadeOutStart; i++)
             {
                 for (int ch = 0; ch < channels; ch++)
@@ -219,12 +219,12 @@ namespace Metasia.Core.Tests.Objects.AudioEffects
                     Assert.That(result.Samples[index], Is.EqualTo(1.0).Within(0.001));
                 }
             }
-            
+
             for (long i = fadeOutStart; i < totalObjectSamples; i++)
             {
                 double samplesFromEnd = totalObjectSamples - i;
                 double expectedMultiplier = samplesFromEnd / fadeOutSamples;
-                
+
                 for (int ch = 0; ch < channels; ch++)
                 {
                     int index = (int)(i * channels + ch);
@@ -243,7 +243,7 @@ namespace Metasia.Core.Tests.Objects.AudioEffects
             // Arrange
             _effect.In = 0.05f;  // 0.05秒のフェードイン
             _effect.Out = 0.05f; // 0.05秒のフェードアウト
-            
+
             // 44100Hz, 2chで0.2秒分のサンプルを作成
             int sampleRate = 44100;
             int channels = 2;
@@ -253,10 +253,10 @@ namespace Metasia.Core.Tests.Objects.AudioEffects
             {
                 samples[i] = 1.0; // 全て1.0の信号
             }
-            
+
             var format = new AudioFormat(sampleRate, channels);
             var chunk = new AudioChunk(format, samples);
-            
+
             var getAudioContext = new GetAudioContext(format, 0, totalSamples, 60.0, 0.2);
             var context = new AudioEffectContext(new Mock<IAudible>().Object, getAudioContext);
 
@@ -267,7 +267,7 @@ namespace Metasia.Core.Tests.Objects.AudioEffects
             Assert.That(result, Is.Not.Null);
             Assert.That(result, Is.Not.SameAs(chunk));
             Assert.That(result.Samples, Is.Not.Null);
-            
+
             // フェードイン期間の確認
             int fadeInSamples = (int)(0.05f * sampleRate);
             for (int i = 0; i < fadeInSamples; i++)
@@ -279,17 +279,17 @@ namespace Metasia.Core.Tests.Objects.AudioEffects
                     Assert.That(result.Samples[index], Is.EqualTo(1.0 * expectedMultiplier).Within(0.001));
                 }
             }
-            
+
             // フェードアウト期間の確認
             int fadeOutSamples = (int)(0.05f * sampleRate);
             long totalObjectSamples = (long)(0.2 * sampleRate);
             long fadeOutStart = totalObjectSamples - fadeOutSamples;
-            
+
             for (long i = fadeOutStart; i < totalObjectSamples; i++)
             {
                 double samplesFromEnd = totalObjectSamples - i;
                 double expectedMultiplier = samplesFromEnd / fadeOutSamples;
-                
+
                 for (int ch = 0; ch < channels; ch++)
                 {
                     int index = (int)(i * channels + ch);
@@ -308,7 +308,7 @@ namespace Metasia.Core.Tests.Objects.AudioEffects
             // Arrange
             _effect.In = 0.1f;
             _effect.Out = 0f;
-            
+
             int sampleRate = 44100;
             int channels = 1;
             int totalSamples = sampleRate / 10; // 0.1秒分（フェードイン時間と同じ）
@@ -317,10 +317,10 @@ namespace Metasia.Core.Tests.Objects.AudioEffects
             {
                 samples[i] = 0.8; // 0.8の信号
             }
-            
+
             var format = new AudioFormat(sampleRate, channels);
             var chunk = new AudioChunk(format, samples);
-            
+
             var getAudioContext = new GetAudioContext(format, 0, totalSamples, 60.0, 0.1);
             var context = new AudioEffectContext(new Mock<IAudible>().Object, getAudioContext);
 
@@ -329,11 +329,11 @@ namespace Metasia.Core.Tests.Objects.AudioEffects
 
             // Assert
             Assert.That(result, Is.Not.SameAs(chunk));
-            
+
             // 最後のサンプル（フェードイン終了位置）がほぼ1.0倍になっていることを確認
             int lastSampleIndex = totalSamples - 1;
             Assert.That(result.Samples[lastSampleIndex], Is.EqualTo(0.8).Within(0.01));
-            
+
             // 最初のサンプルが0に近いことを確認
             Assert.That(result.Samples[0], Is.EqualTo(0.0).Within(0.01));
         }
@@ -348,7 +348,7 @@ namespace Metasia.Core.Tests.Objects.AudioEffects
             // Arrange
             _effect.In = 0f;
             _effect.Out = 0.1f;
-            
+
             int sampleRate = 44100;
             int channels = 1;
             int totalSamples = sampleRate / 10; // 0.1秒分（フェードアウト時間と同じ）
@@ -357,10 +357,10 @@ namespace Metasia.Core.Tests.Objects.AudioEffects
             {
                 samples[i] = 0.7; // 0.7の信号
             }
-            
+
             var format = new AudioFormat(sampleRate, channels);
             var chunk = new AudioChunk(format, samples);
-            
+
             var getAudioContext = new GetAudioContext(format, 0, totalSamples, 60.0, 0.1);
             var context = new AudioEffectContext(new Mock<IAudible>().Object, getAudioContext);
 
@@ -369,11 +369,11 @@ namespace Metasia.Core.Tests.Objects.AudioEffects
 
             // Assert
             Assert.That(result, Is.Not.SameAs(chunk));
-            
+
             // 最後のサンプル（フェードアウト終了位置）が0に近いことを確認
             int lastSampleIndex = totalSamples - 1;
             Assert.That(result.Samples[lastSampleIndex], Is.EqualTo(0.0).Within(0.01));
-            
+
             // 最初のサンプルがほぼ元の値であることを確認
             Assert.That(result.Samples[0], Is.EqualTo(0.7).Within(0.01));
         }
@@ -388,12 +388,12 @@ namespace Metasia.Core.Tests.Objects.AudioEffects
             // Arrange
             _effect.In = 0.05f;
             _effect.Out = 0.05f;
-            
+
             int sampleRate = 44100;
             int channels = 4; // 4チャンネル
             int totalSamples = sampleRate / 10; // 0.1秒分
             var samples = new double[totalSamples * channels];
-            
+
             // 異なる値で各チャンネルを初期化
             for (int i = 0; i < totalSamples; i++)
             {
@@ -402,10 +402,10 @@ namespace Metasia.Core.Tests.Objects.AudioEffects
                     samples[i * channels + ch] = (ch + 1) * 0.2; // 0.2, 0.4, 0.6, 0.8
                 }
             }
-            
+
             var format = new AudioFormat(sampleRate, channels);
             var chunk = new AudioChunk(format, samples);
-            
+
             var getAudioContext = new GetAudioContext(format, 0, totalSamples, 60.0, 0.1);
             var context = new AudioEffectContext(new Mock<IAudible>().Object, getAudioContext);
 
@@ -414,12 +414,12 @@ namespace Metasia.Core.Tests.Objects.AudioEffects
 
             // Assert
             Assert.That(result, Is.Not.SameAs(chunk));
-            
+
             // 同じ位置の全チャンネルが同じフェード係数で処理されていることを確認
             int testSampleIndex = 10; // テスト用の適当なサンプル位置
             double firstChannelValue = result.Samples[testSampleIndex * channels + 0];
             double multiplier = firstChannelValue / 0.2; // 元の値0.2に対する倍率
-            
+
             for (int ch = 1; ch < channels; ch++)
             {
                 double expectedValue = (ch + 1) * 0.2 * multiplier;

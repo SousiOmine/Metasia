@@ -44,7 +44,7 @@ public class VideoResolution
     /// 幅
     /// </summary>
     public float Width { get; set; }
-    
+
     /// <summary>
     /// 高さ
     /// </summary>

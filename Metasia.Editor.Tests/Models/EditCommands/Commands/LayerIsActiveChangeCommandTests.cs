@@ -128,4 +128,4 @@ namespace Metasia.Editor.Tests.Models.EditCommands.Commands
             Assert.That(_targetLayer.IsActive, Is.True);
         }
     }
-} 
+}

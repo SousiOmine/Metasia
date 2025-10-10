@@ -12,12 +12,12 @@ namespace Metasia.Core.Project
         public string RootTimelineId { get; set; } = "RootTimeline";
         public int LastFrame { get; set; } = 100;
         public List<TimelineObject> Timelines { get; set; } = new();
-        
+
         public MetasiaProject(ProjectInfo info)
         {
             Info = info;
         }
-        
+
         // デシリアライズ用のデフォルトコンストラクタ
         public MetasiaProject()
         {
