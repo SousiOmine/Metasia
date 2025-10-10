@@ -71,13 +71,31 @@ public partial class PlayerView : UserControl, IDisposable
     {
         SKSurface surface = e.Surface;
         SKCanvas canvas = surface.Canvas;
-        canvas.Clear(SKColors.Green);
+        canvas.Clear(SKColors.Transparent);
 
         lock (_bitmapLock)
         {
             if (_latestBitmap is not null)
             {
-                canvas.DrawBitmap(_latestBitmap, 0, 0);
+                // キャンバスの中央にビットマップを描画
+                var canvasWidth = e.Info.Width;
+                var canvasHeight = e.Info.Height;
+                var bitmapWidth = _latestBitmap.Width;
+                var bitmapHeight = _latestBitmap.Height;
+
+                // アスペクト比を維持したままキャンバスにフィットさせる
+                var scaleX = (float)canvasWidth / bitmapWidth;
+                var scaleY = (float)canvasHeight / bitmapHeight;
+                var scale = Math.Min(scaleX, scaleY);
+
+                var scaledWidth = bitmapWidth * scale;
+                var scaledHeight = bitmapHeight * scale;
+
+                var x = (canvasWidth - scaledWidth) / 2;
+                var y = (canvasHeight - scaledHeight) / 2;
+
+                var destRect = new SKRect(x, y, x + scaledWidth, y + scaledHeight);
+                canvas.DrawBitmap(_latestBitmap, destRect);
             }
         }
 
@@ -131,7 +149,7 @@ public partial class PlayerView : UserControl, IDisposable
                     var bitmap = await compositor.RenderFrameAsync(
                         VM.TargetTimeline,
                         requestedFrame,
-                        new SKSize(384, 216),
+                        new SKSize(960, 540),
                         new SKSize(3840, 2160),
                         mediaAccessorRouter,
                         mediaAccessorRouter,
