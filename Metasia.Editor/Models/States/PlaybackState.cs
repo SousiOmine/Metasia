@@ -12,8 +12,11 @@ public class PlaybackState : IPlaybackState
         get => _currentFrame;
         private set
         {
-            _currentFrame = value;
-            PlaybackFrameChanged?.Invoke();
+            if (_currentFrame != value)
+            {
+                _currentFrame = value;
+                PlaybackFrameChanged?.Invoke();
+            }
         }
     }
 

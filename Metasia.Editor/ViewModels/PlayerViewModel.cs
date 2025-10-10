@@ -47,8 +47,11 @@ namespace Metasia.Editor.ViewModels
             get => frame;
             set
             {
-                this.RaiseAndSetIfChanged(ref frame, value);
-                playbackState.RequestReRendering();
+                if (frame != value)
+                {
+                    this.RaiseAndSetIfChanged(ref frame, value);
+                    playbackState.RequestReRendering();
+                }
             }
         }
 
