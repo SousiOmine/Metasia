@@ -107,6 +107,13 @@ public partial class PlayerView : UserControl, IDisposable
 
     private void RequestRender()
     {
+        // UIスレッド上での実行を保証
+        if (!Dispatcher.UIThread.CheckAccess())
+        {
+            Dispatcher.UIThread.Post(RequestRender);
+            return;
+        }
+
         if (VM is null) return;
 
         var currentFrame = VM.Frame;
