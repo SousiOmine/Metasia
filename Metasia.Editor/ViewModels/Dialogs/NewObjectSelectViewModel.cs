@@ -7,6 +7,7 @@ using ReactiveUI;
 using System.Collections.ObjectModel;
 using System.Reflection;
 using Metasia.Core.Attributes;
+using System.Collections.Generic;
 
 namespace Metasia.Editor.ViewModels.Dialogs;
 
@@ -15,6 +16,7 @@ public class ObjectTypeInfo
     public string DisplayName { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public Type ObjectType { get; set; } = typeof(Text);
+    public string Identifier { get; set; } = string.Empty;
 }
 
 public class NewObjectSelectViewModel : ViewModelBase
@@ -23,6 +25,14 @@ public class NewObjectSelectViewModel : ViewModelBase
     public ReactiveCommand<Unit, IMetasiaObject?> CancelCommand { get; }
 
     public ObservableCollection<ObjectTypeInfo> AvailableObjectTypes { get; } = new();
+    public ObservableCollection<ObjectTypeInfo> FilteredObjectTypes { get; } = new();
+
+    private string _searchText = string.Empty;
+    public string SearchText
+    {
+        get => _searchText;
+        set => this.RaiseAndSetIfChanged(ref _searchText, value);
+    }
 
     private ObjectTypeInfo? _selectedObjectType;
     public ObjectTypeInfo? SelectedObjectType
@@ -54,6 +64,12 @@ public class NewObjectSelectViewModel : ViewModelBase
         }, canExecuteOk);
 
         CancelCommand = ReactiveCommand.Create(() => (IMetasiaObject?)null);
+
+        // 検索テキストの変更を監視してフィルタリングを実行
+        this.WhenAnyValue(x => x.SearchText)
+            .Throttle(TimeSpan.FromMilliseconds(300))
+            .ObserveOn(RxApp.MainThreadScheduler)
+            .Subscribe(_ => FilterObjectTypes());
     }
 
     private void LoadAvailableObjectTypes()
@@ -83,13 +99,51 @@ public class NewObjectSelectViewModel : ViewModelBase
             {
                 DisplayName = displayName,
                 Description = description,
-                ObjectType = objectType.Type
+                ObjectType = objectType.Type,
+                Identifier = identifier
             });
         }
 
-        if (AvailableObjectTypes.Count > 0)
+        // 初期状態ではすべてのオブジェクトを表示
+        FilterObjectTypes();
+
+        if (FilteredObjectTypes.Count > 0)
         {
-            SelectedObjectType = AvailableObjectTypes[0];
+            SelectedObjectType = FilteredObjectTypes[0];
+        }
+    }
+
+    private void FilterObjectTypes()
+    {
+        FilteredObjectTypes.Clear();
+
+        if (string.IsNullOrWhiteSpace(SearchText))
+        {
+            // 検索テキストが空の場合はすべて表示
+            foreach (var item in AvailableObjectTypes)
+            {
+                FilteredObjectTypes.Add(item);
+            }
+        }
+        else
+        {
+            // 検索テキストでフィルタリング
+            var searchText = SearchText.ToLowerInvariant();
+            var filteredItems = AvailableObjectTypes.Where(item =>
+                item.DisplayName.ToLowerInvariant().Contains(searchText) ||
+                item.Description.ToLowerInvariant().Contains(searchText) ||
+                item.Identifier.ToLowerInvariant().Contains(searchText));
+
+            foreach (var item in filteredItems)
+            {
+                FilteredObjectTypes.Add(item);
+            }
+        }
+
+        // 現在の選択がフィルタ結果に含まれていない場合は最初の項目を選択
+        if (SelectedObjectType is null || !FilteredObjectTypes.Contains(SelectedObjectType))
+        {
+            SelectedObjectType = FilteredObjectTypes.FirstOrDefault();
         }
     }
 
