@@ -6,7 +6,7 @@
         Width="800" Height="450"
         x:Class="Metasia.Editor.Views.SplashScreen"
         Title="SplashScreen"
-        Background="Transparent"
+        Background="White"
         BorderBrush="Transparent"
         BorderThickness="0"
         CanResize="False"
