@@ -24,5 +24,8 @@
         <Border IsVisible="{Binding IsDoubleProperty}">
             <views_properties:DoublePropertyView DataContext="{Binding DoublePropertyVm}"/>
         </Border>
+        <Border IsVisible="{Binding IsMetaEnumParamProperty}">
+            <views_properties:MetaEnumParamPropertyView DataContext="{Binding MetaEnumParamPropertyVm}"/>
+        </Border>
     </StackPanel>
 </UserControl>

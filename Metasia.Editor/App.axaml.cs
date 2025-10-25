@@ -91,6 +91,7 @@ namespace Metasia.Editor
             services.AddTransient<IMediaPathPropertyViewModelFactory, MediaPathPropertyViewModelFactory>();
             services.AddTransient<IStringPropertyViewModelFactory, StringPropertyViewModelFactory>();
             services.AddTransient<IDoublePropertyViewModelFactory, DoublePropertyViewModelFactory>();
+            services.AddTransient<IMetaEnumParamPropertyViewModelFactory, MetaEnumParamPropertyViewModelFactory>();
 
 
             services.AddTransient<MainWindowViewModel>();

@@ -52,6 +52,16 @@ public class PropertyRouterViewModel : ViewModelBase
         get => _doublePropertyVm;
         set => this.RaiseAndSetIfChanged(ref _doublePropertyVm, value);
     }
+    public bool IsMetaEnumParamProperty
+    {
+        get => _isMetaEnumParamProperty;
+        set => this.RaiseAndSetIfChanged(ref _isMetaEnumParamProperty, value);
+    }
+    public MetaEnumParamPropertyViewModel? MetaEnumParamPropertyVm
+    {
+        get => _metaEnumParamPropertyVm;
+        set => this.RaiseAndSetIfChanged(ref _metaEnumParamPropertyVm, value);
+    }
     public string PlaceholderText
     {
         get => _placeholderText;
@@ -69,16 +79,19 @@ public class PropertyRouterViewModel : ViewModelBase
     private MediaPathPropertyViewModel? _mediaPathPropertyVm;
     private StringPropertyViewModel? _stringPropertyVm;
     private DoublePropertyViewModel? _doublePropertyVm;
+    private MetaEnumParamPropertyViewModel? _metaEnumParamPropertyVm;
     private bool _isMetaNumberParamProperty = false;
     private bool _isMediaPathProperty = false;
     private bool _isStringProperty = false;
     private bool _isDoubleProperty = false;
+    private bool _isMetaEnumParamProperty = false;
     private bool _usePlaceholder;
     private ObjectPropertyFinder.EditablePropertyInfo _propertyInfo;
     private readonly IMetaNumberParamPropertyViewModelFactory _metaNumberParamPropertyViewModelFactory;
     private readonly IMediaPathPropertyViewModelFactory _mediaPathPropertyViewModelFactory;
     private readonly IStringPropertyViewModelFactory _stringPropertyViewModelFactory;
     private readonly IDoublePropertyViewModelFactory _doublePropertyViewModelFactory;
+    private readonly IMetaEnumParamPropertyViewModelFactory _metaEnumParamPropertyViewModelFactory;
     private readonly IProjectState _projectState;
     public PropertyRouterViewModel(
         ObjectPropertyFinder.EditablePropertyInfo propertyInfo,
@@ -86,17 +99,20 @@ public class PropertyRouterViewModel : ViewModelBase
         IMediaPathPropertyViewModelFactory mediaPathPropertyViewModelFactory,
         IStringPropertyViewModelFactory stringPropertyViewModelFactory,
         IDoublePropertyViewModelFactory doublePropertyViewModelFactory,
+        IMetaEnumParamPropertyViewModelFactory metaEnumParamPropertyViewModelFactory,
         IProjectState projectState)
     {
         ArgumentNullException.ThrowIfNull(metaNumberParamPropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(mediaPathPropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(stringPropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(doublePropertyViewModelFactory);
+        ArgumentNullException.ThrowIfNull(metaEnumParamPropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(projectState);
         _metaNumberParamPropertyViewModelFactory = metaNumberParamPropertyViewModelFactory;
         _mediaPathPropertyViewModelFactory = mediaPathPropertyViewModelFactory;
         _stringPropertyViewModelFactory = stringPropertyViewModelFactory;
         _doublePropertyViewModelFactory = doublePropertyViewModelFactory;
+        _metaEnumParamPropertyViewModelFactory = metaEnumParamPropertyViewModelFactory;
         _projectState = projectState;
         _propertyInfo = propertyInfo;
         _projectState.TimelineChanged += OnTimelineChanged;
@@ -152,6 +168,15 @@ public class PropertyRouterViewModel : ViewModelBase
                 var recommendMax = _propertyInfo.RecommendedMax ?? max;
                 DoublePropertyVm = _doublePropertyViewModelFactory.Create(_propertyInfo.Identifier, (double)_propertyInfo.PropertyValue!, min, max, recommendMin, recommendMax);
                 IsDoubleProperty = true;
+                UsePlaceholder = false;
+            }
+        }
+        else if (_propertyInfo.Type == typeof(MetaEnumParam))
+        {
+            if (MetaEnumParamPropertyVm is null)
+            {
+                MetaEnumParamPropertyVm = _metaEnumParamPropertyViewModelFactory.Create(_propertyInfo.Identifier, (MetaEnumParam)_propertyInfo.PropertyValue!);
+                IsMetaEnumParamProperty = true;
                 UsePlaceholder = false;
             }
         }
