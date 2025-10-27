@@ -32,11 +32,7 @@ public class FontParamValueChangeCommand : IEditCommand
     {
         foreach (var info in _changeInfos)
         {
-            var property = ResolveProperty(info.TargetClip, info.PropertyIdentifier);
-            if (property is not null)
-            {
-                property.SetValue(info.TargetClip, info.AfterValue.Clone());
-            }
+            ApplyPropertyValue(info.TargetClip, info.PropertyIdentifier, info.AfterValue);
         }
     }
 
@@ -44,12 +40,19 @@ public class FontParamValueChangeCommand : IEditCommand
     {
         foreach (var info in _changeInfos)
         {
-            var property = ResolveProperty(info.TargetClip, info.PropertyIdentifier);
-            if (property is not null)
-            {
-                property.SetValue(info.TargetClip, info.BeforeValue.Clone());
-            }
+            ApplyPropertyValue(info.TargetClip, info.PropertyIdentifier, info.BeforeValue);
         }
+    }
+
+    private static void ApplyPropertyValue(ClipObject clip, string propertyIdentifier, MetaFontParam value)
+    {
+        var property = ResolveProperty(clip, propertyIdentifier);
+        if (property is null)
+        {
+            throw new InvalidOperationException(
+                $"プロパティ '{propertyIdentifier}' をクリップ '{clip.Id}' (型: {clip.GetType().Name}) で解決できません。");
+        }
+        property.SetValue(clip, value.Clone());
     }
 
     private static PropertyInfo? ResolveProperty(ClipObject clip, string propertyIdentifier)

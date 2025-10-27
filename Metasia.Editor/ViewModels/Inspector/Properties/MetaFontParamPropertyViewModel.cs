@@ -208,4 +208,15 @@ public class MetaFontParamPropertyViewModel : ViewModelBase
         IsItalic = _propertyValue.IsItalic;
         _suppressChangeEvents = false;
     }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            _selectionState.SelectionChanged -= OnSelectionChanged;
+            _projectState.TimelineChanged -= OnTimelineChanged;
+        }
+
+        base.Dispose(disposing);
+    }
 }
