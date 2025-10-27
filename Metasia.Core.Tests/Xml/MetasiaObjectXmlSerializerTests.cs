@@ -4,6 +4,7 @@ using Metasia.Core.Xml;
 using Metasia.Core.Objects;
 using Metasia.Core.Coordinate;
 using System.Xml;
+using Metasia.Core.Typography;
 
 namespace Metasia.Core.Tests.Xml;
 
@@ -87,7 +88,7 @@ public class MetasiaObjectXmlSerializerTests
             IsActive = true,
             Contents = "Test Text",
             TextSize = new MetaNumberParam<double>(12.0),
-            TypefaceName = "Arial"
+            Font = new MetaFontParam("Arial", true, false)
         };
 
         // Act
@@ -101,7 +102,9 @@ public class MetasiaObjectXmlSerializerTests
         Assert.That(deserialized.EndFrame, Is.EqualTo(original.EndFrame));
         Assert.That(deserialized.IsActive, Is.EqualTo(original.IsActive));
         Assert.That(deserialized.Contents, Is.EqualTo(original.Contents));
-        Assert.That(deserialized.TypefaceName, Is.EqualTo(original.TypefaceName));
+        Assert.That(deserialized.Font.FamilyName, Is.EqualTo(original.Font.FamilyName));
+        Assert.That(deserialized.Font.IsBold, Is.EqualTo(original.Font.IsBold));
+        Assert.That(deserialized.Font.IsItalic, Is.EqualTo(original.Font.IsItalic));
     }
 
     // nullオブジェクトをシリアライズしようとしたときの例外処理テスト

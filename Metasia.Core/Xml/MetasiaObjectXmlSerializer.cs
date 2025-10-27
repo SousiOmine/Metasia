@@ -1,3 +1,4 @@
+using System;
 using System.Xml.Serialization;
 using Metasia.Core.Objects;
 using System.Text;
@@ -59,6 +60,10 @@ namespace Metasia.Core.Xml
         public static T Deserialize<T>(string xml) where T : class, IMetasiaObject
         {
             ArgumentNullException.ThrowIfNull(xml);
+            if (string.IsNullOrWhiteSpace(xml))
+            {
+                throw new ArgumentException("XMLが空です。", nameof(xml));
+            }
 
             XmlSerializer serializer = new XmlSerializer(typeof(T), includedTypes);
             using (var reader = new StringReader(xml))

@@ -7,6 +7,7 @@ using Metasia.Core.Coordinate;
 using System;
 using Metasia.Editor.Models.States;
 using Metasia.Core.Media;
+using Metasia.Core.Typography;
 
 namespace Metasia.Editor.ViewModels.Inspector;
 
@@ -41,6 +42,16 @@ public class PropertyRouterViewModel : ViewModelBase
     {
         get => _stringPropertyVm;
         set => this.RaiseAndSetIfChanged(ref _stringPropertyVm, value);
+    }
+    public bool IsFontProperty
+    {
+        get => _isFontProperty;
+        set => this.RaiseAndSetIfChanged(ref _isFontProperty, value);
+    }
+    public MetaFontParamPropertyViewModel? FontPropertyVm
+    {
+        get => _metaFontParamPropertyVm;
+        set => this.RaiseAndSetIfChanged(ref _metaFontParamPropertyVm, value);
     }
     public bool IsDoubleProperty
     {
@@ -78,11 +89,13 @@ public class PropertyRouterViewModel : ViewModelBase
     private MetaNumberParamPropertyViewModel? _metaNumberParamPropertyVm;
     private MediaPathPropertyViewModel? _mediaPathPropertyVm;
     private StringPropertyViewModel? _stringPropertyVm;
+    private MetaFontParamPropertyViewModel? _metaFontParamPropertyVm;
     private DoublePropertyViewModel? _doublePropertyVm;
     private MetaEnumParamPropertyViewModel? _metaEnumParamPropertyVm;
     private bool _isMetaNumberParamProperty = false;
     private bool _isMediaPathProperty = false;
     private bool _isStringProperty = false;
+    private bool _isFontProperty = false;
     private bool _isDoubleProperty = false;
     private bool _isMetaEnumParamProperty = false;
     private bool _usePlaceholder;
@@ -92,6 +105,7 @@ public class PropertyRouterViewModel : ViewModelBase
     private readonly IStringPropertyViewModelFactory _stringPropertyViewModelFactory;
     private readonly IDoublePropertyViewModelFactory _doublePropertyViewModelFactory;
     private readonly IMetaEnumParamPropertyViewModelFactory _metaEnumParamPropertyViewModelFactory;
+    private readonly IMetaFontParamPropertyViewModelFactory _metaFontParamPropertyViewModelFactory;
     private readonly IProjectState _projectState;
     public PropertyRouterViewModel(
         ObjectPropertyFinder.EditablePropertyInfo propertyInfo,
@@ -100,19 +114,23 @@ public class PropertyRouterViewModel : ViewModelBase
         IStringPropertyViewModelFactory stringPropertyViewModelFactory,
         IDoublePropertyViewModelFactory doublePropertyViewModelFactory,
         IMetaEnumParamPropertyViewModelFactory metaEnumParamPropertyViewModelFactory,
+        IMetaFontParamPropertyViewModelFactory metaFontParamPropertyViewModelFactory,
         IProjectState projectState)
     {
+        ArgumentNullException.ThrowIfNull(propertyInfo);
         ArgumentNullException.ThrowIfNull(metaNumberParamPropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(mediaPathPropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(stringPropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(doublePropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(metaEnumParamPropertyViewModelFactory);
+        ArgumentNullException.ThrowIfNull(metaFontParamPropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(projectState);
         _metaNumberParamPropertyViewModelFactory = metaNumberParamPropertyViewModelFactory;
         _mediaPathPropertyViewModelFactory = mediaPathPropertyViewModelFactory;
         _stringPropertyViewModelFactory = stringPropertyViewModelFactory;
         _doublePropertyViewModelFactory = doublePropertyViewModelFactory;
         _metaEnumParamPropertyViewModelFactory = metaEnumParamPropertyViewModelFactory;
+        _metaFontParamPropertyViewModelFactory = metaFontParamPropertyViewModelFactory;
         _projectState = projectState;
         _propertyInfo = propertyInfo;
         _projectState.TimelineChanged += OnTimelineChanged;
@@ -155,6 +173,15 @@ public class PropertyRouterViewModel : ViewModelBase
             {
                 StringPropertyVm = _stringPropertyViewModelFactory.Create(_propertyInfo.Identifier, (string)_propertyInfo.PropertyValue!);
                 IsStringProperty = true;
+                UsePlaceholder = false;
+            }
+        }
+        else if (_propertyInfo.Type == typeof(MetaFontParam))
+        {
+            if (FontPropertyVm is null)
+            {
+                FontPropertyVm = _metaFontParamPropertyViewModelFactory.Create(_propertyInfo.Identifier, (MetaFontParam)_propertyInfo.PropertyValue!);
+                IsFontProperty = true;
                 UsePlaceholder = false;
             }
         }

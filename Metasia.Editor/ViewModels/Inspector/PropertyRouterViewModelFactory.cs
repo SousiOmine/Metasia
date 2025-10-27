@@ -13,25 +13,35 @@ public class PropertyRouterViewModelFactory : IPropertyRouterViewModelFactory
     private readonly IDoublePropertyViewModelFactory _doublePropertyViewModelFactory;
     private readonly IMetaEnumParamPropertyViewModelFactory _metaEnumParamPropertyViewModelFactory;
     private readonly IProjectState _projectState;
-    public PropertyRouterViewModelFactory(IMetaNumberParamPropertyViewModelFactory metaNumberParamPropertyViewModelFactory, IMediaPathPropertyViewModelFactory mediaPathPropertyViewModelFactory, IStringPropertyViewModelFactory stringPropertyViewModelFactory, IDoublePropertyViewModelFactory doublePropertyViewModelFactory, IMetaEnumParamPropertyViewModelFactory metaEnumParamPropertyViewModelFactory, IProjectState projectState)
+    private readonly IMetaFontParamPropertyViewModelFactory _metaFontParamPropertyViewModelFactory;
+    public PropertyRouterViewModelFactory(
+        IMetaNumberParamPropertyViewModelFactory metaNumberParamPropertyViewModelFactory,
+        IMediaPathPropertyViewModelFactory mediaPathPropertyViewModelFactory,
+        IStringPropertyViewModelFactory stringPropertyViewModelFactory,
+        IDoublePropertyViewModelFactory doublePropertyViewModelFactory,
+        IMetaEnumParamPropertyViewModelFactory metaEnumParamPropertyViewModelFactory,
+        IMetaFontParamPropertyViewModelFactory metaFontParamPropertyViewModelFactory,
+        IProjectState projectState)
     {
         ArgumentNullException.ThrowIfNull(metaNumberParamPropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(mediaPathPropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(stringPropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(doublePropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(metaEnumParamPropertyViewModelFactory);
+        ArgumentNullException.ThrowIfNull(metaFontParamPropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(projectState);
         _metaNumberParamPropertyViewModelFactory = metaNumberParamPropertyViewModelFactory;
         _mediaPathPropertyViewModelFactory = mediaPathPropertyViewModelFactory;
         _stringPropertyViewModelFactory = stringPropertyViewModelFactory;
         _doublePropertyViewModelFactory = doublePropertyViewModelFactory;
         _metaEnumParamPropertyViewModelFactory = metaEnumParamPropertyViewModelFactory;
+        _metaFontParamPropertyViewModelFactory = metaFontParamPropertyViewModelFactory;
         _projectState = projectState;
     }
 
     public PropertyRouterViewModel Create(ObjectPropertyFinder.EditablePropertyInfo propertyInfo)
     {
         ArgumentNullException.ThrowIfNull(propertyInfo);
-        return new PropertyRouterViewModel(propertyInfo, _metaNumberParamPropertyViewModelFactory, _mediaPathPropertyViewModelFactory, _stringPropertyViewModelFactory, _doublePropertyViewModelFactory, _metaEnumParamPropertyViewModelFactory, _projectState);
+        return new PropertyRouterViewModel(propertyInfo, _metaNumberParamPropertyViewModelFactory, _mediaPathPropertyViewModelFactory, _stringPropertyViewModelFactory, _doublePropertyViewModelFactory, _metaEnumParamPropertyViewModelFactory, _metaFontParamPropertyViewModelFactory, _projectState);
     }
 }

@@ -1,14 +1,11 @@
+using Metasia.Core.Attributes;
 using Metasia.Core.Coordinate;
 using Metasia.Core.Render;
+using Metasia.Core.Typography;
 using Metasia.Core.Xml;
 using SkiaSharp;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Metasia.Core.Attributes;
 namespace Metasia.Core.Objects
 {
     [Serializable]
@@ -35,14 +32,28 @@ namespace Metasia.Core.Objects
         [ValueRange(-99999, 99999, 0, 360)]
         public MetaNumberParam<double> Rotation { get; set; } = new MetaNumberParam<double>(0);
 
-        [EditableProperty("TypefaceName")]
-        public string TypefaceName
+        [EditableProperty("Font")]
+        public MetaFontParam Font
         {
-            get { return typefaceName; }
+            get => _font;
             set
             {
-                typefaceName = value;
+                _font = value?.Clone() ?? MetaFontParam.Default;
                 LoadTypeface();
+            }
+        }
+
+        [Obsolete("Fontプロパティを使用してください。")]
+        public string TypefaceName
+        {
+            get => Font.FamilyName;
+            set
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    return;
+                }
+                Font = new MetaFontParam(value, Font.IsBold, Font.IsItalic);
             }
         }
 
@@ -53,18 +64,18 @@ namespace Metasia.Core.Objects
         [ValueRange(0, 2000, 0, 500)]
         public MetaNumberParam<double> TextSize { get; set; } = new MetaNumberParam<double>(100);
 
-        private string typefaceName;
         private SKTypeface? _typeface;
+        private MetaFontParam _font = MetaFontParam.Default;
 
         public Text(string id) : base(id)
         {
-            typefaceName = "LINE Seed JP_TTF";
+            _font = MetaFontParam.Default;
             LoadTypeface();
         }
 
         public Text()
         {
-            typefaceName = "LINE Seed JP_TTF";
+            _font = MetaFontParam.Default;
             LoadTypeface();
         }
 
@@ -133,17 +144,35 @@ namespace Metasia.Core.Objects
 
         private bool LoadTypeface()
         {
-            _typeface = SKTypeface.FromFamilyName(TypefaceName);
-            if (_typeface.FamilyName != TypefaceName)
-            {
-                using (var ms = new MemoryStream(Properties.Resources.LINESeedJP_TTF_Rg))
-                {
-                    _typeface = SKTypeface.FromStream(ms);
-                }
-                return false;
+            bool usedFallback = false;
 
+            SKTypeface CreateFallback()
+            {
+                usedFallback = true;
+                var fallbackStyle = new SKFontStyle(
+                    Font.IsBold ? SKFontStyleWeight.Bold : SKFontStyleWeight.Normal,
+                    SKFontStyleWidth.Normal,
+                    Font.IsItalic ? SKFontStyleSlant.Italic : SKFontStyleSlant.Upright);
+
+                try
+                {
+                    var fallback = SKTypeface.FromFamilyName(MetaFontParam.Default.FamilyName, fallbackStyle);
+                    if (fallback is not null)
+                    {
+                        return fallback;
+                    }
+                }
+                catch
+                {
+                    // フォールバックフォントの取得に失敗した場合はデフォルトフォントを使用
+                }
+
+                return SKTypeface.Default ?? SKTypeface.FromFamilyName("Arial") ?? throw new InvalidOperationException("No fallback typeface available.");
             }
-            return true;
+
+            _typeface?.Dispose();
+            _typeface = Font.ResolveTypeface(CreateFallback);
+            return !usedFallback;
         }
 
         /// <summary>
@@ -195,6 +224,9 @@ namespace Metasia.Core.Objects
             firstText.TextSize = firstTextSize;
             secondText.TextSize = secondTextSize;
 
+            firstText.Font = Font.Clone();
+            secondText.Font = Font.Clone();
+
             return (firstText, secondText);
         }
 
@@ -211,3 +243,6 @@ namespace Metasia.Core.Objects
         }
     }
 }
+
+
+

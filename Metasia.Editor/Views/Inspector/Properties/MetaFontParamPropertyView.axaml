@@ -1,0 +1,30 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:Metasia.Editor.ViewModels.Inspector.Properties"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="50"
+             x:Class="Metasia.Editor.Views.Inspector.Properties.MetaFontParamPropertyView"
+             x:DataType="vm:MetaFontParamPropertyViewModel">
+    <StackPanel Orientation="Horizontal" Margin="2" Spacing="6">
+        <TextBlock Text="{Binding PropertyDisplayName}"
+                   VerticalAlignment="Center"
+                   Width="70"
+                   Margin="2"/>
+        <ComboBox ItemsSource="{Binding AvailableFonts}"
+                  SelectedItem="{Binding SelectedFont, Mode=TwoWay}"
+                  Width="220"
+                  MinWidth="180"
+                  HorizontalAlignment="Stretch"/>
+        <CheckBox Content="B"
+                  ToolTip.Tip="Bold"
+                  IsChecked="{Binding IsBold, Mode=TwoWay}"
+                  VerticalAlignment="Center"
+                  Margin="4,0"/>
+        <CheckBox Content="I"
+                  ToolTip.Tip="Italic"
+                  IsChecked="{Binding IsItalic, Mode=TwoWay}"
+                  VerticalAlignment="Center"
+                  Margin="4,0"/>
+    </StackPanel>
+</UserControl>
