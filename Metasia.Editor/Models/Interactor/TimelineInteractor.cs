@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Metasia.Core.Coordinate;
 using Metasia.Core.Objects;
+using Metasia.Core.Typography;
 using Metasia.Editor.Models.DragDropData;
 using Metasia.Editor.Models.EditCommands;
 using Metasia.Editor.Models.EditCommands.Commands;
@@ -110,6 +111,24 @@ namespace Metasia.Editor.Models.Interactor
                 changeInfos.Add(new StringValueChangeCommand.StringValueChangeInfo(clip, propertyIdentifier, beforeValue, afterValue));
             }
             return changeInfos.Count > 0 ? new StringValueChangeCommand(changeInfos) : null;
+        }
+
+        public static IEditCommand? CreateFontParamValueChangeCommand(string propertyIdentifier, MetaFontParam beforeValue, MetaFontParam afterValue, IEnumerable<ClipObject> selectedClips)
+        {
+            List<FontParamValueChangeCommand.FontParamValueChangeInfo> changeInfos = new();
+            foreach (var clip in selectedClips)
+            {
+                var properties = ObjectPropertyFinder.FindEditableProperties(clip);
+                var property = properties.FirstOrDefault(x => x.Identifier == propertyIdentifier);
+                if (property is null || property.PropertyValue is not MetaFontParam) continue;
+
+                changeInfos.Add(new FontParamValueChangeCommand.FontParamValueChangeInfo(
+                    clip,
+                    propertyIdentifier,
+                    beforeValue.Clone(),
+                    afterValue.Clone()));
+            }
+            return changeInfos.Count > 0 ? new FontParamValueChangeCommand(changeInfos) : null;
         }
 
         public static IEditCommand? CreateDoubleValueChangeCommand(string propertyIdentifier, double beforeValue, double afterValue, IEnumerable<ClipObject> selectedClips)

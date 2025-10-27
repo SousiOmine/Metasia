@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using Metasia.Core.Objects;
 using Metasia.Core.Coordinate;
+using Metasia.Core.Typography;
 
 namespace Metasia.Core.Tests.Objects
 {
@@ -54,13 +55,16 @@ namespace Metasia.Core.Tests.Objects
         }
 
         [Test]
-        public void TypefaceName_CanBeSetAndRetrieved()
+        public void FontParam_CanBeSetAndRetrieved()
         {
             // Act
-            _textObject.TypefaceName = "Arial";
+            var font = new MetaFontParam("Arial", true, true);
+            _textObject.Font = font;
 
             // Assert
-            Assert.That(_textObject.TypefaceName, Is.EqualTo("Arial"));
+            Assert.That(_textObject.Font.FamilyName, Is.EqualTo("Arial"));
+            Assert.That(_textObject.Font.IsBold, Is.True);
+            Assert.That(_textObject.Font.IsItalic, Is.True);
         }
 
         // Parentプロパティは存在しないため、このテストは削除
@@ -84,21 +88,17 @@ namespace Metasia.Core.Tests.Objects
         }
 
         [Test]
-        public void TypefaceName_ChangeTriggersFontReload()
+        public void FontParam_SetterCreatesClone()
         {
             // Arrange
-            var initialTypefaceName = _textObject.TypefaceName;
+            var font = new MetaFontParam("Arial");
 
             // Act
-            _textObject.TypefaceName = "NewFont";
-            var afterFirstChange = _textObject.TypefaceName;
-
-            _textObject.TypefaceName = "AnotherFont";
-            var afterSecondChange = _textObject.TypefaceName;
+            _textObject.Font = font;
+            font.FamilyName = "Changed";
 
             // Assert
-            Assert.That(afterFirstChange, Is.EqualTo("NewFont"));
-            Assert.That(afterSecondChange, Is.EqualTo("AnotherFont"));
+            Assert.That(_textObject.Font.FamilyName, Is.EqualTo("Arial"));
         }
 
         /// <summary>
@@ -113,7 +113,7 @@ namespace Metasia.Core.Tests.Objects
             _textObject.StartFrame = 10;
             _textObject.EndFrame = 100;
             _textObject.Contents = "Test Text";
-            _textObject.TypefaceName = "Arial";
+            _textObject.Font = new MetaFontParam("Arial", true, false);
             var splitFrame = 50;
 
             // Act
@@ -132,8 +132,10 @@ namespace Metasia.Core.Tests.Objects
             Assert.That(secondText.EndFrame, Is.EqualTo(100));
             Assert.That(firstText.Contents, Is.EqualTo("Test Text"));
             Assert.That(secondText.Contents, Is.EqualTo("Test Text"));
-            Assert.That(firstText.TypefaceName, Is.EqualTo("Arial"));
-            Assert.That(secondText.TypefaceName, Is.EqualTo("Arial"));
+            Assert.That(firstText.Font.FamilyName, Is.EqualTo("Arial"));
+            Assert.That(firstText.Font.IsBold, Is.True);
+            Assert.That(secondText.Font.FamilyName, Is.EqualTo("Arial"));
+            Assert.That(secondText.Font.IsBold, Is.True);
         }
 
         /// <summary>
@@ -184,13 +186,13 @@ namespace Metasia.Core.Tests.Objects
 
             // Act
             _textObject.Contents = "Modified Text";
-            _textObject.TypefaceName = "New Font";
+            _textObject.Font = new MetaFontParam("New Font");
 
             // Assert
             Assert.That(firstText.Contents, Is.EqualTo("Original Text"));
             Assert.That(secondText.Contents, Is.EqualTo("Original Text"));
-            Assert.That(firstText.TypefaceName, Is.Not.EqualTo("New Font"));
-            Assert.That(secondText.TypefaceName, Is.Not.EqualTo("New Font"));
+            Assert.That(firstText.Font.FamilyName, Is.Not.EqualTo("New Font"));
+            Assert.That(secondText.Font.FamilyName, Is.Not.EqualTo("New Font"));
         }
     }
 }

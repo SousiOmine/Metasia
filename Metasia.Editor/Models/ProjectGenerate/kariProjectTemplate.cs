@@ -6,6 +6,7 @@ using Metasia.Core.Coordinate;
 using Metasia.Core.Objects.AudioEffects;
 using Metasia.Core.Coordinate.InterpolationLogic;
 using Metasia.Core.Media;
+using Metasia.Core.Typography;
 
 namespace Metasia.Editor.Models.ProjectGenerate;
 
@@ -41,7 +42,7 @@ public class KariProjectTemplate : IProjectTemplate
         Text text = new Text("konnichiwa")
         {
             EndFrame = 120,
-            TypefaceName = "LINE Seed JP_TTF",
+            Font = new MetaFontParam("LINE Seed JP_TTF"),
             Contents = "こんにちは Hello",
         };
         text.TextSize.SetSinglePoint(400);
@@ -49,7 +50,7 @@ public class KariProjectTemplate : IProjectTemplate
         Text onesec = new Text("sec1")
         {
             EndFrame = 59,
-            TypefaceName = "LINE Seed JP_TTF",
+            Font = new MetaFontParam("LINE Seed JP_TTF"),
             Contents = "1",
         };
         onesec.TextSize.SetSinglePoint(200);
@@ -60,7 +61,7 @@ public class KariProjectTemplate : IProjectTemplate
         {
             StartFrame = 60,
             EndFrame = 119,
-            TypefaceName = "LINE Seed JP_TTF",
+            Font = new MetaFontParam("LINE Seed JP_TTF"),
             Contents = "2",
         };
         twosec.TextSize.SetSinglePoint(200);
@@ -71,7 +72,7 @@ public class KariProjectTemplate : IProjectTemplate
         {
             StartFrame = 180,
             EndFrame = 239,
-            TypefaceName = "LINE Seed JP_TTF",
+            Font = new MetaFontParam("LINE Seed JP_TTF"),
             Contents = "4",
         };
         foursec.TextSize.SetSinglePoint(200);
@@ -115,7 +116,7 @@ public class KariProjectTemplate : IProjectTemplate
         {
             StartFrame = 240,
             EndFrame = 500,
-            TypefaceName = "LINE Seed JP_TTF",
+            Font = new MetaFontParam("LINE Seed JP_TTF"),
             Contents = "JS",
         };
         // X パラメータに5つの中間点を設定し、1つは JavaScriptLogic を使用
@@ -156,3 +157,4 @@ public class KariProjectTemplate : IProjectTemplate
         Template.Timelines.Add(secondTL);
     }
 }
+

@@ -79,6 +79,7 @@ namespace Metasia.Editor
 
             services.AddSingleton<MediaAccessorRouter>();
             services.AddSingleton<IPluginService, PluginService>();
+            services.AddSingleton<IFontCatalogService, FontCatalogService>();
 
             services.AddTransient<IPlayerViewModelFactory, PlayerViewModelFactory>();
             services.AddTransient<ITimelineViewModelFactory, TimelineViewModelFactory>();
@@ -91,6 +92,7 @@ namespace Metasia.Editor
             services.AddTransient<IMediaPathPropertyViewModelFactory, MediaPathPropertyViewModelFactory>();
             services.AddTransient<IStringPropertyViewModelFactory, StringPropertyViewModelFactory>();
             services.AddTransient<IDoublePropertyViewModelFactory, DoublePropertyViewModelFactory>();
+            services.AddTransient<IMetaFontParamPropertyViewModelFactory, MetaFontParamPropertyViewModelFactory>();
 
 
             services.AddTransient<MainWindowViewModel>();
