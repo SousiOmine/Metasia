@@ -74,10 +74,7 @@ public class MetaFontParam : IEquatable<MetaFontParam>
 
     public SKTypeface ResolveTypeface(Func<SKTypeface> fallbackFactory)
     {
-        if (fallbackFactory is null)
-        {
-            throw new ArgumentNullException(nameof(fallbackFactory));
-        }
+        ArgumentNullException.ThrowIfNull(fallbackFactory);
 
         var style = new SKFontStyle(
             IsBold ? SKFontStyleWeight.Bold : SKFontStyleWeight.Normal,
