@@ -5,7 +5,6 @@ using Metasia.Core.Typography;
 using Metasia.Core.Xml;
 using SkiaSharp;
 using System;
-using System.IO;
 using System.Threading.Tasks;
 namespace Metasia.Core.Objects
 {
@@ -150,8 +149,25 @@ namespace Metasia.Core.Objects
             SKTypeface CreateFallback()
             {
                 usedFallback = true;
-                using var ms = new MemoryStream(Properties.Resources.LINESeedJP_TTF_Rg);
-                return SKTypeface.FromStream(ms) ?? SKTypeface.Default;
+                var fallbackStyle = new SKFontStyle(
+                    Font.IsBold ? SKFontStyleWeight.Bold : SKFontStyleWeight.Normal,
+                    SKFontStyleWidth.Normal,
+                    Font.IsItalic ? SKFontStyleSlant.Italic : SKFontStyleSlant.Upright);
+
+                try
+                {
+                    var fallback = SKTypeface.FromFamilyName(MetaFontParam.Default.FamilyName, fallbackStyle);
+                    if (fallback is not null)
+                    {
+                        return fallback;
+                    }
+                }
+                catch
+                {
+                    // フォールバックフォントの取得に失敗した場合はデフォルトフォントを使用
+                }
+
+                return SKTypeface.Default ?? SKTypeface.FromFamilyName("Arial") ?? throw new InvalidOperationException("No fallback typeface available.");
             }
 
             _typeface?.Dispose();

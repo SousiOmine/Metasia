@@ -42,7 +42,7 @@ public class KariProjectTemplate : IProjectTemplate
         Text text = new Text("konnichiwa")
         {
             EndFrame = 120,
-            Font = new MetaFontParam("LINE Seed JP_TTF"),
+            Font = MetaFontParam.Default,
             Contents = "こんにちは Hello",
         };
         text.TextSize.SetSinglePoint(400);
@@ -50,7 +50,7 @@ public class KariProjectTemplate : IProjectTemplate
         Text onesec = new Text("sec1")
         {
             EndFrame = 59,
-            Font = new MetaFontParam("LINE Seed JP_TTF"),
+            Font = MetaFontParam.Default,
             Contents = "1",
         };
         onesec.TextSize.SetSinglePoint(200);
@@ -61,7 +61,7 @@ public class KariProjectTemplate : IProjectTemplate
         {
             StartFrame = 60,
             EndFrame = 119,
-            Font = new MetaFontParam("LINE Seed JP_TTF"),
+            Font = MetaFontParam.Default,
             Contents = "2",
         };
         twosec.TextSize.SetSinglePoint(200);
@@ -72,7 +72,7 @@ public class KariProjectTemplate : IProjectTemplate
         {
             StartFrame = 180,
             EndFrame = 239,
-            Font = new MetaFontParam("LINE Seed JP_TTF"),
+            Font = MetaFontParam.Default,
             Contents = "4",
         };
         foursec.TextSize.SetSinglePoint(200);
@@ -116,7 +116,7 @@ public class KariProjectTemplate : IProjectTemplate
         {
             StartFrame = 240,
             EndFrame = 500,
-            Font = new MetaFontParam("LINE Seed JP_TTF"),
+            Font = MetaFontParam.Default,
             Contents = "JS",
         };
         // X パラメータに5つの中間点を設定し、1つは JavaScriptLogic を使用
