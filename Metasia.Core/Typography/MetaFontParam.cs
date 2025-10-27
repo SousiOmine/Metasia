@@ -7,7 +7,7 @@ namespace Metasia.Core.Typography;
 [Serializable]
 public class MetaFontParam : IEquatable<MetaFontParam>
 {
-    private const string DefaultFamily = "LINE Seed JP_TTF";
+    private static readonly string DefaultFamily = DetermineDefaultFamily();
 
     /// <summary>
     /// フォントファミリ名
@@ -44,6 +44,32 @@ public class MetaFontParam : IEquatable<MetaFontParam>
     public MetaFontParam Clone()
     {
         return new MetaFontParam(FamilyName, IsBold, IsItalic);
+    }
+
+    private static string DetermineDefaultFamily()
+    {
+        var defaultFamily = SKTypeface.Default?.FamilyName;
+        if (!string.IsNullOrWhiteSpace(defaultFamily))
+        {
+            return defaultFamily;
+        }
+
+        if (OperatingSystem.IsWindows())
+        {
+            return "Yu Gothic UI";
+        }
+
+        if (OperatingSystem.IsMacOS())
+        {
+            return "Hiragino Sans";
+        }
+
+        if (OperatingSystem.IsLinux())
+        {
+            return "Noto Sans";
+        }
+
+        return "Arial";
     }
 
     public SKTypeface ResolveTypeface(Func<SKTypeface> fallbackFactory)
