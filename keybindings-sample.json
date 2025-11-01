@@ -47,6 +47,11 @@
       "actionId": "DuplicateOnDrag",
       "modifier": "Alt",
       "description": "ドラッグ時に複製"
+    },
+    {
+      "actionId": "TimelineZoom",
+      "modifier": "Control",
+      "description": "タイムラインの拡大率変更"
     }
   ]
 } 

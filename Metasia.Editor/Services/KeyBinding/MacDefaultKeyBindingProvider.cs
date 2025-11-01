@@ -41,6 +41,11 @@ namespace Metasia.Editor.Services.KeyBinding
             return KeyModifiers.Meta;  // MacではCommandキーで複数選択
         }
 
+        protected override KeyModifiers GetTimelineZoomModifier()
+        {
+            return KeyModifiers.Meta;  // MacではCommandキーでズーム
+        }
+
         public override List<KeyBindingDefinition> GetDefaultKeyBindings()
         {
             var keyBindings = GetCommonKeyBindings();

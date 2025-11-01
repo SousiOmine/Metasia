@@ -39,6 +39,11 @@ namespace Metasia.Editor.Services.KeyBinding
             return KeyModifiers.Control;
         }
 
+        protected override KeyModifiers GetTimelineZoomModifier()
+        {
+            return KeyModifiers.Control;
+        }
+
         public override List<KeyBindingDefinition> GetDefaultKeyBindings()
         {
             var keyBindings = GetCommonKeyBindings();

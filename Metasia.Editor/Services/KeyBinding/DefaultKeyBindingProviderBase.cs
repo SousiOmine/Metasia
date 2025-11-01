@@ -59,6 +59,12 @@ namespace Metasia.Editor.Services.KeyBinding
                     ActionId = "DuplicateOnDrag",
                     Modifier = KeyModifiers.Alt,
                     Description = "ドラッグ時に複製"
+                },
+                new ModifierKeyDefinition
+                {
+                    ActionId = "TimelineZoom",
+                    Modifier = GetTimelineZoomModifier(),
+                    Description = "タイムラインの拡大率変更"
                 }
             };
         }
@@ -70,6 +76,7 @@ namespace Metasia.Editor.Services.KeyBinding
         protected abstract KeyGesture GetOpenGesture();
         protected abstract KeyGesture GetNewGesture();
         protected abstract KeyModifiers GetMultiSelectModifier();
+        protected abstract KeyModifiers GetTimelineZoomModifier();
 
         // 実装クラスで具体的な設定を組み立てる
         public abstract List<KeyBindingDefinition> GetDefaultKeyBindings();
