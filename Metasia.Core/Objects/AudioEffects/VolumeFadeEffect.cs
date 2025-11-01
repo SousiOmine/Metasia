@@ -1,5 +1,7 @@
 using Metasia.Core.Sounds;
 using Metasia.Core.Attributes;
+using Metasia.Core.Objects.Parameters;
+
 namespace Metasia.Core.Objects.AudioEffects
 {
     public class VolumeFadeEffect : AudioEffectBase
@@ -8,13 +10,15 @@ namespace Metasia.Core.Objects.AudioEffects
         /// フェードイン時の時間
         /// </summary>
 		[EditableProperty("FadeInTimeFromSeconds")]
-        public float In { get; set; } = 0.5f;
+        [ValueRange(0, 10, 0, 5)]
+        public MetaDoubleParam In { get; set; } = new MetaDoubleParam(0.5);
 
         /// <summary>
         /// フェードアウト時の時間
         /// </summary>
         [EditableProperty("FadeOutTimeFromSeconds")]
-        public float Out { get; set; } = 0.5f;
+        [ValueRange(0, 10, 0, 5)]
+        public MetaDoubleParam Out { get; set; } = new MetaDoubleParam(0.5);
         public override IAudioChunk Apply(IAudioChunk input, AudioEffectContext context)
         {
             // 入力チェック

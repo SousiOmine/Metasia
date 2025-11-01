@@ -1,4 +1,5 @@
 using Metasia.Core.Objects.AudioEffects;
+using Metasia.Core.Objects.Parameters;
 using Metasia.Core.Project;
 using Metasia.Core.Sounds;
 
@@ -6,7 +7,7 @@ namespace Metasia.Core.Objects
 {
     public interface IAudible
     {
-        double Volume { get; set; }
+        MetaDoubleParam Volume { get; set; }
 
         List<AudioEffectBase> AudioEffects { get; }
 

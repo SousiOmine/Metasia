@@ -138,7 +138,7 @@ namespace Metasia.Editor.Models.Interactor
             {
                 var properties = ObjectPropertyFinder.FindEditableProperties(clip);
                 var property = properties.FirstOrDefault(x => x.Identifier == propertyIdentifier);
-                if (property is null || property.PropertyValue is not double) continue;
+                if (property is null || property.PropertyValue is not MetaDoubleParam) continue;
 
                 var valueDifference = afterValue - beforeValue;
                 changeInfos.Add(new DoubleValueChangeCommand.DoubleValueChangeInfo(clip, propertyIdentifier, valueDifference));
@@ -152,12 +152,12 @@ namespace Metasia.Editor.Models.Interactor
 
             var properties = ObjectPropertyFinder.FindEditableProperties(clip);
             var property = properties.FirstOrDefault(x => x.Identifier == propertyIdentifier);
-            if (property is null || property.PropertyValue is not double doubleValue)
+            if (property is null || property.PropertyValue is not MetaDoubleParam metaDoubleParam)
             {
                 return false;
             }
 
-            value = doubleValue;
+            value = metaDoubleParam.Value;
             return true;
         }
 

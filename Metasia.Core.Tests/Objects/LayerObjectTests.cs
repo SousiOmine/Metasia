@@ -27,7 +27,7 @@ namespace Metasia.Core.Tests.Objects
             Assert.That(layer.Name, Is.EqualTo("Layer Name"));
             Assert.That(layer.StartFrame, Is.EqualTo(0));
             Assert.That(layer.EndFrame, Is.EqualTo(int.MaxValue));
-            Assert.That(layer.Volume, Is.EqualTo(100));
+            Assert.That(layer.Volume.Value, Is.EqualTo(100.0));
             Assert.That(layer.Objects, Is.Not.Null);
             Assert.That(layer.Objects, Is.InstanceOf<ObservableCollection<ClipObject>>());
             Assert.That(layer.Objects.Count, Is.EqualTo(0));
@@ -43,7 +43,7 @@ namespace Metasia.Core.Tests.Objects
             Assert.That(layer.Name, Is.EqualTo(string.Empty));
             Assert.That(layer.StartFrame, Is.EqualTo(0));
             Assert.That(layer.EndFrame, Is.EqualTo(int.MaxValue));
-            Assert.That(layer.Volume, Is.EqualTo(100));
+            Assert.That(layer.Volume.Value, Is.EqualTo(100.0));
             Assert.That(layer.Objects, Is.Not.Null);
             Assert.That(layer.Objects.Count, Is.EqualTo(0));
         }
@@ -134,13 +134,13 @@ namespace Metasia.Core.Tests.Objects
         public void Volume_CanBeModified()
         {
             // Arrange
-            Assert.That(_layerObject.Volume, Is.EqualTo(100)); // デフォルト値確認
+            Assert.That(_layerObject.Volume.Value, Is.EqualTo(100.0)); // デフォルト値確認
 
             // Act
             _layerObject.Volume = 50;
 
             // Assert
-            Assert.That(_layerObject.Volume, Is.EqualTo(50));
+            Assert.That(_layerObject.Volume.Value, Is.EqualTo(50.0));
         }
 
         [Test]
@@ -212,8 +212,8 @@ namespace Metasia.Core.Tests.Objects
             Assert.That(firstLayer.EndFrame, Is.EqualTo(49));
             Assert.That(secondLayer.StartFrame, Is.EqualTo(50));
             Assert.That(secondLayer.EndFrame, Is.EqualTo(100));
-            Assert.That(firstLayer.Volume, Is.EqualTo(75));
-            Assert.That(secondLayer.Volume, Is.EqualTo(75));
+            Assert.That(firstLayer.Volume.Value, Is.EqualTo(75.0));
+            Assert.That(secondLayer.Volume.Value, Is.EqualTo(75.0));
             Assert.That(firstLayer.Name, Is.EqualTo("Test Layer"));
             Assert.That(secondLayer.Name, Is.EqualTo("Test Layer"));
         }
@@ -332,8 +332,8 @@ namespace Metasia.Core.Tests.Objects
             _layerObject.Objects.Clear();
 
             // Assert
-            Assert.That(firstLayer.Volume, Is.EqualTo(75));
-            Assert.That(secondLayer.Volume, Is.EqualTo(75));
+            Assert.That(firstLayer.Volume.Value, Is.EqualTo(75.0));
+            Assert.That(secondLayer.Volume.Value, Is.EqualTo(75.0));
             Assert.That(firstLayer.Objects.Count, Is.EqualTo(1));
             Assert.That(secondLayer.Objects.Count, Is.EqualTo(0));
         }

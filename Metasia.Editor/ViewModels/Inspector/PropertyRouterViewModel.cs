@@ -185,7 +185,7 @@ public class PropertyRouterViewModel : ViewModelBase
                 UsePlaceholder = false;
             }
         }
-        else if (_propertyInfo.Type == typeof(double))
+        else if (_propertyInfo.Type == typeof(MetaDoubleParam))
         {
             if (DoublePropertyVm is null)
             {
@@ -193,7 +193,8 @@ public class PropertyRouterViewModel : ViewModelBase
                 var max = _propertyInfo.Max ?? double.MaxValue;
                 var recommendMin = _propertyInfo.RecommendedMin ?? min;
                 var recommendMax = _propertyInfo.RecommendedMax ?? max;
-                DoublePropertyVm = _doublePropertyViewModelFactory.Create(_propertyInfo.Identifier, (double)_propertyInfo.PropertyValue!, min, max, recommendMin, recommendMax);
+                var metaDoubleParam = (MetaDoubleParam)_propertyInfo.PropertyValue!;
+                DoublePropertyVm = _doublePropertyViewModelFactory.Create(_propertyInfo.Identifier, metaDoubleParam.Value, min, max, recommendMin, recommendMax);
                 IsDoubleProperty = true;
                 UsePlaceholder = false;
             }

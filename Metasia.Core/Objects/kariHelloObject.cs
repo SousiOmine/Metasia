@@ -38,7 +38,7 @@ namespace Metasia.Core.Objects
         public MetaNumberParam<double> Rotation { get; set; } = new MetaNumberParam<double>(0);
         [EditableProperty("AudioVolume")]
         [ValueRange(0, 99999, 0, 200)]
-        public double Volume { get; set; } = 100;
+        public MetaDoubleParam Volume { get; set; } = new MetaDoubleParam(100);
         public List<AudioEffectBase> AudioEffects { get; set; } = new();
 
         private SKBitmap myBitmap = new(200, 200);
@@ -111,7 +111,7 @@ namespace Metasia.Core.Objects
                 long currentSample = context.StartSamplePosition + i;
 
                 var time = currentSample / (double)context.Format.SampleRate;
-                var pulse = Math.Sin(time * (frequency * 2.0 * Math.PI)) * 0.5 * Volume / 100;
+                var pulse = Math.Sin(time * (frequency * 2.0 * Math.PI)) * 0.5 * Volume.Value / 100;
 
                 for (int ch = 0; ch < context.Format.ChannelCount; ch++)
                 {
@@ -172,6 +172,11 @@ namespace Metasia.Core.Objects
             var (firstRotation, secondRotation) = Rotation.Split(relativeSplitFrame);
             firstHello.Rotation = firstRotation;
             secondHello.Rotation = secondRotation;
+
+            // Volumeプロパティの分割
+            var (firstVolume, secondVolume) = Volume.Split(relativeSplitFrame);
+            firstHello.Volume = firstVolume;
+            secondHello.Volume = secondVolume;
 
             return (firstHello, secondHello);
         }

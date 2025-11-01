@@ -14,6 +14,7 @@ using System.Text.Json.Serialization;
 using System.Xml.Serialization;
 using Metasia.Core.Objects.AudioEffects;
 using Metasia.Core.Attributes;
+using Metasia.Core.Objects.Parameters;
 
 namespace Metasia.Core.Objects
 {
@@ -27,7 +28,8 @@ namespace Metasia.Core.Objects
         public ObservableCollection<ClipObject> Objects { get; private set; }
 
         [EditableProperty("AudioVolume")]
-        public double Volume { get; set; } = 100;
+        [ValueRange(0, 99999, 0, 200)]
+        public MetaDoubleParam Volume { get; set; } = new MetaDoubleParam(100);
 
         public List<AudioEffectBase> AudioEffects { get; set; } = new();
 
@@ -140,7 +142,7 @@ namespace Metasia.Core.Objects
                 // 子オブジェクトの長さを計算
                 double childDuration = (clipObject.EndFrame - clipObject.StartFrame) / framerate;
                 var chunk = obj.GetAudioChunk(new GetAudioContext(context.Format, childStartPosition, overlapLength, context.ProjectFrameRate, childDuration));
-                double layerGain = obj.Volume / 100;
+                double layerGain = obj.Volume.Value / 100;
                 for (int i = 0; i < overlapLength; i++)
                 {
                     for (int ch = 0; ch < context.Format.ChannelCount; ch++)

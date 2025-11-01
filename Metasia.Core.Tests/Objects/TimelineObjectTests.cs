@@ -22,7 +22,7 @@ namespace Metasia.Core.Tests.Objects
 
             // Assert
             Assert.That(timeline.Id, Is.EqualTo("test-id"));
-            Assert.That(timeline.Volume, Is.EqualTo(100));
+            Assert.That(timeline.Volume.Value, Is.EqualTo(100.0));
             Assert.That(timeline.Layers, Is.Not.Null);
             Assert.That(timeline.Layers, Is.InstanceOf<List<LayerObject>>());
             Assert.That(timeline.Layers.Count, Is.EqualTo(0));
@@ -35,7 +35,7 @@ namespace Metasia.Core.Tests.Objects
             var timeline = new TimelineObject();
 
             // Assert
-            Assert.That(timeline.Volume, Is.EqualTo(100));
+            Assert.That(timeline.Volume.Value, Is.EqualTo(100.0));
             Assert.That(timeline.Layers, Is.Not.Null);
             Assert.That(timeline.Layers.Count, Is.EqualTo(0));
         }
@@ -44,13 +44,13 @@ namespace Metasia.Core.Tests.Objects
         public void Volume_CanBeModified()
         {
             // Arrange
-            Assert.That(_timelineObject.Volume, Is.EqualTo(100)); // デフォルト値確認
+            Assert.That(_timelineObject.Volume.Value, Is.EqualTo(100.0)); // デフォルト値確認
 
             // Act
             _timelineObject.Volume = 75;
 
             // Assert
-            Assert.That(_timelineObject.Volume, Is.EqualTo(75));
+            Assert.That(_timelineObject.Volume.Value, Is.EqualTo(75.0));
         }
 
         [Test]
@@ -182,8 +182,8 @@ namespace Metasia.Core.Tests.Objects
             Assert.That(firstTimeline.EndFrame, Is.EqualTo(49));
             Assert.That(secondTimeline.StartFrame, Is.EqualTo(50));
             Assert.That(secondTimeline.EndFrame, Is.EqualTo(100));
-            Assert.That(firstTimeline.Volume, Is.EqualTo(80));
-            Assert.That(secondTimeline.Volume, Is.EqualTo(80));
+            Assert.That(firstTimeline.Volume.Value, Is.EqualTo(80.0));
+            Assert.That(secondTimeline.Volume.Value, Is.EqualTo(80.0));
             Assert.That(firstTimeline.Layers.Count, Is.EqualTo(2));
             Assert.That(secondTimeline.Layers.Count, Is.EqualTo(2));
         }
@@ -272,8 +272,8 @@ namespace Metasia.Core.Tests.Objects
             _timelineObject.Layers.Clear();
 
             // Assert
-            Assert.That(firstTimeline.Volume, Is.EqualTo(80));
-            Assert.That(secondTimeline.Volume, Is.EqualTo(80));
+            Assert.That(firstTimeline.Volume.Value, Is.EqualTo(80.0));
+            Assert.That(secondTimeline.Volume.Value, Is.EqualTo(80.0));
             Assert.That(firstTimeline.Layers.Count, Is.GreaterThan(0));
             Assert.That(secondTimeline.Layers.Count, Is.GreaterThan(0));
         }

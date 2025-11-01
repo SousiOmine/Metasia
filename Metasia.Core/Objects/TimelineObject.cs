@@ -3,6 +3,7 @@ using Metasia.Core.Xml;
 using Metasia.Core.Sounds;
 using Metasia.Core.Objects.AudioEffects;
 using Metasia.Core.Attributes;
+using Metasia.Core.Objects.Parameters;
 
 namespace Metasia.Core.Objects
 {
@@ -18,7 +19,8 @@ namespace Metasia.Core.Objects
         public List<LayerObject> Layers { get; private set; }
 
         [EditableProperty("AudioVolume")]
-        public double Volume { get; set; } = 100;
+        [ValueRange(0, 99999, 0, 200)]
+        public MetaDoubleParam Volume { get; set; } = new MetaDoubleParam(100);
 
         public List<AudioEffectBase> AudioEffects { get; set; } = new();
 

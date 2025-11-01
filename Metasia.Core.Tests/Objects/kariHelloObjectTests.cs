@@ -29,7 +29,7 @@ namespace Metasia.Core.Tests.Objects
             Assert.That(obj.Scale, Is.Not.Null);
             Assert.That(obj.Alpha, Is.Not.Null);
             Assert.That(obj.Rotation, Is.Not.Null);
-            Assert.That(obj.Volume, Is.EqualTo(100));
+            Assert.That(obj.Volume.Value, Is.EqualTo(100.0));
         }
 
         [Test]
@@ -47,13 +47,13 @@ namespace Metasia.Core.Tests.Objects
         public void Volume_CanBeModified()
         {
             // Arrange
-            Assert.That(_kariHelloObject.Volume, Is.EqualTo(100)); // デフォルト値確認
+            Assert.That(_kariHelloObject.Volume.Value, Is.EqualTo(100.0)); // デフォルト値確認
 
             // Act
             _kariHelloObject.Volume = 50;
 
             // Assert
-            Assert.That(_kariHelloObject.Volume, Is.EqualTo(50));
+            Assert.That(_kariHelloObject.Volume.Value, Is.EqualTo(50.0));
         }
 
         [Test]
@@ -112,8 +112,8 @@ namespace Metasia.Core.Tests.Objects
             Assert.That(firstHello.EndFrame, Is.EqualTo(49));
             Assert.That(secondHello.StartFrame, Is.EqualTo(50));
             Assert.That(secondHello.EndFrame, Is.EqualTo(100));
-            Assert.That(firstHello.Volume, Is.EqualTo(60));
-            Assert.That(secondHello.Volume, Is.EqualTo(60));
+            Assert.That(firstHello.Volume.Value, Is.EqualTo(60.0));
+            Assert.That(secondHello.Volume.Value, Is.EqualTo(60.0));
         }
 
         /// <summary>
@@ -203,8 +203,8 @@ namespace Metasia.Core.Tests.Objects
             _kariHelloObject.AudioEffects.Clear();
 
             // Assert
-            Assert.That(firstHello.Volume, Is.EqualTo(60));
-            Assert.That(secondHello.Volume, Is.EqualTo(60));
+            Assert.That(firstHello.Volume.Value, Is.EqualTo(60.0));
+            Assert.That(secondHello.Volume.Value, Is.EqualTo(60.0));
             Assert.That(firstHello.AudioEffects.Count, Is.GreaterThan(0));
             Assert.That(secondHello.AudioEffects.Count, Is.GreaterThan(0));
         }

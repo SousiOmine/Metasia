@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using Metasia.Core.Attributes;
 using Metasia.Core.Objects;
+using Metasia.Core.Objects.Parameters;
 
 namespace Metasia.Editor.Models.EditCommands.Commands;
 
@@ -31,11 +32,10 @@ public class DoubleValueChangeCommand : IEditCommand
         foreach (var changeInfo in _changeInfos)
         {
             var property = ResolveProperty(changeInfo.targetClip, changeInfo.propertyIdentifier);
-            if (property is not null)
+            if (property is not null && property.PropertyType == typeof(MetaDoubleParam))
             {
-                var currentValue = (double)property.GetValue(changeInfo.targetClip)!;
-                var newValue = currentValue + changeInfo.valueDifference;
-                property.SetValue(changeInfo.targetClip, newValue);
+                var param = (MetaDoubleParam)property.GetValue(changeInfo.targetClip)!;
+                param.Value += changeInfo.valueDifference;
             }
         }
     }
@@ -45,11 +45,10 @@ public class DoubleValueChangeCommand : IEditCommand
         foreach (var changeInfo in _changeInfos)
         {
             var property = ResolveProperty(changeInfo.targetClip, changeInfo.propertyIdentifier);
-            if (property is not null)
+            if (property is not null && property.PropertyType == typeof(MetaDoubleParam))
             {
-                var currentValue = (double)property.GetValue(changeInfo.targetClip)!;
-                var undoValue = currentValue - changeInfo.valueDifference;
-                property.SetValue(changeInfo.targetClip, undoValue);
+                var param = (MetaDoubleParam)property.GetValue(changeInfo.targetClip)!;
+                param.Value -= changeInfo.valueDifference;
             }
         }
     }
@@ -62,7 +61,7 @@ public class DoubleValueChangeCommand : IEditCommand
             var (type, identifier) = tuple;
             foreach (var property in type.GetProperties())
             {
-                if (property.PropertyType != typeof(double))
+                if (property.PropertyType != typeof(MetaDoubleParam))
                 {
                     continue;
                 }
