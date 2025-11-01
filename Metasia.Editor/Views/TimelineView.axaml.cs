@@ -103,6 +103,16 @@ public partial class TimelineView : UserControl
     {
         if (VM == null) return;
 
+        // マウスカーソル位置を取得
+        var mousePosition = e.GetPosition(this);
+        var relativeMouseX = mousePosition.X - 100; // レイヤーボタン幅を引く
+
+        // 現在のスクロール位置を取得
+        var currentScrollOffset = TimescaleScroll.Offset.X;
+
+        // マウスカーソル位置に対応するフレーム位置を計算
+        double mouseFramePosition = (currentScrollOffset + relativeMouseX) / VM.Frame_Per_DIP;
+
         // ホイールの回転量に基づいてズーム倍率を計算
         double zoomFactor = 1.0 + (e.Delta.Y * 0.1); // 上回転で拡大、下回転で縮小
         double newFramePerDIP = VM.Frame_Per_DIP * zoomFactor;
@@ -112,5 +122,12 @@ public partial class TimelineView : UserControl
 
         // 新しい値を設定
         VM.Frame_Per_DIP = newFramePerDIP;
+
+        // ズーム後のスクロール位置を計算（マウスカーソル位置を基準に）
+        double newScrollOffset = (mouseFramePosition * newFramePerDIP) - relativeMouseX;
+
+        // スクロール位置を設定
+        TimescaleScroll.Offset = new Vector(newScrollOffset, TimescaleScroll.Offset.Y);
+        LinesScroll.Offset = new Vector(newScrollOffset, LinesScroll.Offset.Y);
     }
 }
