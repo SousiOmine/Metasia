@@ -45,11 +45,7 @@
 			</Grid>
 		</Grid>
 		<Border Grid.Row="1" Background="White"/>
-		<StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
-			<Slider Width="100" DockPanel.Dock="Right" 
-			        Minimum="0.1" Maximum="30"
-			        Value="{Binding Frame_Per_DIP}"/>
-		</StackPanel>
+
 	</Grid>
 	
 </UserControl>

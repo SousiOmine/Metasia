@@ -14,8 +14,6 @@ namespace Metasia.Editor.Views;
 
 public partial class TimelineView : UserControl
 {
-    public double Frame_Per_DIP { get; private set; }
-
     private TimelineViewModel? VM
     {
         get { return this.DataContext as TimelineViewModel; }
