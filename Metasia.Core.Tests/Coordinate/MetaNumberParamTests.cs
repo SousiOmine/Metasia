@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using Metasia.Core.Coordinate;
 using Metasia.Core.Objects;
+using Metasia.Core.Objects.Parameters;
 using Metasia.Core.Coordinate.InterpolationLogic;
 using System;
 

@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Timers;
 using Metasia.Core.Coordinate;
+using Metasia.Core.Objects.Parameters;
 using ReactiveUI;
 
 namespace Metasia.Editor.ViewModels.Inspector.Properties.Components;

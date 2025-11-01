@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Avalonia.Media;
-using Metasia.Core.Typography;
+using Metasia.Core.Objects.Parameters;
 
 namespace Metasia.Editor.Services;
 

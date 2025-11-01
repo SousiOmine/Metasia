@@ -1,12 +1,13 @@
 using System.Diagnostics;
 using Jint;
+using Metasia.Core.Coordinate;
 using Metasia.Core.Objects;
 using System.Linq;
 using System.Numerics;
 using System.Xml.Serialization;
 using System.ComponentModel;
 
-namespace Metasia.Core.Coordinate;
+namespace Metasia.Core.Objects.Parameters;
 
 public class MetaNumberParam<T> where T : struct, INumber<T>
 {
@@ -152,7 +153,7 @@ public class MetaNumberParam<T> where T : struct, INumber<T>
             if (nearestPoint != null)
             {
                 boundaryPointForFirstHalf.InterpolationLogic = nearestPoint.InterpolationLogic.HardCopy();
-                boundaryPointForSecondHalf.InterpolationLogic = nearestPoint.InterpolationLogic;
+                boundaryPointForSecondHalf.InterpolationLogic = nearestPoint.InterpolationLogic.HardCopy();
             }
         }
 

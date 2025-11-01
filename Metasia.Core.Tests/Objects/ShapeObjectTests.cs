@@ -1,5 +1,6 @@
 using Metasia.Core.Objects;
 using Metasia.Core.Coordinate;
+using Metasia.Core.Objects.Parameters;
 using NUnit.Framework;
 using Metasia.Core.Render;
 using System.Threading.Tasks;

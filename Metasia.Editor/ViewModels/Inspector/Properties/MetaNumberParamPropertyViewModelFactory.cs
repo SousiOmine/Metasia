@@ -1,5 +1,5 @@
 using System;
-using Metasia.Core.Coordinate;
+using Metasia.Core.Objects.Parameters;
 using Metasia.Editor.Models.EditCommands;
 using Metasia.Editor.Models.States;
 

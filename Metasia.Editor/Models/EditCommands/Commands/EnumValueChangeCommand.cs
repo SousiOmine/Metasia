@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Metasia.Core.Coordinate;
+using Metasia.Core.Objects.Parameters;
 using Metasia.Core.Objects;
 
 namespace Metasia.Editor.Models.EditCommands.Commands;

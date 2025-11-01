@@ -1,5 +1,5 @@
 using System;
-using Metasia.Core.Typography;
+using Metasia.Core.Objects.Parameters;
 using Metasia.Editor.Models.EditCommands;
 using Metasia.Editor.Models.States;
 using Metasia.Editor.Services;

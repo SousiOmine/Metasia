@@ -1,7 +1,7 @@
 using Metasia.Editor.Models;
 using Metasia.Editor.Models.EditCommands;
 using Metasia.Editor.Models.States;
-using Metasia.Core.Coordinate;
+using Metasia.Core.Objects.Parameters;
 
 namespace Metasia.Editor.ViewModels.Inspector.Properties;
 

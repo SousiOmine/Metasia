@@ -4,7 +4,7 @@ using Metasia.Core.Xml;
 using Metasia.Core.Objects;
 using Metasia.Core.Coordinate;
 using System.Xml;
-using Metasia.Core.Typography;
+using Metasia.Core.Objects.Parameters;
 
 namespace Metasia.Core.Tests.Xml;
 

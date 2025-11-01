@@ -6,7 +6,7 @@ using Metasia.Core.Coordinate;
 using Metasia.Core.Objects.AudioEffects;
 using Metasia.Core.Coordinate.InterpolationLogic;
 using Metasia.Core.Media;
-using Metasia.Core.Typography;
+using Metasia.Core.Objects.Parameters;
 
 namespace Metasia.Editor.Models.ProjectGenerate;
 

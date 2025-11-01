@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Metasia.Core.Coordinate;
+using Metasia.Core.Objects.Parameters;
 using Metasia.Core.Sounds;
 using System.Diagnostics;
 using System.Text.Json.Serialization;

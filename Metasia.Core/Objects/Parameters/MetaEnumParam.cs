@@ -1,7 +1,7 @@
 using System.Xml.Serialization;
 using System.ComponentModel;
 
-namespace Metasia.Core.Coordinate;
+namespace Metasia.Core.Objects.Parameters;
 
 /// <summary>
 /// 列挙型のパラメータを表すクラス

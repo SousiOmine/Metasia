@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Metasia.Core.Coordinate;
 using Metasia.Core.Objects;
-using Metasia.Core.Typography;
+using Metasia.Core.Objects.Parameters;
 using Metasia.Editor.Models.DragDropData;
 using Metasia.Editor.Models.EditCommands;
 using Metasia.Editor.Models.EditCommands.Commands;

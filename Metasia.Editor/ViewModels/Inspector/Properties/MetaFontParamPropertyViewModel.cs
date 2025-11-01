@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Metasia.Core.Objects;
-using Metasia.Core.Typography;
+using Metasia.Core.Objects.Parameters;
 using Metasia.Editor.Models;
 using Metasia.Editor.Models.EditCommands;
 using Metasia.Editor.Models.Interactor;

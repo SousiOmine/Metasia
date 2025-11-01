@@ -7,7 +7,7 @@ using Metasia.Core.Coordinate;
 using System;
 using Metasia.Editor.Models.States;
 using Metasia.Core.Media;
-using Metasia.Core.Typography;
+using Metasia.Core.Objects.Parameters;
 
 namespace Metasia.Editor.ViewModels.Inspector;
 

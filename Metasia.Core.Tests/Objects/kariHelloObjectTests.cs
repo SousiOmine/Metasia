@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using Metasia.Core.Objects;
 using Metasia.Core.Coordinate;
+using Metasia.Core.Objects.Parameters;
 
 namespace Metasia.Core.Tests.Objects
 {

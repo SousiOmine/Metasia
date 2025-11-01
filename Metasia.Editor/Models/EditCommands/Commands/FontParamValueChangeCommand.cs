@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using Metasia.Core.Attributes;
 using Metasia.Core.Objects;
-using Metasia.Core.Typography;
+using Metasia.Core.Objects.Parameters;
 
 namespace Metasia.Editor.Models.EditCommands.Commands;
 

@@ -2,7 +2,7 @@ using System;
 using System.Xml.Serialization;
 using SkiaSharp;
 
-namespace Metasia.Core.Typography;
+namespace Metasia.Core.Objects.Parameters;
 
 [Serializable]
 public class MetaFontParam : IEquatable<MetaFontParam>
