@@ -21,6 +21,7 @@ namespace Metasia.Editor.ViewModels
         private int frame;
         private int sliderMaximum = 100;
         private int sliderMinimum;
+        private bool _isUpdatingFrameFromPlayback;
 
         public int AudioVolume { get; set; } = 100;
 
@@ -50,6 +51,12 @@ namespace Metasia.Editor.ViewModels
                 if (frame != value)
                 {
                     this.RaiseAndSetIfChanged(ref frame, value);
+
+                    if (!_isUpdatingFrameFromPlayback)
+                    {
+                        playbackState.Seek(value);
+                    }
+
                     playbackState.RequestReRendering();
                 }
             }
@@ -188,7 +195,9 @@ namespace Metasia.Editor.ViewModels
 
         private void OnPlaybackFrameChanged()
         {
+            _isUpdatingFrameFromPlayback = true;
             Frame = playbackState.CurrentFrame;
+            _isUpdatingFrameFromPlayback = false;
         }
     }
 }
