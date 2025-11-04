@@ -65,7 +65,8 @@ public class MediaPathPropertyViewModel : ViewModelBase
 
     private async void OpenFileCommandExecute()
     {
-        var file = await _fileDialogService.OpenFileDialogAsync("ファイルを開く", ["*.png", "*.jpg", "*.jpeg", "*.bmp", "*.mp4", "*.avi", "*.mov", "*.wmv"]);
+        var filePatterns = GetFilePatterns();
+        var file = await _fileDialogService.OpenFileDialogAsync("ファイルを開く", filePatterns);
 
         if (file is null) return;
 
@@ -76,5 +77,16 @@ public class MediaPathPropertyViewModel : ViewModelBase
 
         _editCommandManager.Execute(new MediaPathChangeCommand(_target, mediaPath));
 
+    }
+
+    private string[] GetFilePatterns()
+    {
+        // プロパティ表示名からオブジェクトタイプを判定
+        if (_propertyDisplayName.Contains("Image") || _propertyDisplayName.Contains("画像"))
+            return ["*.png", "*.jpg", "*.jpeg", "*.bmp", "*.gif", "*.webp", "*.tiff"];
+        else if (_propertyDisplayName.Contains("Video") || _propertyDisplayName.Contains("動画"))
+            return ["*.mp4", "*.avi", "*.mov", "*.wmv", "*.mkv", "*.webm", "*.flv"];
+        else
+            return ["*"]; // デフォルト
     }
 }
