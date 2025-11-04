@@ -45,10 +45,10 @@
 				<MenuItem Header="元に戻す" Command="{Binding Undo}"/>
 				<MenuItem Header="やり直し" Command="{Binding Redo}"/>
 			</MenuItem>
-			<MenuItem Header="表示">
+			<MenuItem Header="表示" IsEnabled="False">
 
 			</MenuItem>
-			<MenuItem Header="その他">
+			<MenuItem Header="その他" IsEnabled="False">
 
 			</MenuItem>
 		</Menu>
@@ -62,9 +62,9 @@
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition Width="*"/>
 					<ColumnDefinition Width="5"/>
-					<ColumnDefinition Width="2*"/>
+					<ColumnDefinition Width="3*"/>
 					<ColumnDefinition Width="5"/>
-					<ColumnDefinition Width="*"/>
+					<ColumnDefinition Width="2*"/>
 				</Grid.ColumnDefinitions>
 				<!-- <TextBlock Grid.Column="0" Text="プロジェクトのあるディレクトリの中身"/> -->
 				<views:ToolsView Grid.Column="0" DataContext="{Binding ToolsVM}"/>

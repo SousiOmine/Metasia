@@ -14,18 +14,18 @@
 		<converter:ClipSelectConverter x:Key="ClipConverter"/>
 	</UserControl.Resources>
 	<Border x:Name="Clip" 
-			BorderBrush="DarkGray" Background="Pink" BorderThickness="1" CornerRadius="10" ClipToBounds="True"
+			BorderBrush="DarkGray" Background="LightGreen" BorderThickness="1" CornerRadius="10" ClipToBounds="True"
 	        Opacity="{Binding IsSelecting, Converter={StaticResource ClipConverter}}"
 			>
 		<i:Interaction.Behaviors>
 			<behaviors:ClipViewBehavior DragThreshold="5" FramePerDIP="{Binding Frame_Per_DIP}"/>
 		</i:Interaction.Behaviors>
 		<Grid ColumnDefinitions="Auto,*,Auto">
-			<Border Grid.Column="0" x:Name="StartHandle" Width="10" Background="Blue" Cursor="SizeWestEast" VerticalAlignment="Stretch" HorizontalAlignment="Left"/>
+			<Border Grid.Column="0" x:Name="StartHandle" Width="10" Background="Transparent" Cursor="SizeWestEast" VerticalAlignment="Stretch" HorizontalAlignment="Left"/>
 			<RelativePanel Grid.Column="1">
 				<TextBlock Text="オブジェクト" Padding="5" RelativePanel.AlignVerticalCenterWithPanel="True"/>
 			</RelativePanel>
-			<Border Grid.Column="2" x:Name="EndHandle" Width="10" Background="Green" Cursor="SizeWestEast" VerticalAlignment="Stretch" HorizontalAlignment="Right"/>
+			<Border Grid.Column="2" x:Name="EndHandle" Width="10" Background="Transparent" Cursor="SizeWestEast" VerticalAlignment="Stretch" HorizontalAlignment="Right"/>
 		</Grid>
 		
 		<Border.ContextFlyout>

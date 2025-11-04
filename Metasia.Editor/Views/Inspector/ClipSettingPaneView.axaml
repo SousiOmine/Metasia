@@ -8,7 +8,7 @@
              x:Class="Metasia.Editor.Views.Inspector.ClipSettingPaneView"
 			 x:DataType="vm:ClipSettingPaneViewModel"
              Padding="10">
-    <Border Background="LightGreen" VerticalAlignment="Center" HorizontalAlignment="Stretch" Padding="10">
+    <Border Background="Transparent" VerticalAlignment="Center" HorizontalAlignment="Stretch" Padding="10">
         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Stretch">
             <CheckBox Content="IsActive" IsChecked="{Binding IsActiveCheck}" Command="{Binding IsActiveCheckCommand}"></CheckBox>
             <ItemsControl ItemsSource="{Binding Properties}">

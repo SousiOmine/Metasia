@@ -25,7 +25,7 @@
 						<TextBlock FontSize="40">
 							0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
 						</TextBlock>
-						<Rectangle Canvas.Left="{Binding CursorLeft}" Fill="Green" Width="3" Height="500"/>
+						<Rectangle Canvas.Left="{Binding CursorLeft}" Fill="Red" Width="2" Height="500"/>
 					</Canvas>
 					
 				</ScrollViewer>
@@ -37,7 +37,7 @@
 					<Canvas VerticalAlignment="Top"
 							Width="{Binding ElementName=TimelineScroll, Path=Bounds.Width}" 
 					        Height="{Binding ElementName=TimelineScroll, Path=Bounds.Height}">
-						<Rectangle Canvas.Left="{Binding CursorLeft}" Fill="Green" Width="3" Height="500" ZIndex="1"/>
+						<Rectangle Canvas.Left="{Binding CursorLeft}" Fill="Red" Width="2" Height="500" ZIndex="1"/>
 						<ItemsControl x:Name="TimelineScroll" ItemsSource="{Binding LayerCanvas}" />
 					</Canvas>
 					

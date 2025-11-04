@@ -6,13 +6,15 @@
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="50"
              x:Class="Metasia.Editor.Views.Inspector.Properties.StringPropertyView"
              x:DataType="vm:StringPropertyViewModel">
-    <StackPanel Orientation="Horizontal" Margin="2">
+    <StackPanel Orientation="Vertical" Margin="2">
         <TextBlock Text="{Binding PropertyDisplayName}" 
                    VerticalAlignment="Center" 
-                   Width="70" 
+                   HorizontalAlignment="Left"
                    Margin="2"/>
         <TextBox Text="{Binding PropertyValue, Mode=TwoWay}"
-                 Width="250"
+                 AcceptsReturn="True"
+                 TextWrapping="Wrap"
+                 HorizontalAlignment="Stretch"
                  VerticalAlignment="Center"
                  Watermark="テキストを入力"/>
     </StackPanel>
