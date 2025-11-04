@@ -110,6 +110,8 @@ namespace Metasia.Editor
             // プラグインを読み込み
             await Services.GetRequiredService<IPluginService>().LoadPluginsAsync();
 
+            await Task.Delay(1000);
+
         }
 
         private void CompleteApplicationStart()

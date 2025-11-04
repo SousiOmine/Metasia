@@ -5,6 +5,7 @@
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         Width="800" Height="450"
         x:Class="Metasia.Editor.Views.SplashScreen"
+        Icon="/Assets/metasia-icon.ico"
         Title="SplashScreen"
         Background="White"
         BorderBrush="Transparent"
@@ -17,6 +18,7 @@
         WindowStartupLocation="CenterScreen"
         >
     <StackPanel>
+        <Image Source="{SvgImage avares://Metasia.Editor/Assets/metasia-logo.svg}"></Image>
         <TextBlock Text="Metasia Editor" FontSize="24" FontWeight="Bold" />
         <TextBlock Text="Loading..." FontSize="16" />
     </StackPanel>
