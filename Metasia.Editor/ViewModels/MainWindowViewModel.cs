@@ -2,14 +2,15 @@ using System;
 using System.Diagnostics;
 using System.Windows.Input;
 using ReactiveUI;
-using Microsoft.Extensions.DependencyInjection;
-using Metasia.Editor.Services;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Metasia.Editor.Models;
 using Metasia.Editor.Models.Projects;
 using Metasia.Editor.Models.FileSystem;
 using Metasia.Editor.Models.ProjectGenerate;
 using Metasia.Editor.Models.States;
+using Metasia.Editor.ViewModels.Dialogs;
+using Metasia.Editor.Services;
 
 namespace Metasia.Editor.ViewModels
 {
@@ -29,6 +30,8 @@ namespace Metasia.Editor.ViewModels
 
         public ICommand Undo { get; }
         public ICommand Redo { get; }
+
+        public Interaction<NewProjectViewModel, (bool Result, string ProjectPath, Metasia.Core.Project.ProjectInfo ProjectInfo, Metasia.Core.Project.MetasiaProject? SelectedTemplate)> NewProjectInteraction { get; } = new();
 
         private IFileDialogService _fileDialogService;
         private IProjectState _projectState;
@@ -78,18 +81,12 @@ namespace Metasia.Editor.ViewModels
         {
             try
             {
-                var newProjectDialogService = App.Current?.Services?.GetService<INewProjectDialogService>();
-                if (newProjectDialogService is null)
-                {
-                    Debug.WriteLine("NewProjectDialogService is not found");
-                    return;
-                }
+                var vm = new NewProjectViewModel();
+                var result = await NewProjectInteraction.Handle(vm).FirstAsync();
 
-                var (result, projectPath, projectInfo, selectedTemplate) = await newProjectDialogService.ShowDialogAsync();
-
-                if (result)
+                if (result.Result)
                 {
-                    MetasiaEditorProject editorProject = ProjectGenerator.CreateProject(projectPath, projectInfo, selectedTemplate);
+                    MetasiaEditorProject editorProject = ProjectGenerator.CreateProject(result.ProjectPath, result.ProjectInfo, result.SelectedTemplate);
                     await _projectState.LoadProjectAsync(editorProject);
                 }
             }

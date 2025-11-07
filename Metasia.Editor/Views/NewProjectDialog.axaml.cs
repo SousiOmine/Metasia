@@ -1,144 +1,79 @@
-using System.IO;
-using System.Collections.Generic;
-using System.Linq;
-using Avalonia;
+using System;
+using System.Reactive.Disposables;
+using System.Threading.Tasks;
 using Avalonia.Controls;
-using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Platform.Storage;
-using Metasia.Core.Project;
-using Metasia.Editor.Models.ProjectGenerate;
-using SkiaSharp;
+using Metasia.Editor.ViewModels.Dialogs;
 
 namespace Metasia.Editor.Views
 {
     public partial class NewProjectDialog : Window
     {
-        public string ProjectName { get; private set; } = string.Empty;
-        public string ProjectPath { get; private set; } = string.Empty;
-        public ProjectInfo ProjectInfo { get; private set; }
-        public MetasiaProject? SelectedTemplate { get; private set; }
-
-        private readonly List<IProjectTemplate> _availableTemplates = new();
+        private NewProjectViewModel? _viewModel;
+        private IDisposable? _okCommandSubscription;
+        private IDisposable? _cancelCommandSubscription;
+        private IDisposable? _browseFolderCommandSubscription;
 
         public NewProjectDialog()
         {
             InitializeComponent();
-            LoadTemplates();
-
-            var browseButton = this.FindControl<Button>("BrowseButton");
-            var folderPathTextBox = this.FindControl<TextBox>("FolderPathTextBox");
-            var projectNameTextBox = this.FindControl<TextBox>("ProjectNameTextBox");
-            var cancelButton = this.FindControl<Button>("CancelButton");
-            var createButton = this.FindControl<Button>("CreateButton");
-            var framerateComboBox = this.FindControl<ComboBox>("FramerateComboBox");
-            var resolutionComboBox = this.FindControl<ComboBox>("ResolutionComboBox");
-            var templateComboBox = this.FindControl<ComboBox>("TemplateComboBox");
-
-            templateComboBox.SelectedIndex = 0;
-
-            browseButton.Click += async (sender, e) =>
-            {
-                var folders = await StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
-                {
-                    Title = "保存先フォルダを選択",
-                    AllowMultiple = false
-                });
-
-                if (folders.Count > 0)
-                {
-                    folderPathTextBox.Text = folders[0].Path.LocalPath;
-                    UpdateCreateButtonState();
-                }
-            };
-
-            projectNameTextBox.TextChanged += (sender, e) =>
-            {
-                UpdateCreateButtonState();
-            };
-
-            cancelButton.Click += (sender, e) =>
-            {
-                Close(false);
-            };
-
-            createButton.Click += (sender, e) =>
-            {
-                ProjectName = projectNameTextBox.Text;
-                ProjectPath = Path.Combine(folderPathTextBox.Text, ProjectName);
-
-                // フレームレートを取得
-                int framerate = 30;
-                switch (framerateComboBox.SelectedIndex)
-                {
-                    case 0: framerate = 24; break;
-                    case 1: framerate = 30; break;
-                    case 2: framerate = 60; break;
-                }
-
-                // 解像度を取得
-                SKSize size = new SKSize(1920, 1080);
-                switch (resolutionComboBox.SelectedIndex)
-                {
-                    case 0: size = new SKSize(1280, 720); break;
-                    case 1: size = new SKSize(1920, 1080); break;
-                    case 2: size = new SKSize(3840, 2160); break;
-                }
-
-                ProjectInfo = new ProjectInfo(framerate, size, 44100, 2);
-
-                // テンプレートを取得
-                if (templateComboBox.SelectedIndex > 0)
-                {
-                    int templateIndex = templateComboBox.SelectedIndex - 1; // 最初の項目は「空のプロジェクト」
-                    if (templateIndex >= 0 && templateIndex < _availableTemplates.Count)
-                    {
-                        SelectedTemplate = _availableTemplates[templateIndex].Template;
-                    }
-                }
-
-                // プロジェクトフォルダを作成
-                if (!Directory.Exists(ProjectPath))
-                {
-                    Directory.CreateDirectory(ProjectPath);
-                }
-
-                Close(true);
-            };
+            this.DataContextChanged += OnDataContextChanged;
         }
 
-        public void SetTemplates(List<IProjectTemplate> templates)
+        private void OnDataContextChanged(object? sender, EventArgs args)
         {
-            _availableTemplates.Clear();
-            _availableTemplates.AddRange(templates);
-            LoadTemplates();
-        }
+            // Dispose of any existing subscriptions
+            _okCommandSubscription?.Dispose();
+            _cancelCommandSubscription?.Dispose();
+            _browseFolderCommandSubscription?.Dispose();
+            _okCommandSubscription = null;
+            _cancelCommandSubscription = null;
+            _browseFolderCommandSubscription = null;
 
-        private void LoadTemplates()
-        {
-            // テンプレート選択コンボボックスにテンプレート名を追加
-            var templateComboBox = this.FindControl<ComboBox>("TemplateComboBox");
-
-            // 空のプロジェクトオプションはコードで処理するため、ComboBoxのItemsコレクションをクリア
-            templateComboBox.Items.Clear();
-            templateComboBox.Items.Add(new ComboBoxItem { Content = "空のプロジェクト" });
-
-            foreach (var template in _availableTemplates)
+            if (this.DataContext is NewProjectViewModel vm)
             {
-                templateComboBox.Items.Add(new ComboBoxItem { Content = template.Name });
+                _viewModel = vm;
+
+                // Subscribe to the commands
+                _okCommandSubscription = _viewModel.OkCommand
+                    .Subscribe(result => Close(result));
+
+                _cancelCommandSubscription = _viewModel.CancelCommand
+                    .Subscribe(result => Close(result));
+
+                _browseFolderCommandSubscription = _viewModel.BrowseFolderCommand
+                    .Subscribe(async _ => await BrowseFolderAsync());
+            }
+            else
+            {
+                _viewModel = null;
             }
         }
 
-        private void UpdateCreateButtonState()
+        private async Task BrowseFolderAsync()
         {
-            var projectNameTextBox = this.FindControl<TextBox>("ProjectNameTextBox");
-            var folderPathTextBox = this.FindControl<TextBox>("FolderPathTextBox");
-            var createButton = this.FindControl<Button>("CreateButton");
+            var folders = await StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
+            {
+                Title = "保存先フォルダを選択",
+                AllowMultiple = false
+            });
 
-            bool hasProjectName = !string.IsNullOrWhiteSpace(projectNameTextBox.Text);
-            bool hasFolderPath = !string.IsNullOrWhiteSpace(folderPathTextBox.Text);
+            if (folders.Count > 0 && _viewModel != null)
+            {
+                _viewModel.FolderPath = folders[0].Path.LocalPath;
+            }
+        }
 
-            createButton.IsEnabled = hasProjectName && hasFolderPath;
+        protected override void OnClosed(EventArgs e)
+        {
+            _okCommandSubscription?.Dispose();
+            _cancelCommandSubscription?.Dispose();
+            _browseFolderCommandSubscription?.Dispose();
+            
+            this.DataContextChanged -= OnDataContextChanged;
+
+            base.OnClosed(e);
         }
 
         private void InitializeComponent()
