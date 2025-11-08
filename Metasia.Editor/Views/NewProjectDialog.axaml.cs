@@ -3,7 +3,7 @@ using System.Reactive.Disposables;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using Avalonia.Platform.Storage;
+using Metasia.Editor.Services;
 using Metasia.Editor.ViewModels.Dialogs;
 
 namespace Metasia.Editor.Views
@@ -13,7 +13,6 @@ namespace Metasia.Editor.Views
         private NewProjectViewModel? _viewModel;
         private IDisposable? _okCommandSubscription;
         private IDisposable? _cancelCommandSubscription;
-        private IDisposable? _browseFolderCommandSubscription;
 
         public NewProjectDialog()
         {
@@ -26,10 +25,8 @@ namespace Metasia.Editor.Views
             // Dispose of any existing subscriptions
             _okCommandSubscription?.Dispose();
             _cancelCommandSubscription?.Dispose();
-            _browseFolderCommandSubscription?.Dispose();
             _okCommandSubscription = null;
             _cancelCommandSubscription = null;
-            _browseFolderCommandSubscription = null;
 
             if (this.DataContext is NewProjectViewModel vm)
             {
@@ -41,9 +38,6 @@ namespace Metasia.Editor.Views
 
                 _cancelCommandSubscription = _viewModel.CancelCommand
                     .Subscribe(result => Close(result));
-
-                _browseFolderCommandSubscription = _viewModel.BrowseFolderCommand
-                    .Subscribe(async _ => await BrowseFolderAsync());
             }
             else
             {
@@ -51,25 +45,12 @@ namespace Metasia.Editor.Views
             }
         }
 
-        private async Task BrowseFolderAsync()
-        {
-            var folders = await StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
-            {
-                Title = "保存先フォルダを選択",
-                AllowMultiple = false
-            });
 
-            if (folders.Count > 0 && _viewModel != null)
-            {
-                _viewModel.FolderPath = folders[0].Path.LocalPath;
-            }
-        }
 
         protected override void OnClosed(EventArgs e)
         {
             _okCommandSubscription?.Dispose();
             _cancelCommandSubscription?.Dispose();
-            _browseFolderCommandSubscription?.Dispose();
             
             this.DataContextChanged -= OnDataContextChanged;
 

@@ -14,6 +14,7 @@ using Metasia.Editor.Services;
 using Metasia.Editor.Services.Audio;
 using Metasia.Editor.Services.PluginService;
 using Metasia.Editor.ViewModels;
+using Metasia.Editor.ViewModels.Dialogs;
 using Metasia.Editor.ViewModels.Inspector;
 using Metasia.Editor.ViewModels.Inspector.Properties;
 using Metasia.Editor.ViewModels.Timeline;
@@ -93,6 +94,7 @@ namespace Metasia.Editor
             services.AddTransient<IDoublePropertyViewModelFactory, DoublePropertyViewModelFactory>();
             services.AddTransient<IMetaEnumParamPropertyViewModelFactory, MetaEnumParamPropertyViewModelFactory>();
             services.AddTransient<IMetaFontParamPropertyViewModelFactory, MetaFontParamPropertyViewModelFactory>();
+            services.AddTransient<INewProjectViewModelFactory, NewProjectViewModelFactory>();
 
 
             services.AddTransient<MainWindowViewModel>();

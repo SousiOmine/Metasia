@@ -35,6 +35,7 @@ namespace Metasia.Editor.ViewModels
 
         private IFileDialogService _fileDialogService;
         private IProjectState _projectState;
+        private readonly INewProjectViewModelFactory _newProjectViewModelFactory;
 
         public MainWindowViewModel(
             PlayerParentViewModel playerParentVM,
@@ -43,7 +44,8 @@ namespace Metasia.Editor.ViewModels
             ToolsViewModel toolsVM,
             IKeyBindingService keyBindingService,
             IFileDialogService fileDialogService,
-            IProjectState projectState)
+            IProjectState projectState,
+            INewProjectViewModelFactory newProjectViewModelFactory)
         {
             PlayerParentVM = playerParentVM;
             TimelineParentVM = timelineParentVM;
@@ -51,6 +53,7 @@ namespace Metasia.Editor.ViewModels
             ToolsVM = toolsVM;
             _fileDialogService = fileDialogService;
             _projectState = projectState;
+            _newProjectViewModelFactory = newProjectViewModelFactory;
             LoadEditingProject = ReactiveCommand.Create(LoadEditingProjectExecuteAsync);
             CreateNewProject = ReactiveCommand.Create(CreateNewProjectExecuteAsync);
             OverrideSaveEditingProject = ReactiveCommand.Create(OverrideSaveEditingProjectExecuteAsync);
@@ -81,7 +84,7 @@ namespace Metasia.Editor.ViewModels
         {
             try
             {
-                var vm = new NewProjectViewModel();
+                var vm = _newProjectViewModelFactory.Create();
                 var result = await NewProjectInteraction.Handle(vm).FirstAsync();
 
                 if (result.Result)

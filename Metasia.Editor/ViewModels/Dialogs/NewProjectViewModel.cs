@@ -4,8 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using Metasia.Core.Project;
 using Metasia.Editor.Models.ProjectGenerate;
+using Metasia.Editor.Services;
 using ReactiveUI;
 using SkiaSharp;
 using System.Collections.ObjectModel;
@@ -70,8 +72,11 @@ public class NewProjectViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _selectedFolderPath, value);
     }
 
-    public NewProjectViewModel()
+    private readonly IFileDialogService _fileDialogService;
+
+    public NewProjectViewModel(IFileDialogService fileDialogService)
     {
+        _fileDialogService = fileDialogService;
         LoadTemplates();
         LoadOptions();
 
@@ -123,7 +128,16 @@ public class NewProjectViewModel : ViewModelBase
         CancelCommand = ReactiveCommand.Create(() => 
             (Result: false, ProjectPath: string.Empty, ProjectInfo: new ProjectInfo(30, new SKSize(1920, 1080), 44100, 2), SelectedTemplate: (MetasiaProject?)null));
 
-        BrowseFolderCommand = ReactiveCommand.Create(() => { });
+        BrowseFolderCommand = ReactiveCommand.CreateFromTask(BrowseFolderAsync);
+    }
+
+    private async Task BrowseFolderAsync()
+    {
+        var folder = await _fileDialogService.OpenFolderDialogAsync();
+        if (folder != null)
+        {
+            FolderPath = folder.Path.LocalPath;
+        }
     }
 
     private void LoadTemplates()
