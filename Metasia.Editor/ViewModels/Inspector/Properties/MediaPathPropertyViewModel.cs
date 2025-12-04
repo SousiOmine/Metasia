@@ -73,7 +73,7 @@ public class MediaPathPropertyViewModel : ViewModelBase
         var directory = Path.GetDirectoryName(file.Path?.LocalPath ?? "") ?? "";
         var fileName = Path.GetFileName(file.Path?.LocalPath ?? "");
 
-        var mediaPath = MediaPath.CreateFromPath(directory, fileName, "", PathType.Absolute);
+        var mediaPath = MediaPath.CreateFromPath(directory, fileName);
 
         _editCommandManager.Execute(new MediaPathChangeCommand(_target, mediaPath));
 

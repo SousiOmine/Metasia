@@ -10,18 +10,13 @@ namespace Metasia.Core.Media
         [XmlElement("Directory")]
         public string Directory { get; set; } = string.Empty;
 
-        [XmlElement("PathType")]
-        public PathType PathType { get; set; } = PathType.Absolute;
-
         /// <summary>
-        /// 絶対パスからMediaPathを作成する
+        /// MediaPathを作成する
         /// </summary>
-        /// <param name="directory">ディレクトリ 絶対パス</param>
+        /// <param name="directory">ディレクトリパス</param>
         /// <param name="fileName">ファイル名</param>
-        /// <param name="projectDir">プロジェクトファイルのあるディレクトリ</param>
-        /// <param name="pathType">パスをどのような形で扱うか(絶対パス、プロジェクト基準の相対パスなど)</param>
         /// <returns>MediaPath</returns>
-        public static MediaPath CreateFromPath(string directory, string fileName, string? projectDir, PathType pathType)
+        public static MediaPath CreateFromPath(string directory, string fileName)
         {
             // Validate inputs
             ArgumentNullException.ThrowIfNull(directory);
@@ -38,41 +33,12 @@ namespace Metasia.Core.Media
             if (string.Equals(Path.GetFileName(directory), fileName, StringComparison.OrdinalIgnoreCase))
                 throw new ArgumentException("directory must not contain fileName as its last segment", nameof(directory));
 
-            // Resolve directory based on path type
-            if (pathType == PathType.ProjectRelative)
-            {
-                try
-                {
-                    directory = Path.GetRelativePath(projectDir ?? "", directory);
-                }
-                catch (Exception ex)
-                {
-                    throw new ArgumentException("Failed to get relative path", ex);
-                }
-            }
-            else if (pathType == PathType.Absolute)
-            {
-                try
-                {
-                    directory = Path.GetFullPath(directory);
-                }
-                catch (Exception ex)
-                {
-                    throw new ArgumentException("Failed to get full path", ex);
-                }
-            }
-            else
-            {
-                throw new ArgumentException("pathType must be PathType.ProjectRelative or PathType.Absolute", nameof(pathType));
-            }
-
             string pathToSave = directory.Replace(Path.DirectorySeparatorChar, '/');
 
             return new MediaPath
             {
                 FileName = fileName,
-                Directory = pathToSave,
-                PathType = pathType
+                Directory = pathToSave
             };
         }
 
@@ -85,17 +51,19 @@ namespace Metasia.Core.Media
         public static string GetFullPath(MediaPath mediaPath, string? projectDir)
         {
             string separatorApplied = mediaPath.Directory.Replace('/', Path.DirectorySeparatorChar);
-            if (mediaPath.PathType == PathType.Absolute)
+
+            // パスが相対パスか絶対パスかを判定
+            if (Path.IsPathRooted(separatorApplied))
             {
-                return Path.Combine(separatorApplied, mediaPath.FileName);
-            }
-            else if (mediaPath.PathType == PathType.ProjectRelative)
-            {
-                return Path.Combine(projectDir ?? "", separatorApplied, mediaPath.FileName);
+                // 絶対パスの場合
+                return Path.GetFullPath(Path.Combine(separatorApplied, mediaPath.FileName));
             }
             else
             {
-                throw new ArgumentException("pathType must be PathType.ProjectRelative or PathType.Absolute");
+                // 相対パスの場合、projectDirがnullの場合は例外をスロー
+                ArgumentNullException.ThrowIfNull(projectDir);
+
+                return Path.GetFullPath(Path.Combine(projectDir, separatorApplied, mediaPath.FileName));
             }
         }
     }
