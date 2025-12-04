@@ -28,6 +28,7 @@ namespace Metasia.Core.Render
             IImageFileAccessor imageFileAccessor,
             IVideoFileAccessor videoFileAccessor,
             ProjectInfo projectInfo,
+            string projectPath,
             CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(root);
@@ -45,7 +46,7 @@ namespace Metasia.Core.Render
 
                 cancellationToken.ThrowIfCancellationRequested();
 
-                var context = new RenderContext(frame, projectResolution, renderResolution, imageFileAccessor, videoFileAccessor, projectInfo);
+                var context = new RenderContext(frame, projectResolution, renderResolution, imageFileAccessor, videoFileAccessor, projectInfo, projectPath);
                 var rootNode = await root.RenderAsync(context, cancellationToken);
 
                 cancellationToken.ThrowIfCancellationRequested();

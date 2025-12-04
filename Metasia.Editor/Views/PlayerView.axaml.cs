@@ -160,7 +160,8 @@ public partial class PlayerView : UserControl, IDisposable
                         new SKSize(3840, 2160),
                         mediaAccessorRouter,
                         mediaAccessorRouter,
-                        projectInfo);
+                        projectInfo,
+                        VM.ProjectPath);
 
                     // フレームが変わっていなければビットマップを更新
                     if (requestedFrame == VM.Frame)

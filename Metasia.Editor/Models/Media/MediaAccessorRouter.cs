@@ -16,7 +16,7 @@ public class MediaAccessorRouter : IImageFileAccessor, IVideoFileAccessor
         Accessors.Add(new StdInput());
     }
 
-    public async Task<ImageFileAccessorResult> GetBitmapAsync(MediaPath path)
+    public async Task<ImageFileAccessorResult> GetBitmapAsync(string path)
     {
         foreach (var accessor in Accessors)
         {
@@ -32,13 +32,13 @@ public class MediaAccessorRouter : IImageFileAccessor, IVideoFileAccessor
         return new ImageFileAccessorResult { IsSuccessful = false, Bitmap = null };
     }
 
-    public async Task<VideoFileAccessorResult> GetBitmapAsync(MediaPath path, TimeSpan time, string? projectDir)
+    public async Task<VideoFileAccessorResult> GetBitmapAsync(string path, TimeSpan time)
     {
         foreach (var accessor in Accessors)
         {
             if (accessor is IVideoFileAccessor videoAccessor)
             {
-                var result = await videoAccessor.GetBitmapAsync(path, time, projectDir);
+                var result = await videoAccessor.GetBitmapAsync(path, time);
                 if (result.IsSuccessful)
                 {
                     return result;
@@ -48,13 +48,13 @@ public class MediaAccessorRouter : IImageFileAccessor, IVideoFileAccessor
         return new VideoFileAccessorResult { IsSuccessful = false, Bitmap = null };
     }
 
-    public async Task<VideoFileAccessorResult> GetBitmapAsync(MediaPath path, int frame, string? projectDir)
+    public async Task<VideoFileAccessorResult> GetBitmapAsync(string path, int frame)
     {
         foreach (var accessor in Accessors)
         {
             if (accessor is IVideoFileAccessor videoAccessor)
             {
-                var result = await videoAccessor.GetBitmapAsync(path, frame, projectDir);
+                var result = await videoAccessor.GetBitmapAsync(path, frame);
                 if (result.IsSuccessful)
                 {
                     return result;

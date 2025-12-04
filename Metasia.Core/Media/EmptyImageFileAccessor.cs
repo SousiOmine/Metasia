@@ -4,7 +4,7 @@ namespace Metasia.Core.Media;
 
 public class EmptyImageFileAccessor : IImageFileAccessor
 {
-    public async Task<ImageFileAccessorResult> GetBitmapAsync(MediaPath path)
+    public async Task<ImageFileAccessorResult> GetBitmapAsync(string path)
     {
         return await Task.FromResult(new ImageFileAccessorResult()
         {

@@ -49,7 +49,7 @@ public class ImageObject : ClipObject, IRenderable
         {
             try
             {
-                var imageFileAccessorResult = await context.ImageFileAccessor.GetBitmapAsync(ImagePath);
+                var imageFileAccessorResult = await context.ImageFileAccessor.GetBitmapAsync(MediaPath.GetFullPath(ImagePath, context.ProjectPath));
                 if (imageFileAccessorResult.IsSuccessful && imageFileAccessorResult.Bitmap is not null)
                 {
                     var transform = new Transform()
