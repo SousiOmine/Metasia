@@ -59,7 +59,8 @@ public class ShapeObjectTests
             new SkiaSharp.SKSize(1920, 1080),
             null,
             null,
-            new Core.Project.ProjectInfo()
+            new Core.Project.ProjectInfo(),
+            string.Empty
         );
 
         // Act
@@ -142,7 +143,8 @@ public class ShapeObjectTests
             new SkiaSharp.SKSize(1920, 1080),
             null,
             null,
-            new Core.Project.ProjectInfo()
+            new Core.Project.ProjectInfo(),
+            string.Empty
         );
 
         // Act & Assert

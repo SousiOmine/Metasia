@@ -18,7 +18,9 @@ namespace Metasia.Core.Render
 
         public ProjectInfo ProjectInfo { get; init; }
 
-        public RenderContext(int frame, SKSize projectResolution, SKSize renderResolution, IImageFileAccessor imageFileAccessor, IVideoFileAccessor videoFileAccessor, ProjectInfo projectInfo)
+        public string ProjectPath { get; init; }
+
+        public RenderContext(int frame, SKSize projectResolution, SKSize renderResolution, IImageFileAccessor imageFileAccessor, IVideoFileAccessor videoFileAccessor, ProjectInfo projectInfo, string projectPath)
         {
             Frame = frame;
 
@@ -39,6 +41,7 @@ namespace Metasia.Core.Render
             ImageFileAccessor = imageFileAccessor;
             VideoFileAccessor = videoFileAccessor;
             ProjectInfo = projectInfo;
+            ProjectPath = projectPath ?? string.Empty;
         }
     }
 }

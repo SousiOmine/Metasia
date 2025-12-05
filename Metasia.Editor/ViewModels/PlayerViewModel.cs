@@ -95,6 +95,8 @@ namespace Metasia.Editor.ViewModels
         private readonly IEditCommandManager _editCommandManager;
         private readonly ISelectionState selectionState;
 
+        public string ProjectPath => projectState.CurrentProject?.ProjectPath?.Path ?? string.Empty;
+
         public PlayerViewModel(
             TimelineObject targetTimeline,
             ProjectInfo projectInfo,

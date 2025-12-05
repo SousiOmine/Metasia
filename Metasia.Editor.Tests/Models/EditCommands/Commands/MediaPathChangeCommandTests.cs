@@ -14,25 +14,22 @@ namespace Metasia.Editor.Tests.Models.EditCommands.Commands
         [SetUp]
         public void Setup()
         {
-            _target = new MediaPath
+_target = new MediaPath
             {
                 FileName = "old.png",
-                Directory = "C:/old",
-                PathType = PathType.Absolute
+                Directory = "C:/old"
             };
 
             _newPath = new MediaPath
             {
                 FileName = "new.png",
-                Directory = "C:/new",
-                PathType = PathType.Absolute
+                Directory = "C:/new"
             };
 
             _oldPath = new MediaPath
             {
                 FileName = _target!.FileName,
-                Directory = _target!.Directory,
-                PathType = _target!.PathType
+                Directory = _target!.Directory
             };
         }
 
@@ -43,9 +40,8 @@ namespace Metasia.Editor.Tests.Models.EditCommands.Commands
             var command = new MediaPathChangeCommand(_target!, _newPath!);
             command.Execute();
 
-            Assert.That(_target!.FileName, Is.EqualTo(_newPath!.FileName));
+Assert.That(_target!.FileName, Is.EqualTo(_newPath!.FileName));
             Assert.That(_target!.Directory, Is.EqualTo(_newPath!.Directory));
-            Assert.That(_target!.PathType, Is.EqualTo(_newPath!.PathType));
         }
 
         // Undo が元の値に復元できることを確認
@@ -56,9 +52,8 @@ namespace Metasia.Editor.Tests.Models.EditCommands.Commands
             command.Execute();
             command.Undo();
 
-            Assert.That(_target!.FileName, Is.EqualTo(_oldPath!.FileName));
+Assert.That(_target!.FileName, Is.EqualTo(_oldPath!.FileName));
             Assert.That(_target!.Directory, Is.EqualTo(_oldPath!.Directory));
-            Assert.That(_target!.PathType, Is.EqualTo(_oldPath!.PathType));
         }
 
         // Execute と Undo を複数回実行できることを確認
@@ -96,20 +91,18 @@ namespace Metasia.Editor.Tests.Models.EditCommands.Commands
         [Test]
         public void Constructor_WithExplicitOldPath_UsesProvidedOldPath()
         {
-            var explicitOld = new MediaPath
+var explicitOld = new MediaPath
             {
                 FileName = "explicit-old.png",
-                Directory = "C:/explicit-old",
-                PathType = PathType.Absolute
+                Directory = "C:/explicit-old"
             };
             var command = new MediaPathChangeCommand(_target!, explicitOld, _newPath!);
             command.Execute();
             command.Undo();
 
-            // After undo, target should match the explicit old path, not the original values set in Setup.
+// After undo, target should match the explicit old path, not the original values set in Setup.
             Assert.That(_target!.FileName, Is.EqualTo(explicitOld.FileName));
             Assert.That(_target!.Directory, Is.EqualTo(explicitOld.Directory));
-            Assert.That(_target!.PathType, Is.EqualTo(explicitOld.PathType));
         }
 
         // null target で ArgumentNullException がスローされることを確認

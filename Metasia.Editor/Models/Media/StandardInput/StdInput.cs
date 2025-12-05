@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Threading.Tasks;
@@ -10,23 +11,23 @@ public class StdInput : IImageFileAccessor
 {
     private static readonly ConcurrentDictionary<string, SKBitmap> _imageCache = new();
     
-    public async Task<ImageFileAccessorResult> GetBitmapAsync(MediaPath path)
+    public async Task<ImageFileAccessorResult> GetBitmapAsync(string path)
     {
-        var fullPath = MediaPath.GetFullPath(path, "");
-        if (!File.Exists(fullPath))
+        ArgumentNullException.ThrowIfNull(path);
+        if (!File.Exists(path))
         {
             return new ImageFileAccessorResult { IsSuccessful = false, Bitmap = null };
         }
 
-        if (_imageCache.TryGetValue(fullPath, out var cachedBitmap))
+        if (_imageCache.TryGetValue(path, out var cachedBitmap))
         {
             return new ImageFileAccessorResult { IsSuccessful = true, Bitmap = cachedBitmap };
         }
 
-        SKBitmap bitmap = SKBitmap.Decode(fullPath);
+        SKBitmap bitmap = SKBitmap.Decode(path);
         if (bitmap != null)
         {
-            _imageCache.TryAdd(fullPath, bitmap);
+            _imageCache.TryAdd(path, bitmap);
         }
         
         return new ImageFileAccessorResult { IsSuccessful = true, Bitmap = bitmap };
