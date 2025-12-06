@@ -15,7 +15,6 @@ namespace Metasia.Editor.Models.Interactor
     {
         public static IEditCommand? CreateMoveClipsCommand(ClipsDropTargetContext dropInfo, TimelineObject timeline, LayerObject referencedTargetLayer, IEnumerable<ClipObject> targetObjects)
         {
-
             // 任意のレイヤーを基準にそのレイヤーより指定した数だけ上下の階層のレイヤーを探索
             LayerObject? GetLayerByOffset(LayerObject currentLayer, int offset)
             {
@@ -67,7 +66,7 @@ namespace Metasia.Editor.Models.Interactor
 
                 moveInfos.Add(new ClipMoveInfo(targetObject, sourceLayer, newLayer, targetObject.StartFrame, targetObject.EndFrame, targetObject.StartFrame + moveFrame, targetObject.EndFrame + moveFrame));
             }
-            if (moveInfos.Count > 0)
+            if (moveInfos.Count > 0 && IsMoveValid(moveInfos))
             {
                 return new MoveClipsCommand(moveInfos);
             }
@@ -158,6 +157,45 @@ namespace Metasia.Editor.Models.Interactor
             }
 
             value = metaDoubleParam.Value;
+            return true;
+        }
+
+        /// <summary>
+        /// クリップ移動後の各レイヤーで重複が発生しないか検証する
+        /// </summary>
+        private static bool IsMoveValid(IEnumerable<ClipMoveInfo> moveInfos)
+        {
+            var movingClipIds = new HashSet<string>(moveInfos.Select(x => x.TargetObject.Id));
+
+            foreach (var group in moveInfos.GroupBy(x => x.TargetLayer))
+            {
+                // 既存クリップ（移動対象を除外）の区間
+                var ranges = group.Key.Objects
+                    .Where(o => !movingClipIds.Contains(o.Id))
+                    .Select(o => (o.StartFrame, o.EndFrame))
+                    .ToList();
+
+                // 移動後クリップの区間を追加
+                foreach (var info in group)
+                {
+                    if (info.NewStartFrame < 0 || info.NewStartFrame > info.NewEndFrame)
+                    {
+                        return false;
+                    }
+                    ranges.Add((info.NewStartFrame, info.NewEndFrame));
+                }
+
+                // 始端でソートして隣接比較で重複判定
+                var ordered = ranges.OrderBy(r => r.StartFrame).ToList();
+                for (int i = 1; i < ordered.Count; i++)
+                {
+                    if (ordered[i].StartFrame <= ordered[i - 1].EndFrame)
+                    {
+                        return false;
+                    }
+                }
+            }
+
             return true;
         }
 
