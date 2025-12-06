@@ -86,6 +86,11 @@ namespace Metasia.Editor.Models.EditCommands
             lastPreviewCommand = null;
         }
 
+        public void CancelPreview()
+        {
+            PreviewUndo();
+        }
+
         private void PreviewUndo()
         {
             lastPreviewCommand?.Undo();

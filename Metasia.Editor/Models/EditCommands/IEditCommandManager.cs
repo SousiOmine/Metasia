@@ -65,5 +65,10 @@ namespace Metasia.Editor.Models.EditCommands
         /// 履歴をクリアする
         /// </summary>
         public void Clear();
+
+        /// <summary>
+        /// プレビューをキャンセルする
+        /// </summary>
+        public void CancelPreview();
     }
 }

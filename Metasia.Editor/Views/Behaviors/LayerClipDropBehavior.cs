@@ -18,6 +18,12 @@ namespace Metasia.Editor.Views.Behaviors
         public static readonly StyledProperty<ICommand?> DropCommandProperty =
             AvaloniaProperty.Register<LayerClipDropBehavior, ICommand?>(nameof(DropCommand));
 
+        public static readonly StyledProperty<ICommand?> DragOverCommandProperty =
+            AvaloniaProperty.Register<LayerClipDropBehavior, ICommand?>(nameof(DragOverCommand));
+
+        public static readonly StyledProperty<ICommand?> DragLeaveCommandProperty =
+            AvaloniaProperty.Register<LayerClipDropBehavior, ICommand?>(nameof(DragLeaveCommand));
+
         public static readonly StyledProperty<double> FramePerDIPProperty =
             AvaloniaProperty.Register<LayerClipDropBehavior, double>(nameof(FramePerDIP), 1.0);
 
@@ -25,6 +31,18 @@ namespace Metasia.Editor.Views.Behaviors
         {
             get => GetValue(DropCommandProperty);
             set => SetValue(DropCommandProperty, value);
+        }
+
+        public ICommand? DragOverCommand
+        {
+            get => GetValue(DragOverCommandProperty);
+            set => SetValue(DragOverCommandProperty, value);
+        }
+
+        public ICommand? DragLeaveCommand
+        {
+            get => GetValue(DragLeaveCommandProperty);
+            set => SetValue(DragLeaveCommandProperty, value);
         }
 
         public double FramePerDIP
@@ -41,6 +59,7 @@ namespace Metasia.Editor.Views.Behaviors
                 DragDrop.SetAllowDrop(AssociatedObject, true);
                 AssociatedObject.AddHandler(DragDrop.DragEnterEvent, OnDragEnter);
                 AssociatedObject.AddHandler(DragDrop.DragOverEvent, OnDragOver);
+                AssociatedObject.AddHandler(DragDrop.DragLeaveEvent, OnDragLeave);
                 AssociatedObject.AddHandler(DragDrop.DropEvent, OnDrop);
             }
         }
@@ -52,6 +71,7 @@ namespace Metasia.Editor.Views.Behaviors
             {
                 AssociatedObject.RemoveHandler(DragDrop.DragEnterEvent, OnDragEnter);
                 AssociatedObject.RemoveHandler(DragDrop.DragOverEvent, OnDragOver);
+                AssociatedObject.RemoveHandler(DragDrop.DragLeaveEvent, OnDragLeave);
                 AssociatedObject.RemoveHandler(DragDrop.DropEvent, OnDrop);
             }
         }
@@ -76,12 +96,24 @@ namespace Metasia.Editor.Views.Behaviors
             if (dropInfo is not null && DropCommand?.CanExecute(dropInfo) == true)
             {
                 e.DragEffects = DragDropEffects.Move;
+                if (DragOverCommand?.CanExecute(dropInfo) == true)
+                {
+                    DragOverCommand.Execute(dropInfo);
+                }
             }
             else
             {
                 e.DragEffects = DragDropEffects.None;
             }
             e.Handled = true;
+        }
+
+        private void OnDragLeave(object? sender, RoutedEventArgs e)
+        {
+            if (DragLeaveCommand?.CanExecute(null) == true)
+            {
+                DragLeaveCommand.Execute(null);
+            }
         }
 
         private void OnDrop(object? sender, DragEventArgs e)

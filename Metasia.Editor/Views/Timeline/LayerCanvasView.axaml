@@ -15,7 +15,11 @@
 			 Height="50"
 			 >
 	<i:Interaction.Behaviors>
-		<behaviors:LayerClipDropBehavior DropCommand="{Binding HandleDropCommand}" FramePerDIP="{Binding Frame_Per_DIP}"/>
+		<behaviors:LayerClipDropBehavior 
+			DropCommand="{Binding HandleDropCommand}" 
+			DragOverCommand="{Binding HandleDragOverCommand}"
+			DragLeaveCommand="{Binding HandleDragLeaveCommand}"
+			FramePerDIP="{Binding Frame_Per_DIP}"/>
 	</i:Interaction.Behaviors>
 
 	<UserControl.ContextFlyout>

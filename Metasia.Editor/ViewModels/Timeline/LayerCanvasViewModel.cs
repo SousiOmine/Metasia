@@ -1,4 +1,4 @@
-﻿using Metasia.Core.Objects;
+using Metasia.Core.Objects;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
@@ -38,6 +38,8 @@ namespace Metasia.Editor.ViewModels.Timeline
         /// ドロップ処理のコマンド
         /// </summary>
         public ICommand HandleDropCommand { get; }
+        public ICommand HandleDragOverCommand { get; }
+        public ICommand HandleDragLeaveCommand { get; }
         public Interaction<NewObjectSelectViewModel, IMetasiaObject?> NewObjectSelectInteraction { get; } = new();
         public ICommand NewClipCommand { get; }
 
@@ -51,6 +53,7 @@ namespace Metasia.Editor.ViewModels.Timeline
         private readonly ITimelineViewState _timelineViewState;
         private double _frame_per_DIP;
         private double width;
+        private bool _disposed;
 
         public LayerCanvasViewModel(
             TimelineViewModel parentTimeline,
@@ -73,6 +76,11 @@ namespace Metasia.Editor.ViewModels.Timeline
                 execute: ExecuteHandleDrop,
                 canExecute: this.WhenAnyValue(x => x.TargetLayer).Select(layer => layer != null)
             );
+            HandleDragOverCommand = ReactiveCommand.Create<ClipsDropTargetContext>(
+                execute: ExecuteHandleDragOver,
+                canExecute: this.WhenAnyValue(x => x.TargetLayer).Select(layer => layer != null)
+            );
+            HandleDragLeaveCommand = ReactiveCommand.Create(ExecuteHandleDragLeave);
             NewClipCommand = ReactiveCommand.CreateFromTask(async () =>
             {
                 var vm = new NewObjectSelectViewModel();
@@ -84,36 +92,21 @@ namespace Metasia.Editor.ViewModels.Timeline
                 }
             });
 
-            _timelineViewState.Frame_Per_DIP_Changed += () =>
-            {
-                Frame_Per_DIP = _timelineViewState.Frame_Per_DIP;
-                ChangeFramePerDIP();
-            };
+            _timelineViewState.Frame_Per_DIP_Changed += OnFramePerDIPChangedWithRecalculation;
             Frame_Per_DIP = _timelineViewState.Frame_Per_DIP;
 
             RelocateClips();
 
-            _projectState.ProjectLoaded += () =>
-            {
-                RelocateClips();
-            };
-            _projectState.TimelineChanged += () =>
-            {
-                RelocateClips();
-            };
+            _projectState.ProjectLoaded += OnProjectLoaded;
+            _projectState.TimelineChanged += OnTimelineChanged;
 
-            selectionState.SelectionChanged += () =>
-            {
-                ResetSelectedClip();
-                foreach (var obj in selectionState.SelectedClips)
-                {
-                    var clip = ClipsAndBlanks.FirstOrDefault(c => c.TargetObject.Id == obj.Id);
-                    if (clip is not null)
-                    {
-                        clip.IsSelecting = true;
-                    }
-                }
-            };
+            selectionState.SelectionChanged += OnSelectionChangedWithClipSelection;
+
+            // コマンド実行時にUIを更新する
+            editCommandManager.CommandExecuted += OnCommandExecuted;
+            editCommandManager.CommandPreviewExecuted += OnCommandPreviewExecuted;
+            editCommandManager.CommandUndone += OnCommandUndone;
+            editCommandManager.CommandRedone += OnCommandRedone;
         }
 
         public void ResetSelectedClip()
@@ -168,11 +161,29 @@ namespace Metasia.Editor.ViewModels.Timeline
         /// </summary>
         private void ExecuteHandleDrop(ClipsDropTargetContext dropInfo)
         {
+            editCommandManager.CancelPreview();
             var command = TimelineInteractor.CreateMoveClipsCommand(dropInfo, parentTimeline.Timeline, TargetLayer, selectionState.SelectedClips);
             if (command is not null)
             {
                 editCommandManager.Execute(command);
             }
+        }
+
+        private void ExecuteHandleDragOver(ClipsDropTargetContext dropInfo)
+        {
+            // 既存のプレビューがあればキャンセルして元の状態に戻す
+            editCommandManager.CancelPreview();
+
+            var command = TimelineInteractor.CreateMoveClipsCommand(dropInfo, parentTimeline.Timeline, TargetLayer, selectionState.SelectedClips);
+            if (command is not null)
+            {
+                editCommandManager.PreviewExecute(command);
+            }
+        }
+
+        private void ExecuteHandleDragLeave()
+        {
+            editCommandManager.CancelPreview();
         }
 
         /// <summary>
@@ -223,5 +234,73 @@ namespace Metasia.Editor.ViewModels.Timeline
         {
             Width = TargetLayer.EndFrame * _timelineViewState.Frame_Per_DIP;
         }
+
+        // Event handler methods for proper cleanup
+        private void OnCommandExecuted(object? sender, IEditCommand e) => RelocateClips();
+        private void OnCommandPreviewExecuted(object? sender, IEditCommand e) => RelocateClips();
+        private void OnCommandUndone(object? sender, IEditCommand e) => RelocateClips();
+        private void OnCommandRedone(object? sender, IEditCommand e) => RelocateClips();
+
+        /// <summary>
+        /// リソースの解放処理
+        /// </summary>
+        protected override void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    // イベントハンドラーの購読を解除
+                    if (editCommandManager != null)
+                    {
+                        editCommandManager.CommandExecuted -= OnCommandExecuted;
+                        editCommandManager.CommandPreviewExecuted -= OnCommandPreviewExecuted;
+                        editCommandManager.CommandUndone -= OnCommandUndone;
+                        editCommandManager.CommandRedone -= OnCommandRedone;
+                    }
+
+                    if (_timelineViewState != null)
+                    {
+                        _timelineViewState.Frame_Per_DIP_Changed -= OnFramePerDIPChanged;
+                    }
+
+                    if (_projectState != null)
+                    {
+                        _projectState.ProjectLoaded -= OnProjectLoaded;
+                        _projectState.TimelineChanged -= OnTimelineChanged;
+                    }
+
+                    if (selectionState != null)
+                    {
+                        selectionState.SelectionChanged -= OnSelectionChanged;
+                    }
+                }
+                _disposed = true;
+            }
+            base.Dispose(disposing);
+        }
+
+        // Event handler methods for proper cleanup
+        private void OnFramePerDIPChangedWithRecalculation()
+        {
+            Frame_Per_DIP = _timelineViewState.Frame_Per_DIP;
+            ChangeFramePerDIP();
+        }
+        private void OnFramePerDIPChanged() => Frame_Per_DIP = _timelineViewState.Frame_Per_DIP;
+        private void OnProjectLoaded() => RelocateClips();
+        private void OnTimelineChanged() => RelocateClips();
+        private void OnSelectionChangedWithClipSelection()
+        {
+            ResetSelectedClip();
+            foreach (var obj in selectionState.SelectedClips)
+            {
+                var clip = ClipsAndBlanks.FirstOrDefault(c => c.TargetObject.Id == obj.Id);
+                if (clip is not null)
+                {
+                    clip.IsSelecting = true;
+                }
+            }
+        }
+        private void OnSelectionChanged() => ResetSelectedClip();
     }
 }
