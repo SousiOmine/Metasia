@@ -3,6 +3,7 @@ using Metasia.Editor.ViewModels.Timeline;
 using ReactiveUI;
 using System;
 using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using System.Linq;
 using Metasia.Editor.Models.EditCommands;
 using Metasia.Editor.Models.EditCommands.Commands;
@@ -198,6 +199,47 @@ namespace Metasia.Editor.ViewModels
                 return ownerLayer.CanPlaceObjectAt(clipObject, newStartFrame, newEndFrame);
             }
             return false;
+        }
+
+        public int GetNearestSnapFrame(int targetFrame, int range, IEnumerable<ClipObject>? ignoreClips = null)
+        {
+            int nearest = targetFrame;
+            int minDiff = range + 1;
+
+            // Snap to 0
+            if (Math.Abs(targetFrame) < minDiff)
+            {
+                minDiff = Math.Abs(targetFrame);
+                nearest = 0;
+            }
+
+            foreach (var layer in Timeline.Layers)
+            {
+                foreach (var obj in layer.Objects)
+                {
+                    if (ignoreClips != null && ignoreClips.Any(x => x.Id == obj.Id)) continue;
+
+                    // Snap lines are at StartFrame and EndFrame + 1
+                    int snap1 = obj.StartFrame;
+                    int snap2 = obj.EndFrame + 1;
+
+                    int diff1 = Math.Abs(snap1 - targetFrame);
+                    if (diff1 < minDiff)
+                    {
+                        minDiff = diff1;
+                        nearest = snap1;
+                    }
+
+                    int diff2 = Math.Abs(snap2 - targetFrame);
+                    if (diff2 < minDiff)
+                    {
+                        minDiff = diff2;
+                        nearest = snap2;
+                    }
+                }
+            }
+
+            return nearest;
         }
 
 

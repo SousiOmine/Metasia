@@ -155,6 +155,8 @@ namespace Metasia.Editor.ViewModels.Timeline
             }
         }
 
+
+
         /// <summary>
         /// ドラッグ終了時の処理
         /// </summary>
@@ -214,16 +216,35 @@ namespace Metasia.Editor.ViewModels.Timeline
             newStart = _originalStartFrame;
             newEnd = _originalEndFrame;
 
+            // スナップの閾値（ピクセル）
+            const double SNAP_THRESHOLD_PX = 10.0;
+            // フレーム単位の閾値に変換
+            int snapThresholdFrame = (int)(SNAP_THRESHOLD_PX / _timelineViewState.Frame_Per_DIP);
+            // 少なくとも1フレームは確保
+            if (snapThresholdFrame < 1) snapThresholdFrame = 1;
+
             if (_dragHandleName == "StartHandle")
             {
-                newStart = _originalStartFrame + frameChange;
+                int proposedStart = _originalStartFrame + frameChange;
+
+                // スナップ処理
+                proposedStart = parentTimeline.GetNearestSnapFrame(proposedStart, snapThresholdFrame, new[] { TargetObject });
+
+                newStart = proposedStart;
                 // 終端を超えないように、かつ長さが1未満にならないように制限
                 newStart = Math.Min(newStart, _originalEndFrame - 1);
                 newStart = Math.Max(newStart, 0);
             }
             else if (_dragHandleName == "EndHandle")
             {
-                newEnd = _originalEndFrame + frameChange;
+                int proposedEnd = _originalEndFrame + frameChange;
+
+                // EndFrameそのものではなく、EndFrame + 1（次の開始位置）でスナップ判定を行う
+                int proposedBoundary = proposedEnd + 1;
+                int snappedBoundary = parentTimeline.GetNearestSnapFrame(proposedBoundary, snapThresholdFrame, new[] { TargetObject });
+
+                newEnd = snappedBoundary - 1;
+
                 // 始端を下回らないように、かつ長さが1未満にならないように制限
                 newEnd = Math.Max(newEnd, _originalStartFrame + 1);
             }

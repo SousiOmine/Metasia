@@ -162,6 +162,7 @@ namespace Metasia.Editor.ViewModels.Timeline
         private void ExecuteHandleDrop(ClipsDropTargetContext dropInfo)
         {
             editCommandManager.CancelPreview();
+            ApplySnapping(dropInfo);
             var command = TimelineInteractor.CreateMoveClipsCommand(dropInfo, parentTimeline.Timeline, TargetLayer, selectionState.SelectedClips);
             if (command is not null)
             {
@@ -173,6 +174,7 @@ namespace Metasia.Editor.ViewModels.Timeline
         {
             // 既存のプレビューがあればキャンセルして元の状態に戻す
             editCommandManager.CancelPreview();
+            ApplySnapping(dropInfo);
 
             var command = TimelineInteractor.CreateMoveClipsCommand(dropInfo, parentTimeline.Timeline, TargetLayer, selectionState.SelectedClips);
             if (command is not null)
@@ -302,5 +304,73 @@ namespace Metasia.Editor.ViewModels.Timeline
             }
         }
         private void OnSelectionChanged() => ResetSelectedClip();
+
+        private void ApplySnapping(ClipsDropTargetContext dropInfo)
+        {
+            // Calculate base delta based on mouse position relative to reference clip
+            int proposedStartFrame = dropInfo.DropPositionFrame - dropInfo.DraggingFrameOffsetX;
+            int currentDelta = proposedStartFrame - dropInfo.ReferenceClipVM.TargetObject.StartFrame;
+
+            var selectedClips = selectionState.SelectedClips.OfType<ClipObject>().ToList();
+
+            const double SNAP_THRESHOLD_PX = 10.0;
+            int snapThresholdFrame = (int)(SNAP_THRESHOLD_PX / _timelineViewState.Frame_Per_DIP);
+            if (snapThresholdFrame < 1) snapThresholdFrame = 1;
+
+            int bestSnapDiff = 0;
+            int minAbsDiff = int.MaxValue;
+            bool foundSnap = false;
+
+            // Iterate all selected clips to find best snap
+            foreach (var clip in selectedClips)
+            {
+                // Tentative positions with current mouse movement
+                int clipTentativeStart = clip.StartFrame + currentDelta;
+                int clipTentativeEndBoundary = clip.EndFrame + currentDelta + 1;
+
+                // Snap Start
+                int snappedStart = parentTimeline.GetNearestSnapFrame(clipTentativeStart, snapThresholdFrame, selectedClips);
+                if (snappedStart != clipTentativeStart) // Found a snap point
+                {
+                    int diff = snappedStart - clipTentativeStart;
+                    if (Math.Abs(diff) < minAbsDiff)
+                    {
+                        minAbsDiff = Math.Abs(diff);
+                        bestSnapDiff = diff;
+                        foundSnap = true;
+                    }
+                }
+
+                // Snap End
+                int snappedEndBoundary = parentTimeline.GetNearestSnapFrame(clipTentativeEndBoundary, snapThresholdFrame, selectedClips);
+                if (snappedEndBoundary != clipTentativeEndBoundary)
+                {
+                    int diff = snappedEndBoundary - clipTentativeEndBoundary;
+                    if (Math.Abs(diff) < minAbsDiff)
+                    {
+                        minAbsDiff = Math.Abs(diff);
+                        bestSnapDiff = diff;
+                        foundSnap = true;
+                    }
+                }
+            }
+
+            // Apply snap if found
+            int finalDelta = currentDelta + bestSnapDiff;
+
+            // Constraint: No clip should go below 0
+            if (selectedClips.Any())
+            {
+                int minStart = selectedClips.Min(c => c.StartFrame);
+                if (finalDelta < -minStart)
+                {
+                    finalDelta = -minStart;
+                }
+            }
+
+            // Back-calculate DropPositionFrame
+            int finalStartFrame = dropInfo.ReferenceClipVM.TargetObject.StartFrame + finalDelta;
+            dropInfo.DropPositionFrame = finalStartFrame + dropInfo.DraggingFrameOffsetX;
+        }
     }
 }
