@@ -200,7 +200,7 @@ namespace Metasia.Editor.Views.Behaviors
             var vm = AssociatedObject?.DataContext as ClipViewModel;
             if (vm is null) return;
 
-            var parentCanvas = AssociatedObject?.Parent as Control;
+            var parentCanvas = GetParentCanvas();
             if (parentCanvas is null) return;
 
             var position = e.GetCurrentPoint(parentCanvas).Position;
@@ -225,7 +225,7 @@ namespace Metasia.Editor.Views.Behaviors
                 var vm = AssociatedObject?.DataContext as ClipViewModel;
                 if (vm is null) return;
 
-                var parentCanvas = AssociatedObject?.Parent as Control;
+                var parentCanvas = GetParentCanvas();
                 if (parentCanvas is null) return;
 
                 var position = e.GetCurrentPoint(parentCanvas).Position;
@@ -246,7 +246,7 @@ namespace Metasia.Editor.Views.Behaviors
                 var vm = AssociatedObject?.DataContext as ClipViewModel;
                 if (vm is null) return;
 
-                var parentCanvas = AssociatedObject?.Parent as Control;
+                var parentCanvas = GetParentCanvas();
                 if (parentCanvas is null) return;
 
                 var position = e.GetCurrentPoint(parentCanvas).Position;
@@ -286,6 +286,20 @@ namespace Metasia.Editor.Views.Behaviors
                 // 実際のドラッグ&ドロップを開始
                 await DragDrop.DoDragDrop(e, dragData, DragDropEffects.Move);
             }
+        }
+
+        private Control? GetParentCanvas()
+        {
+            var current = AssociatedObject?.Parent as Control;
+            while (current != null)
+            {
+                if (current is ItemsControl)
+                {
+                    return current;
+                }
+                current = current.Parent as Control;
+            }
+            return null;
         }
     }
 }

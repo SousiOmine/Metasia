@@ -69,10 +69,8 @@ namespace Metasia.Editor.ViewModels.Timeline
         /// </summary>
         private double _dragStartX = 0;
 
-        /// <summary>
-        /// ドラッグ開始時の始端あるいは終端のフレーム
-        /// </summary>
-        private int _initialDragFrame = 0;
+        private int _originalStartFrame;
+        private int _originalEndFrame;
 
         private TimelineViewModel parentTimeline;
         private readonly IEditCommandManager editCommandManager;
@@ -131,14 +129,26 @@ namespace Metasia.Editor.ViewModels.Timeline
             _isDragging = true;
             _dragHandleName = handleName;
             _dragStartX = pointerPositionXOnCanvas;
-            _initialDragFrame = (handleName == "StartHandle") ? TargetObject.StartFrame : TargetObject.EndFrame;
 
-            Console.WriteLine(pointerPositionXOnCanvas);
+            _originalStartFrame = TargetObject.StartFrame;
+            _originalEndFrame = TargetObject.EndFrame;
         }
 
         public void UpdateDrag(double pointerPositionXOnCanvas)
         {
-            //ドラッグ中になにかするならここに書く
+            if (!_isDragging) return;
+
+            CalculateNewFrames(pointerPositionXOnCanvas, out int newStart, out int newEnd);
+
+            if (parentTimeline.CanResizeClip(TargetObject, newStart, newEnd))
+            {
+                var command = new ClipResizeCommand(
+                    TargetObject,
+                    _originalStartFrame, newStart,
+                    _originalEndFrame, newEnd
+                );
+                editCommandManager.PreviewExecute(command);
+            }
         }
 
         /// <summary>
@@ -152,52 +162,67 @@ namespace Metasia.Editor.ViewModels.Timeline
                 return;
             }
 
-            double deltaX = pointerPositionXOnCanvas - _dragStartX;
-            double frameDelta = deltaX / _timelineViewState.Frame_Per_DIP;
-            int frameChange = (int)Math.Round(frameDelta);
-
-            int newStartFrame = TargetObject.StartFrame;
-            int newEndFrame = TargetObject.EndFrame;
-
-            if (_dragHandleName == "StartHandle")
-            {
-                newStartFrame = _initialDragFrame + frameChange;
-                // 終端を超えないように、かつ長さが1未満にならないように制限
-                newStartFrame = Math.Min(newStartFrame, TargetObject.EndFrame - 1);
-                newStartFrame = Math.Max(newStartFrame, 0);
-            }
-            else if (_dragHandleName == "EndHandle")
-            {
-                newEndFrame = _initialDragFrame + frameChange;
-                // 始端を下回らないように、かつ長さが1未満にならないように制限
-                newEndFrame = Math.Max(newEndFrame, TargetObject.StartFrame + 1);
-            }
+            CalculateNewFrames(pointerPositionXOnCanvas, out int newStart, out int newEnd);
 
             // 希望のフレームのままリサイズできるならばリサイズ実行
-            if (parentTimeline.CanResizeClip(TargetObject, newStartFrame, newEndFrame))
+            if (parentTimeline.CanResizeClip(TargetObject, newStart, newEnd))
             {
                 // フレームが変化していればコマンドを実行
-                if (newStartFrame != TargetObject.StartFrame || newEndFrame != TargetObject.EndFrame)
+                if (newStart != _originalStartFrame || newEnd != _originalEndFrame)
                 {
                     IEditCommand command = new ClipResizeCommand(
                         TargetObject,
-                        TargetObject.StartFrame, newStartFrame,
-                        TargetObject.EndFrame, newEndFrame
+                        _originalStartFrame, newStart,
+                        _originalEndFrame, newEnd
                     );
                     editCommandManager.Execute(command);
 
                     RecalculateSize();
                 }
+                else
+                {
+                    // 変化なしの場合はプレビューをキャンセル
+                    editCommandManager.CancelPreview();
+                }
             }
             else
             {
-                // ドラッグしたそのままのフレームでは重複でリサイズできない場合、重複しないぎりぎりまで詰める
+                // ドラッグしたそのままのフレームでは重複でリサイズできない場合
+                // プレビューをキャンセルして元に戻す
+                editCommandManager.CancelPreview();
+
+                // キャンセルした状態をUIに反映
+                RecalculateSize();
+
+                // TODO: ここで「重複しないぎりぎりまで詰める」処理を追加可能
             }
 
             _isDragging = false;
             _dragHandleName = string.Empty;
+        }
 
-            Console.WriteLine(pointerPositionXOnCanvas);
+        private void CalculateNewFrames(double pointerPositionXOnCanvas, out int newStart, out int newEnd)
+        {
+            double deltaX = pointerPositionXOnCanvas - _dragStartX;
+            double frameDelta = deltaX / _timelineViewState.Frame_Per_DIP;
+            int frameChange = (int)Math.Round(frameDelta);
+
+            newStart = _originalStartFrame;
+            newEnd = _originalEndFrame;
+
+            if (_dragHandleName == "StartHandle")
+            {
+                newStart = _originalStartFrame + frameChange;
+                // 終端を超えないように、かつ長さが1未満にならないように制限
+                newStart = Math.Min(newStart, _originalEndFrame - 1);
+                newStart = Math.Max(newStart, 0);
+            }
+            else if (_dragHandleName == "EndHandle")
+            {
+                newEnd = _originalEndFrame + frameChange;
+                // 始端を下回らないように、かつ長さが1未満にならないように制限
+                newEnd = Math.Max(newEnd, _originalStartFrame + 1);
+            }
         }
     }
 }
