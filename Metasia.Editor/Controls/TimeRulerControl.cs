@@ -107,7 +107,7 @@ namespace Metasia.Editor.Controls
                     textX = x;
                 }
 
-                context.DrawText(formattedText, new Point(textX, 0));
+                context.DrawText(formattedText, new Point(textX, 5));
 
                 // サブ目盛り (0.1秒ごと)
                 // 間隔が狭すぎる場合は描画しない
