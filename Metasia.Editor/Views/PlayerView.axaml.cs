@@ -1,6 +1,6 @@
 using System;
 using System.Collections;
-using System.Collections.Concurrent;
+
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,6 +11,7 @@ using Metasia.Core.Objects;
 using Metasia.Core.Project;
 using Metasia.Core.Render;
 using Metasia.Core.Sounds;
+using Metasia.Editor.Controls;
 using Metasia.Editor.Services;
 using Metasia.Editor.ViewModels;
 using SkiaSharp;
@@ -32,11 +33,9 @@ public partial class PlayerView : UserControl, IDisposable
         get { return this.DataContext as PlayerViewModel; }
     }
 
-    private MediaAccessorRouter mediaAccessorRouter;
+    private MediaAccessorRouter? mediaAccessorRouter;
     private readonly SemaphoreSlim _renderSemaphore = new SemaphoreSlim(1, 1);
     private CancellationTokenSource _renderCts = new CancellationTokenSource();
-    private readonly object _bitmapLock = new object();
-    private SKBitmap? _latestBitmap;
 
     // フレームレート調整用のフィールド
     private int _pendingFrameRequest = -1;
@@ -65,44 +64,6 @@ public partial class PlayerView : UserControl, IDisposable
 
             RequestRender();
         };
-    }
-
-    private void SKCanvasView_PaintSurface(object? sender, Avalonia.Labs.Controls.SKPaintSurfaceEventArgs e)
-    {
-        SKSurface surface = e.Surface;
-        SKCanvas canvas = surface.Canvas;
-        canvas.Clear(SKColors.Transparent);
-
-        lock (_bitmapLock)
-        {
-            if (_latestBitmap is not null)
-            {
-                // キャンバスの中央にビットマップを描画
-                var canvasWidth = e.Info.Width;
-                var canvasHeight = e.Info.Height;
-                var bitmapWidth = _latestBitmap.Width;
-                var bitmapHeight = _latestBitmap.Height;
-
-                // アスペクト比を維持したままキャンバスにフィットさせる
-                var scaleX = (float)canvasWidth / bitmapWidth;
-                var scaleY = (float)canvasHeight / bitmapHeight;
-                var scale = Math.Min(scaleX, scaleY);
-
-                var scaledWidth = bitmapWidth * scale;
-                var scaledHeight = bitmapHeight * scale;
-
-                var x = (canvasWidth - scaledWidth) / 2;
-                var y = (canvasHeight - scaledHeight) / 2;
-
-                var destRect = new SKRect(x, y, x + scaledWidth, y + scaledHeight);
-                canvas.DrawBitmap(_latestBitmap, destRect);
-            }
-        }
-
-        if (_latestBitmap is null)
-        {
-            RequestRender();
-        }
     }
 
     private void RequestRender()
@@ -166,17 +127,18 @@ public partial class PlayerView : UserControl, IDisposable
                     // フレームが変わっていなければビットマップを更新
                     if (requestedFrame == VM.Frame)
                     {
-                        lock (_bitmapLock)
-                        {
-                            _latestBitmap?.Dispose();
-                            _latestBitmap = bitmap;
-                        }
-
+                        // GPU描画コントロールにビットマップを渡して再描画
                         Dispatcher.UIThread.Post(() =>
                         {
                             if (requestedFrame == VM.Frame)
                             {
+                                skiaCanvas.Bitmap = bitmap;
                                 skiaCanvas.InvalidateSurface();
+                            }
+                            else
+                            {
+                                // UIスレッド到達時にフレームが変わっていた場合は破棄
+                                bitmap?.Dispose();
                             }
                         });
                     }
@@ -213,10 +175,7 @@ public partial class PlayerView : UserControl, IDisposable
         _renderCts?.Cancel();
         _renderCts?.Dispose();
         _renderSemaphore?.Dispose();
-        lock (_bitmapLock)
-        {
-            _latestBitmap?.Dispose();
-            _latestBitmap = null;
-        }
+        // コントロールのリソースを解放
+        skiaCanvas.Dispose();
     }
 }
