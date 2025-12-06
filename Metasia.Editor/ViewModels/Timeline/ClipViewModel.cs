@@ -1,4 +1,4 @@
-﻿using Avalonia;
+using Avalonia;
 using Metasia.Core.Objects;
 using Metasia.Editor.Models.EditCommands;
 using Metasia.Editor.Models.EditCommands.Commands;
@@ -148,6 +148,10 @@ namespace Metasia.Editor.ViewModels.Timeline
                     _originalEndFrame, newEnd
                 );
                 editCommandManager.PreviewExecute(command);
+            }
+            else
+            {
+                editCommandManager.CancelPreview();
             }
         }
 

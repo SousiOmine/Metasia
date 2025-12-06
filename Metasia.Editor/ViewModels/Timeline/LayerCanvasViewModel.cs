@@ -261,7 +261,7 @@ namespace Metasia.Editor.ViewModels.Timeline
 
                     if (_timelineViewState != null)
                     {
-                        _timelineViewState.Frame_Per_DIP_Changed -= OnFramePerDIPChanged;
+                        _timelineViewState.Frame_Per_DIP_Changed -= OnFramePerDIPChangedWithRecalculation;
                     }
 
                     if (_projectState != null)
@@ -272,7 +272,7 @@ namespace Metasia.Editor.ViewModels.Timeline
 
                     if (selectionState != null)
                     {
-                        selectionState.SelectionChanged -= OnSelectionChanged;
+                        selectionState.SelectionChanged -= OnSelectionChangedWithClipSelection;
                     }
                 }
                 _disposed = true;
@@ -286,7 +286,7 @@ namespace Metasia.Editor.ViewModels.Timeline
             Frame_Per_DIP = _timelineViewState.Frame_Per_DIP;
             ChangeFramePerDIP();
         }
-        private void OnFramePerDIPChanged() => Frame_Per_DIP = _timelineViewState.Frame_Per_DIP;
+
         private void OnProjectLoaded() => RelocateClips();
         private void OnTimelineChanged() => RelocateClips();
         private void OnSelectionChangedWithClipSelection()
