@@ -1,11 +1,16 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
+using Avalonia.Styling;
 using System;
 using System.Globalization;
 
 namespace Metasia.Editor.Controls
 {
+    /// <summary>
+    /// タイムラインのルーラー（時間目盛り）を描画するコントロール。
+    /// テーマ（ダーク/ライト）に応じて前景色を自動的に調整します。
+    /// </summary>
     public class TimeRulerControl : Control
     {
         public static readonly StyledProperty<double> FramePerDIPProperty =
@@ -26,10 +31,10 @@ namespace Metasia.Editor.Controls
             set => SetValue(FrameRateProperty, value);
         }
 
-        public static readonly StyledProperty<IBrush> ForegroundProperty =
-            AvaloniaProperty.Register<TimeRulerControl, IBrush>(nameof(Foreground), Brushes.White);
+        public static readonly StyledProperty<IBrush?> ForegroundProperty =
+            AvaloniaProperty.Register<TimeRulerControl, IBrush?>(nameof(Foreground), null);
 
-        public IBrush Foreground
+        public IBrush? Foreground
         {
             get => GetValue(ForegroundProperty);
             set => SetValue(ForegroundProperty, value);
@@ -40,6 +45,34 @@ namespace Metasia.Editor.Controls
             AffectsRender<TimeRulerControl>(FramePerDIPProperty);
             AffectsRender<TimeRulerControl>(FrameRateProperty);
             AffectsRender<TimeRulerControl>(ForegroundProperty);
+        }
+
+        public TimeRulerControl()
+        {
+            // テーマ変更時に再描画
+            ActualThemeVariantChanged += OnActualThemeVariantChanged;
+        }
+
+        private void OnActualThemeVariantChanged(object? sender, EventArgs e)
+        {
+            InvalidateVisual();
+        }
+
+        /// <summary>
+        /// 現在のテーマに応じた前景色を取得します。
+        /// Foreground プロパティが明示的に設定されている場合はその値を、
+        /// そうでない場合はテーマに応じた色（ダーク時は白、ライト時は黒）を返します。
+        /// </summary>
+        private IBrush GetEffectiveForeground()
+        {
+            if (Foreground != null)
+            {
+                return Foreground;
+            }
+
+            // テーマに応じたデフォルト色
+            var isDark = ActualThemeVariant == ThemeVariant.Dark;
+            return isDark ? Brushes.White : Brushes.Black;
         }
 
         public override void Render(DrawingContext context)
@@ -68,15 +101,16 @@ namespace Metasia.Editor.Controls
             // 0.1秒ごとに小さな目盛り
 
             // 1秒ごとの線を描画
-            var penMain = new Pen(Foreground, 1);
-            var penSub = new Pen(Foreground, 1);
-            var textBrush = Foreground;
+            var effectiveForeground = GetEffectiveForeground();
+            var penMain = new Pen(effectiveForeground, 1);
+            var penSub = new Pen(effectiveForeground, 1);
+            var textBrush = effectiveForeground;
             var typeface = new Typeface(FontFamily.Default);
 
             // 表示範囲の計算（クリッピングされている場合は最適化できるが、今回は全範囲走査しつつ、描画範囲内かチェックする簡易実装）
             // 実際にはScrollViewerの中にあるため、Bounds.Widthは非常に大きい可能性がある（5000など）
             // 仮想化されていないため、全て描画すると重いが、とりあえず実装する。
-            
+
             // 秒数でループ
             int totalSeconds = (int)(width / pixelsPerSecond) + 1;
 
@@ -97,10 +131,10 @@ namespace Metasia.Editor.Controls
                     12,
                     textBrush
                 );
-                
+
                 // 基本は中央揃え（X - 幅/2）
                 double textX = x - (formattedText.Width / 2);
-                
+
                 // ただし、0秒地点（左端）の場合は見切れないように左揃え気味にする
                 if (textX < 0)
                 {
@@ -117,7 +151,7 @@ namespace Metasia.Editor.Controls
                     {
                         double subX = x + (sub * pixelsPerSecond / 10.0);
                         if (subX > width) break;
-                        
+
                         double lineLength = (sub == 5) ? 15 : 10; // 0.5秒は少し長く
                         context.DrawLine(penSub, new Point(subX, height), new Point(subX, height - lineLength));
                     }
@@ -125,11 +159,11 @@ namespace Metasia.Editor.Controls
                 else if (pixelsPerSecond / 2.0 > minInterval)
                 {
                     // 0.5秒ごとだけ描画
-                     double subX = x + (pixelsPerSecond / 2.0);
-                     if (subX <= width)
-                     {
-                         context.DrawLine(penSub, new Point(subX, height), new Point(subX, height - 15));
-                     }
+                    double subX = x + (pixelsPerSecond / 2.0);
+                    if (subX <= width)
+                    {
+                        context.DrawLine(penSub, new Point(subX, height), new Point(subX, height - 15));
+                    }
                 }
             }
         }
