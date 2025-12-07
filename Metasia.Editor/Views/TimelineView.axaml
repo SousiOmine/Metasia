@@ -24,6 +24,7 @@
 					<Canvas x:Name="TimecodeCanvas" Width="5000" 
 							PointerPressed="TimecodeCanvas_PointerPressed">
 						<controls:TimeRulerControl Width="50000" Height="50" 
+												   MinTextInterval="50"
 						                           FramePerDIP="{Binding Frame_Per_DIP}" 
 						                           FrameRate="{Binding FrameRate}"/>
 						<Rectangle Canvas.Left="{Binding CursorLeft}" Fill="Red" Width="2" Height="500"/>
