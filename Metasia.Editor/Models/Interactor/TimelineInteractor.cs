@@ -5,74 +5,16 @@ using System.Reflection;
 using Metasia.Core.Coordinate;
 using Metasia.Core.Objects;
 using Metasia.Core.Objects.Parameters;
-using Metasia.Editor.Models.DragDropData;
 using Metasia.Editor.Models.EditCommands;
 using Metasia.Editor.Models.EditCommands.Commands;
 
 namespace Metasia.Editor.Models.Interactor
 {
+    /// <summary>
+    /// タイムラインのプロパティ変更に関するビジネスロジックを集約するInteractor
+    /// </summary>
     public static class TimelineInteractor
     {
-        public static IEditCommand? CreateMoveClipsCommand(ClipsDropTargetContext dropInfo, TimelineObject timeline, LayerObject referencedTargetLayer, IEnumerable<ClipObject> targetObjects)
-        {
-            // 任意のレイヤーを基準にそのレイヤーより指定した数だけ上下の階層のレイヤーを探索
-            LayerObject? GetLayerByOffset(LayerObject currentLayer, int offset)
-            {
-                if (timeline?.Layers is null) return null;
-
-                int currentIndex = timeline.Layers.IndexOf(currentLayer);
-                int newIndex = currentIndex + offset;
-
-                if (newIndex < 0 || newIndex >= timeline.Layers.Count) return null;
-
-                return timeline.Layers[newIndex];
-            }
-
-            // クリップの新しい左端位置を計算（ドロップ位置 - クリップ内オフセット）
-            int newStartFrame = dropInfo.DropPositionFrame - dropInfo.DraggingFrameOffsetX;
-
-            // 元のクリップの開始フレームと比較して移動量を算出
-            int originalStartFrame = dropInfo.ReferenceClipVM.TargetObject.StartFrame;
-            int moveFrame = newStartFrame - originalStartFrame;
-
-            // クリップをレイヤー方向にどれだけ移動するか算出
-            ClipObject? referencedClipObject = dropInfo.ReferenceClipVM.TargetObject;
-            LayerObject? referencedObjectLayer = null;
-            foreach (var layer in timeline.Layers)
-            {
-                if (layer.Objects.Any(x => x.Id == referencedClipObject.Id))
-                {
-                    referencedObjectLayer = layer;
-                    break;
-                }
-            }
-            if (referencedObjectLayer is null)
-            {
-                return null;
-            }
-
-            int sourceLayerIndex = timeline.Layers.IndexOf(referencedObjectLayer);
-            int targetLayerIndex = timeline.Layers.IndexOf(referencedTargetLayer);
-            int moveLayerCount = targetLayerIndex - sourceLayerIndex;
-
-            List<ClipMoveInfo> moveInfos = new();
-            foreach (var targetObject in targetObjects)
-            {
-                var sourceLayer = FindOwnerLayer(timeline, targetObject);
-                if (sourceLayer is null) continue;
-
-                var newLayer = GetLayerByOffset(sourceLayer, moveLayerCount);
-                if (newLayer is null) continue;
-
-                moveInfos.Add(new ClipMoveInfo(targetObject, sourceLayer, newLayer, targetObject.StartFrame, targetObject.EndFrame, targetObject.StartFrame + moveFrame, targetObject.EndFrame + moveFrame));
-            }
-            if (moveInfos.Count > 0 && IsMoveValid(moveInfos))
-            {
-                return new MoveClipsCommand(moveInfos);
-            }
-            return null;
-        }
-
         public static IEditCommand? CreateCoordPointsValueChangeCommand(string propertyIdentifier, CoordPoint targetCoordPoint, double beforeValue, double afterValue, IEnumerable<ClipObject> selectedClips)
         {
             List<CoordPointsValueChangeCommand.CoordPointValueChangeInfo> changeInfos = new();
@@ -158,57 +100,6 @@ namespace Metasia.Editor.Models.Interactor
 
             value = metaDoubleParam.Value;
             return true;
-        }
-
-        /// <summary>
-        /// クリップ移動後の各レイヤーで重複が発生しないか検証する
-        /// </summary>
-        private static bool IsMoveValid(IEnumerable<ClipMoveInfo> moveInfos)
-        {
-            var movingClipIds = new HashSet<string>(moveInfos.Select(x => x.TargetObject.Id));
-
-            foreach (var group in moveInfos.GroupBy(x => x.TargetLayer))
-            {
-                // 既存クリップ（移動対象を除外）の区間
-                var ranges = group.Key.Objects
-                    .Where(o => !movingClipIds.Contains(o.Id))
-                    .Select(o => (o.StartFrame, o.EndFrame))
-                    .ToList();
-
-                // 移動後クリップの区間を追加
-                foreach (var info in group)
-                {
-                    if (info.NewStartFrame < 0 || info.NewStartFrame > info.NewEndFrame)
-                    {
-                        return false;
-                    }
-                    ranges.Add((info.NewStartFrame, info.NewEndFrame));
-                }
-
-                // 始端でソートして隣接比較で重複判定
-                var ordered = ranges.OrderBy(r => r.StartFrame).ToList();
-                for (int i = 1; i < ordered.Count; i++)
-                {
-                    if (ordered[i].StartFrame <= ordered[i - 1].EndFrame)
-                    {
-                        return false;
-                    }
-                }
-            }
-
-            return true;
-        }
-
-        private static LayerObject? FindOwnerLayer(TimelineObject timeline, ClipObject targetObject)
-        {
-            foreach (var layer in timeline.Layers)
-            {
-                if (layer.Objects.Any(x => x.Id == targetObject.Id))
-                {
-                    return layer;
-                }
-            }
-            return null;
         }
     }
 }

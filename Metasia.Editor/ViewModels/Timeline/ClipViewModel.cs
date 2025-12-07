@@ -2,6 +2,7 @@ using Avalonia;
 using Metasia.Core.Objects;
 using Metasia.Editor.Models.EditCommands;
 using Metasia.Editor.Models.EditCommands.Commands;
+using Metasia.Editor.Models.Interactor;
 using Metasia.Editor.Models.States;
 using ReactiveUI;
 using System;
@@ -138,15 +139,23 @@ namespace Metasia.Editor.ViewModels.Timeline
         {
             if (!_isDragging) return;
 
-            CalculateNewFrames(pointerPositionXOnCanvas, out int newStart, out int newEnd);
+            double deltaPixels = pointerPositionXOnCanvas - _dragStartX;
+            var (newStart, newEnd) = ClipInteractor.ApplyResizeSnapping(
+                TargetObject,
+                _dragHandleName,
+                _originalStartFrame,
+                _originalEndFrame,
+                deltaPixels,
+                parentTimeline.Timeline,
+                _timelineViewState.Frame_Per_DIP);
 
-            if (parentTimeline.CanResizeClip(TargetObject, newStart, newEnd))
+            var ownerLayer = ClipInteractor.FindOwnerLayer(parentTimeline.Timeline, TargetObject);
+            if (ownerLayer is not null && ClipInteractor.CanResize(TargetObject, newStart, newEnd, ownerLayer))
             {
-                var command = new ClipResizeCommand(
+                var command = ClipInteractor.CreateResizeCommand(
                     TargetObject,
                     _originalStartFrame, newStart,
-                    _originalEndFrame, newEnd
-                );
+                    _originalEndFrame, newEnd);
                 editCommandManager.PreviewExecute(command);
             }
             else
@@ -154,8 +163,6 @@ namespace Metasia.Editor.ViewModels.Timeline
                 editCommandManager.CancelPreview();
             }
         }
-
-
 
         /// <summary>
         /// ドラッグ終了時の処理
@@ -168,19 +175,29 @@ namespace Metasia.Editor.ViewModels.Timeline
                 return;
             }
 
-            CalculateNewFrames(pointerPositionXOnCanvas, out int newStart, out int newEnd);
+            double deltaPixels = pointerPositionXOnCanvas - _dragStartX;
+            var (newStart, newEnd) = ClipInteractor.ApplyResizeSnapping(
+                TargetObject,
+                _dragHandleName,
+                _originalStartFrame,
+                _originalEndFrame,
+                deltaPixels,
+                parentTimeline.Timeline,
+                _timelineViewState.Frame_Per_DIP);
 
-            // 希望のフレームのままリサイズできるならばリサイズ実行
-            if (parentTimeline.CanResizeClip(TargetObject, newStart, newEnd))
+            var ownerLayer = ClipInteractor.FindOwnerLayer(parentTimeline.Timeline, TargetObject);
+            bool canResize = ownerLayer is not null &&
+                            ClipInteractor.CanResize(TargetObject, newStart, newEnd, ownerLayer);
+
+            if (canResize)
             {
                 // フレームが変化していればコマンドを実行
                 if (newStart != _originalStartFrame || newEnd != _originalEndFrame)
                 {
-                    IEditCommand command = new ClipResizeCommand(
+                    var command = ClipInteractor.CreateResizeCommand(
                         TargetObject,
                         _originalStartFrame, newStart,
-                        _originalEndFrame, newEnd
-                    );
+                        _originalEndFrame, newEnd);
                     editCommandManager.Execute(command);
 
                     RecalculateSize();
@@ -193,61 +210,14 @@ namespace Metasia.Editor.ViewModels.Timeline
             }
             else
             {
-                // ドラッグしたそのままのフレームでは重複でリサイズできない場合
-                // プレビューをキャンセルして元に戻す
+                // リサイズできない場合はプレビューをキャンセルして元に戻す
                 editCommandManager.CancelPreview();
-
-                // キャンセルした状態をUIに反映
                 RecalculateSize();
-
-                // TODO: ここで「重複しないぎりぎりまで詰める」処理を追加可能
             }
 
             _isDragging = false;
             _dragHandleName = string.Empty;
         }
-
-        private void CalculateNewFrames(double pointerPositionXOnCanvas, out int newStart, out int newEnd)
-        {
-            double deltaX = pointerPositionXOnCanvas - _dragStartX;
-            double frameDelta = deltaX / _timelineViewState.Frame_Per_DIP;
-            int frameChange = (int)Math.Round(frameDelta);
-
-            newStart = _originalStartFrame;
-            newEnd = _originalEndFrame;
-
-            // スナップの閾値（ピクセル）
-            const double SNAP_THRESHOLD_PX = 10.0;
-            // フレーム単位の閾値に変換
-            int snapThresholdFrame = (int)(SNAP_THRESHOLD_PX / _timelineViewState.Frame_Per_DIP);
-            // 少なくとも1フレームは確保
-            if (snapThresholdFrame < 1) snapThresholdFrame = 1;
-
-            if (_dragHandleName == "StartHandle")
-            {
-                int proposedStart = _originalStartFrame + frameChange;
-
-                // スナップ処理
-                proposedStart = parentTimeline.GetNearestSnapFrame(proposedStart, snapThresholdFrame, new[] { TargetObject });
-
-                newStart = proposedStart;
-                // 終端を超えないように、かつ長さが1未満にならないように制限
-                newStart = Math.Min(newStart, _originalEndFrame - 1);
-                newStart = Math.Max(newStart, 0);
-            }
-            else if (_dragHandleName == "EndHandle")
-            {
-                int proposedEnd = _originalEndFrame + frameChange;
-
-                // EndFrameそのものではなく、EndFrame + 1（次の開始位置）でスナップ判定を行う
-                int proposedBoundary = proposedEnd + 1;
-                int snappedBoundary = parentTimeline.GetNearestSnapFrame(proposedBoundary, snapThresholdFrame, new[] { TargetObject });
-
-                newEnd = snappedBoundary - 1;
-
-                // 始端を下回らないように、かつ長さが1未満にならないように制限
-                newEnd = Math.Max(newEnd, _originalStartFrame + 1);
-            }
-        }
     }
 }
+
