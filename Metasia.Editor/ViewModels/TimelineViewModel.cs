@@ -67,8 +67,18 @@ namespace Metasia.Editor.ViewModels
             private set => this.RaiseAndSetIfChanged(ref _cursorLeft, value);
         }
 
+        /// <summary>
+        /// プロジェクトのフレームレート
+        /// </summary>
+        public int FrameRate
+        {
+            get => _frameRate;
+            private set => this.RaiseAndSetIfChanged(ref _frameRate, value);
+        }
+
         private TimelineObject _timeline;
         private double _frame_per_DIP;
+        private int _frameRate = 60;
 
         private int _frame;
         private double _cursorLeft;
@@ -106,6 +116,10 @@ namespace Metasia.Editor.ViewModels
             _timelineViewState.Frame_Per_DIP_Changed += OnFramePerDIPChanged;
             Frame_Per_DIP = _timelineViewState.Frame_Per_DIP;
             _timeline = _projectState.CurrentTimeline;
+            if (_projectState.CurrentProjectInfo != null)
+            {
+                FrameRate = _projectState.CurrentProjectInfo.Framerate;
+            }
 
             playbackState.PlaybackFrameChanged += OnPlaybackFrameChanged;
 
