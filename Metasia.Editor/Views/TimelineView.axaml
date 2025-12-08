@@ -27,7 +27,7 @@
 												   MinTextInterval="50"
 						                           FramePerDIP="{Binding Frame_Per_DIP}" 
 						                           FrameRate="{Binding FrameRate}"/>
-						<Rectangle Canvas.Left="{Binding CursorLeft}" Fill="Red" Width="2" Height="500"/>
+						<Rectangle Canvas.Left="{Binding CursorLeft}" Fill="Red" Width="2" Height="500" IsHitTestVisible="False"/>
 					</Canvas>
 					
 				</ScrollViewer>
@@ -39,7 +39,7 @@
 					<Canvas VerticalAlignment="Top"
 							Width="{Binding ElementName=TimelineScroll, Path=Bounds.Width}" 
 					        Height="{Binding ElementName=TimelineScroll, Path=Bounds.Height}">
-						<Rectangle Canvas.Left="{Binding CursorLeft}" Fill="Red" Width="2" Height="500" ZIndex="1"/>
+						<Rectangle Canvas.Left="{Binding CursorLeft}" Fill="Red" Width="2" Height="500" ZIndex="1" IsHitTestVisible="False"/>
 						<ItemsControl x:Name="TimelineScroll" ItemsSource="{Binding LayerCanvas}" />
 					</Canvas>
 					
