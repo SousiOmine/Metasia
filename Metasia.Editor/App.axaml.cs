@@ -1,6 +1,7 @@
 
 
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -69,7 +70,18 @@ namespace Metasia.Editor
             services.AddSingleton<IKeyBindingService, KeyBindingService>();
 
             services.AddSingleton<IEditCommandManager, EditCommandManager>();
-            services.AddSingleton<IAudioService, SoundIOService>();
+            services.AddSingleton<IAudioService>(_ =>
+            {
+                try
+                {
+                    return new MiniaudioService();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"MiniaudioService 初期化に失敗: {ex.Message}");
+                    return new SoundIOService();
+                }
+            });
             services.AddTransient<IAudioPlaybackService, AudioPlaybackService>();
 
             services.AddSingleton<IProjectState, ProjectState>();
