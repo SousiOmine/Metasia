@@ -10,7 +10,7 @@ namespace Metasia.Editor.Models.Media.StandardInput;
 public class StdInput : IImageFileAccessor
 {
     private static readonly ConcurrentDictionary<string, SKBitmap> _imageCache = new();
-    
+
     public async Task<ImageFileAccessorResult> GetBitmapAsync(string path)
     {
         ArgumentNullException.ThrowIfNull(path);
@@ -29,7 +29,7 @@ public class StdInput : IImageFileAccessor
         {
             _imageCache.TryAdd(path, bitmap);
         }
-        
+
         return new ImageFileAccessorResult { IsSuccessful = true, Bitmap = bitmap };
     }
 }

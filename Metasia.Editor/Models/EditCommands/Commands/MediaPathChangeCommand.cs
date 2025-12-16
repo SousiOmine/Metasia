@@ -28,14 +28,14 @@ public class MediaPathChangeCommand : IEditCommand
         ArgumentNullException.ThrowIfNull(newPath);
         _targetMediaPath = targetMediaPath;
         _newPath = newPath;
-_oldPath = new MediaPath
+        _oldPath = new MediaPath
         {
             FileName = _targetMediaPath.FileName,
             Directory = _targetMediaPath.Directory
         };
     }
 
-public void Execute()
+    public void Execute()
     {
         _targetMediaPath.FileName = _newPath.FileName;
         _targetMediaPath.Directory = _newPath.Directory;

@@ -51,7 +51,7 @@ namespace Metasia.Editor.Views
         {
             _okCommandSubscription?.Dispose();
             _cancelCommandSubscription?.Dispose();
-            
+
             this.DataContextChanged -= OnDataContextChanged;
 
             base.OnClosed(e);

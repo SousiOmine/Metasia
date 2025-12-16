@@ -54,7 +54,7 @@ public class MetaDoubleParamTests
     {
         // Arrange
         var param = new MetaDoubleParam(10.0);
-        
+
         // Act - 参照を通じて値を変更
         ModifyValue(param);
 
@@ -296,7 +296,7 @@ public class MetaDoubleParamTests
         // Arrange
         var param = new MetaDoubleParam(100.0);
         double oldValue = param.Value;
-        
+
         // Act - Do
         param.Value = 200.0;
         double newValue = param.Value;

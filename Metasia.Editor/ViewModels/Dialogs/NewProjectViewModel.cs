@@ -83,8 +83,8 @@ public class NewProjectViewModel : ViewModelBase
         var canExecuteOk = this.WhenAnyValue(
             x => x.ProjectName,
             x => x.FolderPath,
-            (projectName, folderPath) => 
-                !string.IsNullOrWhiteSpace(projectName) && 
+            (projectName, folderPath) =>
+                !string.IsNullOrWhiteSpace(projectName) &&
                 !string.IsNullOrWhiteSpace(folderPath));
 
         OkCommand = ReactiveCommand.Create(() =>
@@ -97,13 +97,13 @@ public class NewProjectViewModel : ViewModelBase
                 {
                     throw new ArgumentException($"プロジェクト名に無効な文字が含まれています: {ProjectName}");
                 }
-                
+
                 var framerate = GetFramerateFromIndex(SelectedFramerateIndex);
                 var size = GetResolutionFromIndex(SelectedResolutionIndex);
                 var projectInfo = new ProjectInfo(framerate, size, 44100, 2);
-                
+
                 var projectPath = Path.Combine(FolderPath, ProjectName);
-                
+
                 // プロジェクトフォルダを作成
                 if (!Directory.Exists(projectPath))
                 {
@@ -118,14 +118,14 @@ public class NewProjectViewModel : ViewModelBase
             {
                 // エラーをログに記録
                 Console.Error.WriteLine($"プロジェクト作成エラー: {ex.Message}");
-                
+
                 // ユーザーが選択した設定を使用
                 var framerate = GetFramerateFromIndex(SelectedFramerateIndex);
                 var size = GetResolutionFromIndex(SelectedResolutionIndex);
                 return (false, string.Empty, new ProjectInfo(framerate, size, 44100, 2), null);
             }
         }, canExecuteOk);
-        CancelCommand = ReactiveCommand.Create(() => 
+        CancelCommand = ReactiveCommand.Create(() =>
             (Result: false, ProjectPath: string.Empty, ProjectInfo: new ProjectInfo(30, new SKSize(1920, 1080), 44100, 2), SelectedTemplate: (MetasiaProject?)null));
 
         BrowseFolderCommand = ReactiveCommand.CreateFromTask(BrowseFolderAsync);
@@ -143,7 +143,7 @@ public class NewProjectViewModel : ViewModelBase
     private void LoadTemplates()
     {
         AvailableTemplates.Clear();
-        
+
         AvailableTemplates.Add(new ProjectTemplateInfo
         {
             Name = "空のプロジェクト",

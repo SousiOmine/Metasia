@@ -14,7 +14,7 @@ namespace Metasia.Editor.Tests.Models.EditCommands.Commands
         [SetUp]
         public void Setup()
         {
-_target = new MediaPath
+            _target = new MediaPath
             {
                 FileName = "old.png",
                 Directory = "C:/old"
@@ -40,7 +40,7 @@ _target = new MediaPath
             var command = new MediaPathChangeCommand(_target!, _newPath!);
             command.Execute();
 
-Assert.That(_target!.FileName, Is.EqualTo(_newPath!.FileName));
+            Assert.That(_target!.FileName, Is.EqualTo(_newPath!.FileName));
             Assert.That(_target!.Directory, Is.EqualTo(_newPath!.Directory));
         }
 
@@ -52,7 +52,7 @@ Assert.That(_target!.FileName, Is.EqualTo(_newPath!.FileName));
             command.Execute();
             command.Undo();
 
-Assert.That(_target!.FileName, Is.EqualTo(_oldPath!.FileName));
+            Assert.That(_target!.FileName, Is.EqualTo(_oldPath!.FileName));
             Assert.That(_target!.Directory, Is.EqualTo(_oldPath!.Directory));
         }
 
@@ -91,7 +91,7 @@ Assert.That(_target!.FileName, Is.EqualTo(_oldPath!.FileName));
         [Test]
         public void Constructor_WithExplicitOldPath_UsesProvidedOldPath()
         {
-var explicitOld = new MediaPath
+            var explicitOld = new MediaPath
             {
                 FileName = "explicit-old.png",
                 Directory = "C:/explicit-old"
@@ -100,7 +100,7 @@ var explicitOld = new MediaPath
             command.Execute();
             command.Undo();
 
-// After undo, target should match the explicit old path, not the original values set in Setup.
+            // After undo, target should match the explicit old path, not the original values set in Setup.
             Assert.That(_target!.FileName, Is.EqualTo(explicitOld.FileName));
             Assert.That(_target!.Directory, Is.EqualTo(explicitOld.Directory));
         }
