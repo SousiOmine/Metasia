@@ -1,0 +1,93 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:Metasia.Editor.Controls">
+    
+    <Style Selector="controls|PlayerSlider">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="SelectionRegionBrush" Value="#0078D7"/>
+        <Setter Property="OutsideRegionBrush" Value="#AAAAAA"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid Name="Grid" Margin="{TemplateBinding Padding}" Background="{TemplateBinding Background}">
+                    <controls:RangeSelectionLayer
+                         Name="SelectionLayer"
+                         Minimum="{TemplateBinding Minimum}"
+                         Maximum="{TemplateBinding Maximum}"
+                         SelectStartValue="{TemplateBinding SelectStartValue}"
+                         SelectEndValue="{TemplateBinding SelectEndValue}"
+                         SelectionRegionBrush="{TemplateBinding SelectionRegionBrush}"
+                         OutsideRegionBrush="{TemplateBinding OutsideRegionBrush}"
+                         Orientation="{TemplateBinding Orientation}"
+                         IsHitTestVisible="False"/>
+                    
+                    <Track Name="PART_Track" 
+                           Minimum="{TemplateBinding Minimum}" 
+                           Maximum="{TemplateBinding Maximum}" 
+                           Value="{TemplateBinding Value, Mode=TwoWay}"
+                           Orientation="{TemplateBinding Orientation}">
+                        <Track.DecreaseButton>
+                            <RepeatButton Name="PART_DecreaseButton" Background="Transparent" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                <RepeatButton.Template>
+                                    <ControlTemplate>
+                                        <Border Background="Transparent" />
+                                    </ControlTemplate>
+                                </RepeatButton.Template>
+                            </RepeatButton>
+                        </Track.DecreaseButton>
+                        <Track.IncreaseButton>
+                            <RepeatButton Name="PART_IncreaseButton" Background="Transparent" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                <RepeatButton.Template>
+                                    <ControlTemplate>
+                                        <Border Background="Transparent" />
+                                    </ControlTemplate>
+                                </RepeatButton.Template>
+                            </RepeatButton>
+                        </Track.IncreaseButton>
+                        <Thumb Name="thumb" MinWidth="20" MinHeight="20">
+                            <Thumb.Template>
+                                <ControlTemplate>
+                                    <Grid>
+                                        <Ellipse Fill="{TemplateBinding Background}" Width="20" Height="20" Stroke="{TemplateBinding BorderBrush}" StrokeThickness="1"/>
+                                    </Grid>
+                                </ControlTemplate>
+                            </Thumb.Template>
+                        </Thumb>
+                    </Track>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+
+    <Style Selector="controls|PlayerSlider /template/ Thumb">
+        <Setter Property="Background" Value="White"/>
+        <Setter Property="BorderBrush" Value="#0078D7"/>
+    </Style>
+    
+    <Style Selector="controls|PlayerSlider:pointerover /template/ Thumb">
+        <Setter Property="Background" Value="#F0F0F0"/>
+    </Style>
+
+    <Style Selector="controls|PlayerSlider:horizontal">
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="MinWidth" Value="40"/>
+    </Style>
+    
+    <Style Selector="controls|PlayerSlider:horizontal /template/ controls|RangeSelectionLayer#SelectionLayer">
+        <Setter Property="Height" Value="{Binding TrackThickness, RelativeSource={RelativeSource TemplatedParent}}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+    </Style>
+    
+    <Style Selector="controls|PlayerSlider:vertical">
+        <Setter Property="Width" Value="32"/>
+        <Setter Property="MinHeight" Value="40"/>
+    </Style>
+
+    <Style Selector="controls|PlayerSlider:vertical /template/ controls|RangeSelectionLayer#SelectionLayer">
+        <Setter Property="Width" Value="{Binding TrackThickness, RelativeSource={RelativeSource TemplatedParent}}"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Stretch"/>
+    </Style>
+    
+</Styles>

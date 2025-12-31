@@ -17,8 +17,10 @@
 					<ColumnDefinition Width="*"/>
 					<ColumnDefinition Width="auto"/>
 				</Grid.ColumnDefinitions>
-				<Slider TickPlacement="None" Grid.Column="0" 
-						Value="{Binding Frame}" Minimum="{Binding SliderMinimum}" Maximum="{Binding SliderMaximum}"/>
+				<controls:PlayerSlider TickPlacement="None" Grid.Column="0" 
+						Value="{Binding Frame}" Minimum="{Binding SliderMinimum}" Maximum="{Binding SliderMaximum}"
+                        TrackThickness="10"
+						SelectStartValue="100" SelectEndValue="200" Padding="4"/>
 				<StackPanel Grid.Column="1" Orientation="Horizontal">
 					<Button Height="32" IsVisible="{Binding !IsPlaying}"
 							Command="{Binding Play}">

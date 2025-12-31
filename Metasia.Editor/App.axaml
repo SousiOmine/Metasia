@@ -13,6 +13,7 @@
     <Application.Styles>
         <FluentTheme />
         <StyleInclude Source="avares://Metasia.Editor/Icons.axaml" />
+        <StyleInclude Source="avares://Metasia.Editor/Controls/PlayerSlider.axaml" />
         <labs:ControlThemes/>
     </Application.Styles>
 </Application>
