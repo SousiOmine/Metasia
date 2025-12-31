@@ -14,6 +14,7 @@
         <FluentTheme />
         <StyleInclude Source="avares://Metasia.Editor/Icons.axaml" />
         <StyleInclude Source="avares://Metasia.Editor/Controls/PlayerSlider.axaml" />
+        <StyleInclude Source="avares://Metasia.Editor/Controls/InspectorNumericUpDown.axaml" />
         <labs:ControlThemes/>
     </Application.Styles>
 </Application>

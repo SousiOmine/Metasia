@@ -1,0 +1,64 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:Metasia.Editor.Controls">
+
+  <Style Selector="controls|InspectorNumericUpDown">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderBrush" Value="#666666"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="Padding" Value="4,2"/>
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}">
+          <Grid ColumnDefinitions="*,18">
+            <Border Name="PART_DisplayBorder"
+                    Background="Transparent"
+                    Padding="{TemplateBinding Padding}"
+                    Grid.Column="0">
+              <Grid>
+                <TextBlock Text="{Binding DisplayText, RelativeSource={RelativeSource TemplatedParent}}"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Right"
+                           IsVisible="{Binding !IsEditing, RelativeSource={RelativeSource TemplatedParent}}"/>
+                <TextBox Name="PART_EditTextBox"
+                         Text="{Binding EditText, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                         VerticalContentAlignment="Center"
+                         HorizontalContentAlignment="Right"
+                         Padding="0"
+                         BorderThickness="0"
+                         Background="Transparent"
+                         IsVisible="{Binding IsEditing, RelativeSource={RelativeSource TemplatedParent}}"/>
+              </Grid>
+            </Border>
+
+            <Grid Grid.Column="1" RowDefinitions="*,*">
+              <Border BorderBrush="{TemplateBinding BorderBrush}"
+                      BorderThickness="1,0,0,0"
+                      Grid.RowSpan="2"
+                      IsHitTestVisible="False"/>
+
+              <RepeatButton Name="PART_UpButton"
+                            Grid.Row="0"
+                            Padding="0"
+                            Content="▲"
+                            FontSize="9"/>
+
+              <RepeatButton Name="PART_DownButton"
+                            Grid.Row="1"
+                            Padding="0"
+                            Content="▼"
+                            FontSize="9"/>
+
+              <Border BorderBrush="{TemplateBinding BorderBrush}"
+                      BorderThickness="0,1,0,0"
+                      Grid.Row="1"
+                      IsHitTestVisible="False"/>
+            </Grid>
+          </Grid>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+</Styles>

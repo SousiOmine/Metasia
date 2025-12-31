@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:Metasia.Editor.ViewModels.Inspector.Properties"
+             xmlns:controls="using:Metasia.Editor.Controls"
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="50"
              x:Class="Metasia.Editor.Views.Inspector.Properties.DoublePropertyView"
              x:DataType="vm:DoublePropertyViewModel">
@@ -11,13 +12,14 @@
                    VerticalAlignment="Center"
                    Width="70"
                    Margin="2"/>
-        <NumericUpDown Value="{Binding PropertyValue}"
-                       Minimum="{Binding Min}"
-                       Maximum="{Binding Max}"
-                       Width="130"
-                       VerticalAlignment="Center"
-                       Increment="0.1"
-                       FormatString="F2"/>
+        <controls:InspectorNumericUpDown Value="{Binding PropertyValue}"
+                                         Minimum="{Binding Min}"
+                                         Maximum="{Binding Max}"
+                                         Width="130"
+                                         VerticalAlignment="Center"
+                                         Increment="1"
+                                         DragValuePerPixel="1"
+                                         FormatString="F0"/>
         <Slider x:Name="ValueSlider"
                 Minimum="{Binding RecommendMin}"
                 Maximum="{Binding RecommendMax}"
