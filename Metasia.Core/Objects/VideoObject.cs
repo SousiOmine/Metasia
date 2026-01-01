@@ -48,20 +48,21 @@ public class VideoObject : ClipObject, IRenderable
     public async Task<RenderNode> RenderAsync(RenderContext context, CancellationToken cancellationToken = default)
     {
         int relativeFrame = context.Frame - StartFrame;
+        int clipLength = EndFrame - StartFrame + 1;
         if (VideoPath is not null && !string.IsNullOrEmpty(VideoPath?.FileName))
         {
             try
             {
-                TimeSpan time = TimeSpan.FromSeconds((double)(relativeFrame) / context.ProjectInfo.Framerate + VideoStartSeconds.Get(relativeFrame));
+                TimeSpan time = TimeSpan.FromSeconds((double)(relativeFrame) / context.ProjectInfo.Framerate + VideoStartSeconds.Get(relativeFrame, clipLength));
                 var imageFileAccessorResult = await context.VideoFileAccessor.GetBitmapAsync(MediaPath.GetFullPath(VideoPath, context.ProjectPath), time);
                 if (imageFileAccessorResult.IsSuccessful && imageFileAccessorResult.Bitmap is not null)
                 {
                     var transform = new Transform()
                     {
-                        Position = new SKPoint((float)X.Get(relativeFrame), (float)Y.Get(relativeFrame)),
-                        Scale = (float)Scale.Get(relativeFrame) / 100,
-                        Rotation = (float)Rotation.Get(relativeFrame),
-                        Alpha = (100.0f - (float)Alpha.Get(relativeFrame)) / 100,
+                        Position = new SKPoint((float)X.Get(relativeFrame, clipLength), (float)Y.Get(relativeFrame, clipLength)),
+                        Scale = (float)Scale.Get(relativeFrame, clipLength) / 100,
+                        Rotation = (float)Rotation.Get(relativeFrame, clipLength),
+                        Alpha = (100.0f - (float)Alpha.Get(relativeFrame, clipLength)) / 100,
                     };
                     return new RenderNode()
                     {

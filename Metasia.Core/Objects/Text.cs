@@ -85,10 +85,11 @@ namespace Metasia.Core.Objects
 
             //このオブジェクトのStartFrameを基準としたフレーム
             int relativeFrame = context.Frame - StartFrame;
+            int clipLength = EndFrame - StartFrame + 1;
             SKPaint skPaint = new SKPaint()
             {
                 IsAntialias = true,
-                TextSize = (float)TextSize.Get(relativeFrame),
+                TextSize = (float)TextSize.Get(relativeFrame, clipLength),
                 Typeface = _typeface,
                 Color = SKColors.White,
             };
@@ -127,10 +128,10 @@ namespace Metasia.Core.Objects
 
             var transform = new Transform()
             {
-                Position = new SKPoint((float)X.Get(relativeFrame), (float)Y.Get(relativeFrame)),
-                Scale = (float)Scale.Get(relativeFrame) / 100,
-                Rotation = (float)Rotation.Get(relativeFrame),
-                Alpha = (100.0f - (float)Alpha.Get(relativeFrame)) / 100,
+                Position = new SKPoint((float)X.Get(relativeFrame, clipLength), (float)Y.Get(relativeFrame, clipLength)),
+                Scale = (float)Scale.Get(relativeFrame, clipLength) / 100,
+                Rotation = (float)Rotation.Get(relativeFrame, clipLength),
+                Alpha = (100.0f - (float)Alpha.Get(relativeFrame, clipLength)) / 100,
             };
 
 
@@ -190,37 +191,39 @@ namespace Metasia.Core.Objects
             firstText.Id = Id + "_part1";
             secondText.Id = Id + "_part2";
 
+            int clipLength = EndFrame - StartFrame + 1;
+
             // MetaNumberParamプロパティの分割
             // 相対フレーム位置で分割するため、オブジェクトの開始フレームを基準とした相対位置で分割
             int relativeSplitFrame = splitFrame - StartFrame;
 
             // Xプロパティの分割
-            var (firstX, secondX) = X.Split(relativeSplitFrame);
+            var (firstX, secondX) = X.Split(relativeSplitFrame, clipLength);
             firstText.X = firstX;
             secondText.X = secondX;
 
             // Yプロパティの分割
-            var (firstY, secondY) = Y.Split(relativeSplitFrame);
+            var (firstY, secondY) = Y.Split(relativeSplitFrame, clipLength);
             firstText.Y = firstY;
             secondText.Y = secondY;
 
             // Scaleプロパティの分割
-            var (firstScale, secondScale) = Scale.Split(relativeSplitFrame);
+            var (firstScale, secondScale) = Scale.Split(relativeSplitFrame, clipLength);
             firstText.Scale = firstScale;
             secondText.Scale = secondScale;
 
             // Alphaプロパティの分割
-            var (firstAlpha, secondAlpha) = Alpha.Split(relativeSplitFrame);
+            var (firstAlpha, secondAlpha) = Alpha.Split(relativeSplitFrame, clipLength);
             firstText.Alpha = firstAlpha;
             secondText.Alpha = secondAlpha;
 
             // Rotationプロパティの分割
-            var (firstRotation, secondRotation) = Rotation.Split(relativeSplitFrame);
+            var (firstRotation, secondRotation) = Rotation.Split(relativeSplitFrame, clipLength);
             firstText.Rotation = firstRotation;
             secondText.Rotation = secondRotation;
 
             // TextSizeプロパティの分割
-            var (firstTextSize, secondTextSize) = TextSize.Split(relativeSplitFrame);
+            var (firstTextSize, secondTextSize) = TextSize.Split(relativeSplitFrame, clipLength);
             firstText.TextSize = firstTextSize;
             secondText.TextSize = secondTextSize;
 

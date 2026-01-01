@@ -125,7 +125,16 @@ public class MetaNumberParamPropertyViewModel : ViewModelBase
 
     private void RestructureParams()
     {
-        var desiredPoints = _propertyValue.Params.ToList();
+        var desiredPoints = new List<CoordPoint>
+        {
+            _propertyValue.StartPoint
+        };
+        if (_propertyValue.IsMovable)
+        {
+            desiredPoints.AddRange(_propertyValue.Params);
+            desiredPoints.Add(_propertyValue.EndPoint);
+        }
+
         var desiredIds = desiredPoints.Select(p => p.Id).ToHashSet();
 
         // Remove VMs that no longer exist

@@ -36,11 +36,11 @@ namespace Metasia.Core.Tests.Objects
         public void CoordinateParameters_HaveCorrectDefaultValues()
         {
             // Assert
-            Assert.That(_kariHelloObject.X.Get(0), Is.EqualTo(0));
-            Assert.That(_kariHelloObject.Y.Get(0), Is.EqualTo(0));
-            Assert.That(_kariHelloObject.Scale.Get(0), Is.EqualTo(100));
-            Assert.That(_kariHelloObject.Alpha.Get(0), Is.EqualTo(0));
-            Assert.That(_kariHelloObject.Rotation.Get(0), Is.EqualTo(0));
+            Assert.That(_kariHelloObject.X.Get(0, 100), Is.EqualTo(0));
+            Assert.That(_kariHelloObject.Y.Get(0, 100), Is.EqualTo(0));
+            Assert.That(_kariHelloObject.Scale.Get(0, 100), Is.EqualTo(100));
+            Assert.That(_kariHelloObject.Alpha.Get(0, 100), Is.EqualTo(0));
+            Assert.That(_kariHelloObject.Rotation.Get(0, 100), Is.EqualTo(0));
         }
 
         [Test]
@@ -140,17 +140,17 @@ namespace Metasia.Core.Tests.Objects
             var secondHello = secondClip as kariHelloObject;
 
             // Assert
-            Assert.That(firstHello.X.Get(0), Is.EqualTo(100));
-            Assert.That(firstHello.Y.Get(0), Is.EqualTo(200));
-            Assert.That(firstHello.Scale.Get(0), Is.EqualTo(150));
-            Assert.That(firstHello.Alpha.Get(0), Is.EqualTo(25));
-            Assert.That(firstHello.Rotation.Get(0), Is.EqualTo(45));
+            Assert.That(firstHello.X.Get(0, 100), Is.EqualTo(100));
+            Assert.That(firstHello.Y.Get(0, 100), Is.EqualTo(200));
+            Assert.That(firstHello.Scale.Get(0, 100), Is.EqualTo(150));
+            Assert.That(firstHello.Alpha.Get(0, 100), Is.EqualTo(25));
+            Assert.That(firstHello.Rotation.Get(0, 100), Is.EqualTo(45));
 
-            Assert.That(secondHello.X.Get(0), Is.EqualTo(100));
-            Assert.That(secondHello.Y.Get(0), Is.EqualTo(200));
-            Assert.That(secondHello.Scale.Get(0), Is.EqualTo(150));
-            Assert.That(secondHello.Alpha.Get(0), Is.EqualTo(25));
-            Assert.That(secondHello.Rotation.Get(0), Is.EqualTo(45));
+            Assert.That(secondHello.X.Get(0, 100), Is.EqualTo(100));
+            Assert.That(secondHello.Y.Get(0, 100), Is.EqualTo(200));
+            Assert.That(secondHello.Scale.Get(0, 100), Is.EqualTo(150));
+            Assert.That(secondHello.Alpha.Get(0, 100), Is.EqualTo(25));
+            Assert.That(secondHello.Rotation.Get(0, 100), Is.EqualTo(45));
         }
 
         /// <summary>

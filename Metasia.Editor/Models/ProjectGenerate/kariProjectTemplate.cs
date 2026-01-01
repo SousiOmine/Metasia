@@ -25,7 +25,9 @@ public class KariProjectTemplate : IProjectTemplate
         {
             EndFrame = 120,
         };
-        kariHello.Rotation.AddPoint(new CoordPoint() { Value = 90, Frame = 120 });
+        // kariHello.Rotation.AddPoint(new CoordPoint() { Value = 90, Frame = 120 });
+        kariHello.Rotation.IsMovable = true;
+        kariHello.Rotation.EndPoint.Value = 90;
 
         kariHelloObject kariHello2 = new kariHelloObject("karihello2")
         {
@@ -35,7 +37,9 @@ public class KariProjectTemplate : IProjectTemplate
         kariHello2.Rotation.SetSinglePoint(45);
         kariHello2.Alpha.SetSinglePoint(50);
         kariHello2.Scale.SetSinglePoint(50);
-        kariHello2.X.AddPoint(new CoordPoint() { Value = 1000, Frame = 10 });
+        
+        kariHello2.X.IsMovable = true;
+        kariHello2.X.EndPoint.Value = 1000;
 
         kariHello2.AudioEffects.Add(new VolumeFadeEffect() { In = 1, Out = 1 });
 
@@ -120,7 +124,9 @@ public class KariProjectTemplate : IProjectTemplate
             Contents = "JS",
         };
         // X パラメータに5つの中間点を設定し、1つは JavaScriptLogic を使用
+        
         jsClip.X.SetSinglePoint(-1300);
+        jsClip.X.IsMovable = true;
         jsClip.X.AddPoint(new CoordPoint() { Value = -400, Frame = 60 });
         jsClip.X.AddPoint(new CoordPoint()
         {
@@ -132,7 +138,7 @@ public class KariProjectTemplate : IProjectTemplate
             }
         });
         jsClip.X.AddPoint(new CoordPoint() { Value = 1400, Frame = 180 });
-        jsClip.X.AddPoint(new CoordPoint() { Value = 2300, Frame = 239 });
+        jsClip.X.EndPoint.Value = 2300;
         // クリップをレイヤー5に追加
         layer5.Objects.Add(jsClip);
 

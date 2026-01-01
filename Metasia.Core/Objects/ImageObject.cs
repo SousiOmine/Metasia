@@ -45,6 +45,7 @@ public class ImageObject : ClipObject, IRenderable
         cancellationToken.ThrowIfCancellationRequested();
 
         int relativeFrame = context.Frame - StartFrame;
+        int clipLength = EndFrame - StartFrame + 1;
         if (ImagePath is not null && !string.IsNullOrEmpty(ImagePath?.FileName))
         {
             try
@@ -54,10 +55,10 @@ public class ImageObject : ClipObject, IRenderable
                 {
                     var transform = new Transform()
                     {
-                        Position = new SKPoint((float)X.Get(relativeFrame), (float)Y.Get(relativeFrame)),
-                        Scale = (float)Scale.Get(relativeFrame) / 100,
-                        Rotation = (float)Rotation.Get(relativeFrame),
-                        Alpha = (100.0f - (float)Alpha.Get(relativeFrame)) / 100,
+                        Position = new SKPoint((float)X.Get(relativeFrame, clipLength), (float)Y.Get(relativeFrame, clipLength)),
+                        Scale = (float)Scale.Get(relativeFrame, clipLength) / 100,
+                        Rotation = (float)Rotation.Get(relativeFrame, clipLength),
+                        Alpha = (100.0f - (float)Alpha.Get(relativeFrame, clipLength)) / 100,
                     };
                     return new RenderNode()
                     {

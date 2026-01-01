@@ -26,25 +26,33 @@ public class MetaNumberParam<T> where T : struct, INumber<T>
     public List<CoordPoint> SerializableParams
     {
         get => _params;
-        set => _params = value ?? new List<CoordPoint>();
+        set => _params = value ?? [];
     }
 
-    private List<CoordPoint> _params = new();
+    public bool IsMovable { get; set; } = false;
+
+    public CoordPoint StartPoint = new();
+    public CoordPoint EndPoint = new();
+
+    private List<CoordPoint> _params = [];
 
 
     public MetaNumberParam()
     {
-        _params = new();
+        _params = [];
     }
 
     public MetaNumberParam(T initialValue)
     {
-        _params = [new CoordPoint() { Value = double.CreateChecked(initialValue) }];
+        //_params = [new CoordPoint() { Value = double.CreateChecked(initialValue) }];
+        StartPoint.Value = double.CreateChecked(initialValue);
+        EndPoint.Value = double.CreateChecked(initialValue);
     }
 
-    public T Get(int frame)
+    public T Get(int frame, int clipLength)
     {
-        return CalculateMidValue(frame);
+        EndPoint.Frame = clipLength;
+        return CalculateMidValue(frame, clipLength);
     }
 
     public void AddPoint(CoordPoint point)
@@ -79,7 +87,9 @@ public class MetaNumberParam<T> where T : struct, INumber<T>
 
     public void SetSinglePoint(T value)
     {
-        _params = [new CoordPoint() { Value = double.CreateChecked(value) }];
+        IsMovable = false;
+        StartPoint.Value = double.CreateChecked(value);
+        EndPoint.Value = double.CreateChecked(value);
     }
 
     /// <summary>
@@ -93,15 +103,25 @@ public class MetaNumberParam<T> where T : struct, INumber<T>
     /// - 後半: splitFrame から開始（splitFrame を含む）
     /// - つまり splitFrame は後半クリップに属する
     /// </remarks>
-    public (MetaNumberParam<T> FirstHalf, MetaNumberParam<T> SecondHalf) Split(int splitFrame)
+    public (MetaNumberParam<T> FirstHalf, MetaNumberParam<T> SecondHalf) Split(int splitFrame, int oldClipLength)
     {
         var firstHalf = new MetaNumberParam<T>();
         var secondHalf = new MetaNumberParam<T>();
 
+        if (!IsMovable)
+        {
+            firstHalf.SetSinglePoint(T.CreateChecked(StartPoint.Value));
+            secondHalf.SetSinglePoint(T.CreateChecked(EndPoint.Value));
+            return (firstHalf, secondHalf);
+        }
+
         // 分割フレームの値を計算
-        T splitValue = Get(splitFrame);
+        T splitValue = Get(splitFrame, oldClipLength);
 
         // 前半部分：分割フレームより前のポイントをコピー
+        firstHalf.StartPoint.Value = double.CreateChecked(StartPoint.Value);
+        firstHalf.StartPoint.InterpolationLogic = StartPoint.InterpolationLogic.HardCopy();
+        firstHalf.EndPoint.Value = double.CreateChecked(splitValue);
         foreach (var point in _params.Where(p => p.Frame < splitFrame))
         {
             var newPoint = new CoordPoint
@@ -114,6 +134,9 @@ public class MetaNumberParam<T> where T : struct, INumber<T>
         }
 
         // 後半部分：分割フレーム以降のポイントをコピー（フレームを調整）
+        secondHalf.StartPoint.Value = double.CreateChecked(splitValue);
+        secondHalf.EndPoint.Value = double.CreateChecked(EndPoint.Value);
+        secondHalf.EndPoint.InterpolationLogic = EndPoint.InterpolationLogic.HardCopy();
         foreach (var point in _params.Where(p => p.Frame >= splitFrame))
         {
             var newPoint = new CoordPoint
@@ -125,26 +148,12 @@ public class MetaNumberParam<T> where T : struct, INumber<T>
             secondHalf._params.Add(newPoint);
         }
 
-        // 境界ポイントを追加（既に分割フレーム位置にポイントがある場合は追加しない）
-        // 境界ポイントには、分割フレーム位置にあるポイントのJSロジックを使用する
-        CoordPoint boundaryPointForFirstHalf = new CoordPoint
-        {
-            Frame = splitFrame,
-            Value = double.CreateChecked(splitValue)
-        };
-
-        CoordPoint boundaryPointForSecondHalf = new CoordPoint
-        {
-            Frame = 0,
-            Value = double.CreateChecked(splitValue)
-        };
-
         // 分割フレーム位置にあるポイントを探して、そのJSロジックを境界ポイントに設定
         var splitFramePoint = _params.FirstOrDefault(p => p.Frame == splitFrame);
-        if (splitFramePoint != null)
+        if (splitFramePoint is not null)
         {
-            boundaryPointForFirstHalf.InterpolationLogic = splitFramePoint.InterpolationLogic.HardCopy();
-            boundaryPointForSecondHalf.InterpolationLogic = splitFramePoint.InterpolationLogic.HardCopy();
+            firstHalf.EndPoint.InterpolationLogic = splitFramePoint.InterpolationLogic.HardCopy();
+            secondHalf.StartPoint.InterpolationLogic = splitFramePoint.InterpolationLogic.HardCopy();
         }
         else
         {
@@ -152,72 +161,60 @@ public class MetaNumberParam<T> where T : struct, INumber<T>
             var nearestPoint = _params.LastOrDefault(p => p.Frame < splitFrame);
             if (nearestPoint != null)
             {
-                boundaryPointForFirstHalf.InterpolationLogic = nearestPoint.InterpolationLogic.HardCopy();
-                boundaryPointForSecondHalf.InterpolationLogic = nearestPoint.InterpolationLogic.HardCopy();
+                firstHalf.EndPoint.InterpolationLogic = nearestPoint.InterpolationLogic.HardCopy();
+                secondHalf.StartPoint.InterpolationLogic = nearestPoint.InterpolationLogic.HardCopy();
             }
-        }
-
-        if (firstHalf._params.Count == 0 || firstHalf._params.Last().Frame < splitFrame - 1)
-        {
-            // 前半の最終フレームをsplitFrame-1に設定
-            boundaryPointForFirstHalf.Frame = splitFrame - 1;
-            // 前半の境界ポイントの値はsplitFrame-1での補間値
-            boundaryPointForFirstHalf.Value = double.CreateChecked(Get(splitFrame - 1));
-            firstHalf._params.Add(boundaryPointForFirstHalf);
-        }
-
-        if (secondHalf._params.Count == 0 || secondHalf._params[0].Frame > 0)
-        {
-            secondHalf._params.Insert(0, boundaryPointForSecondHalf);
         }
 
         return (firstHalf, secondHalf);
     }
 
 
-    protected T CalculateMidValue(int frame)
+    protected T CalculateMidValue(int frame, int clipLength)
     {
-        Sort();
-        if (_params.Count == 0)
-        {
-            throw new InvalidOperationException("Params is empty");
-        }
 
-        // 指定フレームがすべてのキーフレームより前にある場合、最初のキーフレームの値を返す
-        if (frame < _params[0].Frame)
+        if (IsMovable)
         {
-            return T.CreateChecked(_params[0].Value);
-        }
-
-        CoordPoint startPoint = _params.Last();
-        CoordPoint endPoint = startPoint;
-
-        //frameを含む前後２つのポイントを取得
-        for (int i = 0; i < _params.Count; i++)
-        {
-            if (_params[i].Frame >= frame)
+            Sort();
+            CoordPoint start = StartPoint;
+            CoordPoint end = EndPoint;
+            
+            if (_params.Count != 0)
             {
-                endPoint = _params[i];
-                if (i > 0) startPoint = _params[i - 1];
-                else startPoint = endPoint;
-                break;
+                List<CoordPoint> points = [.. _params, StartPoint, EndPoint];
+                points.Sort((a, b) => a.Frame - b.Frame);
+                //frameを含む前後２つのポイントを取得
+                for (int i = 0; i < points.Count; i++)
+                {
+                    if (points[i].Frame >= frame)
+                    {
+                        end = points[i];
+                        if (i >= 1) start = points[i - 1];
+                        break;
+                    }
+                }
+            }
+
+            try
+            {
+                double midValue = start.InterpolationLogic.Calculate(start.Value, end.Value, frame, start.Frame, end.Frame);
+                return T.CreateChecked(midValue);
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e.Message);
+                return T.CreateChecked(start.Value);
             }
         }
-
-        try
+        else
         {
-            double midValue = startPoint.InterpolationLogic.Calculate(startPoint.Value, endPoint.Value, frame, startPoint.Frame, endPoint.Frame);
-            return T.CreateChecked(midValue);
-        }
-        catch (Exception e)
-        {
-            Debug.WriteLine(e.Message);
-            return T.CreateChecked(startPoint.Value);
+            return T.CreateChecked(StartPoint.Value);
         }
     }
 
     private void Sort()
     {
+        if (_params.Count == 0) return;
         _params.Sort((a, b) => a.Frame - b.Frame);
     }
 }

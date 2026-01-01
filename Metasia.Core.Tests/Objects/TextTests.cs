@@ -36,12 +36,12 @@ namespace Metasia.Core.Tests.Objects
         public void CoordinateParameters_HaveCorrectDefaultValues()
         {
             // Assert
-            Assert.That(_textObject.X.Get(0), Is.EqualTo(0));
-            Assert.That(_textObject.Y.Get(0), Is.EqualTo(0));
-            Assert.That(_textObject.Scale.Get(0), Is.EqualTo(100));
-            Assert.That(_textObject.Alpha.Get(0), Is.EqualTo(0));
-            Assert.That(_textObject.Rotation.Get(0), Is.EqualTo(0));
-            Assert.That(_textObject.TextSize.Get(0), Is.EqualTo(100));
+            Assert.That(_textObject.X.Get(0, 100), Is.EqualTo(0));
+            Assert.That(_textObject.Y.Get(0, 100), Is.EqualTo(0));
+            Assert.That(_textObject.Scale.Get(0, 100), Is.EqualTo(100));
+            Assert.That(_textObject.Alpha.Get(0, 100), Is.EqualTo(0));
+            Assert.That(_textObject.Rotation.Get(0, 100), Is.EqualTo(0));
+            Assert.That(_textObject.TextSize.Get(0, 100), Is.EqualTo(100));
         }
 
         [Test]
@@ -160,12 +160,12 @@ namespace Metasia.Core.Tests.Objects
             var secondText = secondClip as Text;
 
             // Assert
-            Assert.That(firstText.X.Get(0), Is.EqualTo(100));
-            Assert.That(firstText.Y.Get(0), Is.EqualTo(200));
-            Assert.That(firstText.Scale.Get(0), Is.EqualTo(150));
-            Assert.That(secondText.X.Get(0), Is.EqualTo(100));
-            Assert.That(secondText.Y.Get(0), Is.EqualTo(200));
-            Assert.That(secondText.Scale.Get(0), Is.EqualTo(150));
+            Assert.That(firstText.X.Get(0, 100), Is.EqualTo(100));
+            Assert.That(firstText.Y.Get(0, 100), Is.EqualTo(200));
+            Assert.That(firstText.Scale.Get(0, 100), Is.EqualTo(150));
+            Assert.That(secondText.X.Get(0, 100), Is.EqualTo(100));
+            Assert.That(secondText.Y.Get(0, 100), Is.EqualTo(200));
+            Assert.That(secondText.Scale.Get(0, 100), Is.EqualTo(150));
         }
 
         /// <summary>

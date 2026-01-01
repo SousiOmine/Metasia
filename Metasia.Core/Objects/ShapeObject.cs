@@ -63,9 +63,11 @@ namespace Metasia.Core.Objects
             //このオブジェクトのStartFrameを基準としたフレーム
             int relativeFrame = context.Frame - StartFrame;
 
+            int clipLength = EndFrame - StartFrame + 1;
+
             SKColor shapeColor = SKColors.White;
-            int size = (int)Size.Get(relativeFrame);
-            double aspectRatio = AspectRatio.Get(relativeFrame);
+            int size = (int)Size.Get(relativeFrame, clipLength);
+            double aspectRatio = AspectRatio.Get(relativeFrame, clipLength);
 
             int width = size;
             int height = size;
@@ -133,10 +135,10 @@ namespace Metasia.Core.Objects
 
             var transform = new Transform()
             {
-                Position = new SKPoint((float)X.Get(relativeFrame), (float)Y.Get(relativeFrame)),
-                Scale = (float)Scale.Get(relativeFrame) / 100,
-                Rotation = (float)Rotation.Get(relativeFrame),
-                Alpha = (100.0f - (float)Alpha.Get(relativeFrame)) / 100,
+                Position = new SKPoint((float)X.Get(relativeFrame, clipLength), (float)Y.Get(relativeFrame, clipLength)),
+                Scale = (float)Scale.Get(relativeFrame, clipLength) / 100,
+                Rotation = (float)Rotation.Get(relativeFrame, clipLength),
+                Alpha = (100.0f - (float)Alpha.Get(relativeFrame, clipLength)) / 100,
             };
 
             return Task.FromResult(new RenderNode()
@@ -189,36 +191,38 @@ namespace Metasia.Core.Objects
             // MetaNumberParamプロパティの分割
             int relativeSplitFrame = splitFrame - StartFrame;
 
-            var (firstX, secondX) = X.Split(relativeSplitFrame);
+            int oldClipLength = EndFrame - StartFrame + 1;
+
+            var (firstX, secondX) = X.Split(relativeSplitFrame, oldClipLength);
             firstObject.X = firstX;
             secondObject.X = secondX;
 
-            var (firstY, secondY) = Y.Split(relativeSplitFrame);
+            var (firstY, secondY) = Y.Split(relativeSplitFrame, oldClipLength);
             firstObject.Y = firstY;
             secondObject.Y = secondY;
 
             // Sizeプロパティの分割
-            var (firstSize, secondSize) = Size.Split(relativeSplitFrame);
+            var (firstSize, secondSize) = Size.Split(relativeSplitFrame, oldClipLength);
             firstObject.Size = firstSize;
             secondObject.Size = secondSize;
 
             // AspectRatioプロパティの分割
-            var (firstAspectRatio, secondAspectRatio) = AspectRatio.Split(relativeSplitFrame);
+            var (firstAspectRatio, secondAspectRatio) = AspectRatio.Split(relativeSplitFrame, oldClipLength);
             firstObject.AspectRatio = firstAspectRatio;
             secondObject.AspectRatio = secondAspectRatio;
 
             // Scaleプロパティの分割
-            var (firstScale, secondScale) = Scale.Split(relativeSplitFrame);
+            var (firstScale, secondScale) = Scale.Split(relativeSplitFrame, oldClipLength);
             firstObject.Scale = firstScale;
             secondObject.Scale = secondScale;
 
             // Alphaプロパティの分割
-            var (firstAlpha, secondAlpha) = Alpha.Split(relativeSplitFrame);
+            var (firstAlpha, secondAlpha) = Alpha.Split(relativeSplitFrame, oldClipLength);
             firstObject.Alpha = firstAlpha;
             secondObject.Alpha = secondAlpha;
 
             // Rotationプロパティの分割
-            var (firstRotation, secondRotation) = Rotation.Split(relativeSplitFrame);
+            var (firstRotation, secondRotation) = Rotation.Split(relativeSplitFrame, oldClipLength);
             firstObject.Rotation = firstRotation;
             secondObject.Rotation = secondRotation;
 
