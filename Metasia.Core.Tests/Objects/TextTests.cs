@@ -38,10 +38,10 @@ namespace Metasia.Core.Tests.Objects
             // Assert
             Assert.That(_textObject.X.Get(0, 100), Is.EqualTo(0));
             Assert.That(_textObject.Y.Get(0, 100), Is.EqualTo(0));
-            Assert.That(_textObject.Scale.Get(0, 100), Is.EqualTo(100));
+            Assert.That(_textObject.Scale.Get(0, 0), Is.EqualTo(100));
             Assert.That(_textObject.Alpha.Get(0, 100), Is.EqualTo(0));
             Assert.That(_textObject.Rotation.Get(0, 100), Is.EqualTo(0));
-            Assert.That(_textObject.TextSize.Get(0, 100), Is.EqualTo(100));
+            Assert.That(_textObject.TextSize.Get(0, 0), Is.EqualTo(100));
         }
 
         [Test]

@@ -37,12 +37,12 @@ public class MetaNumberParam<T> where T : struct, INumber<T>
     /// <summary>
     /// 開始地点における値 IsMovable=falseの場合は常にこの値を返す
     /// </summary>
-    public CoordPoint StartPoint = new();
+    public CoordPoint StartPoint { get; set; } = new();
 
     /// <summary>
     /// 終了地点における値
     /// </summary>
-    public CoordPoint EndPoint = new();
+    public CoordPoint EndPoint { get; set; } = new();
 
     private List<CoordPoint> _params = [];
 
@@ -54,14 +54,12 @@ public class MetaNumberParam<T> where T : struct, INumber<T>
 
     public MetaNumberParam(T initialValue)
     {
-        //_params = [new CoordPoint() { Value = double.CreateChecked(initialValue) }];
         StartPoint.Value = double.CreateChecked(initialValue);
         EndPoint.Value = double.CreateChecked(initialValue);
     }
 
     public T Get(int frame, int clipLength)
     {
-        EndPoint.Frame = clipLength;
         return CalculateMidValue(frame, clipLength);
     }
 
@@ -129,6 +127,9 @@ public class MetaNumberParam<T> where T : struct, INumber<T>
             return (firstHalf, secondHalf);
         }
 
+        firstHalf.IsMovable = true;
+        secondHalf.IsMovable = true;
+
         // 分割フレームの値を計算
         T splitValue = Get(splitFrame, oldClipLength);
 
@@ -186,6 +187,7 @@ public class MetaNumberParam<T> where T : struct, INumber<T>
 
     protected T CalculateMidValue(int frame, int clipLength)
     {
+        EndPoint.Frame = clipLength;
 
         if (IsMovable)
         {
