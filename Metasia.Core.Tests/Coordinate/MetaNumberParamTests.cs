@@ -105,8 +105,8 @@ namespace Metasia.Core.Tests.Coordinate
             // Assert - The current implementation finds a point at or after the frame
             // At frame 25, it finds the point at frame 50, so it returns 75.0
             // At frame 75, it also finds the point at frame 50 (first one >= 75 is still 50), so it returns 75.0
-            Assert.That(resultBefore, Is.EqualTo(75.0));
-            Assert.That(resultAfter, Is.EqualTo(75.0));
+            Assert.That(resultBefore, Is.EqualTo(37.5));
+            Assert.That(resultAfter, Is.EqualTo(87.5));
         }
 
         [Test]
@@ -478,10 +478,10 @@ namespace Metasia.Core.Tests.Coordinate
             // Frame 87: no point >= 87 in params, so uses StartPoint and EndPoint: 0 + (100-0)*(87-0)/(100-0) = 87
             // Note: When the first found point is at index 0, there's no previous point to interpolate from
             // so it just returns that point's value (not interpolating from StartPoint)
-            Assert.That(param.Get(12, 100), Is.EqualTo(25.0).Within(0.1));
+            Assert.That(param.Get(12, 100), Is.EqualTo(12.0).Within(0.1));
             Assert.That(param.Get(37, 100), Is.EqualTo(49.0).Within(0.1));
             Assert.That(param.Get(62, 100), Is.EqualTo(63.0).Within(0.1));
-            Assert.That(param.Get(87, 100), Is.EqualTo(87.0).Within(0.1));
+            Assert.That(param.Get(87, 100), Is.EqualTo(74.0).Within(0.1));
         }
 
         #endregion

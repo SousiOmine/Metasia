@@ -29,9 +29,19 @@ public class MetaNumberParam<T> where T : struct, INumber<T>
         set => _params = value ?? [];
     }
 
+    /// <summary>
+    /// 移動を有効にするか
+    /// </summary>
     public bool IsMovable { get; set; } = false;
 
+    /// <summary>
+    /// 開始地点における値 IsMovable=falseの場合は常にこの値を返す
+    /// </summary>
     public CoordPoint StartPoint = new();
+
+    /// <summary>
+    /// 終了地点における値
+    /// </summary>
     public CoordPoint EndPoint = new();
 
     private List<CoordPoint> _params = [];
@@ -74,7 +84,10 @@ public class MetaNumberParam<T> where T : struct, INumber<T>
 
     public bool UpdatePoint(CoordPoint point)
     {
-        var targetPoint = _params.FirstOrDefault(p => p.Id == point.Id);
+        var points = new List<CoordPoint> { StartPoint, EndPoint };
+        points.AddRange(_params);
+
+        var targetPoint = points.FirstOrDefault(p => p.Id == point.Id);
         if (targetPoint is not null)
         {
             targetPoint.Value = point.Value;

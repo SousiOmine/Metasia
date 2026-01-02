@@ -23,21 +23,24 @@ namespace Metasia.Editor.Models.Interactor
                 var properties = ObjectPropertyFinder.FindEditableProperties(clip);
                 var property = properties.FirstOrDefault(x => x.Identifier == propertyIdentifier);
                 if (property is null || property.PropertyValue!.GetType() != typeof(MetaNumberParam<double>)) continue;
-                var coordPoints = (MetaNumberParam<double>)property.PropertyValue!;
-                var coordPoint = coordPoints.Params.FirstOrDefault(x => x.Id == targetCoordPoint.Id);
+                var numberParam = (MetaNumberParam<double>)property.PropertyValue!;
+                var points = new List<CoordPoint> { numberParam.StartPoint, numberParam.EndPoint };
+                points.AddRange(numberParam.Params);
+                CoordPoint? coordPoint = points.FirstOrDefault(x => x.Id == targetCoordPoint.Id);
+
                 if (coordPoint is not null)
                 {
                     var valueDifference = afterValue - beforeValue;
-                    changeInfos.Add(new CoordPointsValueChangeCommand.CoordPointValueChangeInfo(coordPoints, coordPoint, valueDifference));
+                    changeInfos.Add(new CoordPointsValueChangeCommand.CoordPointValueChangeInfo(numberParam, coordPoint, valueDifference));
                 }
-                else if (coordPoint is null && coordPoints.Params.Count == 1)
+                else if (coordPoint is null && numberParam.Params.Count == 1)
                 {
-                    coordPoint = coordPoints.Params.First();
+                    coordPoint = numberParam.Params.First();
                     var valueDifference = afterValue - beforeValue;
-                    changeInfos.Add(new CoordPointsValueChangeCommand.CoordPointValueChangeInfo(coordPoints, coordPoint, valueDifference));
+                    changeInfos.Add(new CoordPointsValueChangeCommand.CoordPointValueChangeInfo(numberParam, coordPoint, valueDifference));
                 }
             }
-            return new CoordPointsValueChangeCommand(changeInfos);
+            return changeInfos.Count > 0 ? new CoordPointsValueChangeCommand(changeInfos) : null;
         }
 
         public static IEditCommand? CreateStringValueChangeCommand(string propertyIdentifier, string beforeValue, string afterValue, IEnumerable<ClipObject> selectedClips)

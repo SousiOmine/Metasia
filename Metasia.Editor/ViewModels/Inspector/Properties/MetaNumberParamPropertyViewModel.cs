@@ -81,7 +81,9 @@ public class MetaNumberParamPropertyViewModel : ViewModelBase
 
     public void UpdatePointValue(CoordPoint targetCoordPoint, double beforeValue, double value)
     {
-        var targetPoint = _propertyValue.Params.FirstOrDefault(x => x.Id == targetCoordPoint.Id);
+        var points = new List<CoordPoint> { _propertyValue.StartPoint, _propertyValue.EndPoint };
+        points.AddRange(_propertyValue.Params);
+        var targetPoint = points.FirstOrDefault(x => x.Id == targetCoordPoint.Id);
         if (targetPoint is not null)
         {
             var command = TimelineInteractor.CreateCoordPointsValueChangeCommand(_propertyDisplayName, targetCoordPoint, beforeValue, value, _selectionState.SelectedClips);
@@ -94,7 +96,9 @@ public class MetaNumberParamPropertyViewModel : ViewModelBase
 
     public void PreviewUpdatePointValue(CoordPoint targetCoordPoint, double beforeValue, double value)
     {
-        var targetPoint = _propertyValue.Params.FirstOrDefault(x => x.Id == targetCoordPoint.Id);
+        var points = new List<CoordPoint> { _propertyValue.StartPoint, _propertyValue.EndPoint };
+        points.AddRange(_propertyValue.Params);
+        var targetPoint = points.FirstOrDefault(x => x.Id == targetCoordPoint.Id);
         if (targetPoint is not null)
         {
             var command = TimelineInteractor.CreateCoordPointsValueChangeCommand(_propertyDisplayName, targetCoordPoint, beforeValue, value, _selectionState.SelectedClips);
@@ -107,7 +111,9 @@ public class MetaNumberParamPropertyViewModel : ViewModelBase
 
     public void UpdatePointFrame(CoordPoint targetCoordPoint, int beforeFrame, int frame)
     {
-        var targetPoint = _propertyValue.Params.FirstOrDefault(x => x.Id == targetCoordPoint.Id);
+        var points = new List<CoordPoint> { _propertyValue.StartPoint, _propertyValue.EndPoint };
+        points.AddRange(_propertyValue.Params);
+        var targetPoint = points.FirstOrDefault(x => x.Id == targetCoordPoint.Id);
         if (targetPoint is not null)
         {
             var command = new CoordPointFrameChangeCommand(_propertyValue, targetCoordPoint, beforeFrame, frame);
@@ -125,91 +131,58 @@ public class MetaNumberParamPropertyViewModel : ViewModelBase
 
     private void RestructureParams()
     {
-        var desiredPoints = new List<CoordPoint>
+        var desiredPoints = new List<(CoordPoint, MetaNumberCoordPointViewModel.PointType)>
         {
-            _propertyValue.StartPoint
+
         };
         if (_propertyValue.IsMovable)
         {
-            desiredPoints.AddRange(_propertyValue.Params);
-            desiredPoints.Add(_propertyValue.EndPoint);
+            desiredPoints.Add((_propertyValue.StartPoint, MetaNumberCoordPointViewModel.PointType.Start));
+            foreach (var param in _propertyValue.Params)
+            {
+                desiredPoints.Add((param, MetaNumberCoordPointViewModel.PointType.Mid));
+            }
+            desiredPoints.Add((_propertyValue.EndPoint, MetaNumberCoordPointViewModel.PointType.End));
+        }
+        else
+        {
+            desiredPoints.Add((_propertyValue.StartPoint, MetaNumberCoordPointViewModel.PointType.Single));
         }
 
-        var desiredIds = desiredPoints.Select(p => p.Id).ToHashSet();
-
-        // Remove VMs that no longer exist
-        for (int idx = CoordPoints.Count - 1; idx >= 0; idx--)
+        // 不要になったポイントは削除
+        for (int i = CoordPoints.Count - 1; i >= 0; i--)
         {
-            var vm = CoordPoints[idx];
-            if (!desiredIds.Contains(vm.TargetId))
+            var existingPoint = CoordPoints[i];
+            var isDesired = desiredPoints.Any(p => p.Item1.Id == existingPoint.TargetId);
+            if (!isDesired)
             {
-                CoordPoints.RemoveAt(idx);
+                CoordPoints.RemoveAt(i);
             }
         }
 
-        // Reorder existing VMs and insert missing ones according to desired order
         for (int i = 0; i < desiredPoints.Count; i++)
         {
-            var point = desiredPoints[i];
-            var desiredId = point.Id;
-
-            MetaNumberCoordPointViewModel.PointType ComputePointType(int index, int count)
+            var (point, type) = desiredPoints[i];
+            
+            bool existing = CoordPoints.Any(p => p.TargetId == point.Id);
+            if (existing)
             {
-                if (count == 1) return MetaNumberCoordPointViewModel.PointType.Single;
-                if (index == 0) return MetaNumberCoordPointViewModel.PointType.Start;
-                if (index == count - 1) return MetaNumberCoordPointViewModel.PointType.End;
-                return MetaNumberCoordPointViewModel.PointType.Mid;
-            }
-
-            var desiredType = ComputePointType(i, desiredPoints.Count);
-
-            if (i < CoordPoints.Count && CoordPoints[i].TargetId == desiredId)
-            {
-                // Update in place
-                CoordPoints[i].RefreshFromTarget(point, desiredType, _min, _max, _recommendedMin, _recommendedMax);
+                //すでに存在するポイントViewModelのインデックスを探索
+                var existingPoint = CoordPoints.First(p => p.TargetId == point.Id);
+                int existingIndex = CoordPoints.IndexOf(existingPoint);
+                // 既存のポイントが正しい位置にない場合は移動
+                if (existingIndex != i)
+                {
+                    var pointToMove = CoordPoints[existingIndex];
+                    CoordPoints.Move(existingIndex, i);
+                }
             }
             else
             {
-                // Find existing VM with the desired id
-                int existingIndex = -1;
-                for (int j = 0; j < CoordPoints.Count; j++)
-                {
-                    if (CoordPoints[j].TargetId == desiredId)
-                    {
-                        existingIndex = j;
-                        break;
-                    }
-                }
-
-                if (existingIndex >= 0)
-                {
-                    // Move to correct position and refresh
-                    if (existingIndex != i)
-                    {
-                        CoordPoints.Move(existingIndex, i);
-                    }
-                    CoordPoints[i].RefreshFromTarget(point, desiredType, _min, _max, _recommendedMin, _recommendedMax);
-                }
-                else
-                {
-                    // Insert new VM at the correct position
-                    var newVm = new MetaNumberCoordPointViewModel(this, point, desiredType, _min, _max, _recommendedMin, _recommendedMax);
-                    if (i <= CoordPoints.Count)
-                    {
-                        CoordPoints.Insert(i, newVm);
-                    }
-                    else
-                    {
-                        CoordPoints.Add(newVm);
-                    }
-                }
+                // 新しいポイントを追加
+                var newPoint = new MetaNumberCoordPointViewModel(this, point, type, _min, _max, _recommendedMin, _recommendedMax);
+                CoordPoints.Insert(i, newPoint);
             }
-        }
-
-        // Trim any trailing items if collection is longer than desired
-        while (CoordPoints.Count > desiredPoints.Count)
-        {
-            CoordPoints.RemoveAt(CoordPoints.Count - 1);
         }
     }
 
