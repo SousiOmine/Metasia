@@ -93,6 +93,7 @@ public class MetaNumberParam<T> where T : struct, INumber<T>
             targetPoint.Value = point.Value;
             targetPoint.Frame = point.Frame;
             targetPoint.InterpolationLogic = point.InterpolationLogic;
+            Sort();
             return true;
         }
         return false;
