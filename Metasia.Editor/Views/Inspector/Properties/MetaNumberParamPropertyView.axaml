@@ -13,7 +13,9 @@
             <Button Content="{Binding PropertyDisplayName}" VerticalAlignment="Top" Width="70" Margin="2">
                 <Button.Flyout>
                     <MenuFlyout>
-                        <MenuItem Header="移動を追加"/>
+                        <MenuItem Header="移動を有効化" Command="{Binding AddMoveCommand}" IsVisible="{Binding !IsMovable}"/>
+                        
+                        <MenuItem Header="移動を無効化" Command="{Binding RemoveMoveCommand}" IsVisible="{Binding IsMovable}"/>
                     </MenuFlyout>
                 </Button.Flyout>
             </Button>

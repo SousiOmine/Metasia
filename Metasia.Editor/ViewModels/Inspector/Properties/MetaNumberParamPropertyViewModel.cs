@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows.Input;
 using Metasia.Core.Coordinate;
 using Metasia.Core.Objects.Parameters;
 using Metasia.Editor.Models;
@@ -42,6 +43,15 @@ public class MetaNumberParamPropertyViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _propertyIdentifier, value);
     }
 
+    public bool IsMovable
+    {
+        get => _isMovable;
+        set => this.RaiseAndSetIfChanged(ref _isMovable, value);
+    }
+
+    public ICommand AddMoveCommand { get; }
+    public ICommand RemoveMoveCommand { get; }
+
     private string _propertyDisplayName = string.Empty;
     private string _propertyValueText = string.Empty;
     private string _propertyIdentifier = string.Empty;
@@ -53,6 +63,7 @@ public class MetaNumberParamPropertyViewModel : ViewModelBase
     private ISelectionState _selectionState;
     private IEditCommandManager _editCommandManager;
     private IProjectState _projectState;
+    private bool _isMovable;
     public MetaNumberParamPropertyViewModel(
         ISelectionState selectionState,
         string propertyIdentifier,
@@ -76,6 +87,11 @@ public class MetaNumberParamPropertyViewModel : ViewModelBase
         _editCommandManager = editCommandManager;
         _projectState = projectState;
         _projectState.TimelineChanged += OnTimelineChanged;
+
+        AddMoveCommand = ReactiveCommand.Create(AddMove);
+        
+        RemoveMoveCommand = ReactiveCommand.Create(RemoveMove);
+        
         RestructureParams();
     }
 
@@ -131,6 +147,7 @@ public class MetaNumberParamPropertyViewModel : ViewModelBase
 
     private void RestructureParams()
     {
+        IsMovable = _propertyValue.IsMovable;
         var desiredPoints = new List<(CoordPoint, MetaNumberCoordPointViewModel.PointType)>
         {
 
@@ -183,6 +200,30 @@ public class MetaNumberParamPropertyViewModel : ViewModelBase
                 var newPoint = new MetaNumberCoordPointViewModel(this, point, type, _min, _max, _recommendedMin, _recommendedMax);
                 CoordPoints.Insert(i, newPoint);
             }
+        }
+        for (int i = 0; i < CoordPoints.Count; i++)
+        {
+            var (point, type) = desiredPoints[i];
+            CoordPoints[i].RefreshFromTarget(point, type, _min, _max, _recommendedMin, _recommendedMax);
+        }
+    }
+
+
+    private void AddMove()
+    {
+        if (!_propertyValue.IsMovable)
+        {
+            var command = new MetaNumberParamIsMovableChangeCommand<double>(_propertyValue, true);
+            _editCommandManager.Execute(command);
+        }
+    }
+    
+    private void RemoveMove()
+    {
+        if (_propertyValue.IsMovable)
+        {
+            var command = new MetaNumberParamIsMovableChangeCommand<double>(_propertyValue, false);
+            _editCommandManager.Execute(command);
         }
     }
 
