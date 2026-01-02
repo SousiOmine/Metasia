@@ -33,9 +33,10 @@ namespace Metasia.Editor.Models.Interactor
                     var valueDifference = afterValue - beforeValue;
                     changeInfos.Add(new CoordPointsValueChangeCommand.CoordPointValueChangeInfo(numberParam, coordPoint, valueDifference));
                 }
-                else if (coordPoint is null && numberParam.Params.Count == 1)
+                // 選択中のクリップにある同一識別子のプロパティで移動が無効であればそっちも動かす
+                else if (coordPoint is null && !numberParam.IsMovable)
                 {
-                    coordPoint = numberParam.Params.First();
+                    coordPoint = numberParam.StartPoint;
                     var valueDifference = afterValue - beforeValue;
                     changeInfos.Add(new CoordPointsValueChangeCommand.CoordPointValueChangeInfo(numberParam, coordPoint, valueDifference));
                 }
