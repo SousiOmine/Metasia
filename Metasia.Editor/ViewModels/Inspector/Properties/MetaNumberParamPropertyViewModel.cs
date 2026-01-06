@@ -89,9 +89,9 @@ public class MetaNumberParamPropertyViewModel : ViewModelBase
         _projectState.TimelineChanged += OnTimelineChanged;
 
         AddMoveCommand = ReactiveCommand.Create(AddMove);
-        
+
         RemoveMoveCommand = ReactiveCommand.Create(RemoveMove);
-        
+
         RestructureParams();
     }
 
@@ -156,7 +156,7 @@ public class MetaNumberParamPropertyViewModel : ViewModelBase
         {
             var beforePoint = points[index - 1];
             var afterPoint = points[index];
-            
+
             newPoint.Frame = beforePoint.Frame + (afterPoint.Frame - beforePoint.Frame) / 2;
             newPoint.Value = beforePoint.Value + (afterPoint.Value - beforePoint.Value) / 2;
         }
@@ -164,7 +164,7 @@ public class MetaNumberParamPropertyViewModel : ViewModelBase
         {
             var beforePoint = points[index];
             var afterPoint = points[index + 1];
-            
+
             newPoint.Frame = beforePoint.Frame + (afterPoint.Frame - beforePoint.Frame) / 2;
             newPoint.Value = beforePoint.Value + (afterPoint.Value - beforePoint.Value) / 2;
         }
@@ -175,7 +175,7 @@ public class MetaNumberParamPropertyViewModel : ViewModelBase
             _editCommandManager.Execute(command);
         }
     }
-    
+
     public void RemovePointRequest(CoordPoint target)
     {
         var command = new RemoveCoordPointCommand(_propertyValue, target);
@@ -225,7 +225,7 @@ public class MetaNumberParamPropertyViewModel : ViewModelBase
         for (int i = 0; i < desiredPoints.Count; i++)
         {
             var (point, type) = desiredPoints[i];
-            
+
             bool existing = CoordPoints.Any(p => p.TargetId == point.Id);
             if (existing)
             {
@@ -262,7 +262,7 @@ public class MetaNumberParamPropertyViewModel : ViewModelBase
             _editCommandManager.Execute(command);
         }
     }
-    
+
     private void RemoveMove()
     {
         if (_propertyValue.IsMovable)

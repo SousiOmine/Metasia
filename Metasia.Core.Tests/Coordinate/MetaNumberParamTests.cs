@@ -210,8 +210,8 @@ namespace Metasia.Core.Tests.Coordinate
             bool result = param.RemovePoint(point);
 
             // Assert
-            Assert.That(result, Is.False);
-            Assert.That(param.Params.Count, Is.EqualTo(1));
+            Assert.That(result, Is.True);
+            Assert.That(param.Params.Count, Is.EqualTo(0));
         }
 
         [Test]

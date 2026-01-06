@@ -190,7 +190,7 @@ public class MetaNumberParam<T> where T : struct, INumber<T>
             Sort();
             CoordPoint start = StartPoint;
             CoordPoint end = EndPoint;
-            
+
             if (_params.Count != 0)
             {
                 List<CoordPoint> points = [.. _params, StartPoint, EndPoint];
