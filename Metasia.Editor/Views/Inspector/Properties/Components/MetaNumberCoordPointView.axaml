@@ -8,7 +8,7 @@
              x:Class="Metasia.Editor.Views.Inspector.Properties.Components.MetaNumberCoordPointView"
              x:DataType="vm:MetaNumberCoordPointViewModel">
     <StackPanel Orientation="Horizontal" Margin="2">
-        <Panel Width="130">
+        <Panel Width="100">
             <StackPanel IsVisible="{Binding !IsSingle}"
                 Margin="0,0,10,0"
                 VerticalAlignment="Center">
@@ -16,7 +16,7 @@
                         IsVisible="{Binding !IsMidpoint}">
                     <Button.Flyout>
                         <MenuFlyout>
-                            <MenuItem Header="中間点を追加"/>
+                            <MenuItem Header="中間点を追加" Command="{Binding AddPointCommand}"/>
                         </MenuFlyout>
                     </Button.Flyout>
                 </Button>
@@ -27,13 +27,12 @@
                                                  SnapToIncrement="True"
                                                  DragValuePerPixel="0.2"
                                                  IsVisible="{Binding IsMidpoint}">
-                    <controls:InspectorNumericUpDown.ContextFlyout>
-                        <MenuFlyout>
-                            <MenuItem Header="中間点を手前に追加"/>
-                            <MenuItem Header="中間点を後ろに追加"/>
-                            <MenuItem Header="この中間点を削除"/>
-                        </MenuFlyout>
-                    </controls:InspectorNumericUpDown.ContextFlyout>
+                    <controls:InspectorNumericUpDown.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="中間点を追加" Command="{Binding AddPointCommand}"/>
+                            <MenuItem Header="中間点を削除" Command="{Binding RemovePointCommand}"/>
+                        </ContextMenu>
+                    </controls:InspectorNumericUpDown.ContextMenu>
                 </controls:InspectorNumericUpDown>
             </StackPanel>
             <TextBlock IsVisible="{Binding IsSingle}">移動なし</TextBlock>
@@ -42,7 +41,7 @@
         <controls:InspectorNumericUpDown Minimum="{Binding Min}"
                                          Maximum="{Binding Max}"
                                          Value="{Binding PointValue}"
-                                         Width="130"
+                                         Width="100"
                                          Increment="1"
                                          DragValuePerPixel="1"
                                          FormatString="F2"

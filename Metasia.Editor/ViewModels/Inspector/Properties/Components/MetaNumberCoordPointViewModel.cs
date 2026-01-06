@@ -1,5 +1,6 @@
 using System;
 using System.Timers;
+using System.Windows.Input;
 using Metasia.Core.Coordinate;
 using Metasia.Core.Objects.Parameters;
 using ReactiveUI;
@@ -109,6 +110,9 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
 
     public string TargetId => _target.Id;
 
+    public ICommand AddPointCommand { get; }
+    public ICommand RemovePointCommand { get; }
+
     private double _pointValue;
     private double _sliderPointValue;
     private int _pointFrame;
@@ -149,6 +153,8 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
         {
             TryFrameEnter();
         });
+        AddPointCommand = ReactiveCommand.Create(AddPoint);
+        RemovePointCommand = ReactiveCommand.Create(RemovePoint);
     }
 
     public void RefreshFromTarget(
@@ -199,6 +205,16 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
         PointFrame = target.Frame;
 
         _suppressChangeEvents = false;
+    }
+
+    private void AddPoint()
+    {
+        _parentViewModel.AddPointRequest(_target);
+    }
+
+    private void RemovePoint()
+    {
+        _parentViewModel.RemovePointRequest(_target);
     }
 
     private void TryValueEnter(double previousValue)

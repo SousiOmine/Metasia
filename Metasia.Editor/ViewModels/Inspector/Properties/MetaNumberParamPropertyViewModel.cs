@@ -140,6 +140,51 @@ public class MetaNumberParamPropertyViewModel : ViewModelBase
         }
     }
 
+    public void AddPointRequest(CoordPoint from)
+    {
+        var points = new List<CoordPoint> { _propertyValue.StartPoint };
+        points.AddRange(_propertyValue.Params);
+        points.Add(_propertyValue.EndPoint);
+        var index = points.IndexOf(from);
+        if (index < 0)
+        {
+            return;
+        }
+
+        CoordPoint newPoint = new();
+        if (index == points.Count - 1)
+        {
+            var beforePoint = points[index - 1];
+            var afterPoint = points[index];
+            
+            newPoint.Frame = beforePoint.Frame + (afterPoint.Frame - beforePoint.Frame) / 2;
+            newPoint.Value = beforePoint.Value + (afterPoint.Value - beforePoint.Value) / 2;
+        }
+        else
+        {
+            var beforePoint = points[index];
+            var afterPoint = points[index + 1];
+            
+            newPoint.Frame = beforePoint.Frame + (afterPoint.Frame - beforePoint.Frame) / 2;
+            newPoint.Value = beforePoint.Value + (afterPoint.Value - beforePoint.Value) / 2;
+        }
+
+        var command = new AddCoordPointCommand(_propertyValue, newPoint);
+        if (command is not null)
+        {
+            _editCommandManager.Execute(command);
+        }
+    }
+    
+    public void RemovePointRequest(CoordPoint target)
+    {
+        var command = new RemoveCoordPointCommand(_propertyValue, target);
+        if (command is not null)
+        {
+            _editCommandManager.Execute(command);
+        }
+    }
+
     private void OnTimelineChanged()
     {
         RestructureParams();

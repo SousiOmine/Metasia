@@ -71,10 +71,6 @@ public class MetaNumberParam<T> where T : struct, INumber<T>
 
     public bool RemovePoint(CoordPoint point)
     {
-        if (_params.Count <= 1)
-        {
-            return false;
-        }
         _params.Remove(point);
         Sort();
         return true;
