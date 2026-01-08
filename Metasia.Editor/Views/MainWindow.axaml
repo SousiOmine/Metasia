@@ -44,6 +44,12 @@
 			<MenuItem Header="編集">
 				<MenuItem Header="元に戻す" Command="{Binding Undo}"/>
 				<MenuItem Header="やり直し" Command="{Binding Redo}"/>
+				<Separator/>
+				<MenuItem Header="フレーム選択範囲">
+					<MenuItem Header="現在のフレームをタイムラインの選択開始フレームにする" />
+					<MenuItem Header="現在のフレームをタイムラインの選択終了フレームにする" />
+					<MenuItem Header="選択範囲を解除" />
+				</MenuItem>
 			</MenuItem>
 			<MenuItem Header="表示" IsEnabled="False">
 

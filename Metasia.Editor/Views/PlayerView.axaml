@@ -32,6 +32,8 @@
 					</Button>
 					<Button Height="32" Content="＜" Command="{Binding PreviousFrame}"/>
 					<Button Height="32" Content="＞" Command="{Binding NextFrame}"/>
+					<Button Height="32" Content="|&lt;" />
+					<Button Height="32" Content="&gt;|" />
 				</StackPanel>
 				
 			</Grid>
