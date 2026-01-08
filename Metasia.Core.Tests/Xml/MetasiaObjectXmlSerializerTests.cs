@@ -44,18 +44,14 @@ public class MetasiaObjectXmlSerializerTests
         // Arrange
         var original = new TimelineObject("timeline_id")
         {
-            StartFrame = 0,
-            EndFrame = 100,
+            SelectionStart = 0,
+            SelectionEnd = 100,
             IsActive = true,
             Volume = 80.0
         };
 
         // LayerObjectを追加
-        var layer = new LayerObject("layer_id", "TestLayer")
-        {
-            StartFrame = 5,
-            EndFrame = 50
-        };
+        var layer = new LayerObject("layer_id", "TestLayer");
         original.Layers.Add(layer);
 
         // Act
@@ -65,8 +61,8 @@ public class MetasiaObjectXmlSerializerTests
         // Assert
         Assert.That(deserialized, Is.Not.Null);
         Assert.That(deserialized.Id, Is.EqualTo(original.Id));
-        Assert.That(deserialized.StartFrame, Is.EqualTo(original.StartFrame));
-        Assert.That(deserialized.EndFrame, Is.EqualTo(original.EndFrame));
+        Assert.That(deserialized.SelectionStart, Is.EqualTo(original.SelectionStart));
+        Assert.That(deserialized.SelectionEnd, Is.EqualTo(original.SelectionEnd));
         Assert.That(deserialized.IsActive, Is.EqualTo(original.IsActive));
         Assert.That(deserialized.Volume, Is.EqualTo(original.Volume));
         Assert.That(deserialized.Layers, Is.Not.Null);

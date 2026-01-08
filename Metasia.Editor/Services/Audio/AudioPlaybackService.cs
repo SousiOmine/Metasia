@@ -56,8 +56,8 @@ namespace Metasia.Editor.Services.Audio
 
                 CurrentSample = currentSamplePosition;
 
-                // タイムライン全体の長さを計算
-                double timelineDuration = (timeline.EndFrame - timeline.StartFrame) / projectInfo.Framerate;
+                // タイムライン全体の長さとして渡す値
+                double timelineDuration = int.MaxValue / projectInfo.Framerate;
 
                 //再生開始直前にキューをある程度満たす
                 while (audioService.GetQueuedSamplesCount() < targetBufferingSize && !cancelToken.IsCancellationRequested)

@@ -1,5 +1,4 @@
 using Metasia.Core.Render;
-using Metasia.Core.Xml;
 using Metasia.Core.Sounds;
 using Metasia.Core.Objects.AudioEffects;
 using Metasia.Core.Attributes;
@@ -11,8 +10,28 @@ namespace Metasia.Core.Objects
     /// <summary>
     /// タイムライン専用のオブジェクト
     /// </summary>
-    public class TimelineObject : ClipObject, IRenderable, IAudible
+    public class TimelineObject : IMetasiaObject, IRenderable, IAudible
     {
+        /// <summary>
+        /// オブジェクト固有のID
+        /// </summary>
+        public string Id { get; set; } = String.Empty;
+
+        /// <summary>
+        /// オブジェクトを有効にするか
+        /// </summary>
+        public bool IsActive { get; set; } = true;
+
+        /// <summary>
+        /// 選択範囲の開始フレーム
+        /// </summary>
+        public int SelectionStart { get; set; } = 0;
+
+        /// <summary>
+        /// 選択範囲の終了フレーム
+        /// </summary>
+        public int SelectionEnd { get; set; } = int.MaxValue;
+
         /// <summary>
         /// タイムラインに属するレイヤー 格納順に描画される
         /// </summary>
@@ -24,8 +43,13 @@ namespace Metasia.Core.Objects
 
         public List<AudioEffectBase> AudioEffects { get; set; } = new();
 
-        public TimelineObject(string id) : base(id)
+        public TimelineObject(string id)
         {
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                throw new ArgumentException("ID cannot be null or whitespace", nameof(id));
+            }
+            Id = id;
             Layers = new();
         }
 
@@ -58,46 +82,29 @@ namespace Metasia.Core.Objects
         {
             double framerate = context.ProjectFrameRate;
 
-            long requestStartSample = context.StartSamplePosition;
-            long requestEndSample = context.StartSamplePosition + context.RequiredLength;
-
             IAudioChunk resultChunk = new AudioChunk(context.Format, context.RequiredLength);
 
-            foreach (var obj in Layers)
+            foreach (var layer in Layers)
             {
-                if (!obj.IsActive) continue;
-                double samplesPerFrame = context.Format.SampleRate / framerate;
-                long objStartSample = (long)Math.Round(obj.StartFrame * samplesPerFrame);
-                long objEndSample = (long)Math.Round(obj.EndFrame * samplesPerFrame);
+                if (!layer.IsActive) continue;
 
-                long overlapStartSample = Math.Max(requestStartSample, objStartSample);
-                long overlapEndSample = Math.Min(requestEndSample, objEndSample);
+                var chunk = layer.GetAudioChunk(context);
 
-                if (overlapStartSample >= overlapEndSample)
-                {
-                    continue;
-                }
-
-                long layerStartPosition = overlapStartSample - objStartSample;
-                long overlapLength = overlapEndSample - overlapStartSample;
-
-                // レイヤーオブジェクトの長さを計算
-                double layerDuration = (obj.EndFrame - obj.StartFrame) / framerate;
-                var chunk = obj.GetAudioChunk(new GetAudioContext(context.Format, layerStartPosition, overlapLength, context.ProjectFrameRate, layerDuration));
-                for (int i = 0; i < overlapLength; i++)
+                for (long i = 0; i < context.RequiredLength; i++)
                 {
                     for (int ch = 0; ch < context.Format.ChannelCount; ch++)
                     {
                         long sourceIndex = i * context.Format.ChannelCount + ch;
-                        long resultIndex = (overlapStartSample - requestStartSample + i) * context.Format.ChannelCount + ch;
+                        long resultIndex = i * context.Format.ChannelCount + ch;
                         resultChunk.Samples[resultIndex] += chunk.Samples[sourceIndex];
                         resultChunk.Samples[resultIndex] = Math.Max(-1.0, Math.Min(1.0, resultChunk.Samples[resultIndex]));
                     }
                 }
             }
 
-            // TimelineObject全体の長さを計算
-            double timelineDuration = (EndFrame - StartFrame) / framerate;
+            // TimelineObject全体の長さを計算（実際のクリップの範囲）
+            int lastFrame = GetLastFrameOfClips();
+            double timelineDuration = Math.Max(1, lastFrame) / framerate;
 
             var timelineContext = new GetAudioContext(context.Format, context.StartSamplePosition, context.RequiredLength, context.ProjectFrameRate, timelineDuration);
             AudioEffectContext effectContext = new AudioEffectContext(this, timelineContext);
@@ -111,67 +118,25 @@ namespace Metasia.Core.Objects
         }
 
         /// <summary>
-        /// 指定したフレームでタイムラインオブジェクトを分割する
+        /// 配下のすべてのクリップの中で最も後ろのフレーム位置を取得する
         /// </summary>
-        /// <param name="splitFrame">分割フレーム</param>
-        /// <returns>分割後の2つのタイムラインオブジェクト（前半と後半）</returns>
-        public override (ClipObject firstClip, ClipObject secondClip) SplitAtFrame(int splitFrame)
+        /// <returns>最も後ろのクリップのEndFrame。クリップが存在しない場合は0を返す。</returns>
+        public int GetLastFrameOfClips()
         {
-            var result = base.SplitAtFrame(splitFrame);
-
-            var firstTimeline = (TimelineObject)result.firstClip;
-            var secondTimeline = (TimelineObject)result.secondClip;
-
-            firstTimeline.Id = Id + "_part1";
-            secondTimeline.Id = Id + "_part2";
-
-            // レイヤーを適切に分割
-            firstTimeline.Layers = new List<LayerObject>();
-            secondTimeline.Layers = new List<LayerObject>();
+            int lastFrame = 0;
 
             foreach (var layer in Layers)
             {
-                // レイヤーが完全に前半に属する場合
-                if (layer.EndFrame < splitFrame)
+                foreach (var clip in layer.Objects)
                 {
-                    // 前半タイムラインの範囲に合わせてレイヤーの範囲を調整
-                    var xml = MetasiaObjectXmlSerializer.Serialize(layer);
-                    var adjustedLayer = MetasiaObjectXmlSerializer.Deserialize<LayerObject>(xml);
-                    adjustedLayer.StartFrame = Math.Max(layer.StartFrame, firstTimeline.StartFrame);
-                    adjustedLayer.EndFrame = Math.Min(layer.EndFrame, firstTimeline.EndFrame);
-                    firstTimeline.Layers.Add(adjustedLayer);
-                }
-                // レイヤーが完全に後半に属する場合
-                else if (layer.StartFrame >= splitFrame)
-                {
-                    // 後半タイムラインの範囲に合わせてレイヤーの範囲を調整
-                    var xml = MetasiaObjectXmlSerializer.Serialize(layer);
-                    var adjustedLayer = MetasiaObjectXmlSerializer.Deserialize<LayerObject>(xml);
-                    adjustedLayer.StartFrame = Math.Max(layer.StartFrame, secondTimeline.StartFrame);
-                    adjustedLayer.EndFrame = Math.Min(layer.EndFrame, secondTimeline.EndFrame);
-                    secondTimeline.Layers.Add(adjustedLayer);
-                }
-                // レイヤーが分割フレームをまたぐ場合、レイヤーを分割
-                else
-                {
-                    var splitResult = layer.SplitAtFrame(splitFrame);
-                    firstTimeline.Layers.Add((LayerObject)splitResult.firstClip);
-                    secondTimeline.Layers.Add((LayerObject)splitResult.secondClip);
+                    if (clip.EndFrame > lastFrame)
+                    {
+                        lastFrame = clip.EndFrame;
+                    }
                 }
             }
-            return (firstTimeline, secondTimeline);
-        }
 
-        /// <summary>
-        /// タイムラインオブジェクトのコピーを作成する
-        /// </summary>
-        /// <returns>コピーされたタイムラインオブジェクト</returns>
-        protected override ClipObject CreateCopy()
-        {
-            var xml = MetasiaObjectXmlSerializer.Serialize(this);
-            var copy = MetasiaObjectXmlSerializer.Deserialize<TimelineObject>(xml);
-            copy.Id = Id + "_copy";
-            return copy;
+            return lastFrame;
         }
     }
 }

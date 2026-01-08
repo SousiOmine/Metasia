@@ -133,149 +133,101 @@ namespace Metasia.Core.Tests.Objects
         }
 
         [Test]
-        public void InheritedProperties_WorkCorrectly()
+        public void IMetasiaObject_Properties_WorkCorrectly()
         {
-            // TimelineObjectはClipObjectを継承しているので、基本プロパティも確認
-            Assert.That(_timelineObject.StartFrame, Is.EqualTo(0));
-            Assert.That(_timelineObject.EndFrame, Is.EqualTo(100));
+            // TimelineObjectはIMetasiaObjectを実装しているので、基本プロパティを確認
+            Assert.That(_timelineObject.Id, Is.EqualTo("timeline-id"));
             Assert.That(_timelineObject.IsActive, Is.True);
 
             // 変更も可能
-            _timelineObject.StartFrame = 10;
-            _timelineObject.EndFrame = 200;
+            _timelineObject.Id = "modified-id";
             _timelineObject.IsActive = false;
 
-            Assert.That(_timelineObject.StartFrame, Is.EqualTo(10));
-            Assert.That(_timelineObject.EndFrame, Is.EqualTo(200));
+            Assert.That(_timelineObject.Id, Is.EqualTo("modified-id"));
             Assert.That(_timelineObject.IsActive, Is.False);
         }
 
-        /// <summary>
-        /// タイムラインオブジェクトを正常に分割できることを確認するテスト
-        /// 意図: タイムラインの分割機能が正しく動作し、基本プロパティとレイヤーが維持されることを検証
-        /// 想定結果: 2つのTimelineObjectが返され、ID、フレーム範囲、音量、レイヤー数が正しく設定される
-        /// </summary>
         [Test]
-        public void SplitAtFrame_ValidSplitFrame_ReturnsTwoTimelineObjectsWithCorrectProperties()
+        public void SelectionRange_DefaultValues()
+        {
+            // Arrange & Act
+            var timeline = new TimelineObject();
+
+            // Assert
+            Assert.That(timeline.SelectionStart, Is.EqualTo(0));
+            Assert.That(timeline.SelectionEnd, Is.EqualTo(int.MaxValue));
+        }
+
+        [Test]
+        public void SelectionRange_CanBeModified()
         {
             // Arrange
-            _timelineObject.StartFrame = 10;
-            _timelineObject.EndFrame = 100;
-            _timelineObject.Volume = 80;
+            var timeline = new TimelineObject();
+
+            // Act
+            timeline.SelectionStart = 50;
+            timeline.SelectionEnd = 200;
+
+            // Assert
+            Assert.That(timeline.SelectionStart, Is.EqualTo(50));
+            Assert.That(timeline.SelectionEnd, Is.EqualTo(200));
+        }
+
+        [Test]
+        public void GetLastFrameOfClips_EmptyTimeline_ReturnsZero()
+        {
+            // Arrange
+            var timeline = new TimelineObject();
+
+            // Act
+            int lastFrame = timeline.GetLastFrameOfClips();
+
+            // Assert
+            Assert.That(lastFrame, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void GetLastFrameOfClips_WithClips_ReturnsMaximumEndFrame()
+        {
+            // Arrange
+            var timeline = new TimelineObject();
+            var layer = new LayerObject("layer1", "Layer 1");
+            timeline.Layers.Add(layer);
+
+            var clip1 = new ClipObject("clip1") { StartFrame = 0, EndFrame = 50 };
+            var clip2 = new ClipObject("clip2") { StartFrame = 60, EndFrame = 150 };
+            var clip3 = new ClipObject("clip3") { StartFrame = 200, EndFrame = 300 };
+
+            layer.Objects.Add(clip1);
+            layer.Objects.Add(clip2);
+            layer.Objects.Add(clip3);
+
+            // Act
+            int lastFrame = timeline.GetLastFrameOfClips();
+
+            // Assert
+            Assert.That(lastFrame, Is.EqualTo(300));
+        }
+
+        [Test]
+        public void GetLastFrameOfClips_MultipleLayers_ReturnsMaximumEndFrame()
+        {
+            // Arrange
+            var timeline = new TimelineObject();
             var layer1 = new LayerObject("layer1", "Layer 1");
             var layer2 = new LayerObject("layer2", "Layer 2");
-            _timelineObject.Layers.Add(layer1);
-            _timelineObject.Layers.Add(layer2);
-            var splitFrame = 50;
+
+            timeline.Layers.Add(layer1);
+            timeline.Layers.Add(layer2);
+
+            layer1.Objects.Add(new ClipObject("clip1") { StartFrame = 0, EndFrame = 100 });
+            layer2.Objects.Add(new ClipObject("clip2") { StartFrame = 50, EndFrame = 200 });
 
             // Act
-            var (firstClip, secondClip) = _timelineObject.SplitAtFrame(splitFrame);
-            var firstTimeline = firstClip as TimelineObject;
-            var secondTimeline = secondClip as TimelineObject;
+            int lastFrame = timeline.GetLastFrameOfClips();
 
             // Assert
-            Assert.That(firstTimeline, Is.Not.Null);
-            Assert.That(secondTimeline, Is.Not.Null);
-            Assert.That(firstTimeline.Id, Is.EqualTo("timeline-id_part1"));
-            Assert.That(secondTimeline.Id, Is.EqualTo("timeline-id_part2"));
-            Assert.That(firstTimeline.StartFrame, Is.EqualTo(10));
-            Assert.That(firstTimeline.EndFrame, Is.EqualTo(49));
-            Assert.That(secondTimeline.StartFrame, Is.EqualTo(50));
-            Assert.That(secondTimeline.EndFrame, Is.EqualTo(100));
-            Assert.That(firstTimeline.Volume.Value, Is.EqualTo(80.0));
-            Assert.That(secondTimeline.Volume.Value, Is.EqualTo(80.0));
-            Assert.That(firstTimeline.Layers.Count, Is.EqualTo(2));
-            Assert.That(secondTimeline.Layers.Count, Is.EqualTo(2));
-        }
-
-        /// <summary>
-        /// 分割時にレイヤーのフレーム範囲が正しく調整されることを確認するテスト
-        /// 意図: タイムライン分割後、各レイヤーのフレーム範囲が対応するタイムライン範囲に調整されることを検証
-        /// 想定結果: 前半タイムラインのレイヤーは開始フレーム10、後半タイムラインのレイヤーは開始フレーム50になる
-        /// </summary>
-        [Test]
-        public void SplitAtFrame_LayersHaveAdjustedFrameRanges()
-        {
-            // Arrange
-            _timelineObject.StartFrame = 10;
-            _timelineObject.EndFrame = 100;
-            var layer = new LayerObject("layer1", "Layer 1")
-            {
-                StartFrame = 10,
-                EndFrame = 100
-            };
-            _timelineObject.Layers.Add(layer);
-            var splitFrame = 50;
-
-            // Act
-            var (firstClip, secondClip) = _timelineObject.SplitAtFrame(splitFrame);
-            var firstTimeline = firstClip as TimelineObject;
-            var secondTimeline = secondClip as TimelineObject;
-
-            // Assert
-            // LayerObjectのStartFrameとEndFrameが正しく調整される
-            Assert.That(firstTimeline.Layers[0].StartFrame, Is.EqualTo(10));
-            Assert.That(firstTimeline.Layers[0].EndFrame, Is.EqualTo(49));
-            Assert.That(secondTimeline.Layers[0].StartFrame, Is.EqualTo(50));
-            Assert.That(secondTimeline.Layers[0].EndFrame, Is.EqualTo(100));
-        }
-
-        /// <summary>
-        /// 分割時に音響効果が正しく維持されることを確認するテスト
-        /// 意図: タイムライン分割後、音響効果が両方のタイムラインにコピーされることを検証
-        /// 想定結果: 分割された両方のタイムラインで音響効果リストに1つの効果が保持される
-        /// </summary>
-        [Test]
-        public void SplitAtFrame_PreservesAudioEffects()
-        {
-            // Arrange
-            _timelineObject.StartFrame = 10;
-            _timelineObject.EndFrame = 100;
-            var effect = new Metasia.Core.Objects.AudioEffects.VolumeFadeEffect();
-            _timelineObject.AudioEffects.Add(effect);
-            var splitFrame = 50;
-
-            // Act
-            var (firstClip, secondClip) = _timelineObject.SplitAtFrame(splitFrame);
-            var firstTimeline = firstClip as TimelineObject;
-            var secondTimeline = secondClip as TimelineObject;
-
-            // Assert
-            Assert.That(firstTimeline.AudioEffects.Count, Is.EqualTo(1));
-            Assert.That(secondTimeline.AudioEffects.Count, Is.EqualTo(1));
-            Assert.That(firstTimeline.AudioEffects[0], Is.InstanceOf<Metasia.Core.Objects.AudioEffects.VolumeFadeEffect>());
-            Assert.That(secondTimeline.AudioEffects[0], Is.InstanceOf<Metasia.Core.Objects.AudioEffects.VolumeFadeEffect>());
-        }
-
-        /// <summary>
-        /// 分割されたタイムラインオブジェクトが元オブジェクトから独立していることを確認するテスト
-        /// 意図: ディープコピーが正しく行われ、元タイムラインの変更が分割オブジェクトに影響しないことを検証
-        /// 想定結果: 元タイムラインを変更しても、分割されたタイムラインの音量とレイヤーは変更されない
-        /// </summary>
-        [Test]
-        public void SplitAtFrame_TimelineObjectsAreIndependent_ModifyingOriginalDoesNotAffectSplits()
-        {
-            // Arrange
-            _timelineObject.StartFrame = 10;
-            _timelineObject.EndFrame = 100;
-            _timelineObject.Volume = 80;
-            var layer1 = new LayerObject("layer1", "Layer 1");
-            var layer2 = new LayerObject("layer2", "Layer 2");
-            _timelineObject.Layers.Add(layer1);
-            _timelineObject.Layers.Add(layer2);
-            var (firstClip, secondClip) = _timelineObject.SplitAtFrame(50);
-            var firstTimeline = firstClip as TimelineObject;
-            var secondTimeline = secondClip as TimelineObject;
-
-            // Act
-            _timelineObject.Volume = 50;
-            _timelineObject.Layers.Clear();
-
-            // Assert
-            Assert.That(firstTimeline.Volume.Value, Is.EqualTo(80.0));
-            Assert.That(secondTimeline.Volume.Value, Is.EqualTo(80.0));
-            Assert.That(firstTimeline.Layers.Count, Is.GreaterThan(0));
-            Assert.That(secondTimeline.Layers.Count, Is.GreaterThan(0));
+            Assert.That(lastFrame, Is.EqualTo(200));
         }
     }
 }

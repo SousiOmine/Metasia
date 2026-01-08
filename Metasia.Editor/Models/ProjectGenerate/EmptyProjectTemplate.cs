@@ -17,7 +17,7 @@ public class EmptyProjectTemplate : IProjectTemplate
         TimelineObject mainTL = new("RootTimeline");
         for (int i = 1; i <= 100; i++)
         {
-            var layer = new LayerObject($"layer{i}", $"Layer {i}") { StartFrame = 0, EndFrame = int.MaxValue };
+            var layer = new LayerObject($"layer{i}", $"Layer {i}");
             mainTL.Layers.Add(layer);
         }
 

@@ -100,7 +100,7 @@ public class PlaybackState : IPlaybackState
     {
         if (_projectState.CurrentTimeline is not null)
         {
-            frame = Math.Max(frame, _projectState.CurrentTimeline.StartFrame);
+            frame = Math.Max(frame, 0);
         }
 
         CurrentFrame = frame;
@@ -124,7 +124,7 @@ public class PlaybackState : IPlaybackState
         var elapsedFrames = (int)Math.Floor(elapsedSeconds * _projectState.CurrentProjectInfo.Framerate);
         var newFrame = _frameAtPlaybackStart + elapsedFrames;
 
-        newFrame = Math.Max(newFrame, _projectState.CurrentTimeline.StartFrame);
+        newFrame = Math.Max(newFrame, 0);
 
         if (newFrame != CurrentFrame)
         {

@@ -1,17 +1,11 @@
 using Metasia.Core.Graphics;
 using Metasia.Core.Render;
 using Metasia.Core.Sounds;
-using Metasia.Core.Xml;
-using SkiaSharp;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Text.Json.Serialization;
-using System.Xml.Serialization;
 using Metasia.Core.Objects.AudioEffects;
 using Metasia.Core.Attributes;
 using Metasia.Core.Objects.Parameters;
@@ -19,8 +13,18 @@ using Metasia.Core.Objects.Parameters;
 namespace Metasia.Core.Objects
 {
     [Serializable]
-    public class LayerObject : ClipObject, IRenderable, IAudible
+    public class LayerObject : IMetasiaObject, IRenderable, IAudible
     {
+        /// <summary>
+        /// オブジェクト固有のID
+        /// </summary>
+        public string Id { get; set; } = String.Empty;
+
+        /// <summary>
+        /// オブジェクトを有効にするか
+        /// </summary>
+        public bool IsActive { get; set; } = true;
+
         /// <summary>
         /// レイヤーに属するオブジェクト 原則同じフレームに2個以上オブジェクトがあってはならない
         /// </summary>
@@ -39,19 +43,20 @@ namespace Metasia.Core.Objects
         [EditableProperty("LayerName")]
         public string Name { get; set; }
 
-        public LayerObject(string id, string LayerName) : base(id)
+        public LayerObject(string id, string LayerName)
         {
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                throw new ArgumentException("ID cannot be null or whitespace", nameof(id));
+            }
+            Id = id;
             Name = LayerName;
-            StartFrame = 0;
-            EndFrame = int.MaxValue;
             Objects = new();
         }
 
         public LayerObject()
         {
             Name = string.Empty;
-            StartFrame = 0;
-            EndFrame = int.MaxValue;
             Objects = new();
         }
 
@@ -142,7 +147,7 @@ namespace Metasia.Core.Objects
                 // 子オブジェクトの長さを計算
                 double childDuration = (clipObject.EndFrame - clipObject.StartFrame) / framerate;
                 var chunk = obj.GetAudioChunk(new GetAudioContext(context.Format, childStartPosition, overlapLength, context.ProjectFrameRate, childDuration));
-                double layerGain = obj.Volume.Value / 100;
+                double layerGain = obj.Volume?.Value / 100 ?? 1.0;
                 for (int i = 0; i < overlapLength; i++)
                 {
                     for (int ch = 0; ch < context.Format.ChannelCount; ch++)
@@ -155,10 +160,13 @@ namespace Metasia.Core.Objects
                 }
             }
 
-            // LayerObject全体の長さを計算
-            double layerDuration = (EndFrame - StartFrame) / framerate;
-            var layerContext = new GetAudioContext(context.Format, context.StartSamplePosition, context.RequiredLength, context.ProjectFrameRate, layerDuration);
-            AudioEffectContext effectContext = new AudioEffectContext(this, layerContext);
+            // LayerObject全体の長さを計算（配下のクリップの範囲を考慮）
+            int layerStartFrame = Objects.Count > 0 ? Objects.Min(o => o.StartFrame) : 0;
+            int layerEndFrame = Objects.Count > 0 ? Objects.Max(o => o.EndFrame) : 0;
+            double layerDuration = (layerEndFrame - layerStartFrame) / framerate;
+
+            GetAudioContext layerContext = new(context.Format, context.StartSamplePosition, context.RequiredLength, context.ProjectFrameRate, layerDuration);
+            AudioEffectContext effectContext = new(this, layerContext);
 
             foreach (var effect in AudioEffects)
             {
@@ -166,59 +174,6 @@ namespace Metasia.Core.Objects
             }
 
             return resultChunk;
-        }
-
-        /// <summary>
-        /// 指定したフレームでレイヤーオブジェクトを分割する
-        /// </summary>
-        /// <param name="splitFrame">分割フレーム</param>
-        /// <returns>分割後の2つのレイヤーオブジェクト（前半と後半）</returns>
-        public override (ClipObject firstClip, ClipObject secondClip) SplitAtFrame(int splitFrame)
-        {
-            var result = base.SplitAtFrame(splitFrame);
-
-            var firstLayer = (LayerObject)result.firstClip;
-            var secondLayer = (LayerObject)result.secondClip;
-
-            firstLayer.Id = Id + "_part1";
-            secondLayer.Id = Id + "_part2";
-
-            // オブジェクトを分割フレームに基づいて振り分ける
-            firstLayer.Objects = new ObservableCollection<ClipObject>();
-            secondLayer.Objects = new ObservableCollection<ClipObject>();
-
-            foreach (var obj in Objects)
-            {
-                if (obj.EndFrame < splitFrame)
-                {
-                    firstLayer.Objects.Add(obj);
-                }
-                else if (obj.StartFrame >= splitFrame)
-                {
-                    secondLayer.Objects.Add(obj);
-                }
-                else
-                {
-                    // 分割フレームにまたがるオブジェクトも分割する
-                    var splitResult = obj.SplitAtFrame(splitFrame);
-                    firstLayer.Objects.Add(splitResult.firstClip);
-                    secondLayer.Objects.Add(splitResult.secondClip);
-                }
-            }
-
-            return (firstLayer, secondLayer);
-        }
-
-        /// <summary>
-        /// レイヤーオブジェクトのコピーを作成する
-        /// </summary>
-        /// <returns>コピーされたレイヤーオブジェクト</returns>
-        protected override ClipObject CreateCopy()
-        {
-            var xml = MetasiaObjectXmlSerializer.Serialize(this);
-            var copy = MetasiaObjectXmlSerializer.Deserialize<LayerObject>(xml);
-            copy.Id = Id + "_copy";
-            return copy;
         }
     }
 }

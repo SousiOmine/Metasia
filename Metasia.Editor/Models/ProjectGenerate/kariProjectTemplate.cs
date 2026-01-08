@@ -98,11 +98,7 @@ public class KariProjectTemplate : IProjectTemplate
         LayerObject layer5 = new LayerObject("layer5", "Layer 5");
 
         // セカンドタイムラインの作成
-        TimelineObject secondTL = new TimelineObject("SecondTimeline")
-        {
-            StartFrame = 60,
-            EndFrame = 119,
-        };
+        TimelineObject secondTL = new TimelineObject("SecondTimeline");
         LayerObject secLayer = new LayerObject("secLayer", "Layer 1");
         secondTL.Layers.Add(secLayer);
 
@@ -113,7 +109,6 @@ public class KariProjectTemplate : IProjectTemplate
         karisec.Scale.SetSinglePoint(300);
 
         secLayer.Objects.Add(karisec);
-        layer5.Objects.Add(secondTL);
 
         // JavaScriptロジックを持つX座標パラメータ
         Text jsClip = new Text("jsClip")

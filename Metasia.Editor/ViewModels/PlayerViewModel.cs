@@ -16,7 +16,6 @@ namespace Metasia.Editor.ViewModels
 {
     public class PlayerViewModel : ViewModelBase
     {
-        private const int PreviewMarginSeconds = 5;
         private bool _isPlaying;
         private int frame;
         private int sliderMaximum = 100;
@@ -155,6 +154,7 @@ namespace Metasia.Editor.ViewModels
             playbackState.PlaybackStarted += () => IsPlaying = true;
             playbackState.PlaybackPaused += () => IsPlaying = false;
             playbackState.PlaybackSeeked += OnPlaybackFrameChanged;
+            projectState.TimelineChanged += UpdateSliderMaximum;
 
             NotifyProjectChanged();
         }
@@ -166,10 +166,7 @@ namespace Metasia.Editor.ViewModels
                 playbackState.RequestReRendering();
             }
 
-            SliderMinimum = TargetTimeline.StartFrame;
-            SliderMaximum = TargetTimeline.EndFrame + PreviewMarginFrames;
-            EnsureSliderRangeIncludes(Frame);
-
+            UpdateSliderMaximum();
             ProjectChanged?.Invoke(this, EventArgs.Empty);
         }
 
@@ -183,17 +180,10 @@ namespace Metasia.Editor.ViewModels
             playbackState.Pause();
         }
 
-        private void EnsureSliderRangeIncludes(int currentFrame)
+        private void UpdateSliderMaximum()
         {
-            int baseMax = TargetTimeline.EndFrame + PreviewMarginFrames;
-            int desiredMax = Math.Max(baseMax, currentFrame + PreviewMarginFrames);
-            if (desiredMax > SliderMaximum)
-            {
-                SliderMaximum = desiredMax;
-            }
+            SliderMaximum = TargetTimeline.GetLastFrameOfClips();
         }
-
-        private int PreviewMarginFrames => TargetProjectInfo?.Framerate is int fps ? fps * PreviewMarginSeconds : 0;
 
         private void OnPlaybackFrameChanged()
         {
