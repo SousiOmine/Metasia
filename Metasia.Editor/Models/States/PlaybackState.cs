@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using Avalonia.Threading;
+using Metasia.Core.Objects;
 using Metasia.Editor.Services.Audio;
 
 namespace Metasia.Editor.Models.States;
@@ -100,7 +101,7 @@ public class PlaybackState : IPlaybackState
     {
         if (_projectState.CurrentTimeline is not null)
         {
-            frame = Math.Max(frame, 0);
+            frame = Math.Clamp(frame, 0, TimelineObject.MAX_LENGTH);
         }
 
         CurrentFrame = frame;
@@ -124,7 +125,7 @@ public class PlaybackState : IPlaybackState
         var elapsedFrames = (int)Math.Floor(elapsedSeconds * _projectState.CurrentProjectInfo.Framerate);
         var newFrame = _frameAtPlaybackStart + elapsedFrames;
 
-        newFrame = Math.Max(newFrame, 0);
+        newFrame = Math.Clamp(newFrame, 0, TimelineObject.MAX_LENGTH);
 
         if (newFrame != CurrentFrame)
         {

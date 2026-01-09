@@ -79,6 +79,18 @@ namespace Metasia.Editor.ViewModels
             set => this.RaiseAndSetIfChanged(ref sliderMinimum, value);
         }
 
+        public int SliderSelectionStart
+        {
+            get => _sliderSelectionStart;
+            set => this.RaiseAndSetIfChanged(ref _sliderSelectionStart, value);
+        }
+
+        public int SliderSelectionEnd
+        {
+            get => _sliderSelectionEnd;
+            set => this.RaiseAndSetIfChanged(ref _sliderSelectionEnd, value);
+        }
+
         public ObservableCollection<ClipObject> SelectingObjects { get; } = new();
 
         public Action? PlayStart;
@@ -88,6 +100,13 @@ namespace Metasia.Editor.ViewModels
         public ICommand Play { get; }
         public ICommand Pause { get; }
         public ICommand PlayPauseToggle { get; }
+
+        public ICommand SetSelectionStart { get; }
+        public ICommand SetSelectionEnd { get; }
+
+
+        private int _sliderSelectionStart;
+        private int _sliderSelectionEnd;
 
         private readonly IPlaybackState playbackState;
         private readonly IProjectState projectState;
@@ -138,6 +157,8 @@ namespace Metasia.Editor.ViewModels
             PreviousFrame = ReactiveCommand.Create(() => playbackState.Seek(Frame - 1));
             Play = ReactiveCommand.Create(PlayMethod);
             Pause = ReactiveCommand.Create(PauseMethod);
+            SetSelectionStart = ReactiveCommand.Create(SetSelectionStartMethod);
+            SetSelectionEnd = ReactiveCommand.Create(SetSelectionEndMethod);
             PlayPauseToggle = ReactiveCommand.Create(() =>
             {
                 if (IsPlaying)
@@ -154,7 +175,7 @@ namespace Metasia.Editor.ViewModels
             playbackState.PlaybackStarted += () => IsPlaying = true;
             playbackState.PlaybackPaused += () => IsPlaying = false;
             playbackState.PlaybackSeeked += OnPlaybackFrameChanged;
-            projectState.TimelineChanged += UpdateSliderMaximum;
+            projectState.TimelineChanged += UpdateSlider;
 
             NotifyProjectChanged();
         }
@@ -166,7 +187,7 @@ namespace Metasia.Editor.ViewModels
                 playbackState.RequestReRendering();
             }
 
-            UpdateSliderMaximum();
+            UpdateSlider();
             ProjectChanged?.Invoke(this, EventArgs.Empty);
         }
 
@@ -180,8 +201,22 @@ namespace Metasia.Editor.ViewModels
             playbackState.Pause();
         }
 
-        private void UpdateSliderMaximum()
+        private void SetSelectionStartMethod()
         {
+            var command = new TimelineSelectionRangeChangeCommand(TargetTimeline, Frame, TargetTimeline.SelectionEnd);
+            _editCommandManager.Execute(command);
+        }
+
+        private void SetSelectionEndMethod()
+        {
+            var command = new TimelineSelectionRangeChangeCommand(TargetTimeline, TargetTimeline.SelectionStart, Frame);
+            _editCommandManager.Execute(command);
+        }
+
+        private void UpdateSlider()
+        {
+            SliderSelectionStart = TargetTimeline.SelectionStart;
+            SliderSelectionEnd = TargetTimeline.SelectionEnd;
             SliderMaximum = TargetTimeline.GetLastFrameOfClips();
         }
 

@@ -46,9 +46,9 @@
 				<MenuItem Header="やり直し" Command="{Binding Redo}"/>
 				<Separator/>
 				<MenuItem Header="フレーム選択範囲">
-					<MenuItem Header="現在のフレームをタイムラインの選択開始フレームにする" />
-					<MenuItem Header="現在のフレームをタイムラインの選択終了フレームにする" />
-					<MenuItem Header="選択範囲を解除" />
+					<MenuItem Header="現在のフレームをタイムラインの選択開始フレームにする" Command="{Binding SetTimelineSelectionStart}"/>
+					<MenuItem Header="現在のフレームをタイムラインの選択終了フレームにする" Command="{Binding SetTimelineSelectionEnd}"/>
+					<MenuItem Header="選択範囲を解除" Command="{Binding ClearTimelineSelection}"/>
 				</MenuItem>
 			</MenuItem>
 			<MenuItem Header="表示" IsEnabled="False">

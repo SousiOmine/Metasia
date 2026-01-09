@@ -20,7 +20,7 @@
 				<controls:PlayerSlider TickPlacement="None" Grid.Column="0" 
 						Value="{Binding Frame}" Minimum="{Binding SliderMinimum}" Maximum="{Binding SliderMaximum}"
                         TrackThickness="10"
-						SelectStartValue="100" SelectEndValue="200" Padding="4"/>
+						SelectStartValue="{Binding SliderSelectionStart}" SelectEndValue="{Binding SliderSelectionEnd}" Padding="4"/>
 				<StackPanel Grid.Column="1" Orientation="Horizontal">
 					<Button Height="32" IsVisible="{Binding !IsPlaying}"
 							Command="{Binding Play}">
@@ -32,8 +32,8 @@
 					</Button>
 					<Button Height="32" Content="＜" Command="{Binding PreviousFrame}"/>
 					<Button Height="32" Content="＞" Command="{Binding NextFrame}"/>
-					<Button Height="32" Content="|&lt;" />
-					<Button Height="32" Content="&gt;|" />
+					<Button Height="32" Content="|&lt;" Command="{Binding SetSelectionStart}"/>
+					<Button Height="32" Content="&gt;|" Command="{Binding SetSelectionEnd}"/>
 				</StackPanel>
 				
 			</Grid>

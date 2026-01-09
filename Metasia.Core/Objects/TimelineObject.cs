@@ -13,9 +13,14 @@ namespace Metasia.Core.Objects
     public class TimelineObject : IMetasiaObject, IRenderable, IAudible
     {
         /// <summary>
+        /// タイムラインの最大長
+        /// </summary>
+        public static readonly int MAX_LENGTH = int.MaxValue;
+
+        /// <summary>
         /// オブジェクト固有のID
         /// </summary>
-        public string Id { get; set; } = String.Empty;
+        public string Id { get; set; } = string.Empty;
 
         /// <summary>
         /// オブジェクトを有効にするか
@@ -30,7 +35,7 @@ namespace Metasia.Core.Objects
         /// <summary>
         /// 選択範囲の終了フレーム
         /// </summary>
-        public int SelectionEnd { get; set; } = int.MaxValue;
+        public int SelectionEnd { get; set; } = MAX_LENGTH;
 
         /// <summary>
         /// タイムラインに属するレイヤー 格納順に描画される

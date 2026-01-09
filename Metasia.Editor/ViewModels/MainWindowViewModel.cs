@@ -11,6 +11,9 @@ using Metasia.Editor.Models.ProjectGenerate;
 using Metasia.Editor.Models.States;
 using Metasia.Editor.ViewModels.Dialogs;
 using Metasia.Editor.Services;
+using Metasia.Editor.Models.EditCommands.Commands;
+using Metasia.Editor.Models.EditCommands;
+using Metasia.Core.Objects;
 
 namespace Metasia.Editor.ViewModels
 {
@@ -31,11 +34,18 @@ namespace Metasia.Editor.ViewModels
         public ICommand Undo { get; }
         public ICommand Redo { get; }
 
+        public ICommand SetTimelineSelectionStart { get; }
+        public ICommand SetTimelineSelectionEnd { get; }
+        public ICommand ClearTimelineSelection { get; }
+
         public Interaction<NewProjectViewModel, (bool Result, string ProjectPath, Metasia.Core.Project.ProjectInfo ProjectInfo, Metasia.Core.Project.MetasiaProject? SelectedTemplate)> NewProjectInteraction { get; } = new();
 
-        private IFileDialogService _fileDialogService;
-        private IProjectState _projectState;
+        private readonly IFileDialogService _fileDialogService;
+        private readonly IProjectState _projectState;
+
+        private readonly IPlaybackState _playbackState;
         private readonly INewProjectViewModelFactory _newProjectViewModelFactory;
+        private readonly IEditCommandManager _editCommandManager;
 
         public MainWindowViewModel(
             PlayerParentViewModel playerParentVM,
@@ -44,7 +54,9 @@ namespace Metasia.Editor.ViewModels
             ToolsViewModel toolsVM,
             IKeyBindingService keyBindingService,
             IFileDialogService fileDialogService,
+            IPlaybackState playbackState,
             IProjectState projectState,
+            IEditCommandManager editCommandManager,
             INewProjectViewModelFactory newProjectViewModelFactory)
         {
             PlayerParentVM = playerParentVM;
@@ -53,10 +65,15 @@ namespace Metasia.Editor.ViewModels
             ToolsVM = toolsVM;
             _fileDialogService = fileDialogService;
             _projectState = projectState;
+            _playbackState = playbackState;
             _newProjectViewModelFactory = newProjectViewModelFactory;
+            _editCommandManager = editCommandManager;
             LoadEditingProject = ReactiveCommand.Create(LoadEditingProjectExecuteAsync);
             CreateNewProject = ReactiveCommand.Create(CreateNewProjectExecuteAsync);
             OverrideSaveEditingProject = ReactiveCommand.Create(OverrideSaveEditingProjectExecuteAsync);
+            SetTimelineSelectionStart = ReactiveCommand.Create(SetTimelineSelectionStartMethod);
+            SetTimelineSelectionEnd = ReactiveCommand.Create(SetTimelineSelectionEndMethod);
+            ClearTimelineSelection = ReactiveCommand.Create(ClearTimelineSelectionMethod);
 
             Undo = ReactiveCommand.Create(UndoExecute);
             Redo = ReactiveCommand.Create(RedoExecute);
@@ -136,6 +153,33 @@ namespace Metasia.Editor.ViewModels
             if (PlayerParentVM.TargetPlayerViewModel is not null)
             {
                 PlayerParentVM.TryRedo();
+            }
+        }
+
+        private void SetTimelineSelectionStartMethod()
+        {
+            if (_projectState.CurrentTimeline is not null)
+            {
+                var command = new TimelineSelectionRangeChangeCommand(_projectState.CurrentTimeline, _playbackState.CurrentFrame, _projectState.CurrentTimeline.SelectionEnd);
+                _editCommandManager.Execute(command);
+            }
+        }
+
+        private void SetTimelineSelectionEndMethod()
+        {
+            if (_projectState.CurrentTimeline is not null)
+            {
+                var command = new TimelineSelectionRangeChangeCommand(_projectState.CurrentTimeline, _projectState.CurrentTimeline.SelectionStart, _playbackState.CurrentFrame);
+                _editCommandManager.Execute(command);
+            }
+        }
+        
+        private void ClearTimelineSelectionMethod()
+        {
+            if (_projectState.CurrentTimeline is not null)
+            {
+                var command = new TimelineSelectionRangeChangeCommand(_projectState.CurrentTimeline, 0, TimelineObject.MAX_LENGTH);
+                _editCommandManager.Execute(command);
             }
         }
     }
