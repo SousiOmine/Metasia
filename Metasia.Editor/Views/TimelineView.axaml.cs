@@ -81,8 +81,11 @@ public partial class TimelineView : UserControl
     private void TimecodeCanvas_PointerPressed(object? sender, Avalonia.Input.PointerPressedEventArgs e)
     {
         if (VM is null) return;
-        _isDraggingTimeline = true;
         var point = e.GetCurrentPoint(sender as Control);
+        if (!point.Properties.IsRightButtonPressed)
+        {
+            _isDraggingTimeline = true;
+        }
         int frame = (int)(point.Position.X / VM.Frame_Per_DIP);
         VM.SeekFrame(frame);
     }
@@ -104,8 +107,11 @@ public partial class TimelineView : UserControl
     private void TimelineCanvas_PointerPressed(object? sender, Avalonia.Input.PointerPressedEventArgs e)
     {
         if (VM is null) return;
-        _isDraggingTimeline = true;
         var point = e.GetCurrentPoint(sender as Control);
+        if (!point.Properties.IsRightButtonPressed)
+        {
+            _isDraggingTimeline = true;
+        }
         int frame = (int)((point.Position.X + LinesScroll.Offset.X) / VM.Frame_Per_DIP);
         VM.SeekFrame(frame);
     }
