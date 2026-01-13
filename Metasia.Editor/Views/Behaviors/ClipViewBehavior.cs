@@ -107,6 +107,8 @@ namespace Metasia.Editor.Views.Behaviors
 
         private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
         {
+            e.Handled = true;
+
             // マウスボタンが押された時間を記録
             _mousePressStartTime = DateTime.Now;
             _hasStartedDrag = false;
@@ -137,12 +139,15 @@ namespace Metasia.Editor.Views.Behaviors
             {
                 _isDragReady = false;
                 _hasStartedDrag = true; // ドラッグ開始を通知
+                e.Handled = true;
                 await StartDragDropAsync(e);
             }
         }
 
         private void OnPointerReleased(object? sender, PointerReleasedEventArgs e)
         {
+            e.Handled = true;
+
             // マウスボタンが押されていた時間と現在時刻の差を計算
             var pressDuration = (DateTime.Now - _mousePressStartTime).TotalMilliseconds;
 
@@ -173,6 +178,8 @@ namespace Metasia.Editor.Views.Behaviors
             // クリックされた位置からフレームを計算してViewModelに通知
             if (pointerEventArgs != null && AssociatedObject != null)
             {
+                pointerEventArgs.Handled = true;
+
                 var position = pointerEventArgs.GetCurrentPoint(AssociatedObject).Position;
                 // クリップ内の相対位置を計算
                 var relativePositionX = position.X;

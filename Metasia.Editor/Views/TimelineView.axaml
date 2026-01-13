@@ -21,11 +21,13 @@
 				<ScrollViewer x:Name="TimescaleScroll"
 				              HorizontalScrollBarVisibility="Hidden"
 				              Grid.Row="0">
-					<Canvas x:Name="TimecodeCanvas" Width="5000" 
-							PointerPressed="TimecodeCanvas_PointerPressed">
-						<controls:TimeRulerControl Width="50000" Height="50" 
+					<Canvas x:Name="TimecodeCanvas" Width="5000"
+							PointerPressed="TimecodeCanvas_PointerPressed"
+							PointerMoved="TimecodeCanvas_PointerMoved"
+							PointerReleased="TimecodeCanvas_PointerReleased">
+						<controls:TimeRulerControl Width="50000" Height="50"
 												   MinTextInterval="50"
-						                           FramePerDIP="{Binding Frame_Per_DIP}" 
+						                           FramePerDIP="{Binding Frame_Per_DIP}"
 						                           FrameRate="{Binding FrameRate}"/>
 						<Rectangle Canvas.Left="{Binding CursorLeft}" Fill="Red" Width="2" Height="500" IsHitTestVisible="False"/>
 					</Canvas>
@@ -36,13 +38,16 @@
 				              VerticalScrollBarVisibility="Hidden"
 				              HorizontalScrollBarVisibility="Hidden"
 				              Grid.Row="2">
-					<Canvas VerticalAlignment="Top"
-							Width="{Binding ElementName=TimelineScroll, Path=Bounds.Width}" 
-					        Height="{Binding ElementName=TimelineScroll, Path=Bounds.Height}">
+					<Canvas x:Name="TimelineCanvas" VerticalAlignment="Top"
+							Width="{Binding ElementName=TimelineScroll, Path=Bounds.Width}"
+					        Height="{Binding ElementName=TimelineScroll, Path=Bounds.Height}"
+							PointerPressed="TimelineCanvas_PointerPressed"
+							PointerMoved="TimelineCanvas_PointerMoved"
+							PointerReleased="TimelineCanvas_PointerReleased">
 						<Rectangle Canvas.Left="{Binding CursorLeft}" Fill="Red" Width="2" Height="500" ZIndex="1" IsHitTestVisible="False"/>
 						<ItemsControl x:Name="TimelineScroll" ItemsSource="{Binding LayerCanvas}" />
 					</Canvas>
-					
+
 				</ScrollViewer>
 			</Grid>
 		</Grid>

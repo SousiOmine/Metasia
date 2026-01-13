@@ -21,6 +21,7 @@ public partial class TimelineView : UserControl
 
     private readonly IKeyBindingService? _keyBindingService;
     private KeyModifiers _timelineZoomModifier = KeyModifiers.Control;
+    private bool _isDraggingTimeline = false;
 
     public TimelineView()
     {
@@ -79,9 +80,48 @@ public partial class TimelineView : UserControl
 
     private void TimecodeCanvas_PointerPressed(object? sender, Avalonia.Input.PointerPressedEventArgs e)
     {
+        if (VM is null) return;
+        _isDraggingTimeline = true;
         var point = e.GetCurrentPoint(sender as Control);
         int frame = (int)(point.Position.X / VM.Frame_Per_DIP);
         VM.SeekFrame(frame);
+    }
+
+    private void TimecodeCanvas_PointerMoved(object? sender, Avalonia.Input.PointerEventArgs e)
+    {
+        if (!_isDraggingTimeline || VM is null) return;
+
+        var point = e.GetCurrentPoint(sender as Control);
+        int frame = (int)(point.Position.X / VM.Frame_Per_DIP);
+        VM.SeekFrame(frame);
+    }
+
+    private void TimecodeCanvas_PointerReleased(object? sender, Avalonia.Input.PointerReleasedEventArgs e)
+    {
+        _isDraggingTimeline = false;
+    }
+
+    private void TimelineCanvas_PointerPressed(object? sender, Avalonia.Input.PointerPressedEventArgs e)
+    {
+        if (VM is null) return;
+        _isDraggingTimeline = true;
+        var point = e.GetCurrentPoint(sender as Control);
+        int frame = (int)((point.Position.X + LinesScroll.Offset.X) / VM.Frame_Per_DIP);
+        VM.SeekFrame(frame);
+    }
+
+    private void TimelineCanvas_PointerMoved(object? sender, Avalonia.Input.PointerEventArgs e)
+    {
+        if (!_isDraggingTimeline || VM is null) return;
+
+        var point = e.GetCurrentPoint(sender as Control);
+        int frame = (int)((point.Position.X + LinesScroll.Offset.X) / VM.Frame_Per_DIP);
+        VM.SeekFrame(Math.Max(0, frame));
+    }
+
+    private void TimelineCanvas_PointerReleased(object? sender, Avalonia.Input.PointerReleasedEventArgs e)
+    {
+        _isDraggingTimeline = false;
     }
 
     private void LoadTimelineZoomModifier()
