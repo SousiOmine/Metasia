@@ -86,15 +86,14 @@ namespace Metasia.Core.Objects
             //このオブジェクトのStartFrameを基準としたフレーム
             int relativeFrame = context.Frame - StartFrame;
             int clipLength = EndFrame - StartFrame + 1;
+            var skFont = new SKFont(_typeface, (float)TextSize.Get(relativeFrame, clipLength));
             SKPaint skPaint = new SKPaint()
             {
                 IsAntialias = true,
-                TextSize = (float)TextSize.Get(relativeFrame, clipLength),
-                Typeface = _typeface,
                 Color = SKColors.White,
             };
             SKRect textBounds = new();
-            skPaint.MeasureText(Contents, ref textBounds);
+            skFont.MeasureText(Contents, out textBounds, skPaint);
 
             int bitmapWidth = (int)textBounds.Width;
             int bitmapHeight = (int)textBounds.Height;
@@ -110,7 +109,7 @@ namespace Metasia.Core.Objects
             using (SKCanvas canvas = new SKCanvas(bitmap))
             {
                 canvas.Clear();
-                canvas.DrawText(Contents, -textBounds.Left, -textBounds.Top, skPaint);
+                canvas.DrawText(Contents, new SKPoint(-textBounds.Left, -textBounds.Top), skFont, skPaint);
             }
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -123,7 +122,7 @@ namespace Metasia.Core.Objects
             if (renderScaleWidth != 1.0f || renderScaleHeight != 1.0f)
             {
                 var scaledInfo = new SKImageInfo((int)(bitmap.Width * renderScaleWidth), (int)(bitmap.Height * renderScaleHeight));
-                bitmap = bitmap.Resize(scaledInfo, SKFilterQuality.High);
+                bitmap = bitmap.Resize(scaledInfo, new SKSamplingOptions(SKCubicResampler.Mitchell));
             }
 
             var transform = new Transform()

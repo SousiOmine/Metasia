@@ -130,7 +130,7 @@ namespace Metasia.Core.Objects
             if (renderScaleWidth != 1.0f || renderScaleHeight != 1.0f)
             {
                 var scaledInfo = new SKImageInfo((int)(bitmap.Width * renderScaleWidth), (int)(bitmap.Height * renderScaleHeight));
-                bitmap = bitmap.Resize(scaledInfo, SKFilterQuality.High);
+                bitmap = bitmap.Resize(scaledInfo, new SKSamplingOptions(SKCubicResampler.Mitchell));
             }
 
             var transform = new Transform()

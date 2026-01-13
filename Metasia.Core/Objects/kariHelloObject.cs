@@ -57,16 +57,15 @@ namespace Metasia.Core.Objects
 
         private void InitializeBitmap()
         {
+            var skFont = new SKFont(SKTypeface.Default, 80);
             var skPaint = new SKPaint()
             {
-                TextSize = 80,
-                TextAlign = SKTextAlign.Center,
                 Color = SKColors.Red
             };
             using (SKCanvas canvas = new SKCanvas(myBitmap))
             {
                 canvas.Clear(SKColors.Brown);
-                canvas.DrawText("Hello", 100, 100, skPaint);
+                canvas.DrawText("Hello", new SKPoint(100, 100), SKTextAlign.Center, skFont, skPaint);
             }
         }
 
