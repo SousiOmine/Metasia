@@ -81,13 +81,15 @@ public partial class TimelineView : UserControl
     private void TimecodeCanvas_PointerPressed(object? sender, Avalonia.Input.PointerPressedEventArgs e)
     {
         if (VM is null) return;
+
         var point = e.GetCurrentPoint(sender as Control);
         if (!point.Properties.IsRightButtonPressed)
         {
             _isDraggingTimeline = true;
         }
+
         int frame = (int)(point.Position.X / VM.Frame_Per_DIP);
-        VM.SeekFrame(frame);
+        VM.SeekFrame(Math.Max(0, frame));
     }
 
     private void TimecodeCanvas_PointerMoved(object? sender, Avalonia.Input.PointerEventArgs e)
@@ -96,7 +98,7 @@ public partial class TimelineView : UserControl
 
         var point = e.GetCurrentPoint(sender as Control);
         int frame = (int)(point.Position.X / VM.Frame_Per_DIP);
-        VM.SeekFrame(frame);
+        VM.SeekFrame(Math.Max(0, frame));
     }
 
     private void TimecodeCanvas_PointerReleased(object? sender, Avalonia.Input.PointerReleasedEventArgs e)
@@ -107,13 +109,15 @@ public partial class TimelineView : UserControl
     private void TimelineCanvas_PointerPressed(object? sender, Avalonia.Input.PointerPressedEventArgs e)
     {
         if (VM is null) return;
+
         var point = e.GetCurrentPoint(sender as Control);
         if (!point.Properties.IsRightButtonPressed)
         {
             _isDraggingTimeline = true;
         }
-        int frame = (int)((point.Position.X + LinesScroll.Offset.X) / VM.Frame_Per_DIP);
-        VM.SeekFrame(frame);
+
+        int frame = (int)(point.Position.X / VM.Frame_Per_DIP);
+        VM.SeekFrame(Math.Max(0, frame));
     }
 
     private void TimelineCanvas_PointerMoved(object? sender, Avalonia.Input.PointerEventArgs e)
@@ -121,7 +125,7 @@ public partial class TimelineView : UserControl
         if (!_isDraggingTimeline || VM is null) return;
 
         var point = e.GetCurrentPoint(sender as Control);
-        int frame = (int)((point.Position.X + LinesScroll.Offset.X) / VM.Frame_Per_DIP);
+        int frame = (int)(point.Position.X / VM.Frame_Per_DIP);
         VM.SeekFrame(Math.Max(0, frame));
     }
 
