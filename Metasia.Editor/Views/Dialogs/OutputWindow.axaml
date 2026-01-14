@@ -8,5 +8,16 @@
         x:DataType="vm:OutputViewModel"
         Width="400" Height="300"
         Title="OutputWindow">
-    Welcome to Avalonia!
+    <StackPanel Margin="10">
+        <ComboBox ItemsSource="{Binding OutputMethodList}"
+            SelectedIndex="0"/>
+
+        <ComboBox ItemsSource="{Binding TimelineList}"
+            SelectedIndex="0"/>
+
+        <StackPanel Orientation="Horizontal">
+            <Button Content="出力"/>
+            <Button Content="キャンセル" Command="{Binding CancelCommand}"/>
+        </StackPanel>
+    </StackPanel>
 </Window>
