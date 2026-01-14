@@ -37,8 +37,10 @@ namespace Metasia.Editor.ViewModels
         public ICommand SetTimelineSelectionStart { get; }
         public ICommand SetTimelineSelectionEnd { get; }
         public ICommand ClearTimelineSelection { get; }
+        public ICommand OpenOutput { get; }
 
         public Interaction<NewProjectViewModel, (bool Result, string ProjectPath, Metasia.Core.Project.ProjectInfo ProjectInfo, Metasia.Core.Project.MetasiaProject? SelectedTemplate)> NewProjectInteraction { get; } = new();
+        public Interaction<OutputViewModel, object> OutputInteraction { get; } = new();
 
         private readonly IFileDialogService _fileDialogService;
         private readonly IProjectState _projectState;
@@ -46,6 +48,7 @@ namespace Metasia.Editor.ViewModels
         private readonly IPlaybackState _playbackState;
         private readonly INewProjectViewModelFactory _newProjectViewModelFactory;
         private readonly IEditCommandManager _editCommandManager;
+        private readonly IOutputViewModelFactory _outputViewModelFactory;
 
         public MainWindowViewModel(
             PlayerParentViewModel playerParentVM,
@@ -57,7 +60,8 @@ namespace Metasia.Editor.ViewModels
             IPlaybackState playbackState,
             IProjectState projectState,
             IEditCommandManager editCommandManager,
-            INewProjectViewModelFactory newProjectViewModelFactory)
+            INewProjectViewModelFactory newProjectViewModelFactory,
+            IOutputViewModelFactory outputViewModelFactory)
         {
             PlayerParentVM = playerParentVM;
             TimelineParentVM = timelineParentVM;
@@ -67,13 +71,16 @@ namespace Metasia.Editor.ViewModels
             _projectState = projectState;
             _playbackState = playbackState;
             _newProjectViewModelFactory = newProjectViewModelFactory;
+            _outputViewModelFactory = outputViewModelFactory;
             _editCommandManager = editCommandManager;
+
             LoadEditingProject = ReactiveCommand.Create(LoadEditingProjectExecuteAsync);
             CreateNewProject = ReactiveCommand.Create(CreateNewProjectExecuteAsync);
             OverrideSaveEditingProject = ReactiveCommand.Create(OverrideSaveEditingProjectExecuteAsync);
             SetTimelineSelectionStart = ReactiveCommand.Create(SetTimelineSelectionStartMethod);
             SetTimelineSelectionEnd = ReactiveCommand.Create(SetTimelineSelectionEndMethod);
             ClearTimelineSelection = ReactiveCommand.Create(ClearTimelineSelectionMethod);
+            OpenOutput = ReactiveCommand.Create(OpenOutputExecuteAsync);
 
             Undo = ReactiveCommand.Create(UndoExecute);
             Redo = ReactiveCommand.Create(RedoExecute);
@@ -173,13 +180,26 @@ namespace Metasia.Editor.ViewModels
                 _editCommandManager.Execute(command);
             }
         }
-        
+
         private void ClearTimelineSelectionMethod()
         {
             if (_projectState.CurrentTimeline is not null)
             {
                 var command = new TimelineSelectionRangeChangeCommand(_projectState.CurrentTimeline, 0, TimelineObject.MAX_LENGTH);
                 _editCommandManager.Execute(command);
+            }
+        }
+
+        private async Task OpenOutputExecuteAsync()
+        {
+            try
+            {
+                var vm = _outputViewModelFactory.Create();
+                await OutputInteraction.Handle(vm).FirstAsync();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"出力ウィンドウオープンエラー: {ex.Message}");
             }
         }
     }

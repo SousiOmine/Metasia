@@ -107,6 +107,7 @@ namespace Metasia.Editor
             services.AddTransient<IMetaEnumParamPropertyViewModelFactory, MetaEnumParamPropertyViewModelFactory>();
             services.AddTransient<IMetaFontParamPropertyViewModelFactory, MetaFontParamPropertyViewModelFactory>();
             services.AddTransient<INewProjectViewModelFactory, NewProjectViewModelFactory>();
+            services.AddTransient<IOutputViewModelFactory, OutputViewModelFactory>();
 
 
             services.AddTransient<MainWindowViewModel>();

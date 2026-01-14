@@ -29,7 +29,7 @@
 				<MenuItem Header="編集プロジェクトの保存"/>
 				<MenuItem Header="編集プロジェクトの上書き" Command="{Binding OverrideSaveEditingProject}"/>
 				<Separator/>
-				<MenuItem Header="出力"/>
+				<MenuItem Header="出力" Command="{Binding OpenOutput}"/>
 				<Separator/>
 				<MenuItem Header="環境設定"/>
 				<Separator/>

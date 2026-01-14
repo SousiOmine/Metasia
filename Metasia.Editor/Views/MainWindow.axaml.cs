@@ -6,6 +6,7 @@ using Metasia.Editor.Services;
 using Metasia.Editor.ViewModels;
 using Metasia.Editor.ViewModels.Dialogs;
 using Metasia.Editor.Views;
+using Metasia.Editor.Views.Dialogs;
 
 namespace Metasia.Editor.Views
 {
@@ -13,6 +14,8 @@ namespace Metasia.Editor.Views
     {
         private MainWindowViewModel? _viewModel => DataContext as MainWindowViewModel;
         private IDisposable? _newProjectHandlerDisposable;
+        private IDisposable? _outputHandlerDisposable;
+        private OutputWindow? _outputWindow;
 
         public MainWindow()
         {
@@ -33,6 +36,8 @@ namespace Metasia.Editor.Views
             // Dispose previous handler if it exists
             _newProjectHandlerDisposable?.Dispose();
             _newProjectHandlerDisposable = null;
+            _outputHandlerDisposable?.Dispose();
+            _outputHandlerDisposable = null;
 
             if (_viewModel is not { } viewModel)
             {
@@ -61,6 +66,36 @@ namespace Metasia.Editor.Views
                     interaction.SetOutput((false, ex.Message, null, null));
                 }
             });
+
+            // OutputInteractionのハンドラーを登録
+            _outputHandlerDisposable = viewModel.OutputInteraction.RegisterHandler(interaction =>
+            {
+                try
+                {
+                    if (_outputWindow is null)
+                    {
+                        _outputWindow = new OutputWindow()
+                        {
+                            DataContext = interaction.Input
+                        };
+                        _outputWindow.Show();
+                        _outputWindow.Closed += (s, e) =>
+                        {
+                            _outputWindow = null;
+                        };
+                    }
+                    else
+                    {
+                        _outputWindow.Activate();
+                    }
+                    interaction.SetOutput(null);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Error in OutputInteraction handler: {ex.Message}");
+                    interaction.SetOutput(null);
+                }
+            });
         }
 
         protected override void OnUnloaded(Avalonia.Interactivity.RoutedEventArgs e)
@@ -68,6 +103,8 @@ namespace Metasia.Editor.Views
             // Clean up the handler when the view is unloaded
             _newProjectHandlerDisposable?.Dispose();
             _newProjectHandlerDisposable = null;
+            _outputHandlerDisposable?.Dispose();
+            _outputHandlerDisposable = null;
 
             base.OnUnloaded(e);
         }
