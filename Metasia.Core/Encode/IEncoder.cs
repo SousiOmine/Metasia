@@ -40,4 +40,3 @@ public interface IEncoder
     /// </summary>
     void CancelRequest();
 }
-}
