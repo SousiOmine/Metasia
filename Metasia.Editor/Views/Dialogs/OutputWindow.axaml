@@ -2,11 +2,11 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="300"
+        mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="300"
         x:Class="Metasia.Editor.Views.Dialogs.OutputWindow"
         xmlns:vm="clr-namespace:Metasia.Editor.ViewModels.Dialogs"
         x:DataType="vm:OutputViewModel"
-        Width="400" Height="300"
+        Width="500" Height="300"
         Title="OutputWindow">
     <StackPanel Margin="10">
         <ComboBox ItemsSource="{Binding OutputMethodList}"
@@ -14,6 +14,12 @@
 
         <ComboBox ItemsSource="{Binding TimelineList}"
             SelectedIndex="0"/>
+
+        <StackPanel Orientation="Horizontal">
+            <TextBlock Text="出力先:"/>
+            <TextBox Text="{Binding OutputPath}"/>
+            <Button Content="選択" Command="{Binding SelectOutputPathCommand}"/>
+        </StackPanel>
 
         <StackPanel Orientation="Horizontal">
             <Button Content="出力"/>

@@ -1,3 +1,5 @@
+using Metasia.Editor.Models.States;
+
 namespace Metasia.Editor.ViewModels.Dialogs;
 
 public interface IOutputViewModelFactory

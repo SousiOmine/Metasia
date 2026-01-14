@@ -78,7 +78,7 @@ namespace Metasia.Editor.Views
                         {
                             DataContext = interaction.Input
                         };
-                        _outputWindow.Show();
+                        _outputWindow.Show(this);
                         _outputWindow.Closed += (s, e) =>
                         {
                             _outputWindow = null;

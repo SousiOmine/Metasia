@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Reactive.Joins;
 using System.Threading.Tasks;
 using Avalonia.Controls;
@@ -79,18 +80,18 @@ namespace Metasia.Editor.Services
             return folders.Count >= 1 ? folders[0] : null;
         }
 
-        public async Task<IStorageFile?> SaveFileDialogAsync()
+        public async Task<IStorageFile?> SaveFileDialogAsync(string title, string[] extensions, string defaultExtension = "")
         {
+            List<FilePickerFileType> fileTypeChoices = [];
+            foreach (var extension in extensions)
+            {
+                fileTypeChoices.Add(new FilePickerFileType(extension) { Patterns = [extension] });
+            }
             return await _target.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions()
             {
-                Title = "ファイルを保存",
-                FileTypeChoices = new FilePickerFileType[]
-                {
-                    new("Metasia Project File")
-                    {
-                        Patterns = new string[] { "*.mtpj" }
-                    }
-                }
+                Title = title,
+                FileTypeChoices = fileTypeChoices,
+                DefaultExtension = defaultExtension
             });
         }
     }
