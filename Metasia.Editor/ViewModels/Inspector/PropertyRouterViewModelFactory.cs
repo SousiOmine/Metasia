@@ -14,6 +14,7 @@ public class PropertyRouterViewModelFactory : IPropertyRouterViewModelFactory
     private readonly IMetaEnumParamPropertyViewModelFactory _metaEnumParamPropertyViewModelFactory;
     private readonly IProjectState _projectState;
     private readonly IMetaFontParamPropertyViewModelFactory _metaFontParamPropertyViewModelFactory;
+    private readonly IColorPropertyViewModelFactory _colorPropertyViewModelFactory;
     public PropertyRouterViewModelFactory(
         IMetaNumberParamPropertyViewModelFactory metaNumberParamPropertyViewModelFactory,
         IMediaPathPropertyViewModelFactory mediaPathPropertyViewModelFactory,
@@ -21,6 +22,7 @@ public class PropertyRouterViewModelFactory : IPropertyRouterViewModelFactory
         IDoublePropertyViewModelFactory doublePropertyViewModelFactory,
         IMetaEnumParamPropertyViewModelFactory metaEnumParamPropertyViewModelFactory,
         IMetaFontParamPropertyViewModelFactory metaFontParamPropertyViewModelFactory,
+        IColorPropertyViewModelFactory colorPropertyViewModelFactory,
         IProjectState projectState)
     {
         ArgumentNullException.ThrowIfNull(metaNumberParamPropertyViewModelFactory);
@@ -29,6 +31,7 @@ public class PropertyRouterViewModelFactory : IPropertyRouterViewModelFactory
         ArgumentNullException.ThrowIfNull(doublePropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(metaEnumParamPropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(metaFontParamPropertyViewModelFactory);
+        ArgumentNullException.ThrowIfNull(colorPropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(projectState);
         _metaNumberParamPropertyViewModelFactory = metaNumberParamPropertyViewModelFactory;
         _mediaPathPropertyViewModelFactory = mediaPathPropertyViewModelFactory;
@@ -36,12 +39,13 @@ public class PropertyRouterViewModelFactory : IPropertyRouterViewModelFactory
         _doublePropertyViewModelFactory = doublePropertyViewModelFactory;
         _metaEnumParamPropertyViewModelFactory = metaEnumParamPropertyViewModelFactory;
         _metaFontParamPropertyViewModelFactory = metaFontParamPropertyViewModelFactory;
+        _colorPropertyViewModelFactory = colorPropertyViewModelFactory;
         _projectState = projectState;
     }
 
     public PropertyRouterViewModel Create(ObjectPropertyFinder.EditablePropertyInfo propertyInfo)
     {
         ArgumentNullException.ThrowIfNull(propertyInfo);
-        return new PropertyRouterViewModel(propertyInfo, _metaNumberParamPropertyViewModelFactory, _mediaPathPropertyViewModelFactory, _stringPropertyViewModelFactory, _doublePropertyViewModelFactory, _metaEnumParamPropertyViewModelFactory, _metaFontParamPropertyViewModelFactory, _projectState);
+        return new PropertyRouterViewModel(propertyInfo, _metaNumberParamPropertyViewModelFactory, _mediaPathPropertyViewModelFactory, _stringPropertyViewModelFactory, _doublePropertyViewModelFactory, _metaEnumParamPropertyViewModelFactory, _metaFontParamPropertyViewModelFactory, _colorPropertyViewModelFactory, _projectState);
     }
 }

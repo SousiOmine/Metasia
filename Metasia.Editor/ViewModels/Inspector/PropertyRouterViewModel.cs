@@ -8,6 +8,7 @@ using System;
 using Metasia.Editor.Models.States;
 using Metasia.Core.Media;
 using Metasia.Core.Objects.Parameters;
+using Metasia.Core.Objects.Parameters.Color;
 
 namespace Metasia.Editor.ViewModels.Inspector;
 
@@ -73,6 +74,16 @@ public class PropertyRouterViewModel : ViewModelBase
         get => _metaEnumParamPropertyVm;
         set => this.RaiseAndSetIfChanged(ref _metaEnumParamPropertyVm, value);
     }
+    public bool IsColorProperty
+    {
+        get => _isColorProperty;
+        set => this.RaiseAndSetIfChanged(ref _isColorProperty, value);
+    }
+    public ColorPropertyViewModel? ColorPropertyVm
+    {
+        get => _colorPropertyVm;
+        set => this.RaiseAndSetIfChanged(ref _colorPropertyVm, value);
+    }
     public string PlaceholderText
     {
         get => _placeholderText;
@@ -92,12 +103,14 @@ public class PropertyRouterViewModel : ViewModelBase
     private MetaFontParamPropertyViewModel? _metaFontParamPropertyVm;
     private DoublePropertyViewModel? _doublePropertyVm;
     private MetaEnumParamPropertyViewModel? _metaEnumParamPropertyVm;
+    private ColorPropertyViewModel? _colorPropertyVm;
     private bool _isMetaNumberParamProperty = false;
     private bool _isMediaPathProperty = false;
     private bool _isStringProperty = false;
     private bool _isFontProperty = false;
     private bool _isDoubleProperty = false;
     private bool _isMetaEnumParamProperty = false;
+    private bool _isColorProperty = false;
     private bool _usePlaceholder;
     private ObjectPropertyFinder.EditablePropertyInfo _propertyInfo;
     private readonly IMetaNumberParamPropertyViewModelFactory _metaNumberParamPropertyViewModelFactory;
@@ -106,6 +119,7 @@ public class PropertyRouterViewModel : ViewModelBase
     private readonly IDoublePropertyViewModelFactory _doublePropertyViewModelFactory;
     private readonly IMetaEnumParamPropertyViewModelFactory _metaEnumParamPropertyViewModelFactory;
     private readonly IMetaFontParamPropertyViewModelFactory _metaFontParamPropertyViewModelFactory;
+    private readonly IColorPropertyViewModelFactory _colorPropertyViewModelFactory;
     private readonly IProjectState _projectState;
     public PropertyRouterViewModel(
         ObjectPropertyFinder.EditablePropertyInfo propertyInfo,
@@ -115,6 +129,7 @@ public class PropertyRouterViewModel : ViewModelBase
         IDoublePropertyViewModelFactory doublePropertyViewModelFactory,
         IMetaEnumParamPropertyViewModelFactory metaEnumParamPropertyViewModelFactory,
         IMetaFontParamPropertyViewModelFactory metaFontParamPropertyViewModelFactory,
+        IColorPropertyViewModelFactory colorPropertyViewModelFactory,
         IProjectState projectState)
     {
         ArgumentNullException.ThrowIfNull(propertyInfo);
@@ -124,6 +139,7 @@ public class PropertyRouterViewModel : ViewModelBase
         ArgumentNullException.ThrowIfNull(doublePropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(metaEnumParamPropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(metaFontParamPropertyViewModelFactory);
+        ArgumentNullException.ThrowIfNull(colorPropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(projectState);
         _metaNumberParamPropertyViewModelFactory = metaNumberParamPropertyViewModelFactory;
         _mediaPathPropertyViewModelFactory = mediaPathPropertyViewModelFactory;
@@ -131,6 +147,7 @@ public class PropertyRouterViewModel : ViewModelBase
         _doublePropertyViewModelFactory = doublePropertyViewModelFactory;
         _metaEnumParamPropertyViewModelFactory = metaEnumParamPropertyViewModelFactory;
         _metaFontParamPropertyViewModelFactory = metaFontParamPropertyViewModelFactory;
+        _colorPropertyViewModelFactory = colorPropertyViewModelFactory;
         _projectState = projectState;
         _propertyInfo = propertyInfo;
         _projectState.TimelineChanged += OnTimelineChanged;
@@ -205,6 +222,15 @@ public class PropertyRouterViewModel : ViewModelBase
             {
                 MetaEnumParamPropertyVm = _metaEnumParamPropertyViewModelFactory.Create(_propertyInfo.Identifier, (MetaEnumParam)_propertyInfo.PropertyValue!);
                 IsMetaEnumParamProperty = true;
+                UsePlaceholder = false;
+            }
+        }
+        else if (_propertyInfo.Type == typeof(ColorRgb8))
+        {
+            if (ColorPropertyVm is null)
+            {
+                ColorPropertyVm = _colorPropertyViewModelFactory.Create(_propertyInfo.Identifier, (ColorRgb8)_propertyInfo.PropertyValue!);
+                IsColorProperty = true;
                 UsePlaceholder = false;
             }
         }
