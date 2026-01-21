@@ -16,6 +16,8 @@ namespace Metasia.Editor.Services.PluginService
 
         public List<IMediaInputPlugin> MediaInputPlugins { get; private set; } = [];
 
+        public List<IMediaOutputPlugin> MediaOutputPlugins { get; private set; } = [];
+
         private MediaAccessorRouter _mediaAccessorRouter;
 
         public PluginService(MediaAccessorRouter mediaAccessorRouter)
@@ -36,8 +38,13 @@ namespace Metasia.Editor.Services.PluginService
                     {
                         MediaInputPlugins.Add(mediaInputPlugin);
                     }
+                    if (plugin is IMediaOutputPlugin mediaOutputPlugin)
+                    {
+                        MediaOutputPlugins.Add(mediaOutputPlugin);
+                    }
                 }
                 RegisterMediaInputPlugins();
+                RegisterMediaOutputPlugins();
             }
             catch (Exception e)
             {
@@ -54,6 +61,11 @@ namespace Metasia.Editor.Services.PluginService
                 _mediaAccessorRouter.Accessors.Add(plugin);
             }
             _mediaAccessorRouter.Accessors.Add(new StdInput());
+        }
+        
+        private void RegisterMediaOutputPlugins()
+        {
+
         }
     }
 }

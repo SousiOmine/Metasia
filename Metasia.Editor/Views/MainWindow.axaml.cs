@@ -38,6 +38,8 @@ namespace Metasia.Editor.Views
             _newProjectHandlerDisposable = null;
             _outputHandlerDisposable?.Dispose();
             _outputHandlerDisposable = null;
+            _outputWindow?.Close();
+            _outputWindow = null;
 
             if (_viewModel is not { } viewModel)
             {
@@ -105,6 +107,8 @@ namespace Metasia.Editor.Views
             _newProjectHandlerDisposable = null;
             _outputHandlerDisposable?.Dispose();
             _outputHandlerDisposable = null;
+            _outputWindow?.Close();
+            _outputWindow = null;
 
             base.OnUnloaded(e);
         }

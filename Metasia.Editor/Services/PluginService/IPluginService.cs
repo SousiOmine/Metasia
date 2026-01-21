@@ -10,6 +10,8 @@ namespace Metasia.Editor.Services.PluginService
 
         List<IMediaInputPlugin> MediaInputPlugins { get; }
 
+        List<IMediaOutputPlugin> MediaOutputPlugins { get; }
+
         Task<IEnumerable<IEditorPlugin>> LoadPluginsAsync();
     }
 }

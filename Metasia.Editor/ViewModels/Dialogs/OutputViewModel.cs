@@ -3,9 +3,13 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Metasia.Core.Encode;
+using Metasia.Editor.Models.Media;
+using Metasia.Editor.Models.Media.Output;
 using Metasia.Editor.Models.Projects;
 using Metasia.Editor.Models.States;
 using Metasia.Editor.Services;
+using Metasia.Editor.Services.PluginService;
 using ReactiveUI;
 
 namespace Metasia.Editor.ViewModels.Dialogs;
@@ -16,9 +20,15 @@ namespace Metasia.Editor.ViewModels.Dialogs;
 public class OutputViewModel : ViewModelBase
 {
 
-    public ObservableCollection<string> OutputMethodList { get; } = new ObservableCollection<string>();
+    public ObservableCollection<string> OutputMethodList { get; } = [];
 
-    public ObservableCollection<string> TimelineList { get; } = new ObservableCollection<string>();
+    public int SelectedEncoderIndex
+    {
+        get => _selectedEncoderIndex;
+        set => this.RaiseAndSetIfChanged(ref _selectedEncoderIndex, value);
+    }
+
+    public ObservableCollection<string> TimelineList { get; } = [];
 
     public string OutputPath
     {
@@ -27,28 +37,35 @@ public class OutputViewModel : ViewModelBase
     }
 
     public ICommand SelectOutputPathCommand { get; }
+    public ICommand OutputCommand { get; }
     public ICommand CancelCommand { get; }
 
     public Action? CancelAction { get; set; }
 
+    private int _selectedEncoderIndex = 0;
+
+    private readonly List<IEditorEncoder> _encoders = [];
 
     private string _outputPath = string.Empty;
     private readonly IProjectState _projectState;
     private readonly IFileDialogService _fileDialogService;
+    private readonly IPluginService _pluginService;
 
     public OutputViewModel(
         IProjectState projectState,
-        IFileDialogService fileDialogService
+        IFileDialogService fileDialogService,
+        IPluginService pluginService
     )
     {
         _projectState = projectState;
         _fileDialogService = fileDialogService;
+        _pluginService = pluginService;
 
         CancelCommand = ReactiveCommand.Create(() => Cancel());
         SelectOutputPathCommand = ReactiveCommand.CreateFromTask(SelectOutputPathExecuteAsync);
+        OutputCommand = ReactiveCommand.Create(() => OutputExecute());
 
-        OutputMethodList.Add("連番画像出力");
-        OutputMethodList.Add("FFmpegPlugin");
+        LoadEncoders();
 
         _projectState.ProjectLoaded += UIReflesh;
         _projectState.ProjectClosed += UIReflesh;
@@ -69,6 +86,26 @@ public class OutputViewModel : ViewModelBase
         base.Dispose(disposing);
     }
 
+    private void LoadEncoders()
+    {
+        _encoders.Clear();
+        List<(string originName, IEditorEncoder editorEncoder)> encoderList = [];
+        foreach (var plugin in _pluginService.MediaOutputPlugins)
+        {
+            PluginEncoder encoder = new(plugin);
+            encoderList.Add((plugin.PluginIdentifier, encoder));
+        }
+        var sequentialImagesEncoder = new SequentialImagesEncoder();
+        encoderList.Add(("標準", sequentialImagesEncoder));
+
+        OutputMethodList.Clear();
+        foreach (var encoder in encoderList)
+        {
+            OutputMethodList.Add(encoder.editorEncoder.Name + "(" + encoder.originName + ")");
+            _encoders.Add(encoder.editorEncoder);
+        }
+    }
+
     private void UIReflesh()
     {
         TimelineList.Clear();
@@ -86,6 +123,11 @@ public class OutputViewModel : ViewModelBase
         if (result is null) return;
 
         OutputPath = result.Path?.LocalPath ?? "";
+    }
+
+    private void OutputExecute()
+    {
+        
     }
 
     private void Cancel()

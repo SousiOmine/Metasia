@@ -1,3 +1,7 @@
+using Metasia.Core.Media;
+using Metasia.Core.Objects;
+using Metasia.Core.Project;
+
 namespace Metasia.Core.Encode;
 
 /// <summary>
@@ -29,6 +33,13 @@ public interface IEncoder
     /// エンコードが異常終了した時に呼び出される
     /// </summary>
     event EventHandler<EventArgs> EncodeFailed;
+
+    void Initialize(
+        MetasiaProject project,
+        TimelineObject timeline,
+        IImageFileAccessor imageFileAccessor,
+        IVideoFileAccessor videoFileAccessor,
+        string projectPath);
 
     /// <summary>
     /// エンコードを開始する

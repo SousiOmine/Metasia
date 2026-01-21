@@ -10,7 +10,7 @@
         Title="OutputWindow">
     <StackPanel Margin="10">
         <ComboBox ItemsSource="{Binding OutputMethodList}"
-            SelectedIndex="0"/>
+            SelectedIndex="{Binding SelectedEncoderIndex}"/>
 
         <ComboBox ItemsSource="{Binding TimelineList}"
             SelectedIndex="0"/>
@@ -22,7 +22,7 @@
         </StackPanel>
 
         <StackPanel Orientation="Horizontal">
-            <Button Content="出力"/>
+            <Button Content="出力" Command="{Binding OutputCommand}"/>
             <Button Content="キャンセル" Command="{Binding CancelCommand}"/>
         </StackPanel>
     </StackPanel>
