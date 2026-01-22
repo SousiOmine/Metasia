@@ -1,6 +1,7 @@
 using Metasia.Core.Attributes;
 using Metasia.Core.Coordinate;
 using Metasia.Core.Objects.Parameters;
+using Metasia.Core.Objects.Parameters.Color;
 using Metasia.Core.Render;
 using Metasia.Core.Xml;
 using SkiaSharp;
@@ -64,6 +65,9 @@ namespace Metasia.Core.Objects
         [ValueRange(0, 2000, 0, 500)]
         public MetaNumberParam<double> TextSize { get; set; } = new MetaNumberParam<double>(100);
 
+        [EditableProperty("Color")]
+        public ColorRgb8 Color { get; set; } = new ColorRgb8(255, 255, 255);
+
         private SKTypeface? _typeface;
         private MetaFontParam _font = MetaFontParam.Default;
 
@@ -90,7 +94,7 @@ namespace Metasia.Core.Objects
             SKPaint skPaint = new SKPaint()
             {
                 IsAntialias = true,
-                Color = SKColors.White,
+                Color = new SKColor(Color.R, Color.G, Color.B),
             };
             SKRect textBounds = new();
             skFont.MeasureText(Contents, out textBounds, skPaint);
@@ -225,6 +229,9 @@ namespace Metasia.Core.Objects
             var (firstTextSize, secondTextSize) = TextSize.Split(relativeSplitFrame, clipLength);
             firstText.TextSize = firstTextSize;
             secondText.TextSize = secondTextSize;
+
+            firstText.Color = Color.Clone();
+            secondText.Color = Color.Clone();
 
             firstText.Font = Font.Clone();
             secondText.Font = Font.Clone();

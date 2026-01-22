@@ -12,6 +12,6 @@
                    VerticalAlignment="Center" 
                    HorizontalAlignment="Left"
                    Margin="2"/>
-        <colorPicker:ColorPicker Color="{Binding SelectedColor, Mode=TwoWay}" />
+        <colorPicker:ColorPicker Color="{Binding SelectedColor, Mode=TwoWay}" IsAlphaEnabled="False" />
     </StackPanel>
 </UserControl>
