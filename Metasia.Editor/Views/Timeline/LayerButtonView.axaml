@@ -3,13 +3,18 @@
 			 xmlns:vm="using:Metasia.Editor.ViewModels.Timeline"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:converter="clr-namespace:Metasia.Editor.Views.BindingConverter"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Metasia.Editor.Views.Timeline.LayerButtonView"
 			 x:DataType="vm:LayerButtonViewModel"
 			 Height="50">
+	<UserControl.Resources>
+		<converter:ActiveOpacityConverter x:Key="ActiveConverter"/>
+	</UserControl.Resources>
 	<Button Content="{Binding ButtonText}"
 			Command="{Binding ButtonClick}"
+			Opacity="{Binding IsActive, Converter={StaticResource ActiveConverter}}"
+			HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
 		HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-		
 	</Button>
 </UserControl>

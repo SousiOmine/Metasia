@@ -6,6 +6,8 @@ public class LayerIsActiveChangeCommand : IEditCommand
 {
     public string Description { get; } = string.Empty;
 
+    public string TargetLayerId { get; }
+
     private LayerObject _targetLayerObject;
     private bool _afterActive;
     private bool _beforeActive;
@@ -18,6 +20,7 @@ public class LayerIsActiveChangeCommand : IEditCommand
     public LayerIsActiveChangeCommand(LayerObject targetLayerObject, bool isActive)
     {
         _targetLayerObject = targetLayerObject;
+        TargetLayerId = targetLayerObject.Id;
         _afterActive = isActive;
         _beforeActive = targetLayerObject.IsActive;
     }
