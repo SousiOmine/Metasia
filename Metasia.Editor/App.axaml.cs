@@ -85,8 +85,6 @@ namespace Metasia.Editor
                     return new SoundIOService();
                 }
             });
-            services.AddTransient<IAudioPlaybackService, AudioPlaybackService>();
-            services.AddTransient<IEncodeService, EncodeService>();
 
             services.AddSingleton<IProjectState, ProjectState>();
             services.AddSingleton<ISelectionState, SelectionState>();
@@ -96,6 +94,8 @@ namespace Metasia.Editor
             services.AddSingleton<MediaAccessorRouter>();
             services.AddSingleton<IPluginService, PluginService>();
             services.AddSingleton<IFontCatalogService, FontCatalogService>();
+            services.AddSingleton<IAudioPlaybackService, AudioPlaybackService>();
+            services.AddSingleton<IEncodeService, EncodeService>();
 
             services.AddTransient<IPlayerViewModelFactory, PlayerViewModelFactory>();
             services.AddTransient<ITimelineViewModelFactory, TimelineViewModelFactory>();

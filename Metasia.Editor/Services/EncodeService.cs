@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Metasia.Core.Encode;
 using Metasia.Editor.Models.Media;
 
@@ -17,7 +18,7 @@ public class EncodeService : IEncodeService
 
     public event EventHandler<EventArgs> QueueUpdated = delegate { };
 
-    public int ConcurrentEncodeCount { get; set; } = 1;
+    public int ConcurrentEncodeCount { get; private set; } = 1;
 
     private List<IEditorEncoder> _encoders = new();
 
@@ -25,8 +26,11 @@ public class EncodeService : IEncodeService
     {
         encoder.SetOutputPath(outputPath);
         _encoders.Add(encoder);
+        encoder.StatusChanged += encoderStatusChanged;
         QueueUpdated?.Invoke(this, EventArgs.Empty);
-        if (encoder.Status == IEncoder.EncoderState.Waiting)
+
+        int encodingCount = _encoders.Count(e => e.Status == IEncoder.EncoderState.Encoding);
+        if (encoder.Status == IEncoder.EncoderState.Waiting && encodingCount < ConcurrentEncodeCount)
         {
             encoder.Start();
         }
@@ -59,5 +63,18 @@ public class EncodeService : IEncodeService
         }
         _encoders.Clear();
         QueueUpdated?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void encoderStatusChanged(object? sender, EventArgs e)
+    {
+        int encodingCount = _encoders.Count(e => e.Status == IEncoder.EncoderState.Encoding);
+        if (encodingCount < ConcurrentEncodeCount)
+        {
+            var nextEncoder = _encoders.FirstOrDefault(e => e.Status == IEncoder.EncoderState.Waiting);
+            if (nextEncoder is not null)
+            {
+                nextEncoder.Start();
+            }
+        }
     }
 }

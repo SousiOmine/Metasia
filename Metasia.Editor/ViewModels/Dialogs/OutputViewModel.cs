@@ -85,9 +85,11 @@ public class OutputViewModel : ViewModelBase
         _projectState.ProjectLoaded += UIReflesh;
         _projectState.ProjectClosed += UIReflesh;
         _projectState.TimelineChanged += UIReflesh;
+
         _encodeService.QueueUpdated += (_, _) => QueueUpdated();
 
         UIReflesh();
+        QueueUpdated();
     }
 
     protected override void Dispose(bool disposing)
@@ -207,6 +209,15 @@ public class EncoderQueueItemViewModel : ViewModelBase
         _encoder = encoder;
         _encoder.StatusChanged += (sender, e) => UpdateProgress();
         UpdateProgress();
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            _encoder.StatusChanged -= (sender, e) => UpdateProgress();
+        }
+        base.Dispose(disposing);
     }
 
     private void UpdateProgress()
