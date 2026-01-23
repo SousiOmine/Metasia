@@ -30,5 +30,8 @@
         <Border IsVisible="{Binding IsMetaEnumParamProperty}">
             <views_properties:MetaEnumParamPropertyView DataContext="{Binding MetaEnumParamPropertyVm}"/>
         </Border>
+        <Border IsVisible="{Binding IsColorProperty}">
+            <views_properties:ColorPropertyView DataContext="{Binding ColorPropertyVm}"/>
+        </Border>
     </StackPanel>
 </UserControl>

@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Metasia.Core.Attributes;
+using Metasia.Core.Objects.Parameters.Color;
 
 namespace Metasia.Core.Objects
 {
@@ -48,6 +49,9 @@ namespace Metasia.Core.Objects
         [EditableProperty("Shape")]
         public MetaEnumParam Shape { get; set; } = new MetaEnumParam("Circle", "Square", "Triangle", "Star");
 
+        [EditableProperty("Color")]
+        public ColorRgb8 Color { get; set; } = new ColorRgb8(255, 255, 255);
+
         public ShapeObject(string id) : base(id)
         {
         }
@@ -65,7 +69,7 @@ namespace Metasia.Core.Objects
 
             int clipLength = EndFrame - StartFrame + 1;
 
-            SKColor shapeColor = SKColors.White;
+            var shapeColor = new SKColor(Color.R, Color.G, Color.B);
             int size = (int)Size.Get(relativeFrame, clipLength);
             double aspectRatio = AspectRatio.Get(relativeFrame, clipLength);
 
@@ -230,6 +234,9 @@ namespace Metasia.Core.Objects
             var (firstShape, secondShape) = Shape.Split(relativeSplitFrame);
             firstObject.Shape = firstShape;
             secondObject.Shape = secondShape;
+
+            firstObject.Color = Color.Clone();
+            secondObject.Color = Color.Clone();
 
             return (firstObject, secondObject);
         }

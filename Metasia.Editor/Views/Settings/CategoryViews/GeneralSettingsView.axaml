@@ -1,0 +1,41 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Metasia.Editor.ViewModels.Settings"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="500"
+             x:Class="Metasia.Editor.Views.Settings.GeneralSettingsView"
+             x:DataType="vm:GeneralSettingsViewModel">
+    <StackPanel Spacing="10">
+        <StackPanel Spacing="5">
+            <TextBlock Text="Language"/>
+            <ComboBox ItemsSource="{Binding LanguageOptions}"
+                      SelectedItem="{Binding SelectedLanguage}">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Display}"/>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+        </StackPanel>
+
+        <StackPanel Spacing="5">
+            <TextBlock Text="Theme"/>
+            <ComboBox ItemsSource="{Binding ThemeOptions}"
+                      SelectedItem="{Binding SelectedTheme}">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Display}"/>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+        </StackPanel>
+
+        <CheckBox Content="Auto Save" IsChecked="{Binding AutoSave}"/>
+
+        <StackPanel Spacing="5">
+            <TextBlock Text="Auto Save Interval (minutes)"/>
+            <NumericUpDown Value="{Binding AutoSaveInterval}" Minimum="1" Maximum="60" Increment="1"/>
+        </StackPanel>
+    </StackPanel>
+</UserControl>

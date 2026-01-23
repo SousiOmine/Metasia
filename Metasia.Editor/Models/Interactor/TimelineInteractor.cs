@@ -5,6 +5,7 @@ using System.Reflection;
 using Metasia.Core.Coordinate;
 using Metasia.Core.Objects;
 using Metasia.Core.Objects.Parameters;
+using Metasia.Core.Objects.Parameters.Color;
 using Metasia.Editor.Models.EditCommands;
 using Metasia.Editor.Models.EditCommands.Commands;
 
@@ -89,6 +90,20 @@ namespace Metasia.Editor.Models.Interactor
                 changeInfos.Add(new DoubleValueChangeCommand.DoubleValueChangeInfo(clip, propertyIdentifier, valueDifference));
             }
             return changeInfos.Count > 0 ? new DoubleValueChangeCommand(changeInfos) : null;
+        }
+
+        public static IEditCommand? CreateColorValueChangeCommand(string propertyIdentifier, ColorRgb8 beforeValue, ColorRgb8 afterValue, IEnumerable<ClipObject> selectedClips)
+        {
+            List<ColorValueChangeCommand.ColorValueChangeInfo> changeInfos = new();
+            foreach (var clip in selectedClips)
+            {
+                var properties = ObjectPropertyFinder.FindEditableProperties(clip);
+                var property = properties.FirstOrDefault(x => x.Identifier == propertyIdentifier);
+                if (property is null || property.PropertyValue is not ColorRgb8) continue;
+
+                changeInfos.Add(new ColorValueChangeCommand.ColorValueChangeInfo(clip, propertyIdentifier, beforeValue.Clone(), afterValue.Clone()));
+            }
+            return changeInfos.Count > 0 ? new ColorValueChangeCommand(changeInfos) : null;
         }
 
         public static bool TryGetDoubleProperty(string propertyIdentifier, ClipObject clip, out double value)

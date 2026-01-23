@@ -1,0 +1,17 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:Metasia.Editor.ViewModels.Inspector.Properties"
+             xmlns:colorPicker="clr-namespace:Avalonia.Controls;assembly=Avalonia.Controls.ColorPicker"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="120"
+             x:Class="Metasia.Editor.Views.Inspector.Properties.ColorPropertyView"
+             x:DataType="vm:ColorPropertyViewModel">
+    <StackPanel Orientation="Vertical" Margin="2">
+        <TextBlock Text="{Binding PropertyDisplayName}" 
+                   VerticalAlignment="Center" 
+                   HorizontalAlignment="Left"
+                   Margin="2"/>
+        <colorPicker:ColorPicker Color="{Binding SelectedColor, Mode=TwoWay}" IsAlphaEnabled="False" />
+    </StackPanel>
+</UserControl>

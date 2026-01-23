@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Windows.Input;
 using ReactiveUI;
+using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Metasia.Editor.Models;
@@ -30,6 +31,7 @@ namespace Metasia.Editor.ViewModels
         public ICommand LoadEditingProject { get; }
         public ICommand CreateNewProject { get; }
         public ICommand OverrideSaveEditingProject { get; }
+        public ICommand OpenSettings { get; }
 
         public ICommand Undo { get; }
         public ICommand Redo { get; }
@@ -41,6 +43,7 @@ namespace Metasia.Editor.ViewModels
 
         public Interaction<NewProjectViewModel, (bool Result, string ProjectPath, Metasia.Core.Project.ProjectInfo ProjectInfo, Metasia.Core.Project.MetasiaProject? SelectedTemplate)> NewProjectInteraction { get; } = new();
         public Interaction<OutputViewModel, object> OutputInteraction { get; } = new();
+        public Interaction<Unit, Unit> OpenSettingsInteraction { get; } = new();
 
         private readonly IFileDialogService _fileDialogService;
         private readonly IProjectState _projectState;
@@ -77,6 +80,7 @@ namespace Metasia.Editor.ViewModels
             LoadEditingProject = ReactiveCommand.Create(LoadEditingProjectExecuteAsync);
             CreateNewProject = ReactiveCommand.Create(CreateNewProjectExecuteAsync);
             OverrideSaveEditingProject = ReactiveCommand.Create(OverrideSaveEditingProjectExecuteAsync);
+            OpenSettings = ReactiveCommand.CreateFromTask(OpenSettingsExecuteAsync);
             SetTimelineSelectionStart = ReactiveCommand.Create(SetTimelineSelectionStartMethod);
             SetTimelineSelectionEnd = ReactiveCommand.Create(SetTimelineSelectionEndMethod);
             ClearTimelineSelection = ReactiveCommand.Create(ClearTimelineSelectionMethod);
@@ -101,6 +105,7 @@ namespace Metasia.Editor.ViewModels
                 keyBindingService.RegisterCommand("LoadEditingProject", LoadEditingProject);
                 keyBindingService.RegisterCommand("CreateNewProject", CreateNewProject);
                 keyBindingService.RegisterCommand("OverrideSaveEditingProject", OverrideSaveEditingProject);
+                keyBindingService.RegisterCommand("OpenSettings", OpenSettings);
             }
         }
 
@@ -121,6 +126,11 @@ namespace Metasia.Editor.ViewModels
             {
                 Debug.WriteLine($"新規プロジェクト作成エラー: {ex.Message}");
             }
+        }
+
+        private async Task OpenSettingsExecuteAsync()
+        {
+            await OpenSettingsInteraction.Handle(Unit.Default);
         }
 
         private async Task OverrideSaveEditingProjectExecuteAsync()

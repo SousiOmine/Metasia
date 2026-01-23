@@ -18,6 +18,7 @@ using Metasia.Editor.ViewModels;
 using Metasia.Editor.ViewModels.Dialogs;
 using Metasia.Editor.ViewModels.Inspector;
 using Metasia.Editor.ViewModels.Inspector.Properties;
+using Metasia.Editor.ViewModels.Settings;
 using Metasia.Editor.ViewModels.Timeline;
 using Metasia.Editor.Views;
 using Microsoft.Extensions.DependencyInjection;
@@ -68,6 +69,8 @@ namespace Metasia.Editor
             var services = new ServiceCollection();
             services.AddSingleton<IFileDialogService>(new FileDialogService(_mainWindow));
             services.AddSingleton<IKeyBindingService, KeyBindingService>();
+            services.AddSingleton<ISettingsService, SettingsService>();
+            services.AddSingleton<SettingsWindowViewModel>();
 
             services.AddSingleton<IEditCommandManager, EditCommandManager>();
             services.AddSingleton<IAudioService>(_ =>
@@ -107,6 +110,7 @@ namespace Metasia.Editor
             services.AddTransient<IDoublePropertyViewModelFactory, DoublePropertyViewModelFactory>();
             services.AddTransient<IMetaEnumParamPropertyViewModelFactory, MetaEnumParamPropertyViewModelFactory>();
             services.AddTransient<IMetaFontParamPropertyViewModelFactory, MetaFontParamPropertyViewModelFactory>();
+            services.AddTransient<IColorPropertyViewModelFactory, ColorPropertyViewModelFactory>();
             services.AddTransient<INewProjectViewModelFactory, NewProjectViewModelFactory>();
             services.AddTransient<IOutputViewModelFactory, OutputViewModelFactory>();
 
@@ -122,6 +126,15 @@ namespace Metasia.Editor
                 ValidateOnBuild = true
             });
 
+            try
+            {
+                await Services.GetRequiredService<ISettingsService>().LoadAsync();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"設定の読み込みに失敗しました。デフォルト設定を使用します: {ex.Message}");
+                // 必要に応じてデフォルト設定で続行するか、ユーザーに通知
+            }
             // プラグインを読み込み
             await Services.GetRequiredService<IPluginService>().LoadPluginsAsync();
 
