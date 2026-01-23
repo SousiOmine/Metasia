@@ -147,7 +147,7 @@ public class OutputViewModel : ViewModelBase
         var videoFileAccessor = _mediaAccessorRouter;
         encoder.Initialize(project, timeline, imageFileAccessor, videoFileAccessor, OutputPath);
 
-        _encodeService.QueueEncode(encoder);
+        _encodeService.QueueEncode(encoder, OutputPath);
     }
 
     private void Cancel()

@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
 using Metasia.Core.Encode;
+using Metasia.Editor.Models.Media;
 
 namespace Metasia.Editor.Services;
 
 public class EncodeService : IEncodeService
 {
-    public IReadOnlyList<IEncoder> Encoders
+    public IReadOnlyList<IEditorEncoder> Encoders
     {
         get
         {
@@ -16,10 +17,11 @@ public class EncodeService : IEncodeService
 
     public int ConcurrentEncodeCount { get; set; } = 1;
 
-    private List<IEncoder> _runningEncoders = new();
+    private List<IEditorEncoder> _runningEncoders = new();
 
-    public void QueueEncode(IEncoder encoder)
+    public void QueueEncode(IEditorEncoder encoder, string outputPath)
     {
+        encoder.SetOutputPath(outputPath);
         _runningEncoders.Add(encoder);
         if (encoder.Status == IEncoder.EncoderState.Waiting)
         {
@@ -27,13 +29,13 @@ public class EncodeService : IEncodeService
         }
     }
 
-    public void Cancel(IEncoder encoder)
+    public void Cancel(IEditorEncoder encoder)
     {
         _runningEncoders.Remove(encoder);
         encoder.CancelRequest();
     }
 
-    public void Delete(IEncoder encoder)
+    public void Delete(IEditorEncoder encoder)
     {
         _runningEncoders.Remove(encoder);
         if (encoder.Status == IEncoder.EncoderState.Waiting || encoder.Status == IEncoder.EncoderState.Encoding)

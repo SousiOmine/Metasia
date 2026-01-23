@@ -118,7 +118,7 @@ public partial class PlayerView : UserControl, IDisposable
                         VM.TargetTimeline,
                         requestedFrame,
                         new SKSize(960, 540),
-                        new SKSize(3840, 2160),
+                        projectInfo.Size,
                         mediaAccessorRouter,
                         mediaAccessorRouter,
                         projectInfo,

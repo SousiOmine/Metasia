@@ -20,6 +20,8 @@ public class PluginEncoder : IEditorEncoder, IDisposable
     public event EventHandler<EventArgs> EncodeCompleted = delegate { };
     public event EventHandler<EventArgs> EncodeFailed = delegate { };
 
+    public string OutputPath { get; private set; } = string.Empty;
+
     private readonly IMediaOutputPlugin _plugin;
 
     public PluginEncoder(IMediaOutputPlugin plugin)
@@ -43,6 +45,12 @@ public class PluginEncoder : IEditorEncoder, IDisposable
         string projectPath)
     {
         _plugin.Encoder.Initialize(project, timeline, imageFileAccessor, videoFileAccessor, projectPath);
+    }
+
+    public void SetOutputPath(string outputPath)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(outputPath);
+        OutputPath = outputPath;
     }
 
     public void CancelRequest()

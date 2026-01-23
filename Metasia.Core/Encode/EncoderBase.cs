@@ -15,7 +15,7 @@ namespace Metasia.Core.Encode;
 /// </summary>
 public abstract class EncoderBase : IEncoder, IDisposable
 {
-    public abstract double ProgressRate { get; }
+    public abstract double ProgressRate { get; protected set; }
 
     public virtual IEncoder.EncoderState Status { get; protected set; } = IEncoder.EncoderState.Waiting;
 
@@ -24,6 +24,7 @@ public abstract class EncoderBase : IEncoder, IDisposable
     public virtual event EventHandler<EventArgs> EncodeCompleted = delegate { };
     public virtual event EventHandler<EventArgs> EncodeFailed = delegate { };
 
+    protected int FrameCount => _endFrame - _startFrame + 1;
     private MetasiaProject? _project;
     private TimelineObject? _targetTimeline;
     private IImageFileAccessor? _imageFileAccessor;
@@ -72,11 +73,15 @@ public abstract class EncoderBase : IEncoder, IDisposable
         {
             throw new ArgumentOutOfRangeException(nameof(lastFrameIndex), "フレームインデックスは0以上である必要があります。");
         }
+        if (lastFrameIndex + _startFrame > _endFrame)
+        {
+            throw new ArgumentOutOfRangeException(nameof(lastFrameIndex), "出力範囲外のフレームを要求することはできません。");
+        }
 
         var compositor = new Compositor();
         var projectResolution = _project.Info.Size;
 
-        for (int frame = firstFrameIndex; frame <= lastFrameIndex; frame++)
+        for (int frame = firstFrameIndex + _startFrame; frame <= lastFrameIndex + _startFrame; frame++)
         {
             ct.ThrowIfCancellationRequested();
 

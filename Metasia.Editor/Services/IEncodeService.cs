@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Metasia.Core.Encode;
+using Metasia.Editor.Models.Media;
 
 namespace Metasia.Editor.Services;
 
@@ -8,10 +9,10 @@ namespace Metasia.Editor.Services;
 /// </summary>
 public interface IEncodeService
 {
-    IReadOnlyList<IEncoder> Encoders { get; }
+    IReadOnlyList<IEditorEncoder> Encoders { get; }
 
-    void QueueEncode(IEncoder encoder);
-    void Cancel(IEncoder encoder);
-    void Delete(IEncoder encoder);
+    void QueueEncode(IEditorEncoder encoder, string outputPath);
+    void Cancel(IEditorEncoder encoder);
+    void Delete(IEditorEncoder encoder);
     void ClearQueue();
 }
