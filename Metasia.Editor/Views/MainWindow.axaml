@@ -31,7 +31,7 @@
 				<Separator/>
 				<MenuItem Header="出力"/>
 				<Separator/>
-				<MenuItem Header="環境設定"/>
+				<MenuItem Header="環境設定" Command="{Binding OpenSettings}"/>
 				<Separator/>
 				<MenuItem Header="終了"/>
 			</MenuItem>
