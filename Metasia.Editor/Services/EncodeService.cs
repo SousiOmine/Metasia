@@ -11,18 +11,21 @@ public class EncodeService : IEncodeService
     {
         get
         {
-            return _runningEncoders.AsReadOnly();
+            return _encoders.AsReadOnly();
         }
     }
 
+    public event EventHandler<EventArgs> QueueUpdated = delegate { };
+
     public int ConcurrentEncodeCount { get; set; } = 1;
 
-    private List<IEditorEncoder> _runningEncoders = new();
+    private List<IEditorEncoder> _encoders = new();
 
     public void QueueEncode(IEditorEncoder encoder, string outputPath)
     {
         encoder.SetOutputPath(outputPath);
-        _runningEncoders.Add(encoder);
+        _encoders.Add(encoder);
+        QueueUpdated?.Invoke(this, EventArgs.Empty);
         if (encoder.Status == IEncoder.EncoderState.Waiting)
         {
             encoder.Start();
@@ -31,29 +34,30 @@ public class EncodeService : IEncodeService
 
     public void Cancel(IEditorEncoder encoder)
     {
-        _runningEncoders.Remove(encoder);
         encoder.CancelRequest();
     }
 
     public void Delete(IEditorEncoder encoder)
     {
-        _runningEncoders.Remove(encoder);
+        _encoders.Remove(encoder);
         if (encoder.Status == IEncoder.EncoderState.Waiting || encoder.Status == IEncoder.EncoderState.Encoding)
         {
             Cancel(encoder);
         }
-        _runningEncoders.Remove(encoder);
+        _encoders.Remove(encoder);
+        QueueUpdated?.Invoke(this, EventArgs.Empty);
     }
     
     public void ClearQueue()
     {
-        foreach (var encoder in _runningEncoders)
+        foreach (var encoder in _encoders)
         {
             if (encoder.Status == IEncoder.EncoderState.Waiting)
             {
                 Cancel(encoder);
             }
         }
-        _runningEncoders.Clear();
+        _encoders.Clear();
+        QueueUpdated?.Invoke(this, EventArgs.Empty);
     }
 }

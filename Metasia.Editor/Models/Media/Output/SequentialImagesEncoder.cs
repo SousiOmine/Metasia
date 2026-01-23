@@ -45,6 +45,11 @@ public class SequentialImagesEncoder : EncoderBase, IEditorEncoder
     
     public override void Start()
     {
+        if (Status != IEncoder.EncoderState.Waiting)
+        {
+            throw new InvalidOperationException("エンコーダーが待機状態ではありません");
+        }
+        _cts = new CancellationTokenSource();
         Status = IEncoder.EncoderState.Encoding;
         StatusChanged?.Invoke(this, EventArgs.Empty);
         Task.Run(() => OutputFramesAsync(_cts.Token));

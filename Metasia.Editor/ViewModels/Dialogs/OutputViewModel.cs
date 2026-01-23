@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Metasia.Core.Encode;
@@ -42,6 +43,8 @@ public class OutputViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _outputPath, value);
     }
 
+    public ObservableCollection<EncoderQueueItemViewModel> OutputHistory { get; } = [];
+
     public ICommand SelectOutputPathCommand { get; }
     public ICommand OutputCommand { get; }
     public ICommand CancelCommand { get; }
@@ -82,6 +85,7 @@ public class OutputViewModel : ViewModelBase
         _projectState.ProjectLoaded += UIReflesh;
         _projectState.ProjectClosed += UIReflesh;
         _projectState.TimelineChanged += UIReflesh;
+        _encodeService.QueueUpdated += (_, _) => QueueUpdated();
 
         UIReflesh();
     }
@@ -138,6 +142,16 @@ public class OutputViewModel : ViewModelBase
         OutputPath = result.Path?.LocalPath ?? "";
     }
 
+    private void QueueUpdated()
+    {
+        OutputHistory.Clear();
+
+        foreach (var item in _encodeService.Encoders)
+        {
+            OutputHistory.Add(new EncoderQueueItemViewModel(item));
+        }
+    }
+
     private void OutputExecute()
     {
         var encoder = _encoders[SelectedEncoderIndex];
@@ -156,3 +170,37 @@ public class OutputViewModel : ViewModelBase
     }
 }
 
+public class EncoderQueueItemViewModel : ViewModelBase
+{
+    public string QueueText 
+    {
+        get => _queueText;
+        set => this.RaiseAndSetIfChanged(ref _queueText, value);
+    }
+
+    public double Progress
+    {
+        get => _progress;
+        set => this.RaiseAndSetIfChanged(ref _progress, value);
+    }
+
+    private string _queueText = string.Empty;
+    private double _progress = 0;
+
+    private readonly IEditorEncoder _encoder;
+
+    public EncoderQueueItemViewModel(IEditorEncoder encoder)
+    {
+        _encoder = encoder;
+        _encoder.StatusChanged += (sender, e) => UpdateProgress();
+        UpdateProgress();
+    }
+
+    private void UpdateProgress()
+    {
+        Progress = _encoder.ProgressRate;
+        var outputFilename = Path.GetFileName(_encoder.OutputPath);
+        QueueText = _encoder.Name + " " + _encoder.Status.ToString() + " " + outputFilename;
+    }
+
+}

@@ -2,28 +2,51 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="300"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
         x:Class="Metasia.Editor.Views.Dialogs.OutputWindow"
         xmlns:vm="clr-namespace:Metasia.Editor.ViewModels.Dialogs"
         x:DataType="vm:OutputViewModel"
-        Width="500" Height="300"
+        Width="800" Height="600"
         Title="OutputWindow">
-    <StackPanel Margin="10">
-        <ComboBox ItemsSource="{Binding OutputMethodList}"
-            SelectedIndex="{Binding SelectedEncoderIndex}"/>
+    <Grid ColumnDefinitions="*, *">
+        <StackPanel Grid.Column="0" Margin="10">
+            <Grid ColumnDefinitions="80, *">
+                <TextBlock Grid.Column="0" Text="エンコーダ:" Padding="4"/>
+                <ComboBox ItemsSource="{Binding OutputMethodList}"
+                          SelectedIndex="{Binding SelectedEncoderIndex}"
+                          Grid.Column="1" HorizontalAlignment="Stretch"/>
+            </Grid>
+            
+            <Grid ColumnDefinitions="80, *">
+                <TextBlock Grid.Column="0" Text="タイムライン:" Padding="4"/>
+                <ComboBox ItemsSource="{Binding TimelineList}"
+                          SelectedIndex="{Binding SelectedTimelineIndex}"
+                          Grid.Column="1" HorizontalAlignment="Stretch"/>
+            </Grid>
 
-        <ComboBox ItemsSource="{Binding TimelineList}"
-            SelectedIndex="{Binding SelectedTimelineIndex}"/>
+            <Grid ColumnDefinitions="80, *, Auto" HorizontalAlignment="Stretch">
+                <TextBlock Grid.Column="0" Text="出力先:" Padding="4"/>
+                <TextBox Grid.Column="1" Text="{Binding OutputPath}" HorizontalAlignment="Stretch"/>
+                <Button Grid.Column="2" Content="選択" Command="{Binding SelectOutputPathCommand}"/>
+            </Grid>
 
-        <StackPanel Orientation="Horizontal">
-            <TextBlock Text="出力先:"/>
-            <TextBox Text="{Binding OutputPath}"/>
-            <Button Content="選択" Command="{Binding SelectOutputPathCommand}"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="4">
+                <Button Content="出力" Command="{Binding OutputCommand}"/>
+                <Button Content="キャンセル" Command="{Binding CancelCommand}"/>
+            </StackPanel>
         </StackPanel>
-
-        <StackPanel Orientation="Horizontal">
-            <Button Content="出力" Command="{Binding OutputCommand}"/>
-            <Button Content="キャンセル" Command="{Binding CancelCommand}"/>
+        <StackPanel Grid.Column="1" Margin="10">
+            <TextBlock Text="出力履歴"/>
+            <ListBox ItemsSource="{Binding OutputHistory}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate DataType="vm:EncoderQueueItemViewModel">
+                        <StackPanel>
+                            <TextBlock Text="{Binding QueueText}"/>
+                            <ProgressBar Value="{Binding Progress}" Maximum="1.0"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
         </StackPanel>
-    </StackPanel>
+    </Grid>
 </Window>
