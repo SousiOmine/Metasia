@@ -83,6 +83,7 @@ namespace Metasia.Editor
                 }
             });
             services.AddTransient<IAudioPlaybackService, AudioPlaybackService>();
+            services.AddTransient<IEncodeService, EncodeService>();
 
             services.AddSingleton<IProjectState, ProjectState>();
             services.AddSingleton<ISelectionState, SelectionState>();

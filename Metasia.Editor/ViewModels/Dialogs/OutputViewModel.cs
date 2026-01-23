@@ -30,6 +30,12 @@ public class OutputViewModel : ViewModelBase
 
     public ObservableCollection<string> TimelineList { get; } = [];
 
+    public int SelectedTimelineIndex
+    {
+        get => _selectedTimelineIndex;
+        set => this.RaiseAndSetIfChanged(ref _selectedTimelineIndex, value);
+    }
+
     public string OutputPath
     {
         get => _outputPath;
@@ -45,25 +51,31 @@ public class OutputViewModel : ViewModelBase
     private int _selectedEncoderIndex = 0;
 
     private readonly List<IEditorEncoder> _encoders = [];
-
+    private int _selectedTimelineIndex = 0;
     private string _outputPath = string.Empty;
     private readonly IProjectState _projectState;
+    private readonly MediaAccessorRouter _mediaAccessorRouter;
     private readonly IFileDialogService _fileDialogService;
     private readonly IPluginService _pluginService;
+    private readonly IEncodeService _encodeService;
 
     public OutputViewModel(
         IProjectState projectState,
+        MediaAccessorRouter mediaAccessorRouter,
         IFileDialogService fileDialogService,
-        IPluginService pluginService
+        IPluginService pluginService,
+        IEncodeService encodeService
     )
     {
         _projectState = projectState;
+        _mediaAccessorRouter = mediaAccessorRouter;
         _fileDialogService = fileDialogService;
         _pluginService = pluginService;
+        _encodeService = encodeService;
 
-        CancelCommand = ReactiveCommand.Create(() => Cancel());
+        CancelCommand = ReactiveCommand.Create(Cancel);
         SelectOutputPathCommand = ReactiveCommand.CreateFromTask(SelectOutputPathExecuteAsync);
-        OutputCommand = ReactiveCommand.Create(() => OutputExecute());
+        OutputCommand = ReactiveCommand.Create(OutputExecute);
 
         LoadEncoders();
 
@@ -99,10 +111,10 @@ public class OutputViewModel : ViewModelBase
         encoderList.Add(("標準", sequentialImagesEncoder));
 
         OutputMethodList.Clear();
-        foreach (var encoder in encoderList)
+        foreach (var (originName, editorEncoder) in encoderList)
         {
-            OutputMethodList.Add(encoder.editorEncoder.Name + "(" + encoder.originName + ")");
-            _encoders.Add(encoder.editorEncoder);
+            OutputMethodList.Add(editorEncoder.Name + "(" + originName + ")");
+            _encoders.Add(editorEncoder);
         }
     }
 
@@ -119,7 +131,8 @@ public class OutputViewModel : ViewModelBase
 
     private async Task SelectOutputPathExecuteAsync()
     {
-        var result = await _fileDialogService.SaveFileDialogAsync("出力先を選択", new string[] { "*.avi", "*.mp4", "*.mov", "*.mkv", "*.webm", "*.gif" });
+        var allowExtensions = _encoders[SelectedEncoderIndex].SupportedExtensions;
+        var result = await _fileDialogService.SaveFileDialogAsync("出力先を選択", allowExtensions);
         if (result is null) return;
 
         OutputPath = result.Path?.LocalPath ?? "";
@@ -127,7 +140,14 @@ public class OutputViewModel : ViewModelBase
 
     private void OutputExecute()
     {
-        
+        var encoder = _encoders[SelectedEncoderIndex];
+        var project = _projectState.CurrentProject!.CreateMetasiaProject();
+        var timeline = project.Timelines[SelectedTimelineIndex];
+        var imageFileAccessor = _mediaAccessorRouter;
+        var videoFileAccessor = _mediaAccessorRouter;
+        encoder.Initialize(project, timeline, imageFileAccessor, videoFileAccessor, OutputPath);
+
+        _encodeService.QueueEncode(encoder);
     }
 
     private void Cancel()

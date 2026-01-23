@@ -17,6 +17,8 @@ public abstract class EncoderBase : IEncoder, IDisposable
 {
     public abstract double ProgressRate { get; }
 
+    public virtual IEncoder.EncoderState Status { get; protected set; } = IEncoder.EncoderState.Waiting;
+
     public virtual event EventHandler<EventArgs> StatusChanged = delegate { };
     public virtual event EventHandler<EventArgs> EncodeStarted = delegate { };
     public virtual event EventHandler<EventArgs> EncodeCompleted = delegate { };

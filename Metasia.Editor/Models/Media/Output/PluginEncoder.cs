@@ -1,4 +1,5 @@
 using System;
+using Metasia.Core.Encode;
 using Metasia.Core.Media;
 using Metasia.Core.Objects;
 using Metasia.Core.Project;
@@ -12,6 +13,8 @@ public class PluginEncoder : IEditorEncoder, IDisposable
     public string[] SupportedExtensions { get; private set; }
     public double ProgressRate { get; private set; }
 
+    public IEncoder.EncoderState Status { get; private set; }
+    
     public event EventHandler<EventArgs> StatusChanged = delegate { };
     public event EventHandler<EventArgs> EncodeStarted = delegate { };
     public event EventHandler<EventArgs> EncodeCompleted = delegate { };
@@ -55,6 +58,7 @@ public class PluginEncoder : IEditorEncoder, IDisposable
     private void OnStatusChanged()
     {
         ProgressRate = _plugin.Encoder.ProgressRate;
+        Status = _plugin.Encoder.Status;
         StatusChanged.Invoke(this, EventArgs.Empty);
     }
     

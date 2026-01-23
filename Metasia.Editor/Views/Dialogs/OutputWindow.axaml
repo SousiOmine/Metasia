@@ -13,7 +13,7 @@
             SelectedIndex="{Binding SelectedEncoderIndex}"/>
 
         <ComboBox ItemsSource="{Binding TimelineList}"
-            SelectedIndex="0"/>
+            SelectedIndex="{Binding SelectedTimelineIndex}"/>
 
         <StackPanel Orientation="Horizontal">
             <TextBlock Text="出力先:"/>

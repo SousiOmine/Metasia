@@ -13,7 +13,12 @@ public interface IEncoder
     /// エンコード過程の進捗率を0~100で表す
     /// </summary>
     double ProgressRate { get; }
-    
+
+    /// <summary>
+    /// エンコーダの現在の状態
+    /// </summary>
+    EncoderState Status { get; }
+
     /// <summary>
     /// エンコードの進捗に変化があった時に呼び出される
     /// </summary>
@@ -50,4 +55,13 @@ public interface IEncoder
     /// エンコードを中止する
     /// </summary>
     void CancelRequest();
+
+    enum EncoderState
+    {
+        Waiting,
+        Encoding,
+        Completed,
+        Failed,
+        Canceled
+    }
 }

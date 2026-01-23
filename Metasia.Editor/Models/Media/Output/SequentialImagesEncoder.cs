@@ -6,7 +6,7 @@ namespace Metasia.Editor.Models.Media.Output;
 public class SequentialImagesEncoder : EncoderBase, IEditorEncoder
 {
     public string Name { get; } = "連番画像出力";
-    public string[] SupportedExtensions { get; } = new[] { ".png", ".bmp", ".jpg" };
+    public string[] SupportedExtensions { get; } = ["*.png", "*.bmp", "*.jpg", "*.jpeg"];
     public override double ProgressRate { get; }
     
     public override event EventHandler<EventArgs> StatusChanged = delegate {};
