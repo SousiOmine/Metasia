@@ -23,18 +23,20 @@ public class PluginEncoder : IEditorEncoder, IDisposable
     public string OutputPath { get; private set; } = string.Empty;
 
     private readonly IMediaOutputPlugin _plugin;
+    private readonly EncoderBase _encoder;
 
     public PluginEncoder(IMediaOutputPlugin plugin)
     {
         _plugin = plugin;
+        _encoder = _plugin.CreateEncoderInstance();
 
         Name = _plugin.Name;
         SupportedExtensions = _plugin.SupportedExtensions;
         
-        _plugin.Encoder.StatusChanged += (sender, e) => OnStatusChanged();
-        _plugin.Encoder.EncodeStarted += (sender, e) => EncodeStarted.Invoke(this, e);
-        _plugin.Encoder.EncodeCompleted += (sender, e) => EncodeCompleted.Invoke(this, e);
-        _plugin.Encoder.EncodeFailed += (sender, e) => EncodeFailed.Invoke(this, e);
+        _encoder.StatusChanged += (sender, e) => OnStatusChanged();
+        _encoder.EncodeStarted += (sender, e) => EncodeStarted.Invoke(this, e);
+        _encoder.EncodeCompleted += (sender, e) => EncodeCompleted.Invoke(this, e);
+        _encoder.EncodeFailed += (sender, e) => EncodeFailed.Invoke(this, e);
     }
     
     public void Initialize(
@@ -44,7 +46,7 @@ public class PluginEncoder : IEditorEncoder, IDisposable
         IVideoFileAccessor videoFileAccessor,
         string projectPath)
     {
-        _plugin.Encoder.Initialize(project, timeline, imageFileAccessor, videoFileAccessor, projectPath);
+        _encoder.Initialize(project, timeline, imageFileAccessor, videoFileAccessor, projectPath);
     }
 
     public void SetOutputPath(string outputPath)
@@ -55,27 +57,27 @@ public class PluginEncoder : IEditorEncoder, IDisposable
 
     public void CancelRequest()
     {
-        _plugin.Encoder.CancelRequest();
+        _encoder.CancelRequest();
     }
 
     public void Start()
     {
-        _plugin.Encoder.Start();
+        _encoder.Start();
     }
 
     private void OnStatusChanged()
     {
-        ProgressRate = _plugin.Encoder.ProgressRate;
-        Status = _plugin.Encoder.Status;
+        ProgressRate = _encoder.ProgressRate;
+        Status = _encoder.Status;
         StatusChanged.Invoke(this, EventArgs.Empty);
     }
     
     public void Dispose()
     {
-        _plugin.Encoder.Dispose();
-        _plugin.Encoder.StatusChanged -= (sender, e) => OnStatusChanged();
-        _plugin.Encoder.EncodeStarted -= (sender, e) => EncodeStarted.Invoke(sender, e);
-        _plugin.Encoder.EncodeCompleted -= (sender, e) => EncodeCompleted.Invoke(sender, e);
-        _plugin.Encoder.EncodeFailed -= (sender, e) => EncodeFailed.Invoke(sender, e);
+        _encoder.Dispose();
+        _encoder.StatusChanged -= (sender, e) => OnStatusChanged();
+        _encoder.EncodeStarted -= (sender, e) => EncodeStarted.Invoke(sender, e);
+        _encoder.EncodeCompleted -= (sender, e) => EncodeCompleted.Invoke(sender, e);
+        _encoder.EncodeFailed -= (sender, e) => EncodeFailed.Invoke(sender, e);
     }
 }

@@ -53,7 +53,7 @@ public class OutputViewModel : ViewModelBase
 
     private int _selectedEncoderIndex = 0;
 
-    private readonly List<IEditorEncoder> _encoders = [];
+    private readonly List<EncoderInfo> _encoders = [];
     private int _selectedTimelineIndex = 0;
     private string _outputPath = string.Empty;
     private readonly IProjectState _projectState;
@@ -105,20 +105,32 @@ public class OutputViewModel : ViewModelBase
     private void LoadEncoders()
     {
         _encoders.Clear();
-        List<(string originName, IEditorEncoder editorEncoder)> encoderList = [];
+        List<EncoderInfo> encoderList = [];
         foreach (var plugin in _pluginService.MediaOutputPlugins)
         {
-            PluginEncoder encoder = new(plugin);
-            encoderList.Add((plugin.PluginIdentifier, encoder));
+            var factory = new PluginEncoderFactory(plugin);
+            encoderList.Add(new EncoderInfo
+            {
+                Name = factory.Name,
+                OriginName = plugin.PluginIdentifier,
+                SupportedExtensions = factory.SupportedExtensions,
+                Factory = factory
+            });
         }
-        var sequentialImagesEncoder = new SequentialImagesEncoder();
-        encoderList.Add(("標準", sequentialImagesEncoder));
+        var sequentialImagesFactory = new SequentialImagesEncoderFactory();
+        encoderList.Add(new EncoderInfo
+        {
+            Name = sequentialImagesFactory.Name,
+            OriginName = "標準",
+            SupportedExtensions = sequentialImagesFactory.SupportedExtensions,
+            Factory = sequentialImagesFactory
+        });
 
         OutputMethodList.Clear();
-        foreach (var (originName, editorEncoder) in encoderList)
+        foreach (var encoderInfo in encoderList)
         {
-            OutputMethodList.Add(editorEncoder.Name + "(" + originName + ")");
-            _encoders.Add(editorEncoder);
+            OutputMethodList.Add(encoderInfo.DisplayName);
+            _encoders.Add(encoderInfo);
         }
     }
 
@@ -154,7 +166,8 @@ public class OutputViewModel : ViewModelBase
 
     private void OutputExecute()
     {
-        var encoder = _encoders[SelectedEncoderIndex];
+        var encoderInfo = _encoders[SelectedEncoderIndex];
+        var encoder = encoderInfo.Factory.CreateEncoder();
         var project = _projectState.CurrentProject!.CreateMetasiaProject();
         var timeline = project.Timelines[SelectedTimelineIndex];
         var imageFileAccessor = _mediaAccessorRouter;

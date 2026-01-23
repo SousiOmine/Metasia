@@ -4,8 +4,6 @@ namespace Metasia.Editor.Plugin;
 
 public interface IMediaOutputPlugin : IEditorPlugin
 {
-    EncoderBase Encoder { get; }
-
     /// <summary>
     /// エンコーダーの名前として表示する文字列
     /// </summary>
@@ -15,4 +13,6 @@ public interface IMediaOutputPlugin : IEditorPlugin
     /// サポートするファイル拡張子の配列 *.mp4, *.png, *.avi など
     /// </summary>
     string[] SupportedExtensions { get; }
+
+    EncoderBase CreateEncoderInstance();
 }
