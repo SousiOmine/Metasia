@@ -62,7 +62,7 @@ namespace Metasia.Editor.Services.PluginService
             }
             _mediaAccessorRouter.Accessors.Add(new StdInput());
         }
-        
+
         private void RegisterMediaOutputPlugins()
         {
 

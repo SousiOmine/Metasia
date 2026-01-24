@@ -50,7 +50,7 @@ public interface IEncoder
     /// エンコードを開始する
     /// </summary>
     void Start();
-    
+
     /// <summary>
     /// エンコードを中止する
     /// </summary>

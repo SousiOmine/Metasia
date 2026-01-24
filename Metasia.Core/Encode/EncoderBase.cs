@@ -36,10 +36,10 @@ public abstract class EncoderBase : IEncoder, IDisposable
     private int _endFrame;
 
     public virtual void Initialize(
-        MetasiaProject project, 
-        TimelineObject targetTimeline, 
-        IImageFileAccessor imageFileAccessor, 
-        IVideoFileAccessor videoFileAccessor, 
+        MetasiaProject project,
+        TimelineObject targetTimeline,
+        IImageFileAccessor imageFileAccessor,
+        IVideoFileAccessor videoFileAccessor,
         string projectPath)
     {
         _project = project;

@@ -222,7 +222,7 @@ public class OutputViewModel : ViewModelBase
 
 public class EncoderQueueItemViewModel : ViewModelBase
 {
-    public string QueueText 
+    public string QueueText
     {
         get => _queueText;
         set => this.RaiseAndSetIfChanged(ref _queueText, value);

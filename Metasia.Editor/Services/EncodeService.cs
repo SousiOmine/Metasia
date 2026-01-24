@@ -52,7 +52,7 @@ public class EncodeService : IEncodeService
         encoder.Dispose();
         QueueUpdated?.Invoke(this, EventArgs.Empty);
     }
-    
+
     public void ClearQueue()
     {
         foreach (var encoder in _encoders)

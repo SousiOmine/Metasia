@@ -14,7 +14,7 @@ public class PluginEncoder : IEditorEncoder, IDisposable
     public double ProgressRate { get; private set; }
 
     public IEncoder.EncoderState Status { get; private set; }
-    
+
     public event EventHandler<EventArgs> StatusChanged = delegate { };
     public event EventHandler<EventArgs> EncodeStarted = delegate { };
     public event EventHandler<EventArgs> EncodeCompleted = delegate { };
@@ -47,7 +47,7 @@ public class PluginEncoder : IEditorEncoder, IDisposable
         _encoder.EncodeCompleted += _onEncodeCompleted;
         _encoder.EncodeFailed += _onEncodeFailed;
     }
-    
+
     public void Initialize(
         MetasiaProject project,
         TimelineObject timeline,
@@ -80,7 +80,7 @@ public class PluginEncoder : IEditorEncoder, IDisposable
         Status = _encoder.Status;
         StatusChanged.Invoke(this, EventArgs.Empty);
     }
-    
+
     public void Dispose()
     {
         _encoder.StatusChanged -= _onStatusChanged;
