@@ -91,6 +91,7 @@ namespace Metasia.Core.Objects
             int relativeFrame = context.Frame - StartFrame;
             int clipLength = EndFrame - StartFrame + 1;
             var skFont = new SKFont(_typeface, (float)TextSize.Get(relativeFrame, clipLength));
+            skFont.Edging = SKFontEdging.Antialias;
             SKPaint skPaint = new SKPaint()
             {
                 IsAntialias = true,

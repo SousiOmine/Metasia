@@ -95,7 +95,7 @@ namespace Metasia.Core.Render
 
                 // Transformの回転と不透明度を適用
                 canvas.RotateDegrees(node.Transform.Rotation, destRect.MidX, destRect.MidY);
-                using (var paint = new SKPaint { Color = SKColors.White.WithAlpha((byte)(node.Transform.Alpha * 255)) })
+                using (var paint = new SKPaint { Color = SKColors.White.WithAlpha((byte)(node.Transform.Alpha * 255)), IsAntialias = true })
                 {
                     try
                     {
