@@ -119,7 +119,7 @@ public class MetaNumberParam<T> where T : struct, INumber<T>
         if (!IsMovable)
         {
             firstHalf.SetSinglePoint(T.CreateChecked(StartPoint.Value));
-            secondHalf.SetSinglePoint(T.CreateChecked(EndPoint.Value));
+            secondHalf.SetSinglePoint(T.CreateChecked(StartPoint.Value));
             return (firstHalf, secondHalf);
         }
 
