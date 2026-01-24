@@ -95,14 +95,15 @@ namespace Metasia.Core.Render
 
                 // Transformの回転と不透明度を適用
                 canvas.RotateDegrees(node.Transform.Rotation, destRect.MidX, destRect.MidY);
+                var sampling = new SKSamplingOptions(SKCubicResampler.Mitchell);
                 using (var paint = new SKPaint { Color = SKColors.White.WithAlpha((byte)(node.Transform.Alpha * 255)), IsAntialias = true })
                 {
                     try
                     {
                         if (node.Bitmap is not null && node.Bitmap.Width > 0 && node.Bitmap.Height > 0 && !cancellationToken.IsCancellationRequested)
                         {
-                            // DrawBitmapで、Bitmapを指定した矩形(destRect)に描画する
-                            canvas.DrawBitmap(node.Bitmap, destRect, paint);
+                            using var image = SKImage.FromBitmap(node.Bitmap);
+                            canvas.DrawImage(image, destRect, sampling, paint);
                         }
                     }
                     catch (Exception ex)

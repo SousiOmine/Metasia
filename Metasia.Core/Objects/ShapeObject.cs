@@ -31,7 +31,7 @@ namespace Metasia.Core.Objects
         public MetaNumberParam<double> Size { get; set; } = new MetaNumberParam<double>(100);
 
         [EditableProperty("AspectRatio")]
-        [ValueRange(0.1, 10, 0.1, 3)]
+        [ValueRange(0.0001, 100, 0.0001, 30)]
         public MetaNumberParam<double> AspectRatio { get; set; } = new MetaNumberParam<double>(1.0);
 
         [EditableProperty("Scale")]

@@ -236,20 +236,23 @@ public class SkiaGpuControl : Control, IDisposable
                     var x = (canvasWidth - scaledWidth) / 2;
                     var y = (canvasHeight - scaledHeight) / 2;
 
-                    var destRect = new SKRect(x, y, x + scaledWidth, y + scaledHeight);
+                     var destRect = new SKRect(x, y, x + scaledWidth, y + scaledHeight);
 
-                    // GPU上で高品質なビットマップ描画を行う
-                    using var paint = new SKPaint
-                    {
-                        IsAntialias = true
-                    };
-                    canvas.DrawBitmap(_bitmap, destRect, paint);
-                }
-            }
-            finally
-            {
-                canvas.Restore();
-            }
-        }
+                     // GPU上で高品質なビットマップ描画を行う
+                     var sampling = new SKSamplingOptions(SKCubicResampler.Mitchell);
+                     using var paint = new SKPaint
+                     {
+                         IsAntialias = true
+                     };
+
+                    using var image = SKImage.FromBitmap(_bitmap);
+                    canvas.DrawImage(image, destRect, sampling, paint);
+                 }
+             }
+             finally
+             {
+                 canvas.Restore();
+             }
+         }
     }
 }
