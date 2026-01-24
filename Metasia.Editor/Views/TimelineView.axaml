@@ -7,16 +7,16 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Metasia.Editor.Views.TimelineView"
 			 x:DataType="vm:TimelineViewModel">
-	<Grid RowDefinitions="*, 1, 50">
+	<Grid RowDefinitions="*">
 		<Grid Grid.Row="0" ColumnDefinitions="100,1,*">
 			<Grid Grid.Column="0" RowDefinitions="50,1,*">
-				<GridSplitter Grid.Row="1" Background="Gray"/>
+				<GridSplitter Grid.Row="1" Background="Transparent"/>
 				<ScrollViewer x:Name="LayerButtonScroll"
 				              Grid.Row="2" AllowAutoHide="True" VerticalScrollBarVisibility="Hidden">
 					<ItemsControl ItemsSource="{Binding LayerButtons}"/>
 				</ScrollViewer>
 			</Grid>
-			<GridSplitter Grid.Column="1" Background="Gray"/>
+			<GridSplitter Grid.Column="1" Background="Transparent"/>
 			<Grid Grid.Column="2" RowDefinitions="50,1,*">
 				<ScrollViewer x:Name="TimescaleScroll"
 				              HorizontalScrollBarVisibility="Hidden"
@@ -33,7 +33,7 @@
 					</Canvas>
 					
 				</ScrollViewer>
-				<GridSplitter Grid.Row="1" Background="Gray"/>
+				<GridSplitter Grid.Row="1" Background="Transparent"/>
 				<ScrollViewer x:Name="LinesScroll"
 				              VerticalScrollBarVisibility="Hidden"
 				              HorizontalScrollBarVisibility="Hidden"
@@ -44,15 +44,13 @@
 							PointerPressed="TimelineCanvas_PointerPressed"
 							PointerMoved="TimelineCanvas_PointerMoved"
 							PointerReleased="TimelineCanvas_PointerReleased">
-						<Rectangle Canvas.Left="{Binding CursorLeft}" Fill="Red" Width="2" Height="500" ZIndex="1" IsHitTestVisible="False"/>
+						<Rectangle Canvas.Left="{Binding CursorLeft}" Fill="Red" Width="2" Height="5000" ZIndex="1" IsHitTestVisible="False"/>
 						<ItemsControl x:Name="TimelineScroll" ItemsSource="{Binding LayerCanvas}" />
 					</Canvas>
 
 				</ScrollViewer>
 			</Grid>
 		</Grid>
-		<Border Grid.Row="1" Background="White"/>
-
 	</Grid>
 	
 </UserControl>

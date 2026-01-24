@@ -74,13 +74,13 @@
 				</Grid.ColumnDefinitions>
 				<!-- <TextBlock Grid.Column="0" Text="プロジェクトのあるディレクトリの中身"/> -->
 				<views:ToolsView Grid.Column="0" DataContext="{Binding ToolsVM}"/>
-				<GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" Background="Gray"/>
+				<GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" Background="Transparent"/>
 				<!--<views:PlayerView DataContext="{Binding playerViewModel}" Grid.Column="2"/>-->
 				<views:PlayerParentView DataContext="{Binding PlayerParentVM}" Grid.Column="2" />
-				<GridSplitter Grid.Column="3" HorizontalAlignment="Stretch" Background="Gray"/>
+				<GridSplitter Grid.Column="3" HorizontalAlignment="Stretch" Background="Transparent"/>
 				<views:InspectorView DataContext="{Binding InspectorVM}" Grid.Column="4"/>
 			</Grid>
-			<GridSplitter Grid.Row="1" HorizontalAlignment="Stretch" Background="Gray"/>
+			<GridSplitter Grid.Row="1" HorizontalAlignment="Stretch" Background="Transparent"/>
 			<views:TimelineParentView DataContext="{Binding TimelineParentVM}" Grid.Row="2"/>
 		</Grid>
 	</DockPanel>

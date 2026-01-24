@@ -3,7 +3,7 @@
 			 xmlns:vm="using:Metasia.Editor.ViewModels.Timeline"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="200" d:DesignHeight="50"
+              mc:Ignorable="d" d:DesignWidth="200" d:DesignHeight="30"
              x:Class="Metasia.Editor.Views.Timeline.ClipView"
 			 x:DataType="vm:ClipViewModel"
              xmlns:converter="clr-namespace:Metasia.Editor.Views.BindingConverter"
@@ -14,7 +14,7 @@
 		<converter:ClipSelectConverter x:Key="ClipConverter"/>
 	</UserControl.Resources>
 	<Border x:Name="Clip" 
-			BorderBrush="DarkGray" Background="LightGreen" BorderThickness="1" CornerRadius="10" ClipToBounds="True"
+			BorderBrush="Transparent" Background="LightGreen" BorderThickness="1" CornerRadius="10" ClipToBounds="True"
 	        Opacity="{Binding IsSelecting, Converter={StaticResource ClipConverter}}"
 			>
 		<i:Interaction.Behaviors>

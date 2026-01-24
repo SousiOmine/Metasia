@@ -5,14 +5,14 @@
 			 xmlns:views_controls="clr-namespace:Metasia.Editor.Views.Timeline"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="50"
+              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="30"
              x:Class="Metasia.Editor.Views.Timeline.LayerCanvasView"
 			 x:DataType="vm:LayerCanvasViewModel"
              xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
              xmlns:behaviors="clr-namespace:Metasia.Editor.Views.Behaviors"
 			 Background="Transparent"
              Width="{Binding Width}"
-			 Height="50"
+			 Height="30"
 			 >
 	<i:Interaction.Behaviors>
 		<behaviors:LayerClipDropBehavior 
@@ -44,7 +44,7 @@
 
 		<ItemsControl.ItemTemplate>
 			<DataTemplate DataType="vm:ClipViewModel">
-				<views_controls:ClipView Height="50"/>
+				<views_controls:ClipView Height="30"/>
 			</DataTemplate>
 		</ItemsControl.ItemTemplate>
 	</ItemsControl>
