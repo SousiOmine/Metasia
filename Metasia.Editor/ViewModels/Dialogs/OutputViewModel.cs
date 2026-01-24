@@ -111,22 +111,20 @@ public class OutputViewModel : ViewModelBase
         foreach (var plugin in _pluginService.MediaOutputPlugins)
         {
             var factory = new PluginEncoderFactory(plugin);
-            encoderList.Add(new EncoderInfo
-            {
-                Name = factory.Name,
-                OriginName = plugin.PluginIdentifier,
-                SupportedExtensions = factory.SupportedExtensions,
-                Factory = factory
-            });
+            encoderList.Add(new EncoderInfo(
+                factory.Name,
+                plugin.PluginIdentifier,
+                factory.SupportedExtensions,
+                factory
+            ));
         }
         var sequentialImagesFactory = new SequentialImagesEncoderFactory();
-        encoderList.Add(new EncoderInfo
-        {
-            Name = sequentialImagesFactory.Name,
-            OriginName = "標準",
-            SupportedExtensions = sequentialImagesFactory.SupportedExtensions,
-            Factory = sequentialImagesFactory
-        });
+        encoderList.Add(new EncoderInfo(
+            sequentialImagesFactory.Name,
+            "標準",
+            sequentialImagesFactory.SupportedExtensions,
+            sequentialImagesFactory
+        ));
 
         OutputMethodList.Clear();
         foreach (var encoderInfo in encoderList)
@@ -149,6 +147,7 @@ public class OutputViewModel : ViewModelBase
 
     private async Task SelectOutputPathExecuteAsync()
     {
+        if (SelectedEncoderIndex >= _encoders.Count) return;
         var allowExtensions = _encoders[SelectedEncoderIndex].SupportedExtensions;
         var result = await _fileDialogService.SaveFileDialogAsync("出力先を選択", allowExtensions);
         if (result is null) return;
@@ -158,6 +157,11 @@ public class OutputViewModel : ViewModelBase
 
     private void QueueUpdated()
     {
+        foreach (var item in OutputHistory)
+        {
+            item.Dispose();
+        }
+
         OutputHistory.Clear();
 
         foreach (var item in _encodeService.Encoders)
@@ -168,9 +172,40 @@ public class OutputViewModel : ViewModelBase
 
     private void OutputExecute()
     {
+        if (_encoders is null || _encoders.Count == 0)
+        {
+            Console.Error.WriteLine("Error: No encoders available");
+            return;
+        }
+
+        if (SelectedEncoderIndex < 0 || SelectedEncoderIndex >= _encoders.Count)
+        {
+            Console.Error.WriteLine($"Error: SelectedEncoderIndex {SelectedEncoderIndex} is out of bounds (0-{_encoders.Count - 1})");
+            return;
+        }
+
+        if (_projectState.CurrentProject is null)
+        {
+            Console.Error.WriteLine("Error: No current project loaded");
+            return;
+        }
+
         var encoderInfo = _encoders[SelectedEncoderIndex];
         var encoder = encoderInfo.Factory.CreateEncoder();
-        var project = _projectState.CurrentProject!.CreateMetasiaProject();
+        var project = _projectState.CurrentProject.CreateMetasiaProject();
+
+        if (project.Timelines is null || project.Timelines.Count == 0)
+        {
+            Console.Error.WriteLine("Error: Project has no timelines");
+            return;
+        }
+
+        if (SelectedTimelineIndex < 0 || SelectedTimelineIndex >= project.Timelines.Count)
+        {
+            Console.Error.WriteLine($"Error: SelectedTimelineIndex {SelectedTimelineIndex} is out of bounds (0-{project.Timelines.Count - 1})");
+            return;
+        }
+
         var timeline = project.Timelines[SelectedTimelineIndex];
         var imageFileAccessor = _mediaAccessorRouter;
         var videoFileAccessor = _mediaAccessorRouter;
@@ -203,11 +238,13 @@ public class EncoderQueueItemViewModel : ViewModelBase
     private double _progress = 0;
 
     private readonly IEditorEncoder _encoder;
+    private readonly EventHandler<EventArgs> _onStatusChanged;
 
     public EncoderQueueItemViewModel(IEditorEncoder encoder)
     {
         _encoder = encoder;
-        _encoder.StatusChanged += (sender, e) => UpdateProgress();
+        _onStatusChanged = (sender, e) => UpdateProgress();
+        _encoder.StatusChanged += _onStatusChanged;
         UpdateProgress();
     }
 
@@ -215,7 +252,7 @@ public class EncoderQueueItemViewModel : ViewModelBase
     {
         if (disposing)
         {
-            _encoder.StatusChanged -= (sender, e) => UpdateProgress();
+            _encoder.StatusChanged -= _onStatusChanged;
         }
         base.Dispose(disposing);
     }

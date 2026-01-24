@@ -30,6 +30,7 @@ public abstract class EncoderBase : IEncoder, IDisposable
     private IImageFileAccessor? _imageFileAccessor;
     private IVideoFileAccessor? _videoFileAccessor;
     private string? _projectPath;
+    private bool _disposed;
 
     private int _startFrame;
     private int _endFrame;
@@ -115,9 +116,38 @@ public abstract class EncoderBase : IEncoder, IDisposable
 
     public void Dispose()
     {
-        _project = null;
-        _targetTimeline = null;
-        _imageFileAccessor = null;
-        _videoFileAccessor = null;
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    ~EncoderBase()
+    {
+        Dispose(false);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        if (disposing)
+        {
+            if (_imageFileAccessor is IDisposable disposableImageFileAccessor)
+            {
+                disposableImageFileAccessor.Dispose();
+            }
+
+            if (_videoFileAccessor is IDisposable disposableVideoFileAccessor)
+            {
+                disposableVideoFileAccessor.Dispose();
+            }
+
+            _project = null;
+            _targetTimeline = null;
+        }
+
+        _disposed = true;
     }
 }

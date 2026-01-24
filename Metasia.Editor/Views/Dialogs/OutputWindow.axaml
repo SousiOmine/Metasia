@@ -35,9 +35,9 @@
                 <Button Content="キャンセル" Command="{Binding CancelCommand}"/>
             </StackPanel>
         </StackPanel>
-        <StackPanel Grid.Column="1" Margin="10">
-            <TextBlock Text="出力履歴"/>
-            <ListBox ItemsSource="{Binding OutputHistory}">
+        <Grid Grid.Column="1" Margin="10" RowDefinitions="Auto, *">
+            <TextBlock Grid.Row="0" Text="出力履歴"/>
+            <ListBox Grid.Row="1" ItemsSource="{Binding OutputHistory}">
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="vm:EncoderQueueItemViewModel">
                         <StackPanel>
@@ -47,6 +47,6 @@
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
-        </StackPanel>
+        </Grid>
     </Grid>
 </Window>

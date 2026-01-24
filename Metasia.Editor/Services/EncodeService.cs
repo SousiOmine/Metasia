@@ -44,11 +44,12 @@ public class EncodeService : IEncodeService
     public void Delete(IEditorEncoder encoder)
     {
         _encoders.Remove(encoder);
+        encoder.StatusChanged -= encoderStatusChanged;
         if (encoder.Status == IEncoder.EncoderState.Waiting || encoder.Status == IEncoder.EncoderState.Encoding)
         {
             Cancel(encoder);
         }
-        _encoders.Remove(encoder);
+        encoder.Dispose();
         QueueUpdated?.Invoke(this, EventArgs.Empty);
     }
     
@@ -56,10 +57,12 @@ public class EncodeService : IEncodeService
     {
         foreach (var encoder in _encoders)
         {
+            encoder.StatusChanged -= encoderStatusChanged;
             if (encoder.Status == IEncoder.EncoderState.Waiting)
             {
                 Cancel(encoder);
             }
+            encoder.Dispose();
         }
         _encoders.Clear();
         QueueUpdated?.Invoke(this, EventArgs.Empty);
@@ -67,10 +70,10 @@ public class EncodeService : IEncodeService
 
     private void encoderStatusChanged(object? sender, EventArgs e)
     {
-        int encodingCount = _encoders.Count(e => e.Status == IEncoder.EncoderState.Encoding);
+        int encodingCount = _encoders.Count(enc => enc.Status == IEncoder.EncoderState.Encoding);
         if (encodingCount < ConcurrentEncodeCount)
         {
-            var nextEncoder = _encoders.FirstOrDefault(e => e.Status == IEncoder.EncoderState.Waiting);
+            var nextEncoder = _encoders.FirstOrDefault(enc => enc.Status == IEncoder.EncoderState.Waiting);
             if (nextEncoder is not null)
             {
                 nextEncoder.Start();

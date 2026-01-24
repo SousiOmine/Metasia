@@ -1,11 +1,11 @@
 
 
+using System;
 using Metasia.Core.Encode;
 using Metasia.Editor.Plugin;
-
 namespace Metasia.Editor.Models.Media;
 
-public interface IEditorEncoder : IEncoder
+public interface IEditorEncoder : IEncoder, IDisposable
 {
     string Name { get; }
 

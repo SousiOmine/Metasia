@@ -23,6 +23,7 @@ public class SequentialImagesEncoder : EncoderBase, IEditorEncoder
     private string _outputFileExtension = string.Empty;
 
     private CancellationTokenSource _cts = new();
+    private Task? _encodingTask;
     
     public void SetOutputPath(string outputPath)
     {
@@ -39,6 +40,7 @@ public class SequentialImagesEncoder : EncoderBase, IEditorEncoder
     public override void CancelRequest()
     {
         _cts.Cancel();
+        _cts.Dispose();
         Status = IEncoder.EncoderState.Canceled;
         StatusChanged?.Invoke(this, EventArgs.Empty);
     }
@@ -49,28 +51,60 @@ public class SequentialImagesEncoder : EncoderBase, IEditorEncoder
         {
             throw new InvalidOperationException("エンコーダーが待機状態ではありません");
         }
+        _cts?.Dispose();
         _cts = new CancellationTokenSource();
         Status = IEncoder.EncoderState.Encoding;
         StatusChanged?.Invoke(this, EventArgs.Empty);
-        Task.Run(() => OutputFramesAsync(_cts.Token));
+        EncodeStarted?.Invoke(this, EventArgs.Empty);
+        _encodingTask = Task.Run(() => OutputFramesAsync(_cts.Token));
+        _encodingTask.ContinueWith(t =>
+        {
+            if (t.Exception is not null)
+            {
+                System.Diagnostics.Debug.WriteLine($"Encoding failed: {t.Exception}");
+            }
+        }, TaskContinuationOptions.OnlyOnFaulted);
     }
 
     private async Task OutputFramesAsync(CancellationToken ct)
     {
-        int index = 0;
-        await foreach (var frame in GetFramesAsync(0, FrameCount - 1, ct))
+        try
         {
-            using var data = frame.Encode(GetSKEncodedImageFormat(_outputFileExtension), 90);
-            using var stream = System.IO.File.Create(System.IO.Path.Combine(_outputFileFolder, $"{_outputFileName}_{index}{_outputFileExtension}"));
-            data.SaveTo(stream);
-            index++;
+            int index = 0;
+            await foreach (var frame in GetFramesAsync(0, FrameCount - 1, ct))
+            {
+                using var data = frame.Encode(GetSKEncodedImageFormat(_outputFileExtension), 90);
+                using var stream = System.IO.File.Create(System.IO.Path.Combine(_outputFileFolder, $"{_outputFileName}_{index}{_outputFileExtension}"));
+                data.SaveTo(stream);
+                index++;
 
-            ProgressRate = (double)index / FrameCount;
+                ProgressRate = (double)index / FrameCount;
+                StatusChanged?.Invoke(this, EventArgs.Empty);
+            }
+
+            if (!ct.IsCancellationRequested)
+            {
+                Status = IEncoder.EncoderState.Completed;
+                StatusChanged?.Invoke(this, EventArgs.Empty);
+                EncodeCompleted?.Invoke(this, EventArgs.Empty);
+            }
+            else
+            {
+                Status = IEncoder.EncoderState.Canceled;
+                StatusChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            Status = IEncoder.EncoderState.Canceled;
             StatusChanged?.Invoke(this, EventArgs.Empty);
         }
-
-        Status = IEncoder.EncoderState.Completed;
-        StatusChanged?.Invoke(this, EventArgs.Empty);
+        catch (Exception ex)
+        {
+            Status = IEncoder.EncoderState.Failed;
+            StatusChanged?.Invoke(this, EventArgs.Empty);
+            EncodeFailed?.Invoke(this, EventArgs.Empty);
+        }
     }
     
     private static SkiaSharp.SKEncodedImageFormat GetSKEncodedImageFormat(string extension)
@@ -82,5 +116,14 @@ public class SequentialImagesEncoder : EncoderBase, IEditorEncoder
             ".jpg" or ".jpeg" => SkiaSharp.SKEncodedImageFormat.Jpeg,
             _ => SkiaSharp.SKEncodedImageFormat.Png
         };
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            _cts?.Dispose();
+        }
+        base.Dispose(disposing);
     }
 }

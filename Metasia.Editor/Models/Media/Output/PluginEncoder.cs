@@ -24,6 +24,10 @@ public class PluginEncoder : IEditorEncoder, IDisposable
 
     private readonly IMediaOutputPlugin _plugin;
     private readonly EncoderBase _encoder;
+    private readonly EventHandler<EventArgs> _onStatusChanged;
+    private readonly EventHandler<EventArgs> _onEncodeStarted;
+    private readonly EventHandler<EventArgs> _onEncodeCompleted;
+    private readonly EventHandler<EventArgs> _onEncodeFailed;
 
     public PluginEncoder(IMediaOutputPlugin plugin)
     {
@@ -32,11 +36,16 @@ public class PluginEncoder : IEditorEncoder, IDisposable
 
         Name = _plugin.Name;
         SupportedExtensions = _plugin.SupportedExtensions;
-        
-        _encoder.StatusChanged += (sender, e) => OnStatusChanged();
-        _encoder.EncodeStarted += (sender, e) => EncodeStarted.Invoke(this, e);
-        _encoder.EncodeCompleted += (sender, e) => EncodeCompleted.Invoke(this, e);
-        _encoder.EncodeFailed += (sender, e) => EncodeFailed.Invoke(this, e);
+
+        _onStatusChanged = (sender, e) => OnStatusChanged();
+        _onEncodeStarted = (sender, e) => EncodeStarted.Invoke(this, e);
+        _onEncodeCompleted = (sender, e) => EncodeCompleted.Invoke(this, e);
+        _onEncodeFailed = (sender, e) => EncodeFailed.Invoke(this, e);
+
+        _encoder.StatusChanged += _onStatusChanged;
+        _encoder.EncodeStarted += _onEncodeStarted;
+        _encoder.EncodeCompleted += _onEncodeCompleted;
+        _encoder.EncodeFailed += _onEncodeFailed;
     }
     
     public void Initialize(
@@ -74,10 +83,11 @@ public class PluginEncoder : IEditorEncoder, IDisposable
     
     public void Dispose()
     {
+        _encoder.StatusChanged -= _onStatusChanged;
+        _encoder.EncodeStarted -= _onEncodeStarted;
+        _encoder.EncodeCompleted -= _onEncodeCompleted;
+        _encoder.EncodeFailed -= _onEncodeFailed;
         _encoder.Dispose();
-        _encoder.StatusChanged -= (sender, e) => OnStatusChanged();
-        _encoder.EncodeStarted -= (sender, e) => EncodeStarted.Invoke(sender, e);
-        _encoder.EncodeCompleted -= (sender, e) => EncodeCompleted.Invoke(sender, e);
-        _encoder.EncodeFailed -= (sender, e) => EncodeFailed.Invoke(sender, e);
+        GC.SuppressFinalize(this);
     }
 }
