@@ -2,7 +2,7 @@ using SkiaSharp;
 
 namespace Metasia.Core.Render
 {
-    public class RenderNode
+    public class NormalRenderNode : IRenderNode
     {
         /// <summary>
         /// 描画されるピクセルデータ
@@ -22,6 +22,6 @@ namespace Metasia.Core.Render
         /// <summary>
         /// 子ノードの描画情報リスト
         /// </summary>
-        public IReadOnlyList<RenderNode> Children { get; init; } = new List<RenderNode>();
+        public IReadOnlyList<IRenderNode> Children { get; init; } = new List<IRenderNode>();
     }
 }

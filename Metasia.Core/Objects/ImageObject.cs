@@ -40,7 +40,7 @@ public class ImageObject : ClipObject, IRenderable
         ImagePath = new MediaPath([Media.MediaType.Image]);
     }
 
-    public async Task<RenderNode> RenderAsync(RenderContext context, CancellationToken cancellationToken = default)
+    public async Task<IRenderNode> RenderAsync(RenderContext context, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -48,7 +48,7 @@ public class ImageObject : ClipObject, IRenderable
         int clipLength = EndFrame - StartFrame + 1;
         if (ImagePath is null || string.IsNullOrWhiteSpace(ImagePath.FileName))
         {
-            return new RenderNode();
+            return new NormalRenderNode();
         }
 
         try
@@ -63,7 +63,7 @@ public class ImageObject : ClipObject, IRenderable
                     Rotation = (float)Rotation.Get(relativeFrame, clipLength),
                     Alpha = (100.0f - (float)Alpha.Get(relativeFrame, clipLength)) / 100,
                 };
-                return new RenderNode()
+                return new NormalRenderNode()
                 {
                     Image = imageFileAccessorResult.Image,
                     LogicalSize = new SKSize(imageFileAccessorResult.Image.Width, imageFileAccessorResult.Image.Height),
@@ -77,6 +77,6 @@ public class ImageObject : ClipObject, IRenderable
         {
             Debug.WriteLine($"Failed to load image: {ImagePath}. {ex.Message}");
         }
-        return new RenderNode();
+        return new NormalRenderNode();
     }
 }

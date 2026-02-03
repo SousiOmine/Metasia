@@ -60,7 +60,7 @@ namespace Metasia.Core.Objects
             Objects = new();
         }
 
-        public async Task<RenderNode> RenderAsync(RenderContext context, CancellationToken cancellationToken = default)
+        public async Task<IRenderNode> RenderAsync(RenderContext context, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -73,9 +73,9 @@ namespace Metasia.Core.Objects
                 }
             }
 
-            if (ApplicateObjects.Count == 0) return new RenderNode();
+            if (ApplicateObjects.Count == 0) return new NormalRenderNode();
 
-            var nodes = new List<RenderNode>();
+            var nodes = new List<IRenderNode>();
 
             foreach (var obj in ApplicateObjects)
             {
@@ -83,7 +83,7 @@ namespace Metasia.Core.Objects
                 nodes.Add(await obj.RenderAsync(context, cancellationToken));
             }
 
-            return new RenderNode()
+            return new NormalRenderNode()
             {
                 Children = nodes,
             };

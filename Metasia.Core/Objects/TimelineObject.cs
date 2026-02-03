@@ -63,11 +63,11 @@ namespace Metasia.Core.Objects
             Layers = new();
         }
 
-        public async Task<RenderNode> RenderAsync(RenderContext context, CancellationToken cancellationToken = default)
+        public async Task<IRenderNode> RenderAsync(RenderContext context, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var nodes = new List<RenderNode>();
+            var nodes = new List<IRenderNode>();
 
             foreach (var layer in Layers)
             {
@@ -77,7 +77,7 @@ namespace Metasia.Core.Objects
                 nodes.Add(await layer.RenderAsync(context, cancellationToken));
             }
 
-            return new RenderNode()
+            return new NormalRenderNode()
             {
                 Children = nodes,
             };

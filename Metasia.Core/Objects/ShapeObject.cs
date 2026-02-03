@@ -60,7 +60,7 @@ namespace Metasia.Core.Objects
         {
         }
 
-        public Task<RenderNode> RenderAsync(RenderContext context, CancellationToken cancellationToken = default)
+        public Task<IRenderNode> RenderAsync(RenderContext context, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -97,7 +97,7 @@ namespace Metasia.Core.Objects
 
             if (finalWidth <= 0 || finalHeight <= 0)
             {
-                return Task.FromResult(new RenderNode());
+                return Task.FromResult<IRenderNode>(new NormalRenderNode());
             }
 
             SKImage image;
@@ -156,7 +156,7 @@ namespace Metasia.Core.Objects
                 Alpha = (100.0f - (float)Alpha.Get(relativeFrame, clipLength)) / 100,
             };
 
-            return Task.FromResult(new RenderNode()
+            return Task.FromResult<IRenderNode>(new NormalRenderNode()
             {
                 Image = image,
                 LogicalSize = logicalSize,
