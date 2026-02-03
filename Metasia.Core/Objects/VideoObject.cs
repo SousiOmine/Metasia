@@ -37,7 +37,7 @@ public class VideoObject : ClipObject, IRenderable
 
     public VideoObject()
     {
-
+        VideoPath = new MediaPath([MediaType.Video]);
     }
 
     public VideoObject(string id) : base(id)

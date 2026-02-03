@@ -32,7 +32,7 @@ public class ImageObject : ClipObject, IRenderable
 
     public ImageObject()
     {
-
+        ImagePath = new MediaPath([MediaType.Image]);
     }
 
     public ImageObject(string id) : base(id)

@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Windows.Input;
+using Metasia.Core.Attributes;
 using Metasia.Core.Media;
 using Metasia.Editor.Models.EditCommands;
 using Metasia.Editor.Models.EditCommands.Commands;
@@ -81,12 +83,30 @@ public class MediaPathPropertyViewModel : ViewModelBase
 
     private string[] GetFilePatterns()
     {
-        // プロパティ表示名からオブジェクトタイプを判定
-        if (_propertyDisplayName.Contains("Image") || _propertyDisplayName.Contains("画像"))
-            return ["*.png", "*.jpg", "*.jpeg", "*.bmp", "*.gif", "*.webp", "*.tiff"];
-        else if (_propertyDisplayName.Contains("Video") || _propertyDisplayName.Contains("動画"))
-            return ["*.mp4", "*.avi", "*.mov", "*.wmv", "*.mkv", "*.webm", "*.flv"];
-        else
-            return ["*"]; // デフォルト
+        var patterns = new List<string>();
+
+        if (_target.Types is null)
+        {
+            return ["*"];
+        }
+
+        foreach (var type in _target.Types)
+        {
+            switch (type)
+            {
+                case MediaType.Image:
+                    patterns.AddRange(["*.png", "*.jpg", "*.jpeg", "*.bmp", "*.gif", "*.webp", "*.tiff"]);
+                    break;
+                case MediaType.Video:
+                    patterns.AddRange(["*.mp4", "*.avi", "*.mov", "*.wmv", "*.mkv", "*.webm", "*.flv"]);
+                    break;
+                default:
+                    // ここまでで特に設定されていないやつであれば全拡張子を受け入れる
+                    patterns.Add("*");
+                    break;
+            }
+        }
+
+        return patterns.Count > 0 ? patterns.ToArray() : ["*"];
     }
 }
