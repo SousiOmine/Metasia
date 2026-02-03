@@ -82,6 +82,10 @@ public class NewProjectViewModel : ViewModelBase
 
                 // ファイル名の検証
                 var fileName = Path.GetFileNameWithoutExtension(FilePath);
+                if (string.IsNullOrWhiteSpace(fileName))
+                {
+                    throw new ArgumentException("ファイル名が指定されていません。");
+                }
                 var invalidChars = Path.GetInvalidFileNameChars();
                 if (fileName.Any(c => invalidChars.Contains(c)))
                 {

@@ -139,20 +139,28 @@ namespace Metasia.Editor.ViewModels
             {
                 if (_projectState.CurrentProject is not null)
                 {
+                    string? targetFilePath = _projectState.CurrentProject.ProjectFilePath;
                     if (string.IsNullOrEmpty(_projectState.CurrentProject.ProjectFilePath))
                     {
                         // 新規プロジェクトの場合は保存ダイアログを表示
                         var file = await _fileDialogService.SaveFileDialogAsync(
                             "プロジェクトを保存",
-                            new[] { "mtpj" },
+                            ["*.mtpj"],
                             "mtpj");
                         if (file is null) return;
 
-                        _projectState.CurrentProject.ProjectFilePath = file.Path.LocalPath;
+                        targetFilePath = file.Path.LocalPath;
                     }
 
+                    if (string.IsNullOrEmpty(targetFilePath)) return;
+
                     // 保存実行
-                    ProjectSaveLoadManager.Save(_projectState.CurrentProject, _projectState.CurrentProject.ProjectFilePath);
+                    ProjectSaveLoadManager.Save(_projectState.CurrentProject, targetFilePath);
+
+                    if (string.IsNullOrEmpty(_projectState.CurrentProject.ProjectFilePath))
+                    {
+                        _projectState.CurrentProject.ProjectFilePath = targetFilePath;
+                    }
                 }
             }
             catch (Exception ex)
@@ -166,10 +174,17 @@ namespace Metasia.Editor.ViewModels
             var file = await _fileDialogService.OpenFileDialogAsync("プロジェクトを開く", new[] { "*.mtpj" });
             if (file is null) return;
 
-            string filePath = file.Path.LocalPath;
-            MetasiaEditorProject editorProject = ProjectSaveLoadManager.Load(filePath);
-            editorProject.ProjectFilePath = filePath;
-            await _projectState.LoadProjectAsync(editorProject);
+            try
+            {
+                string filePath = file.Path.LocalPath;
+                MetasiaEditorProject editorProject = ProjectSaveLoadManager.Load(filePath);
+                editorProject.ProjectFilePath = filePath;
+                await _projectState.LoadProjectAsync(editorProject);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"プロジェクト読込エラー: {ex.Message}");
+            }
         }
 
         private void UndoExecute()

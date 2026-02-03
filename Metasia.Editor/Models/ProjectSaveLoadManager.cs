@@ -9,6 +9,7 @@ using Metasia.Core.Xml;
 using Metasia.Core.Objects;
 using Metasia.Editor.Models.FileSystem;
 using Metasia.Editor.Models.Projects;
+using System.Collections.Generic;
 
 namespace Metasia.Editor.Models;
 
@@ -19,43 +20,70 @@ public class ProjectSaveLoadManager
 
     public static void Save(MetasiaEditorProject editorProject, string projectFilePath)
     {
-        // 既存のファイルがあれば削除
-        if (File.Exists(projectFilePath))
+        string tempProjectFilePath = projectFilePath + ".tmp";
+        string backupProjectFilePath = projectFilePath + ".bak";
+
+        if (File.Exists(tempProjectFilePath))
         {
-            File.Delete(projectFilePath);
+            File.Delete(tempProjectFilePath);
         }
 
-        // ZIPアーカイブを作成
-        using (var archive = ZipFile.Open(projectFilePath, ZipArchiveMode.Create))
+        try
         {
-            // 1. project.jsonを追加
-            var options = new JsonSerializerOptions
+            // ZIPアーカイブを作成
+            using (var archive = ZipFile.Open(tempProjectFilePath, ZipArchiveMode.Create))
             {
-                WriteIndented = true,
-                IncludeFields = true,
-            };
-            string jsonString = JsonSerializer.Serialize(editorProject.ProjectFile, options);
-            var projectEntry = archive.CreateEntry(ProjectJsonEntryName);
-            using (var entryStream = projectEntry.Open())
-            using (var writer = new StreamWriter(entryStream, Encoding.UTF8))
-            {
-                writer.Write(jsonString);
-            }
-
-            // 2. タイムラインをtimelines/以下に保存
-            foreach (var timeline in editorProject.Timelines)
-            {
-                string timelineFileName = GetTimelineFileName(timeline);
-                string timelineXmlString = MetasiaObjectXmlSerializer.Serialize(timeline);
-                string entryName = TimelinesFolderName + timelineFileName;
-
-                var timelineEntry = archive.CreateEntry(entryName);
-                using (var entryStream = timelineEntry.Open())
+                // 1. project.jsonを追加
+                var options = new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    IncludeFields = true,
+                };
+                string jsonString = JsonSerializer.Serialize(editorProject.ProjectFile, options);
+                var projectEntry = archive.CreateEntry(ProjectJsonEntryName);
+                using (var entryStream = projectEntry.Open())
                 using (var writer = new StreamWriter(entryStream, Encoding.UTF8))
                 {
-                    writer.Write(timelineXmlString);
+                    writer.Write(jsonString);
+                }
+
+                // 2. タイムラインをtimelines/以下に保存
+                foreach (var timeline in editorProject.Timelines)
+                {
+                    string timelineFileName = GetTimelineFileName(timeline);
+                    string timelineXmlString = MetasiaObjectXmlSerializer.Serialize(timeline);
+                    string entryName = TimelinesFolderName + timelineFileName;
+
+                    var timelineEntry = archive.CreateEntry(entryName);
+                    using (var entryStream = timelineEntry.Open())
+                    using (var writer = new StreamWriter(entryStream, Encoding.UTF8))
+                    {
+                        writer.Write(timelineXmlString);
+                    }
                 }
             }
+
+            if (File.Exists(projectFilePath))
+            {
+                File.Replace(tempProjectFilePath, projectFilePath, backupProjectFilePath, true);
+                if (File.Exists(backupProjectFilePath))
+                {
+                    File.Delete(backupProjectFilePath);
+                }
+            }
+            else
+            {
+                File.Move(tempProjectFilePath, projectFilePath);
+            }
+        }
+        catch
+        {
+            if (File.Exists(tempProjectFilePath))
+            {
+                File.Delete(tempProjectFilePath);
+            }
+
+            throw;
         }
     }
 
@@ -66,10 +94,17 @@ public class ProjectSaveLoadManager
             throw new FileNotFoundException($"プロジェクトファイルが見つかりません: {projectFilePath}");
         }
 
-        MetasiaEditorProject editorProject = new MetasiaEditorProject(
-            new DirectoryEntity(Path.GetDirectoryName(projectFilePath)!),
-            null
-        );
+        string? dirName = Path.GetDirectoryName(projectFilePath);
+        if (string.IsNullOrEmpty(dirName))
+        {
+            throw new ArgumentException(
+                $"プロジェクトファイルのディレクトリを特定できません: {projectFilePath}",
+                nameof(projectFilePath)
+            );
+        }
+
+        MetasiaProjectFile? projectFile;
+        List<TimelineObject> timelines = [];
 
         using (var archive = ZipFile.OpenRead(projectFilePath))
         {
@@ -87,12 +122,11 @@ public class ProjectSaveLoadManager
                 jsonContent = reader.ReadToEnd();
             }
 
-            MetasiaProjectFile? projectFile = JsonSerializer.Deserialize<MetasiaProjectFile>(jsonContent);
-            if (projectFile == null)
+            projectFile = JsonSerializer.Deserialize<MetasiaProjectFile>(jsonContent);
+            if (projectFile is null)
             {
                 throw new Exception($"{ProjectJsonEntryName}のフォーマットが不正です。");
             }
-            editorProject.ProjectFile = projectFile;
 
             // 2. timelines/以下のXMLファイルを読み込み
             var timelineEntries = archive.Entries
@@ -116,7 +150,7 @@ public class ProjectSaveLoadManager
                         throw new Exception("タイムラインファイルのフォーマットが不正です。");
                     }
 
-                    editorProject.Timelines.Add(timelineObject);
+                    timelines.Add(timelineObject);
                 }
                 catch (Exception e)
                 {
@@ -125,13 +159,31 @@ public class ProjectSaveLoadManager
             }
         }
 
+        MetasiaEditorProject editorProject = new(
+            new DirectoryEntity(dirName),
+            projectFile
+        );
+        foreach (TimelineObject timeline in timelines)
+        {
+            editorProject.Timelines.Add(timeline);
+        }
+
         return editorProject;
     }
 
     private static string GetTimelineFileName(TimelineObject timeline)
     {
         // Timeline.Idをベースにファイル名を生成
-        string timelineId = timeline?.Id ?? Guid.NewGuid().ToString();
-        return $"{timelineId}.xml";
+        if (timeline is null)
+        {
+            throw new ArgumentNullException(nameof(timeline));
+        }
+
+        if (string.IsNullOrWhiteSpace(timeline.Id))
+        {
+            timeline.Id = Guid.NewGuid().ToString();
+        }
+
+        return $"{timeline.Id}.xml";
     }
 }
