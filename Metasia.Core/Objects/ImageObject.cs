@@ -32,12 +32,12 @@ public class ImageObject : ClipObject, IRenderable
 
     public ImageObject()
     {
-        ImagePath = new MediaPath([MediaType.Image]);
+        ImagePath = new MediaPath([Media.MediaType.Image]);
     }
 
     public ImageObject(string id) : base(id)
     {
-
+        ImagePath = new MediaPath([Media.MediaType.Image]);
     }
 
     public async Task<RenderNode> RenderAsync(RenderContext context, CancellationToken cancellationToken = default)
@@ -46,34 +46,37 @@ public class ImageObject : ClipObject, IRenderable
 
         int relativeFrame = context.Frame - StartFrame;
         int clipLength = EndFrame - StartFrame + 1;
-        if (ImagePath is not null && !string.IsNullOrEmpty(ImagePath?.FileName))
+        if (ImagePath is null || string.IsNullOrWhiteSpace(ImagePath.FileName))
         {
-            try
-            {
-                var imageFileAccessorResult = await context.ImageFileAccessor.GetImageAsync(MediaPath.GetFullPath(ImagePath, context.ProjectPath));
-                if (imageFileAccessorResult.IsSuccessful && imageFileAccessorResult.Image is not null)
-                {
-                    var transform = new Transform()
-                    {
-                        Position = new SKPoint((float)X.Get(relativeFrame, clipLength), (float)Y.Get(relativeFrame, clipLength)),
-                        Scale = (float)Scale.Get(relativeFrame, clipLength) / 100,
-                        Rotation = (float)Rotation.Get(relativeFrame, clipLength),
-                        Alpha = (100.0f - (float)Alpha.Get(relativeFrame, clipLength)) / 100,
-                    };
-                    return new RenderNode()
-                    {
-                        Image = imageFileAccessorResult.Image,
-                        LogicalSize = new SKSize(imageFileAccessorResult.Image.Width, imageFileAccessorResult.Image.Height),
-                        Transform = transform,
-                    };
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Failed to load image: {ex.Message}");
-            }
+            return new RenderNode();
         }
-        Debug.WriteLine($"Failed to load image: {ImagePath}");
+
+        try
+        {
+            var imageFileAccessorResult = await context.ImageFileAccessor.GetImageAsync(MediaPath.GetFullPath(ImagePath, context.ProjectPath));
+            if (imageFileAccessorResult.IsSuccessful && imageFileAccessorResult.Image is not null)
+            {
+                var transform = new Transform()
+                {
+                    Position = new SKPoint((float)X.Get(relativeFrame, clipLength), (float)Y.Get(relativeFrame, clipLength)),
+                    Scale = (float)Scale.Get(relativeFrame, clipLength) / 100,
+                    Rotation = (float)Rotation.Get(relativeFrame, clipLength),
+                    Alpha = (100.0f - (float)Alpha.Get(relativeFrame, clipLength)) / 100,
+                };
+                return new RenderNode()
+                {
+                    Image = imageFileAccessorResult.Image,
+                    LogicalSize = new SKSize(imageFileAccessorResult.Image.Width, imageFileAccessorResult.Image.Height),
+                    Transform = transform,
+                };
+            }
+
+            Debug.WriteLine($"Failed to load image: {ImagePath}");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Failed to load image: {ImagePath}. {ex.Message}");
+        }
         return new RenderNode();
     }
 }

@@ -9,8 +9,10 @@ namespace Metasia.Core.Media
         public string FileName { get; set; } = string.Empty;
         [XmlElement("Directory")]
         public string Directory { get; set; } = string.Empty;
-        
-        public MediaType[] Types { get; } = Array.Empty<MediaType>();
+
+        [XmlArray("Types")]
+        [XmlArrayItem("Type")]
+        public MediaType[] Types { get; set; } = Array.Empty<MediaType>();
 
         public MediaPath()
         {

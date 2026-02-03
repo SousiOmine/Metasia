@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reactive.Joins;
 using System.Threading.Tasks;
 using Avalonia.Controls;
@@ -53,17 +54,19 @@ namespace Metasia.Editor.Services
                     throw new ArgumentException("Pattern cannot be empty or whitespace.", nameof(patterns));
             }
 
+            var fileTypeFilter = new FilePickerFileType[]
+            {
+                new FilePickerFileType("すべての対応ファイル")
+                {
+                    Patterns = patterns.Distinct().ToArray()
+                }
+            };
+
             var files = await _target.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions()
             {
                 Title = title,
                 AllowMultiple = false,
-                FileTypeFilter = new FilePickerFileType[]
-                {
-                    new("File")
-                    {
-                        Patterns = patterns
-                    }
-                }
+                FileTypeFilter = fileTypeFilter
             });
 
             return files.Count >= 1 ? files[0] : null;
