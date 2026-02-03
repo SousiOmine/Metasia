@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Metasia.Core.Objects;
 using Metasia.Core.Project;
 using Metasia.Editor.Models.FileSystem;
 using SkiaSharp;
@@ -12,9 +13,14 @@ public class MetasiaEditorProject
 {
     public DirectoryEntity ProjectPath { get; set; }
 
+    /// <summary>
+    /// プロジェクトファイルのパス（.mtpjファイル）
+    /// </summary>
+    public string? ProjectFilePath { get; set; }
+
     public MetasiaProjectFile ProjectFile { get; set; }
 
-    public List<TimelineFile> Timelines { get; set; } = new();
+    public List<TimelineObject> Timelines { get; set; } = new();
 
     public MetasiaEditorProject(DirectoryEntity projectPath, MetasiaProjectFile projectFile)
     {
@@ -28,9 +34,9 @@ public class MetasiaEditorProject
 
         MetasiaProject project = new MetasiaProject(projectInfo);
 
-        foreach (TimelineFile timeline in Timelines)
+        foreach (TimelineObject timeline in Timelines)
         {
-            project.Timelines.Add(timeline.Timeline);
+            project.Timelines.Add(timeline);
         }
 
         return project;

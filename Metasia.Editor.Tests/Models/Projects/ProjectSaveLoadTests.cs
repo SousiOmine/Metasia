@@ -4,6 +4,7 @@ using Metasia.Editor.Models.FileSystem;
 using Metasia.Editor.Models.Projects;
 using Metasia.Editor.Models;
 using System.IO;
+using System.IO.Compression;
 
 namespace Metasia.Editor.Tests.Models.Projects
 {
@@ -11,7 +12,7 @@ namespace Metasia.Editor.Tests.Models.Projects
     public class ProjectSaveLoadTests
     {
         private string _testDirectory;
-        private DirectoryEntity _projectPath;
+        private string _projectFilePath;
 
         [SetUp]
         public void Setup()
@@ -22,8 +23,7 @@ namespace Metasia.Editor.Tests.Models.Projects
                 Directory.Delete(_testDirectory, true);
             }
             Directory.CreateDirectory(_testDirectory);
-            Directory.CreateDirectory(Path.Combine(_testDirectory, "./Timelines")); // Create expected timeline folder
-            _projectPath = new DirectoryEntity(_testDirectory);
+            _projectFilePath = Path.Combine(_testDirectory, "testproject.mtpj");
         }
 
         [TearDown]
@@ -46,23 +46,88 @@ namespace Metasia.Editor.Tests.Models.Projects
                 RootTimelineId = "CustomTimeline"
             };
 
-            var editorProject = new MetasiaEditorProject(_projectPath, projectFile);
+            var editorProject = new MetasiaEditorProject(
+                new DirectoryEntity(_testDirectory),
+                projectFile
+            );
 
             // Act - Save the project
-            ProjectSaveLoadManager.Save(editorProject);
+            ProjectSaveLoadManager.Save(editorProject, _projectFilePath);
 
             // Verify the file was created
-            string metasiaJsonPath = Path.Combine(_testDirectory, "metasia.json");
-            Assert.That(File.Exists(metasiaJsonPath), Is.True);
+            Assert.That(File.Exists(_projectFilePath), Is.True);
+
+            // Verify it's a valid ZIP file with project.json inside
+            using (var archive = ZipFile.OpenRead(_projectFilePath))
+            {
+                var projectEntry = archive.GetEntry("project.json");
+                Assert.That(projectEntry, Is.Not.Null);
+            }
 
             // Act - Load the project
-            var loadedProject = ProjectSaveLoadManager.Load(_projectPath);
+            var loadedProject = ProjectSaveLoadManager.Load(_projectFilePath);
 
             // Assert - Verify settings are preserved
             Assert.That(loadedProject.ProjectFile.Framerate, Is.EqualTo(30));
             Assert.That(loadedProject.ProjectFile.Resolution.Width, Is.EqualTo(1280));
             Assert.That(loadedProject.ProjectFile.Resolution.Height, Is.EqualTo(720));
             Assert.That(loadedProject.ProjectFile.RootTimelineId, Is.EqualTo("CustomTimeline"));
+        }
+
+        [Test]
+        public void Save_CreatesValidZipArchive()
+        {
+            // Arrange
+            var projectFile = new MetasiaProjectFile();
+            var editorProject = new MetasiaEditorProject(
+                new DirectoryEntity(_testDirectory),
+                projectFile
+            );
+
+            // Act
+            ProjectSaveLoadManager.Save(editorProject, _projectFilePath);
+
+            // Assert
+            Assert.That(File.Exists(_projectFilePath), Is.True);
+
+            using (var archive = ZipFile.OpenRead(_projectFilePath))
+            {
+                Assert.That(archive.Entries.Count, Is.GreaterThanOrEqualTo(1));
+
+                var projectEntry = archive.GetEntry("project.json");
+                Assert.That(projectEntry, Is.Not.Null);
+            }
+        }
+
+        [Test]
+        public void Load_ThrowsWhenFileNotFound()
+        {
+            // Arrange
+            string nonExistentPath = Path.Combine(_testDirectory, "nonexistent.mtpj");
+
+            // Act & Assert
+            var ex = Assert.Throws<FileNotFoundException>(() =>
+                ProjectSaveLoadManager.Load(nonExistentPath));
+            Assert.That(ex.Message, Does.Contain("nonexistent.mtpj"));
+        }
+
+        [Test]
+        public void Load_ThrowsWhenProjectJsonMissing()
+        {
+            // Arrange - Create invalid ZIP without project.json
+            using (var archive = ZipFile.Open(_projectFilePath, ZipArchiveMode.Create))
+            {
+                var entry = archive.CreateEntry("invalid.txt");
+                using (var writer = new StreamWriter(entry.Open()))
+                {
+                    writer.Write("invalid content");
+                }
+            }
+
+            // Act & Assert
+            var ex = Assert.Throws<Exception>(() =>
+                ProjectSaveLoadManager.Load(_projectFilePath));
+            Assert.That(ex.Message, Does.Contain("project.json"));
         }
     }
 }

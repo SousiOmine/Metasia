@@ -9,7 +9,7 @@ namespace Metasia.Editor.Models.ProjectGenerate;
 
 public class ProjectGenerator
 {
-    public static MetasiaEditorProject CreateProject(string projectPath, ProjectInfo projectInfo, MetasiaProject? templateProject = null)
+    public static MetasiaEditorProject CreateProject(string projectFilePath, ProjectInfo projectInfo, MetasiaProject? templateProject = null)
     {
         MetasiaProject project;
         if (templateProject != null)
@@ -22,16 +22,11 @@ public class ProjectGenerator
             project = new EmptyProjectTemplate(projectInfo).Template;
         }
 
-        //プロジェクトフォルダが存在しない場合は作成
-        if (!Directory.Exists(projectPath))
+        // プロジェクトファイルの親ディレクトリが存在しない場合は作成
+        string? parentDirectory = Path.GetDirectoryName(projectFilePath);
+        if (!string.IsNullOrEmpty(parentDirectory) && !Directory.Exists(parentDirectory))
         {
-            Directory.CreateDirectory(projectPath);
-            Directory.CreateDirectory(Path.Combine(projectPath, "Timelines"));
-        }
-        else if (!Directory.Exists(Path.Combine(projectPath, "Timelines")))
-        {
-            // Timelinesフォルダが確実に存在するようにする
-            Directory.CreateDirectory(Path.Combine(projectPath, "Timelines"));
+            Directory.CreateDirectory(parentDirectory);
         }
 
         MetasiaProjectFile projectFile = new MetasiaProjectFile()
@@ -40,18 +35,18 @@ public class ProjectGenerator
             Resolution = new VideoResolution() { Width = projectInfo.Size.Width, Height = projectInfo.Size.Height },
         };
 
-        MetasiaEditorProject editorProject = new MetasiaEditorProject(new DirectoryEntity(projectPath), projectFile);
+        DirectoryEntity projectDirectory = new DirectoryEntity(parentDirectory ?? Path.GetTempPath());
+        MetasiaEditorProject editorProject = new MetasiaEditorProject(projectDirectory, projectFile);
+        editorProject.ProjectFilePath = projectFilePath;
 
         foreach (var timeline in project.Timelines)
         {
-            TimelineFile timelineFile = new TimelineFile(new FileEntity(Path.Combine(projectPath, "Timelines", $"{timeline.Id}.mttl")), timeline);
-            editorProject.Timelines.Add(timelineFile);
+            editorProject.Timelines.Add(timeline);
         }
 
-
-        ProjectSaveLoadManager.Save(editorProject);
+        // 単一ファイルとして保存
+        ProjectSaveLoadManager.Save(editorProject, projectFilePath);
 
         return editorProject;
     }
-
 }

@@ -76,13 +76,8 @@ namespace Metasia.Editor.Tests.Models.Projects
             var timeline1 = new TimelineObject("timeline1");
             var timeline2 = new TimelineObject("timeline2");
 
-            string timelinePath1 = Path.Combine(_testDirectory, "timeline1.mttl");
-            string timelinePath2 = Path.Combine(_testDirectory, "timeline2.mttl");
-            File.WriteAllText(timelinePath1, "");
-            File.WriteAllText(timelinePath2, "");
-
-            editorProject.Timelines.Add(new TimelineFile(new FileEntity(timelinePath1), timeline1));
-            editorProject.Timelines.Add(new TimelineFile(new FileEntity(timelinePath2), timeline2));
+            editorProject.Timelines.Add(timeline1);
+            editorProject.Timelines.Add(timeline2);
 
             // Act
             var metasiaProject = editorProject.CreateMetasiaProject();
@@ -99,16 +94,14 @@ namespace Metasia.Editor.Tests.Models.Projects
             // Arrange
             var editorProject = new MetasiaEditorProject(_projectPath, _projectFile);
             var timeline = new TimelineObject("test-timeline");
-            string timelinePath = Path.Combine(_testDirectory, "test.mttl");
-            File.WriteAllText(timelinePath, "");
-            var timelineFile = new TimelineFile(new FileEntity(timelinePath), timeline);
 
             // Act
-            editorProject.Timelines.Add(timelineFile);
+            editorProject.Timelines.Add(timeline);
 
             // Assert
             Assert.That(editorProject.Timelines.Count, Is.EqualTo(1));
-            Assert.That(editorProject.Timelines[0], Is.EqualTo(timelineFile));
+            Assert.That(editorProject.Timelines[0], Is.EqualTo(timeline));
+            Assert.That(editorProject.Timelines[0].Id, Is.EqualTo("test-timeline"));
         }
 
         [Test]

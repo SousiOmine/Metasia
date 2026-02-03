@@ -141,7 +141,7 @@ public class OutputViewModel : ViewModelBase
 
         foreach (var timeline in _projectState.CurrentProject.Timelines)
         {
-            TimelineList.Add(timeline.Timeline.Id);
+            TimelineList.Add(timeline.Id);
         }
     }
 

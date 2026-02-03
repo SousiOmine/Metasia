@@ -139,9 +139,9 @@ public class PlayerParentViewModel : ViewModelBase, IDisposable
         ProjectInfo projectInfo = new ProjectInfo(_projectState.CurrentProjectInfo.Framerate, new SKSize(_projectState.CurrentProjectInfo.Size.Width, _projectState.CurrentProjectInfo.Size.Height), _projectState.CurrentProjectInfo.AudioSamplingRate, _projectState.CurrentProjectInfo.AudioChannels);
 
         // タイムラインごとに新しいPlayerViewModelを作成
-        foreach (TimelineFile timeline in _projectState.CurrentProject.Timelines)
+        foreach (var timeline in _projectState.CurrentProject.Timelines)
         {
-            _playerViewModels.Add(_playerViewModelFactory.Create(timeline.Timeline, projectInfo));
+            _playerViewModels.Add(_playerViewModelFactory.Create(timeline, projectInfo));
         }
 
         IsPlayerShow = true;
@@ -149,7 +149,7 @@ public class PlayerParentViewModel : ViewModelBase, IDisposable
         if (_projectState.CurrentProject is not null)
         {
             // 新しいProjectがセットされたら、メインタイムラインのPlayerViewModelを作成
-            var mainTimeline = _projectState.CurrentProject.Timelines.FirstOrDefault()?.Timeline;
+            var mainTimeline = _projectState.CurrentProject.Timelines.FirstOrDefault();
             if (mainTimeline != null)
             {
                 // 既存のPlayerViewModelsを確認

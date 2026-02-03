@@ -13,29 +13,13 @@ namespace Metasia.Editor.Tests.Models.Projects
             var projectFile = new MetasiaProjectFile();
 
             // Assert
-            Assert.That(projectFile.TimelineFolders, Is.Not.Null);
-            Assert.That(projectFile.TimelineFolders.Length, Is.EqualTo(1));
-            Assert.That(projectFile.TimelineFolders[0], Is.EqualTo("./Timelines"));
             Assert.That(projectFile.RootTimelineId, Is.EqualTo("RootTimeline"));
             Assert.That(projectFile.Framerate, Is.EqualTo(60));
             Assert.That(projectFile.Resolution, Is.Not.Null);
             Assert.That(projectFile.Resolution.Width, Is.EqualTo(1920));
             Assert.That(projectFile.Resolution.Height, Is.EqualTo(1080));
-        }
-
-        [Test]
-        public void TimelineFolders_CanBeModified()
-        {
-            // Arrange
-            var projectFile = new MetasiaProjectFile();
-
-            // Act
-            projectFile.TimelineFolders = new[] { "./CustomTimelines", "./MoreTimelines" };
-
-            // Assert
-            Assert.That(projectFile.TimelineFolders.Length, Is.EqualTo(2));
-            Assert.That(projectFile.TimelineFolders[0], Is.EqualTo("./CustomTimelines"));
-            Assert.That(projectFile.TimelineFolders[1], Is.EqualTo("./MoreTimelines"));
+            Assert.That(projectFile.AudioSamplingRate, Is.EqualTo(44100));
+            Assert.That(projectFile.AudioChannels, Is.EqualTo(2));
         }
 
         [Test]

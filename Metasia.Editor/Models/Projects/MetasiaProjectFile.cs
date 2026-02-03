@@ -3,15 +3,10 @@ using SkiaSharp;
 namespace Metasia.Editor.Models.Projects;
 
 /// <summary>
-/// metasia.jsonの中身
+/// project.jsonの中身（単一ファイルアーカイブ内に格納）
 /// </summary>
 public class MetasiaProjectFile
 {
-    /// <summary>
-    /// タイムラインを探索するフォルダの相対パス（Nullなら.mtpjが存在するフォルダのみ）
-    /// </summary>
-    public string[] TimelineFolders { get; set; } = ["./Timelines"];
-
     /// <summary>
     /// レンダリング対象となるタイムラインのID
     /// </summary>

@@ -64,7 +64,7 @@ public class ProjectState : IProjectState
         // デフォルトで最初のタイムラインを選択
         if (project.Timelines.Count > 0)
         {
-            _currentTimeline = project.Timelines[0].Timeline;
+            _currentTimeline = project.Timelines[0];
         }
         else
         {

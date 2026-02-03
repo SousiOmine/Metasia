@@ -24,24 +24,17 @@ public class NewProjectViewModel : ViewModelBase
 {
     public ReactiveCommand<Unit, (bool, string, ProjectInfo, MetasiaProject?)> OkCommand { get; }
     public ReactiveCommand<Unit, (bool, string, ProjectInfo, MetasiaProject?)> CancelCommand { get; }
-    public ReactiveCommand<Unit, Unit> BrowseFolderCommand { get; }
+    public ReactiveCommand<Unit, Unit> BrowseFileCommand { get; }
 
     public ObservableCollection<ProjectTemplateInfo> AvailableTemplates { get; } = new();
     public ObservableCollection<string> FramerateOptions { get; } = new();
     public ObservableCollection<string> ResolutionOptions { get; } = new();
 
-    private string _projectName = string.Empty;
-    public string ProjectName
+    private string _filePath = string.Empty;
+    public string FilePath
     {
-        get => _projectName;
-        set => this.RaiseAndSetIfChanged(ref _projectName, value);
-    }
-
-    private string _folderPath = string.Empty;
-    public string FolderPath
-    {
-        get => _folderPath;
-        set => this.RaiseAndSetIfChanged(ref _folderPath, value);
+        get => _filePath;
+        set => this.RaiseAndSetIfChanged(ref _filePath, value);
     }
 
     private ProjectTemplateInfo? _selectedTemplate;
@@ -65,13 +58,6 @@ public class NewProjectViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _selectedResolutionIndex, value);
     }
 
-    private string? _selectedFolderPath;
-    public string? SelectedFolderPath
-    {
-        get => _selectedFolderPath;
-        set => this.RaiseAndSetIfChanged(ref _selectedFolderPath, value);
-    }
-
     private readonly IFileDialogService _fileDialogService;
 
     public NewProjectViewModel(IFileDialogService fileDialogService)
@@ -81,38 +67,48 @@ public class NewProjectViewModel : ViewModelBase
         LoadOptions();
 
         var canExecuteOk = this.WhenAnyValue(
-            x => x.ProjectName,
-            x => x.FolderPath,
-            (projectName, folderPath) =>
-                !string.IsNullOrWhiteSpace(projectName) &&
-                !string.IsNullOrWhiteSpace(folderPath));
+            x => x.FilePath,
+            filePath => !string.IsNullOrWhiteSpace(filePath));
 
         OkCommand = ReactiveCommand.Create(() =>
         {
             try
             {
-                // プロジェクト名の検証
-                var invalidChars = Path.GetInvalidFileNameChars();
-                if (ProjectName.Any(c => invalidChars.Contains(c)))
+                // ファイルパスの検証
+                if (string.IsNullOrWhiteSpace(FilePath))
                 {
-                    throw new ArgumentException($"プロジェクト名に無効な文字が含まれています: {ProjectName}");
+                    throw new ArgumentException("ファイルパスが指定されていません。");
+                }
+
+                // ファイル名の検証
+                var fileName = Path.GetFileNameWithoutExtension(FilePath);
+                var invalidChars = Path.GetInvalidFileNameChars();
+                if (fileName.Any(c => invalidChars.Contains(c)))
+                {
+                    throw new ArgumentException($"ファイル名に無効な文字が含まれています: {fileName}");
                 }
 
                 var framerate = GetFramerateFromIndex(SelectedFramerateIndex);
                 var size = GetResolutionFromIndex(SelectedResolutionIndex);
                 var projectInfo = new ProjectInfo(framerate, size, 44100, 2);
 
-                var projectPath = Path.Combine(FolderPath, ProjectName);
-
-                // プロジェクトフォルダを作成
-                if (!Directory.Exists(projectPath))
+                // ファイルパスの拡張子を確認・修正
+                var projectFilePath = FilePath;
+                if (!projectFilePath.EndsWith(".mtpj", StringComparison.OrdinalIgnoreCase))
                 {
-                    Directory.CreateDirectory(projectPath);
+                    projectFilePath += ".mtpj";
+                }
+
+                // 親ディレクトリが存在しない場合は作成
+                var parentDirectory = Path.GetDirectoryName(projectFilePath);
+                if (!string.IsNullOrEmpty(parentDirectory) && !Directory.Exists(parentDirectory))
+                {
+                    Directory.CreateDirectory(parentDirectory);
                 }
 
                 MetasiaProject? selectedTemplate = SelectedTemplate?.TemplateFactory(projectInfo);
 
-                return (Result: true, ProjectPath: projectPath, ProjectInfo: projectInfo, SelectedTemplate: selectedTemplate);
+                return (Result: true, ProjectPath: projectFilePath, ProjectInfo: projectInfo, SelectedTemplate: selectedTemplate);
             }
             catch (Exception ex)
             {
@@ -125,18 +121,22 @@ public class NewProjectViewModel : ViewModelBase
                 return (false, string.Empty, new ProjectInfo(framerate, size, 44100, 2), null);
             }
         }, canExecuteOk);
+
         CancelCommand = ReactiveCommand.Create(() =>
             (Result: false, ProjectPath: string.Empty, ProjectInfo: new ProjectInfo(30, new SKSize(1920, 1080), 44100, 2), SelectedTemplate: (MetasiaProject?)null));
 
-        BrowseFolderCommand = ReactiveCommand.CreateFromTask(BrowseFolderAsync);
+        BrowseFileCommand = ReactiveCommand.CreateFromTask(BrowseFileAsync);
     }
 
-    private async Task BrowseFolderAsync()
+    private async Task BrowseFileAsync()
     {
-        var folder = await _fileDialogService.OpenFolderDialogAsync();
-        if (folder != null)
+        var file = await _fileDialogService.SaveFileDialogAsync(
+            "新規プロジェクトを保存",
+            new[] { "mtpj" },
+            "mtpj");
+        if (file != null)
         {
-            FolderPath = folder.Path.LocalPath;
+            FilePath = file.Path.LocalPath;
         }
     }
 

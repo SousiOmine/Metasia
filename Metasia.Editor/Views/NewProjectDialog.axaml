@@ -3,24 +3,21 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="using:Metasia.Editor.ViewModels.Dialogs"
-        mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="450"
+        mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="400"
         x:Class="Metasia.Editor.Views.NewProjectDialog"
         Title="新規プロジェクト作成"
-        Width="450" Height="450"
+        Width="450" Height="400"
         WindowStartupLocation="CenterOwner"
         x:DataType="vm:NewProjectViewModel">
     <StackPanel Margin="20">
-        <TextBlock Text="プロジェクト名:" Margin="0,0,0,5"/>
-        <TextBox Text="{Binding ProjectName}" Margin="0,0,0,15"/>
-        
-        <TextBlock Text="保存先フォルダ:" Margin="0,0,0,5"/>
+        <TextBlock Text="保存場所:" Margin="0,0,0,5"/>
         <Grid Margin="0,0,0,15">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <TextBox Text="{Binding FolderPath}" Grid.Column="0" IsReadOnly="True"/>
-            <Button Content="参照..." Grid.Column="1" Margin="5,0,0,0" Command="{Binding BrowseFolderCommand}"/>
+            <TextBox Text="{Binding FilePath}" Grid.Column="0" IsReadOnly="True"/>
+            <Button Content="参照..." Grid.Column="1" Margin="5,0,0,0" Command="{Binding BrowseFileCommand}"/>
         </Grid>
 
         <TextBlock Text="テンプレート:" Margin="0,0,0,5"/>

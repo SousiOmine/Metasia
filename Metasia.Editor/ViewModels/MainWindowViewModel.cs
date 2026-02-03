@@ -139,7 +139,20 @@ namespace Metasia.Editor.ViewModels
             {
                 if (_projectState.CurrentProject is not null)
                 {
-                    ProjectSaveLoadManager.Save(_projectState.CurrentProject);
+                    if (string.IsNullOrEmpty(_projectState.CurrentProject.ProjectFilePath))
+                    {
+                        // 新規プロジェクトの場合は保存ダイアログを表示
+                        var file = await _fileDialogService.SaveFileDialogAsync(
+                            "プロジェクトを保存",
+                            new[] { "mtpj" },
+                            "mtpj");
+                        if (file is null) return;
+
+                        _projectState.CurrentProject.ProjectFilePath = file.Path.LocalPath;
+                    }
+
+                    // 保存実行
+                    ProjectSaveLoadManager.Save(_projectState.CurrentProject, _projectState.CurrentProject.ProjectFilePath);
                 }
             }
             catch (Exception ex)
@@ -150,10 +163,12 @@ namespace Metasia.Editor.ViewModels
 
         private async Task LoadEditingProjectExecuteAsync()
         {
-            var folder = await _fileDialogService.OpenFolderDialogAsync();
-            if (folder is null) return;
+            var file = await _fileDialogService.OpenFileDialogAsync("プロジェクトを開く", new[] { "*.mtpj" });
+            if (file is null) return;
 
-            MetasiaEditorProject editorProject = ProjectSaveLoadManager.Load(new DirectoryEntity(folder.Path.LocalPath));
+            string filePath = file.Path.LocalPath;
+            MetasiaEditorProject editorProject = ProjectSaveLoadManager.Load(filePath);
+            editorProject.ProjectFilePath = filePath;
             await _projectState.LoadProjectAsync(editorProject);
         }
 
