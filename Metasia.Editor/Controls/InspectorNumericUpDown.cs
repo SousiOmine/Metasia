@@ -100,15 +100,8 @@ public class InspectorNumericUpDown : TemplatedControl
     public string EditText
     {
         get => _editText;
-        set
-        {
-            if (SetAndRaise(EditTextProperty, ref _editText, value) && IsEditing)
-            {
-                return;
-            }
-        }
+        set => SetAndRaise(EditTextProperty, ref _editText, value);
     }
-
     private string _displayText = "0";
     private string _editText = string.Empty;
 

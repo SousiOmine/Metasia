@@ -19,8 +19,8 @@ namespace Metasia.Core.Render
         /// <param name="renderResolution">レンダリング解像度</param>
         /// <param name="projectResolution">プロジェクトの解像度</param>
         /// <param name="cancellationToken">キャンセルトークン</param>
-        /// <returns>合成後のビットマップ</returns>
-        public async Task<SKBitmap> RenderFrameAsync(
+        /// <returns>合成後のイメージ</returns>
+        public async Task<SKImage> RenderFrameAsync(
             IRenderable root,
             int frame,
             SKSize renderResolution,
@@ -37,10 +37,12 @@ namespace Metasia.Core.Render
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            var resultBitmap = new SKBitmap((int)renderResolution.Width, (int)renderResolution.Height);
+            var info = new SKImageInfo((int)renderResolution.Width, (int)renderResolution.Height, SKColorType.Rgba8888, SKAlphaType.Premul);
+            using var surface = SKSurface.Create(info);
+            var canvas = surface.Canvas;
+
             try
             {
-                using SKCanvas canvas = new(resultBitmap);
                 //下地は黒で塗りつぶす
                 canvas.Clear(SKColors.Black);
 
@@ -55,11 +57,10 @@ namespace Metasia.Core.Render
             }
             catch
             {
-                resultBitmap.Dispose();
                 throw;
             }
 
-            return resultBitmap;
+            return surface.Snapshot();
         }
 
         private async Task ProcessNodeAsync(SKCanvas canvas, RenderNode node, SKSize projectResolution, SKSize renderResolution, CancellationToken cancellationToken = default)
@@ -72,7 +73,7 @@ namespace Metasia.Core.Render
                 await ProcessNodeAsync(canvas, child, projectResolution, renderResolution, cancellationToken);
             }
 
-            if (node.Bitmap is not null)
+            if (node.Image is not null)
             {
                 canvas.Save();
 
@@ -100,15 +101,14 @@ namespace Metasia.Core.Render
                 {
                     try
                     {
-                        if (node.Bitmap is not null && node.Bitmap.Width > 0 && node.Bitmap.Height > 0 && !cancellationToken.IsCancellationRequested)
+                        if (node.Image is not null && node.Image.Width > 0 && node.Image.Height > 0 && !cancellationToken.IsCancellationRequested)
                         {
-                            using var image = SKImage.FromBitmap(node.Bitmap);
-                            canvas.DrawImage(image, destRect, sampling, paint);
+                            canvas.DrawImage(node.Image, destRect, sampling, paint);
                         }
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine($"Failed to draw bitmap: {ex.Message}");
+                        Debug.WriteLine($"Failed to draw image: {ex.Message}");
                     }
                 }
                 canvas.Restore();

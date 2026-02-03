@@ -9,27 +9,29 @@ namespace Metasia.Editor.Models.Media.StandardInput;
 
 public class StdInput : IImageFileAccessor
 {
-    private static readonly ConcurrentDictionary<string, SKBitmap> _imageCache = new();
+    private static readonly ConcurrentDictionary<string, SKImage> _imageCache = new();
 
-    public async Task<ImageFileAccessorResult> GetBitmapAsync(string path)
+    public async Task<ImageFileAccessorResult> GetImageAsync(string path)
     {
         ArgumentNullException.ThrowIfNull(path);
         if (!File.Exists(path))
         {
-            return new ImageFileAccessorResult { IsSuccessful = false, Bitmap = null };
+            return new ImageFileAccessorResult { IsSuccessful = false, Image = null };
         }
 
-        if (_imageCache.TryGetValue(path, out var cachedBitmap))
+        if (_imageCache.TryGetValue(path, out var cachedImage))
         {
-            return new ImageFileAccessorResult { IsSuccessful = true, Bitmap = cachedBitmap };
+            return new ImageFileAccessorResult { IsSuccessful = true, Image = cachedImage };
         }
 
-        SKBitmap bitmap = SKBitmap.Decode(path);
-        if (bitmap != null)
+        using SKBitmap? bitmap = SKBitmap.Decode(path);
+        if (bitmap is not null)
         {
-            _imageCache.TryAdd(path, bitmap);
+            var image = SKImage.FromBitmap(bitmap);
+            _imageCache.TryAdd(path, image);
+            return new ImageFileAccessorResult { IsSuccessful = true, Image = image };
         }
 
-        return new ImageFileAccessorResult { IsSuccessful = true, Bitmap = bitmap };
+        return new ImageFileAccessorResult { IsSuccessful = false, Image = null };
     }
 }

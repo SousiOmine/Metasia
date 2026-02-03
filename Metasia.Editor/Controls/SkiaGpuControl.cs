@@ -22,23 +22,23 @@ namespace Metasia.Editor.Controls;
 /// </summary>
 public class SkiaGpuControl : Control, IDisposable
 {
-    private readonly ConcurrentQueue<(SKBitmap Bitmap, DateTime ReleaseTime)> _releaseQueue = new();
+    private readonly ConcurrentQueue<(SKImage Image, DateTime ReleaseTime)> _releaseQueue = new();
     private SKColor _backgroundColor = SKColors.Black;
     private volatile bool _isDisposed;
 
     /// <summary>
-    /// 描画するビットマップ
+    /// 描画するイメージ
     /// </summary>
-    public static readonly StyledProperty<SKBitmap?> BitmapProperty =
-        AvaloniaProperty.Register<SkiaGpuControl, SKBitmap?>(nameof(Bitmap));
+    public static readonly StyledProperty<SKImage?> ImageProperty =
+        AvaloniaProperty.Register<SkiaGpuControl, SKImage?>(nameof(Image));
 
     /// <summary>
-    /// 描画するビットマップ
+    /// 描画するイメージ
     /// </summary>
-    public SKBitmap? Bitmap
+    public SKImage? Image
     {
-        get => GetValue(BitmapProperty);
-        set => SetValue(BitmapProperty, value);
+        get => GetValue(ImageProperty);
+        set => SetValue(ImageProperty, value);
     }
 
     public SkiaGpuControl()
@@ -75,21 +75,21 @@ public class SkiaGpuControl : Control, IDisposable
 
     static SkiaGpuControl()
     {
-        AffectsRender<SkiaGpuControl>(BitmapProperty);
+        AffectsRender<SkiaGpuControl>(ImageProperty);
     }
 
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
 
-        if (change.Property == BitmapProperty)
+        if (change.Property == ImageProperty)
         {
-            var oldBitmap = change.GetOldValue<SKBitmap?>();
-            // 破棄中でなく、有効な古いビットマップがある場合のみキューに入れる
-            if (oldBitmap is not null && !_isDisposed)
+            var oldImage = change.GetOldValue<SKImage?>();
+            // 破棄中でなく、有効な古いイメージがある場合のみキューに入れる
+            if (oldImage is not null && !_isDisposed)
             {
-                // 古いビットマップは即座に破棄せず、描画完了待ちの猶予を持たせてキューに入れる
-                _releaseQueue.Enqueue((oldBitmap, DateTime.Now.AddMilliseconds(200)));
+                // 古いイメージは即座に破棄せず、描画完了待ちの猶予を持たせてキューに入れる
+                _releaseQueue.Enqueue((oldImage, DateTime.Now.AddMilliseconds(200)));
             }
         }
     }
@@ -102,7 +102,7 @@ public class SkiaGpuControl : Control, IDisposable
         ProcessReleaseQueue();
 
         var bounds = new Rect(0, 0, Bounds.Width, Bounds.Height);
-        context.Custom(new SkiaGpuDrawOperation(bounds, Bitmap, _backgroundColor));
+        context.Custom(new SkiaGpuDrawOperation(bounds, Image, _backgroundColor));
     }
 
     /// <summary>
@@ -122,7 +122,7 @@ public class SkiaGpuControl : Control, IDisposable
             {
                 if (_releaseQueue.TryDequeue(out var dequeuedItem))
                 {
-                    dequeuedItem.Bitmap.Dispose();
+                    dequeuedItem.Image.Dispose();
                 }
             }
             else
@@ -141,16 +141,16 @@ public class SkiaGpuControl : Control, IDisposable
         }
         _isDisposed = true;
 
-        var currentBitmap = Bitmap;
-        SetCurrentValue(BitmapProperty, null);
+        var currentImage = Image;
+        SetCurrentValue(ImageProperty, null);
 
         System.Threading.Tasks.Task.Delay(200).ContinueWith(_ =>
         {
-            currentBitmap?.Dispose();
+            currentImage?.Dispose();
 
             while (_releaseQueue.TryDequeue(out var item))
             {
-                item.Bitmap.Dispose();
+                item.Image.Dispose();
             }
         });
     }
@@ -160,21 +160,21 @@ public class SkiaGpuControl : Control, IDisposable
     /// </summary>
     private class SkiaGpuDrawOperation : ICustomDrawOperation
     {
-        private readonly SKBitmap? _bitmap;
+        private readonly SKImage? _image;
         private readonly SKColor _backgroundColor;
 
         public Rect Bounds { get; }
 
-        public SkiaGpuDrawOperation(Rect bounds, SKBitmap? bitmap, SKColor backgroundColor)
+        public SkiaGpuDrawOperation(Rect bounds, SKImage? image, SKColor backgroundColor)
         {
             Bounds = bounds;
-            _bitmap = bitmap;
+            _image = image;
             _backgroundColor = backgroundColor;
         }
 
         public void Dispose()
         {
-            // ビットマップはControl側で管理されているため、ここでは破棄しない
+            // イメージはControl側で管理されているため、ここでは破棄しない
         }
 
         public bool HitTest(Avalonia.Point p) => Bounds.Contains(p);
@@ -183,7 +183,7 @@ public class SkiaGpuControl : Control, IDisposable
         {
             if (other is SkiaGpuDrawOperation op)
             {
-                return Bounds == op.Bounds && ReferenceEquals(_bitmap, op._bitmap) && _backgroundColor == op._backgroundColor;
+                return Bounds == op.Bounds && ReferenceEquals(_image, op._image) && _backgroundColor == op._backgroundColor;
             }
             return false;
         }
@@ -213,40 +213,39 @@ public class SkiaGpuControl : Control, IDisposable
                 // テーマに応じた背景色でクリア（背景透過を防ぐ）
                 canvas.Clear(_backgroundColor);
 
-                if (_bitmap is not null)
+                if (_image is not null)
                 {
                     var canvasWidth = (float)Bounds.Width;
                     var canvasHeight = (float)Bounds.Height;
-                    var bitmapWidth = _bitmap.Width;
-                    var bitmapHeight = _bitmap.Height;
+                    var imageWidth = _image.Width;
+                    var imageHeight = _image.Height;
 
-                    if (bitmapWidth <= 0 || bitmapHeight <= 0)
+                    if (imageWidth <= 0 || imageHeight <= 0)
                     {
                         return;
                     }
 
                     // アスペクト比を維持したままキャンバスにフィットさせる
-                    var scaleX = canvasWidth / bitmapWidth;
-                    var scaleY = canvasHeight / bitmapHeight;
+                    var scaleX = canvasWidth / imageWidth;
+                    var scaleY = canvasHeight / imageHeight;
                     var scale = Math.Min(scaleX, scaleY);
 
-                    var scaledWidth = bitmapWidth * scale;
-                    var scaledHeight = bitmapHeight * scale;
+                    var scaledWidth = imageWidth * scale;
+                    var scaledHeight = imageHeight * scale;
 
                     var x = (canvasWidth - scaledWidth) / 2;
                     var y = (canvasHeight - scaledHeight) / 2;
 
                     var destRect = new SKRect(x, y, x + scaledWidth, y + scaledHeight);
 
-                    // GPU上で高品質なビットマップ描画を行う
+                    // GPU上で高品質なイメージ描画を行う
                     var sampling = new SKSamplingOptions(SKCubicResampler.Mitchell);
                     using var paint = new SKPaint
                     {
                         IsAntialias = true
                     };
 
-                    using var image = SKImage.FromBitmap(_bitmap);
-                    canvas.DrawImage(image, destRect, sampling, paint);
+                    canvas.DrawImage(_image, destRect, sampling, paint);
                 }
             }
             finally

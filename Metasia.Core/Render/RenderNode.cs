@@ -7,7 +7,7 @@ namespace Metasia.Core.Render
         /// <summary>
         /// 描画されるピクセルデータ
         /// </summary>
-        public SKBitmap? Bitmap { get; init; }
+        public SKImage? Image { get; init; }
 
         /// <summary>
         /// Bitmapがプロジェクト解像度において持つべき論理的なサイズ

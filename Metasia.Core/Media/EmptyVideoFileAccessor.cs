@@ -4,13 +4,13 @@ namespace Metasia.Core.Media;
 
 public class EmptyVideoFileAccessor : IVideoFileAccessor
 {
-    public Task<VideoFileAccessorResult> GetBitmapAsync(string path, TimeSpan time)
+    public Task<VideoFileAccessorResult> GetImageAsync(string path, TimeSpan time)
     {
-        return Task.FromResult(new VideoFileAccessorResult { IsSuccessful = false, Bitmap = null });
+        return Task.FromResult(new VideoFileAccessorResult { IsSuccessful = false, Image = null });
     }
 
-    public Task<VideoFileAccessorResult> GetBitmapAsync(string path, int frame)
+    public Task<VideoFileAccessorResult> GetImageAsync(string path, int frame)
     {
-        return Task.FromResult(new VideoFileAccessorResult { IsSuccessful = false, Bitmap = null });
+        return Task.FromResult(new VideoFileAccessorResult { IsSuccessful = false, Image = null });
     }
 }

@@ -19,7 +19,7 @@ namespace Metasia.Core.Objects
 {
     [Serializable]
     [ClipTypeIdentifier("HelloObject")]
-    public class kariHelloObject : ClipObject, IRenderable, IAudible
+    public class kariHelloObject : ClipObject, IRenderable, IAudible, IDisposable
     {
         [EditableProperty("X")]
         [ValueRange(-99999, 99999, -2000, 2000)]
@@ -41,7 +41,8 @@ namespace Metasia.Core.Objects
         public MetaDoubleParam Volume { get; set; } = new MetaDoubleParam(100);
         public List<AudioEffectBase> AudioEffects { get; set; } = new();
 
-        private SKBitmap myBitmap = new(200, 200);
+        private SKImage? myImage;
+        private bool disposed;
         private int audio_offset = 0;
 
         public kariHelloObject()
@@ -54,6 +55,10 @@ namespace Metasia.Core.Objects
             InitializeBitmap();
         }
 
+        ~kariHelloObject()
+        {
+            Dispose(false);
+        }
 
         private void InitializeBitmap()
         {
@@ -62,11 +67,12 @@ namespace Metasia.Core.Objects
             {
                 Color = SKColors.Red
             };
-            using (SKCanvas canvas = new SKCanvas(myBitmap))
-            {
-                canvas.Clear(SKColors.Brown);
-                canvas.DrawText("Hello", new SKPoint(100, 100), SKTextAlign.Center, skFont, skPaint);
-            }
+            var info = new SKImageInfo(200, 200, SKColorType.Rgba8888, SKAlphaType.Premul);
+            using var surface = SKSurface.Create(info);
+            using var canvas = surface.Canvas;
+            canvas.Clear(SKColors.Brown);
+            canvas.DrawText("Hello", new SKPoint(100, 100), SKTextAlign.Center, skFont, skPaint);
+            myImage = surface.Snapshot();
         }
 
         public Task<RenderNode> RenderAsync(RenderContext context, CancellationToken cancellationToken = default)
@@ -76,12 +82,6 @@ namespace Metasia.Core.Objects
             //このオブジェクトのStartFrameを基準としたフレーム
             int relativeFrame = context.Frame - StartFrame;
             int clipLength = EndFrame - StartFrame + 1;
-            var bitmap = new SKBitmap(200, 200);
-
-            using (SKCanvas canvas = new SKCanvas(bitmap))
-            {
-                canvas.DrawBitmap(myBitmap, (bitmap.Width - myBitmap.Width) / 2, (bitmap.Height - myBitmap.Height) / 2);
-            }
 
             var transform = new Transform()
             {
@@ -93,12 +93,11 @@ namespace Metasia.Core.Objects
 
             return Task.FromResult(new RenderNode()
             {
-                Bitmap = bitmap,
-                LogicalSize = new SKSize(bitmap.Width, bitmap.Height),
+                Image = myImage,
+                LogicalSize = new SKSize(200, 200),
                 Transform = transform,
             });
         }
-
 
         public IAudioChunk GetAudioChunk(GetAudioContext context)
         {
@@ -192,6 +191,28 @@ namespace Metasia.Core.Objects
             var copy = MetasiaObjectXmlSerializer.Deserialize<kariHelloObject>(xml);
             copy.Id = Id + "_copy";
             return copy;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                myImage?.Dispose();
+                myImage = null;
+            }
+
+            disposed = true;
         }
     }
 }

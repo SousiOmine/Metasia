@@ -56,7 +56,7 @@ public abstract class EncoderBase : IEncoder, IDisposable
 
     public abstract void Start();
 
-    protected async IAsyncEnumerable<SKBitmap> GetFramesAsync(int firstFrameIndex, int lastFrameIndex, [EnumeratorCancellation] CancellationToken ct)
+    protected async IAsyncEnumerable<SKImage> GetFramesAsync(int firstFrameIndex, int lastFrameIndex, [EnumeratorCancellation] CancellationToken ct)
     {
         if (_project is null || _targetTimeline is null || _imageFileAccessor is null || _videoFileAccessor is null || _projectPath is null)
         {

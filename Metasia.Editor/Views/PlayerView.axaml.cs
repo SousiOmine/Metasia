@@ -169,15 +169,15 @@ public partial class PlayerView : UserControl, IDisposable
                         projectInfo,
                         VM.ProjectPath);
 
-                    // フレームが変わっていなければビットマップを更新
+                    // フレームが変わっていなければイメージを更新
                     if (requestedFrame == VM.Frame)
                     {
-                        // GPU描画コントロールにビットマップを渡して再描画
+                        // GPU描画コントロールにイメージを渡して再描画
                         Dispatcher.UIThread.Post(() =>
                         {
                             if (requestedFrame == VM.Frame)
                             {
-                                skiaCanvas.Bitmap = bitmap;
+                                skiaCanvas.Image = bitmap;
                                 skiaCanvas.InvalidateSurface();
                             }
                             else

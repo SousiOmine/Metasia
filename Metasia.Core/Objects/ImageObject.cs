@@ -50,8 +50,8 @@ public class ImageObject : ClipObject, IRenderable
         {
             try
             {
-                var imageFileAccessorResult = await context.ImageFileAccessor.GetBitmapAsync(MediaPath.GetFullPath(ImagePath, context.ProjectPath));
-                if (imageFileAccessorResult.IsSuccessful && imageFileAccessorResult.Bitmap is not null)
+                var imageFileAccessorResult = await context.ImageFileAccessor.GetImageAsync(MediaPath.GetFullPath(ImagePath, context.ProjectPath));
+                if (imageFileAccessorResult.IsSuccessful && imageFileAccessorResult.Image is not null)
                 {
                     var transform = new Transform()
                     {
@@ -62,8 +62,8 @@ public class ImageObject : ClipObject, IRenderable
                     };
                     return new RenderNode()
                     {
-                        Bitmap = imageFileAccessorResult.Bitmap,
-                        LogicalSize = new SKSize(imageFileAccessorResult.Bitmap.Width, imageFileAccessorResult.Bitmap.Height),
+                        Image = imageFileAccessorResult.Image,
+                        LogicalSize = new SKSize(imageFileAccessorResult.Image.Width, imageFileAccessorResult.Image.Height),
                         Transform = transform,
                     };
                 }

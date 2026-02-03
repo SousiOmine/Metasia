@@ -68,7 +68,7 @@ public class ShapeObjectTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Bitmap, Is.Not.Null);
+        Assert.That(result.Image, Is.Not.Null);
         Assert.That(result.LogicalSize.Width, Is.GreaterThan(0));
         Assert.That(result.LogicalSize.Height, Is.GreaterThan(0));
     }
@@ -156,7 +156,7 @@ public class ShapeObjectTests
             var result = await obj.RenderAsync(context);
 
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.Bitmap, Is.Not.Null);
+            Assert.That(result.Image, Is.Not.Null);
             Assert.That(result.LogicalSize.Width, Is.GreaterThan(0));
             Assert.That(result.LogicalSize.Height, Is.GreaterThan(0));
         }

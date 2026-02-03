@@ -16,51 +16,51 @@ public class MediaAccessorRouter : IImageFileAccessor, IVideoFileAccessor
         Accessors.Add(new StdInput());
     }
 
-    public async Task<ImageFileAccessorResult> GetBitmapAsync(string path)
+    public async Task<ImageFileAccessorResult> GetImageAsync(string path)
     {
         foreach (var accessor in Accessors)
         {
             if (accessor is IImageFileAccessor imageAccessor)
             {
-                var result = await imageAccessor.GetBitmapAsync(path);
+                var result = await imageAccessor.GetImageAsync(path);
                 if (result.IsSuccessful)
                 {
                     return result;
                 }
             }
         }
-        return new ImageFileAccessorResult { IsSuccessful = false, Bitmap = null };
+        return new ImageFileAccessorResult { IsSuccessful = false, Image = null };
     }
 
-    public async Task<VideoFileAccessorResult> GetBitmapAsync(string path, TimeSpan time)
+    public async Task<VideoFileAccessorResult> GetImageAsync(string path, TimeSpan time)
     {
         foreach (var accessor in Accessors)
         {
             if (accessor is IVideoFileAccessor videoAccessor)
             {
-                var result = await videoAccessor.GetBitmapAsync(path, time);
+                var result = await videoAccessor.GetImageAsync(path, time);
                 if (result.IsSuccessful)
                 {
                     return result;
                 }
             }
         }
-        return new VideoFileAccessorResult { IsSuccessful = false, Bitmap = null };
+        return new VideoFileAccessorResult { IsSuccessful = false, Image = null };
     }
 
-    public async Task<VideoFileAccessorResult> GetBitmapAsync(string path, int frame)
+    public async Task<VideoFileAccessorResult> GetImageAsync(string path, int frame)
     {
         foreach (var accessor in Accessors)
         {
             if (accessor is IVideoFileAccessor videoAccessor)
             {
-                var result = await videoAccessor.GetBitmapAsync(path, frame);
+                var result = await videoAccessor.GetImageAsync(path, frame);
                 if (result.IsSuccessful)
                 {
                     return result;
                 }
             }
         }
-        return new VideoFileAccessorResult { IsSuccessful = false, Bitmap = null };
+        return new VideoFileAccessorResult { IsSuccessful = false, Image = null };
     }
 }

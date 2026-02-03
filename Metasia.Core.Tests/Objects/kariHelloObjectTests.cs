@@ -16,6 +16,12 @@ namespace Metasia.Core.Tests.Objects
             _kariHelloObject = new kariHelloObject("kari-id");
         }
 
+        [TearDown]
+        public void TearDown()
+        {
+            _kariHelloObject.Dispose();
+        }
+
         [Test]
         public void Constructor_WithId_InitializesCorrectly()
         {

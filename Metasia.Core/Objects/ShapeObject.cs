@@ -85,57 +85,68 @@ namespace Metasia.Core.Objects
                 height = (int)(size / aspectRatio);
             }
 
-            var bitmap = new SKBitmap(width, height);
-            using (SKCanvas canvas = new SKCanvas(bitmap))
+            var logicalSize = new SKSize(width, height);
+
+            //縦横のレンダリング倍率
+            float renderScaleWidth = context.RenderResolution.Width / context.ProjectResolution.Width;
+            float renderScaleHeight = context.RenderResolution.Height / context.ProjectResolution.Height;
+
+            //レンダリング倍率に合わせてサイズを計算
+            int finalWidth = (int)(width * renderScaleWidth);
+            int finalHeight = (int)(height * renderScaleHeight);
+
+            if (finalWidth <= 0 || finalHeight <= 0)
             {
-                canvas.Clear(SKColors.Transparent);
+                return Task.FromResult(new RenderNode());
+            }
 
-                using (SKPaint paint = new SKPaint())
+            SKImage image;
+            var info = new SKImageInfo(finalWidth, finalHeight, SKColorType.Rgba8888, SKAlphaType.Premul);
+            using var surface = SKSurface.Create(info) ?? throw new InvalidOperationException($"Failed to create SKSurface with dimensions {finalWidth}x{finalHeight}");
+
+            using var canvas = surface.Canvas;
+
+            canvas.Clear(SKColors.Transparent);
+            canvas.Scale(renderScaleWidth, renderScaleHeight);
+
+            using (SKPaint paint = new SKPaint())
+            {
+                paint.Color = shapeColor;
+                paint.IsAntialias = true;
+
+                switch (Shape.SelectedValue)
                 {
-                    paint.Color = shapeColor;
-                    paint.IsAntialias = true;
-
-                    switch (Shape.SelectedValue)
-                    {
-                        case "Circle":
-                            float radiusX = width / 2f;
-                            float radiusY = height / 2f;
-                            canvas.DrawOval(new SKRect(width / 2f - radiusX, height / 2f - radiusY, width / 2f + radiusX, height / 2f + radiusY), paint);
-                            break;
-                        case "Square":
-                            canvas.DrawRect(0, 0, width, height, paint);
-                            break;
-                        case "Triangle":
-                            var path = new SKPath();
+                    case "Circle":
+                        float radiusX = width / 2f;
+                        float radiusY = height / 2f;
+                        canvas.DrawOval(new SKRect(width / 2f - radiusX, height / 2f - radiusY, width / 2f + radiusX, height / 2f + radiusY), paint);
+                        break;
+                    case "Square":
+                        canvas.DrawRect(0, 0, width, height, paint);
+                        break;
+                    case "Triangle":
+                        {
+                            using var path = new SKPath();
                             path.MoveTo(width / 2f, 0);
                             path.LineTo(0, height);
                             path.LineTo(width, height);
                             path.Close();
                             canvas.DrawPath(path, paint);
                             break;
-                        case "Star":
-                            float outerRadiusX = width / 2f;
-                            float outerRadiusY = height / 2f;
-                            float innerRadiusX = outerRadiusX / 2f;
-                            float innerRadiusY = outerRadiusY / 2f;
-                            DrawStarWithAspectRatio(canvas, paint, width / 2f, height / 2f, outerRadiusX, outerRadiusY, innerRadiusX, innerRadiusY, 5);
-                            break;
-                    }
+                        }
+                    case "Star":
+                        float outerRadiusX = width / 2f;
+                        float outerRadiusY = height / 2f;
+                        float innerRadiusX = outerRadiusX / 2f;
+                        float innerRadiusY = outerRadiusY / 2f;
+                        DrawStarWithAspectRatio(canvas, paint, width / 2f, height / 2f, outerRadiusX, outerRadiusY, innerRadiusX, innerRadiusY, 5);
+                        break;
                 }
             }
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            //縦横のレンダリング倍率
-            float renderScaleWidth = context.RenderResolution.Width / context.ProjectResolution.Width;
-            float renderScaleHeight = context.RenderResolution.Height / context.ProjectResolution.Height;
-
-            //レンダリング倍率に合わせて画像をリサイズ
-            if (renderScaleWidth != 1.0f || renderScaleHeight != 1.0f)
-            {
-                var scaledInfo = new SKImageInfo((int)(bitmap.Width * renderScaleWidth), (int)(bitmap.Height * renderScaleHeight));
-                bitmap = bitmap.Resize(scaledInfo, new SKSamplingOptions(SKCubicResampler.Mitchell));
-            }
+            image = surface.Snapshot();
 
             var transform = new Transform()
             {
@@ -147,8 +158,8 @@ namespace Metasia.Core.Objects
 
             return Task.FromResult(new RenderNode()
             {
-                Bitmap = bitmap,
-                LogicalSize = new SKSize(width, height),
+                Image = image,
+                LogicalSize = logicalSize,
                 Transform = transform,
             });
         }

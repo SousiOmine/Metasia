@@ -109,26 +109,45 @@ namespace Metasia.Core.Objects
             }
 
             var logicalSize = new SKSize(bitmapWidth, bitmapHeight);
-            var bitmap = new SKBitmap(bitmapWidth, bitmapHeight);
-
-            using (SKCanvas canvas = new SKCanvas(bitmap))
-            {
-                canvas.Clear();
-                canvas.DrawText(Contents, new SKPoint(-textBounds.Left, -textBounds.Top), skFont, skPaint);
-            }
-
-            cancellationToken.ThrowIfCancellationRequested();
 
             //縦横のレンダリング倍率
             float renderScaleWidth = context.RenderResolution.Width / context.ProjectResolution.Width;
             float renderScaleHeight = context.RenderResolution.Height / context.ProjectResolution.Height;
 
-            //レンダリング倍率に合わせて画像をリサイズ
-            if (renderScaleWidth != 1.0f || renderScaleHeight != 1.0f)
+            //レンダリング倍率に合わせてサイズを計算
+            int finalWidth = (int)(bitmapWidth * renderScaleWidth);
+            int finalHeight = (int)(bitmapHeight * renderScaleHeight);
+            if (finalWidth <= 0 || finalHeight <= 0)
             {
-                var scaledInfo = new SKImageInfo((int)(bitmap.Width * renderScaleWidth), (int)(bitmap.Height * renderScaleHeight));
-                bitmap = bitmap.Resize(scaledInfo, new SKSamplingOptions(SKCubicResampler.Mitchell));
+                return Task.FromResult(new RenderNode());
             }
+
+            SKImage image;
+            if (renderScaleWidth == 1.0f && renderScaleHeight == 1.0f)
+            {
+                // リサイズ不要な場合は直接描画
+                var info = new SKImageInfo(bitmapWidth, bitmapHeight, SKColorType.Rgba8888, SKAlphaType.Premul);
+                using var surface = SKSurface.Create(info);
+                using var canvas = surface.Canvas;
+                canvas.Clear(SKColors.Transparent);
+                canvas.DrawText(Contents, new SKPoint(-textBounds.Left, -textBounds.Top), skFont, skPaint);
+                cancellationToken.ThrowIfCancellationRequested();
+                image = surface.Snapshot();
+            }
+            else
+            {
+                // リサイズが必要な場合は、一度大きなサイズで描画してからスケール
+                var info = new SKImageInfo(finalWidth, finalHeight, SKColorType.Rgba8888, SKAlphaType.Premul);
+                using var surface = SKSurface.Create(info);
+                using var canvas = surface.Canvas;
+                canvas.Clear(SKColors.Transparent);
+                canvas.Scale(renderScaleWidth, renderScaleHeight);
+                canvas.DrawText(Contents, new SKPoint(-textBounds.Left, -textBounds.Top), skFont, skPaint);
+                cancellationToken.ThrowIfCancellationRequested();
+                image = surface.Snapshot();
+            }
+
+            cancellationToken.ThrowIfCancellationRequested();
 
             var transform = new Transform()
             {
@@ -138,10 +157,9 @@ namespace Metasia.Core.Objects
                 Alpha = (100.0f - (float)Alpha.Get(relativeFrame, clipLength)) / 100,
             };
 
-
             return Task.FromResult(new RenderNode()
             {
-                Bitmap = bitmap,
+                Image = image,
                 LogicalSize = logicalSize,
                 Transform = transform,
             });

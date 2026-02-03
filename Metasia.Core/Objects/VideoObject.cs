@@ -54,8 +54,8 @@ public class VideoObject : ClipObject, IRenderable
             try
             {
                 TimeSpan time = TimeSpan.FromSeconds((double)(relativeFrame) / context.ProjectInfo.Framerate + VideoStartSeconds.Get(relativeFrame, clipLength));
-                var imageFileAccessorResult = await context.VideoFileAccessor.GetBitmapAsync(MediaPath.GetFullPath(VideoPath, context.ProjectPath), time);
-                if (imageFileAccessorResult.IsSuccessful && imageFileAccessorResult.Bitmap is not null)
+                var imageFileAccessorResult = await context.VideoFileAccessor.GetImageAsync(MediaPath.GetFullPath(VideoPath, context.ProjectPath), time);
+                if (imageFileAccessorResult.IsSuccessful && imageFileAccessorResult.Image is not null)
                 {
                     var transform = new Transform()
                     {
@@ -66,8 +66,8 @@ public class VideoObject : ClipObject, IRenderable
                     };
                     return new RenderNode()
                     {
-                        Bitmap = imageFileAccessorResult.Bitmap,
-                        LogicalSize = new SKSize(imageFileAccessorResult.Bitmap.Width, imageFileAccessorResult.Bitmap.Height),
+                        Image = imageFileAccessorResult.Image,
+                        LogicalSize = new SKSize(imageFileAccessorResult.Image.Width, imageFileAccessorResult.Image.Height),
                         Transform = transform,
                     };
                 }
