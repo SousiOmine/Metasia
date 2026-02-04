@@ -10,14 +10,14 @@ namespace Metasia.Core.Render
         public SKImage? Image { get; init; }
 
         /// <summary>
-        /// Bitmapがプロジェクト解像度において持つべき論理的なサイズ
+        /// Imageがプロジェクト解像度において持つべき論理的なサイズ
         /// </summary>
         public SKSize LogicalSize { get; init; }
 
         /// <summary>
         /// 描画オブジェクトの位置や角度、スケール、不透明度など
         /// </summary>
-        public Transform Transform { get; init; } = Transform.Identity;
+        public Transform Transform { get; set; } = Transform.Identity;
 
         /// <summary>
         /// 子ノードの描画情報リスト

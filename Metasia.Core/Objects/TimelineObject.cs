@@ -3,6 +3,7 @@ using Metasia.Core.Sounds;
 using Metasia.Core.Objects.AudioEffects;
 using Metasia.Core.Attributes;
 using Metasia.Core.Objects.Parameters;
+using SkiaSharp;
 
 namespace Metasia.Core.Objects
 {
@@ -65,22 +66,7 @@ namespace Metasia.Core.Objects
 
         public async Task<IRenderNode> RenderAsync(RenderContext context, CancellationToken cancellationToken = default)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            var nodes = new List<IRenderNode>();
-
-            foreach (var layer in Layers)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                if (!layer.IsActive) continue;
-                nodes.Add(await layer.RenderAsync(context, cancellationToken));
-            }
-
-            return new NormalRenderNode()
-            {
-                Children = nodes,
-            };
+            return await RenderExecuteAsync(context, cancellationToken);
         }
 
         public IAudioChunk GetAudioChunk(GetAudioContext context)
@@ -142,6 +128,143 @@ namespace Metasia.Core.Objects
             }
 
             return lastFrame;
+        }
+
+        private class GroupControlLife(GroupControlRenderNode node)
+        {
+            public GroupControlRenderNode Node { get; init; } = node;
+            public int Life { get; set; } = node.ScopeLayerCount;
+        }
+
+        private class CameraControlLife(CameraControlRenderNode node)
+        {
+            public CameraControlRenderNode Node { get; init; } = node;
+            public int Life { get; set; } = node.ScopeLayerCount;
+        }
+
+        /// <summary>
+        /// レイヤー範囲を指定してレンダリングを行う
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="cancellationToken"></param>
+        /// <param name="layerStartIndex">開始レイヤーインデックス</param>
+        /// <param name="layerEndIndex">終了レイヤーインデックス（-1の場合は最後のレイヤーまで）</param>
+        /// <returns></returns>
+        private async Task<NormalRenderNode> RenderExecuteAsync(
+            RenderContext context, 
+            CancellationToken cancellationToken = default, 
+            int layerStartIndex = 0, 
+            int layerEndIndex = -1)
+        {
+            layerStartIndex = Math.Max(0, layerStartIndex);
+            if (layerEndIndex < 0)
+            {
+                layerEndIndex = Layers.Count;
+            }
+            layerEndIndex = Math.Min(Layers.Count, layerEndIndex);
+            
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var nodes = new List<IRenderNode>();
+            var targetLayers = Layers.GetRange(layerStartIndex, layerEndIndex - layerStartIndex);
+
+            List<GroupControlLife> groupControlLifes = [];
+            List<CameraControlLife> cameraControlLifes = [];
+
+            for (int i = 0; i < targetLayers.Count; i++)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                // グループ制御の寿命管理
+                for (int j = groupControlLifes.Count - 1; j >= 0; j--)
+                {
+                    groupControlLifes[j].Life--;
+                    if (groupControlLifes[j].Life < 0)
+                    {
+                        groupControlLifes.RemoveAt(j);
+                    }
+                }
+
+                // カメラ制御の寿命管理
+                for (int j = cameraControlLifes.Count - 1; j >= 0; j--)
+                {
+                    cameraControlLifes[j].Life--;
+                    if (cameraControlLifes[j].Life < 0)
+                    {
+                        cameraControlLifes.RemoveAt(j);
+                    }
+                }
+
+                var layer = targetLayers[i];
+                if (!layer.IsActive || cameraControlLifes.Count > 0) continue;
+
+                IRenderNode node = await layer.RenderAsync(context, cancellationToken);
+                if (node is NormalRenderNode)
+                {
+                    foreach (var group in groupControlLifes)
+                    {
+                        node = await ApplyGroupControl(node, group.Node);
+                    }
+                    nodes.Add(node);
+                }
+                else if (node is GroupControlRenderNode)
+                {
+                    GroupControlRenderNode? groupNode = node as GroupControlRenderNode;
+                    if (groupNode is not null) groupControlLifes.Add(new GroupControlLife(groupNode));
+
+                    foreach (var group in groupControlLifes)
+                    {
+                        node = await ApplyGroupControl(node, group.Node);
+                    }
+                    nodes.Add(node);
+                }
+                else if (node is CameraControlRenderNode)
+                {
+                    CameraControlRenderNode? cameraNode = node as CameraControlRenderNode;
+                    if (cameraNode is not null) 
+                    {
+                        cameraControlLifes.Add(new CameraControlLife(cameraNode));
+                        int targetLayerCount = cameraNode.ScopeLayerCount;
+                        var targetLayersNode = await RenderExecuteAsync(context, cancellationToken, layerStartIndex + i + 1, layerStartIndex + i + targetLayerCount + 1);
+                        
+                        var compositor = new Compositor();
+                        var info = new SKImageInfo((int)context.RenderResolution.Width, (int)context.RenderResolution.Height, SKColorType.Rgba8888, SKAlphaType.Premul);
+                        using var surface = SKSurface.Create(info);
+                        var canvas = surface.Canvas;
+                        await compositor.ProcessNodeAsync(canvas, targetLayersNode, context.ProjectResolution, context.RenderResolution, cancellationToken);
+
+                        IRenderNode renderedNode = new NormalRenderNode()
+                        {
+                            Image = surface.Snapshot(),
+                            LogicalSize = new SKSize(context.ProjectResolution.Width, context.ProjectResolution.Height),
+                            Transform = cameraNode.Transform,
+                        };
+
+                        foreach (var group in groupControlLifes)
+                        {
+                            renderedNode = await ApplyGroupControl(renderedNode, group.Node);
+                        }
+                        nodes.Add(renderedNode);
+                    }
+                }
+
+
+            }
+
+            return new NormalRenderNode()
+            {
+                Children = nodes,
+            };
+        }
+
+        private static Task<IRenderNode> ApplyGroupControl(IRenderNode node, GroupControlRenderNode groupNode)
+        {
+            node.Transform.Add(groupNode.Transform);
+            foreach (var child in node.Children)
+            {
+                child.Transform.Add(groupNode.Transform);
+            }
+            return Task.FromResult(node);
         }
     }
 }

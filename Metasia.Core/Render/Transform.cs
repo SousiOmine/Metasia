@@ -39,5 +39,14 @@ namespace Metasia.Core.Render
 
         private float _scale = 1.0f;
         private float _alpha = 1.0f;
+
+        public Transform Add(Transform transform)
+        {
+            Position += transform.Position;
+            Scale *= transform.Scale;
+            Rotation += transform.Rotation;
+            Alpha *= transform.Alpha;
+            return this;
+        }
     }
 }

@@ -1,6 +1,6 @@
 namespace Metasia.Core.Objects;
 
-public interface ILayerController
+public interface ILayerIntervener
 {
     int TargetLayerCount { get; }
 }

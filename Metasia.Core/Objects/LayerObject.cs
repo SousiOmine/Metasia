@@ -80,7 +80,21 @@ namespace Metasia.Core.Objects
             foreach (var obj in ApplicateObjects)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                nodes.Add(await obj.RenderAsync(context, cancellationToken));
+                var node = await obj.RenderAsync(context, cancellationToken);
+                if (node is NormalRenderNode)
+                {
+                    nodes.Add(node);
+                }
+                else if (node is GroupControlRenderNode)
+                {
+                    // GrounControlRenderNodeがフレームに含まれる場合はこれをそのまま返す
+                    return node;
+                }
+                else if (node is CameraControlRenderNode)
+                {
+                    // CameraControlRenderNodeがフレームに含まれる場合はこれをそのまま返す
+                    return node;
+                }
             }
 
             return new NormalRenderNode()

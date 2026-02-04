@@ -63,7 +63,7 @@ namespace Metasia.Core.Render
             return surface.Snapshot();
         }
 
-        private async Task ProcessNodeAsync(SKCanvas canvas, IRenderNode node, SKSize projectResolution, SKSize renderResolution, CancellationToken cancellationToken = default)
+        public async Task ProcessNodeAsync(SKCanvas canvas, IRenderNode node, SKSize projectResolution, SKSize renderResolution, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
