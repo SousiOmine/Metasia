@@ -229,10 +229,9 @@ namespace Metasia.Core.Objects
                         
                         var compositor = new Compositor();
                         var info = new SKImageInfo((int)context.RenderResolution.Width, (int)context.RenderResolution.Height, SKColorType.Rgba8888, SKAlphaType.Premul);
-                        using var surface = SKSurface.Create(info);
+                        using var surface = SKSurface.Create(info) ?? throw new InvalidOperationException($"Failed to create SKSurface with dimensions {info.Width}x{info.Height}");
                         var canvas = surface.Canvas;
                         await compositor.ProcessNodeAsync(canvas, targetLayersNode, context.ProjectResolution, context.RenderResolution, cancellationToken);
-
                         IRenderNode renderedNode = new NormalRenderNode()
                         {
                             Image = surface.Snapshot(),

@@ -65,9 +65,8 @@ public class GroupControlObject : ClipObject, IRenderable, IAudible, ILayerInter
 
     ~GroupControlObject()
     {
-        
+        Dispose(false);
     }
-
     public Task<IRenderNode> RenderAsync(RenderContext context, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();

@@ -75,6 +75,7 @@ namespace Metasia.Core.Render
                     break;
                 default:
                     // 未知のノードタイプ
+                    Debug.WriteLine($"Unknown node type: {node.GetType().FullName}");
                     break;
             }
 

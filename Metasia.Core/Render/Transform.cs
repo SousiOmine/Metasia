@@ -42,11 +42,12 @@ namespace Metasia.Core.Render
 
         public Transform Add(Transform transform)
         {
+            ArgumentNullException.ThrowIfNull(transform);
             Position += transform.Position;
             Scale *= transform.Scale;
             Rotation += transform.Rotation;
             Alpha *= transform.Alpha;
             return this;
-        }
+        }    
     }
 }

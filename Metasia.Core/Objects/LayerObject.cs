@@ -87,7 +87,7 @@ namespace Metasia.Core.Objects
                 }
                 else if (node is GroupControlRenderNode)
                 {
-                    // GrounControlRenderNodeがフレームに含まれる場合はこれをそのまま返す
+                    // GroupControlRenderNodeがフレームに含まれる場合はこれをそのまま返す
                     return node;
                 }
                 else if (node is CameraControlRenderNode)

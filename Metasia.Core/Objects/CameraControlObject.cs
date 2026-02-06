@@ -63,10 +63,6 @@ public class CameraControlObject : ClipObject, IRenderable, IAudible, ILayerInte
         
     }
 
-    ~CameraControlObject()
-    {
-        
-    }
 
     public Task<IRenderNode> RenderAsync(RenderContext context, CancellationToken cancellationToken = default)
     {
