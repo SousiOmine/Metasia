@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Metasia.Editor.Models.Media;
-using Metasia.Editor.Models.Media.StandardInput;
 using Metasia.Editor.Models.Plugins;
 using Metasia.Editor.Plugin;
 
@@ -18,7 +17,7 @@ namespace Metasia.Editor.Services.PluginService
 
         public List<IMediaOutputPlugin> MediaOutputPlugins { get; private set; } = [];
 
-        private MediaAccessorRouter _mediaAccessorRouter;
+        private readonly MediaAccessorRouter _mediaAccessorRouter;
 
         public PluginService(MediaAccessorRouter mediaAccessorRouter)
         {
@@ -30,6 +29,10 @@ namespace Metasia.Editor.Services.PluginService
             Debug.WriteLine("Loading plugins...");
             try
             {
+                EditorPlugins.Clear();
+                MediaInputPlugins.Clear();
+                MediaOutputPlugins.Clear();
+
                 EditorPlugins = (await PluginLoader.LoadEditorPluginsAsync()).ToList();
                 foreach (var plugin in EditorPlugins)
                 {
@@ -58,9 +61,8 @@ namespace Metasia.Editor.Services.PluginService
         {
             foreach (var plugin in MediaInputPlugins)
             {
-                _mediaAccessorRouter.Accessors.Add(plugin);
+                _mediaAccessorRouter.RegisterAccessor(plugin.PluginIdentifier, plugin.PluginName, plugin);
             }
-            _mediaAccessorRouter.Accessors.Add(new StdInput());
         }
 
         private void RegisterMediaOutputPlugins()

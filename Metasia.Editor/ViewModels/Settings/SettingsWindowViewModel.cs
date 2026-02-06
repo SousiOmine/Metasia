@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reactive;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Metasia.Editor.Models.Media;
 using ReactiveUI;
 using Metasia.Editor.Models.Settings;
 using Metasia.Editor.ViewModels.Settings;
@@ -13,6 +14,7 @@ namespace Metasia.Editor.ViewModels
     public class SettingsWindowViewModel : ViewModelBase
     {
         private readonly ISettingsService _settingsService;
+        private readonly MediaAccessorRouter _mediaAccessorRouter;
         private EditorSettings _workingSettings;
         private EditorSettings _lastAppliedSettings;
 
@@ -36,14 +38,15 @@ namespace Metasia.Editor.ViewModels
         public ReactiveCommand<Unit, Unit> CancelCommand { get; }
         public ReactiveCommand<Unit, Unit> ResetToDefaultsCommand { get; }
 
-        public SettingsWindowViewModel(ISettingsService settingsService)
+        public SettingsWindowViewModel(ISettingsService settingsService, MediaAccessorRouter mediaAccessorRouter)
         {
             _settingsService = settingsService;
+            _mediaAccessorRouter = mediaAccessorRouter;
             _workingSettings = CloneSettings(_settingsService.CurrentSettings);
             _lastAppliedSettings = CloneSettings(_settingsService.CurrentSettings);
 
             Categories.Add(new GeneralSettingsViewModel(_workingSettings));
-            Categories.Add(new EditorSettingsViewModel(_workingSettings));
+            Categories.Add(new EditorSettingsViewModel(_workingSettings, _mediaAccessorRouter));
 
             foreach (var category in Categories)
             {

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace Metasia.Editor.Models.Settings
@@ -6,5 +7,8 @@ namespace Metasia.Editor.Models.Settings
     {
         [JsonPropertyName("snapToGrid")]
         public bool SnapToGrid { get; set; } = true;
+
+        [JsonPropertyName("mediaAccessorPriorityOrder")]
+        public List<string> MediaAccessorPriorityOrder { get; set; } = [];
     }
 }
