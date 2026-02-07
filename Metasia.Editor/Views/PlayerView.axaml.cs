@@ -30,6 +30,7 @@ public partial class PlayerView : UserControl, IDisposable
     private int _pendingFrameRequest = NoPendingFrame;
     private bool _isRendering = false;
     private bool _disposed = false;
+    private IPlaybackState? _currentPlaybackState;
 
     public PlayerView()
     {
@@ -42,8 +43,15 @@ public partial class PlayerView : UserControl, IDisposable
                 var playbackState = App.Current?.Services?.GetRequiredService<IPlaybackState>();
                 if (playbackState is not null)
                 {
+                    if (_currentPlaybackState is not null)
+                    {
+                        _currentPlaybackState.ReRenderingRequested -= RequestRender;
+                        _currentPlaybackState.PlaybackFrameChanged -= RequestRender;
+                    }
+
                     playbackState.ReRenderingRequested += RequestRender;
                     playbackState.PlaybackFrameChanged += RequestRender;
+                    _currentPlaybackState = playbackState;
                 }
                 mediaAccessorRouter = App.Current?.Services?.GetRequiredService<MediaAccessorRouter>();
             }
@@ -212,8 +220,15 @@ public partial class PlayerView : UserControl, IDisposable
         }
 
         _disposed = true;
+
+        if (_currentPlaybackState is not null)
+        {
+            _currentPlaybackState.ReRenderingRequested -= RequestRender;
+            _currentPlaybackState.PlaybackFrameChanged -= RequestRender;
+            _currentPlaybackState = null;
+        }
+
         _renderSemaphore.Dispose();
-        // コントロールのリソースを解放
         skiaCanvas.Dispose();
     }
 }

@@ -54,9 +54,8 @@ namespace Metasia.Editor.ViewModels
                     if (!_isUpdatingFrameFromPlayback)
                     {
                         playbackState.Seek(value);
+                        playbackState.RequestReRendering();
                     }
-
-                    playbackState.RequestReRendering();
                 }
             }
         }
