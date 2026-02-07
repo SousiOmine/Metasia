@@ -1,33 +1,25 @@
 using System;
-using System.Collections;
-
-using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
-using Metasia.Core.Objects;
 using Metasia.Core.Project;
 using Metasia.Core.Render;
-using Metasia.Core.Sounds;
-using Metasia.Editor.Controls;
-using Metasia.Editor.Services;
-using Metasia.Editor.ViewModels;
-using SkiaSharp;
-using static System.Net.Mime.MediaTypeNames;
-using SoundIOSharp;
-using Microsoft.Extensions.DependencyInjection;
-using Metasia.Editor.Models.States;
-using System.Diagnostics;
 using Metasia.Core.Media;
 using Metasia.Editor.Models.Media;
+using Metasia.Editor.Models.States;
+using Metasia.Editor.ViewModels;
+using Microsoft.Extensions.DependencyInjection;
+using SkiaSharp;
 using Avalonia.Threading;
 
 namespace Metasia.Editor.Views;
 
 public partial class PlayerView : UserControl, IDisposable
 {
+    private const int NoPendingFrame = -1;
+
     private PlayerViewModel? VM
     {
         get { return this.DataContext as PlayerViewModel; }
@@ -35,11 +27,9 @@ public partial class PlayerView : UserControl, IDisposable
 
     private MediaAccessorRouter? mediaAccessorRouter;
     private readonly SemaphoreSlim _renderSemaphore = new SemaphoreSlim(1, 1);
-    private CancellationTokenSource _renderCts = new CancellationTokenSource();
-
-    // フレームレート調整用のフィールド
-    private int _pendingFrameRequest = -1;
+    private int _pendingFrameRequest = NoPendingFrame;
     private bool _isRendering = false;
+    private bool _disposed = false;
 
     public PlayerView()
     {
@@ -68,6 +58,11 @@ public partial class PlayerView : UserControl, IDisposable
 
     private void RequestRender()
     {
+        if (_disposed)
+        {
+            return;
+        }
+
         // UIスレッド上での実行を保証
         if (!Dispatcher.UIThread.CheckAccess())
         {
@@ -79,7 +74,7 @@ public partial class PlayerView : UserControl, IDisposable
 
         var currentFrame = VM.Frame;
 
-        // レンダリング中の場合は次のフレーム要求を記録
+        // レンダリング中は「最後に要求されたフレーム」だけを保持する
         if (_isRendering)
         {
             _pendingFrameRequest = currentFrame;
@@ -134,7 +129,10 @@ public partial class PlayerView : UserControl, IDisposable
 
     private async Task HandlePaintAsync(int requestedFrame)
     {
-        if (VM is null || VM.TargetTimeline is null || VM.TargetProjectInfo is null || mediaAccessorRouter is null) return;
+        if (_disposed)
+        {
+            return;
+        }
 
         _isRendering = true;
 
@@ -144,22 +142,25 @@ public partial class PlayerView : UserControl, IDisposable
 
             try
             {
-                // 最新のフレーム要求を取得
-                if (_pendingFrameRequest != -1)
+                while (true)
                 {
-                    requestedFrame = _pendingFrameRequest;
-                    _pendingFrameRequest = -1;
-                }
+                    if (VM is null || VM.TargetTimeline is null || VM.TargetProjectInfo is null || mediaAccessorRouter is null)
+                    {
+                        return;
+                    }
 
-                // 現在のフレームが変わっていなければレンダリング
-                if (requestedFrame == VM.Frame)
-                {
+                    // レンダリング待ちがあれば常に最新要求へ追従
+                    if (_pendingFrameRequest != NoPendingFrame)
+                    {
+                        requestedFrame = _pendingFrameRequest;
+                        _pendingFrameRequest = NoPendingFrame;
+                    }
+
                     var compositor = new Compositor();
                     var projectInfo = VM.TargetProjectInfo;
-
                     var previewRenderResolution = await GetPreviewRenderResolutionAsync(projectInfo);
 
-                    var bitmap = await compositor.RenderFrameAsync(
+                    var image = await compositor.RenderFrameAsync(
                         VM.TargetTimeline,
                         requestedFrame,
                         previewRenderResolution,
@@ -169,35 +170,23 @@ public partial class PlayerView : UserControl, IDisposable
                         projectInfo,
                         VM.ProjectPath);
 
-                    // フレームが変わっていなければイメージを更新
-                    if (requestedFrame == VM.Frame)
+                    // 「最新完了フレーム」を表示する
+                    Dispatcher.UIThread.Post(() =>
                     {
-                        // GPU描画コントロールにイメージを渡して再描画
-                        Dispatcher.UIThread.Post(() =>
+                        if (_disposed)
                         {
-                            if (requestedFrame == VM.Frame)
-                            {
-                                skiaCanvas.Image = bitmap;
-                                skiaCanvas.InvalidateSurface();
-                            }
-                            else
-                            {
-                                // UIスレッド到達時にフレームが変わっていた場合は破棄
-                                bitmap?.Dispose();
-                            }
-                        });
-                    }
-                    else
-                    {
-                        bitmap?.Dispose();
-                    }
-                }
+                            image.Dispose();
+                            return;
+                        }
 
-                // レンダリング中に新しい要求があれば再帰的に処理
-                if (_pendingFrameRequest != -1)
-                {
-                    _ = HandlePaintAsync(_pendingFrameRequest);
-                    _pendingFrameRequest = -1;
+                        skiaCanvas.Image = image;
+                        skiaCanvas.InvalidateSurface();
+                    });
+
+                    if (_pendingFrameRequest == NoPendingFrame)
+                    {
+                        break;
+                    }
                 }
             }
             finally
@@ -217,9 +206,13 @@ public partial class PlayerView : UserControl, IDisposable
 
     public void Dispose()
     {
-        _renderCts?.Cancel();
-        _renderCts?.Dispose();
-        _renderSemaphore?.Dispose();
+        if (_disposed)
+        {
+            return;
+        }
+
+        _disposed = true;
+        _renderSemaphore.Dispose();
         // コントロールのリソースを解放
         skiaCanvas.Dispose();
     }
