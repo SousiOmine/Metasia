@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Concurrent;
+using System.Threading;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
@@ -16,13 +16,14 @@ namespace Metasia.Editor.Controls;
 /// SkiaSharpを使用してGPU描画を行うカスタムコントロール。
 /// Avaloniaの ICustomDrawOperation と ISkiaSharpApiLeaseFeature を使用して
 /// 高速なGPU描画を実現します。
-/// また、ビットマップのライフサイクル管理（遅延破棄）を行い、
+/// 画像のライフサイクルは参照カウントで管理し、
 /// レンダリングスレッドとの競合を防ぎます。
 /// テーマ（ダーク/ライト）に応じた背景色を自動的に使用します。
 /// </summary>
 public class SkiaGpuControl : Control, IDisposable
 {
-    private readonly ConcurrentQueue<(SKImage Image, DateTime ReleaseTime)> _releaseQueue = new();
+    private readonly Lock _imageLock = new();
+    private RefCountedImage? _currentImage;
     private SKColor _backgroundColor = SKColors.Black;
     private volatile bool _isDisposed;
 
@@ -84,12 +85,33 @@ public class SkiaGpuControl : Control, IDisposable
 
         if (change.Property == ImageProperty)
         {
-            var oldImage = change.GetOldValue<SKImage?>();
-            // 破棄中でなく、有効な古いイメージがある場合のみキューに入れる
-            if (oldImage is not null && !_isDisposed)
+            RefCountedImage? oldRef = null;
+            var newImage = change.GetNewValue<SKImage?>();
+
+            lock (_imageLock)
             {
-                // 古いイメージは即座に破棄せず、描画完了待ちの猶予を持たせてキューに入れる
-                _releaseQueue.Enqueue((oldImage, DateTime.Now.AddMilliseconds(200)));
+                oldRef = _currentImage;
+
+                if (_isDisposed || newImage is null)
+                {
+                    _currentImage = null;
+                }
+                else if (oldRef is not null && ReferenceEquals(oldRef.Image, newImage))
+                {
+                    // 同一イメージ参照の再代入はライフサイクルを変更しない
+                    oldRef = null;
+                }
+                else
+                {
+                    _currentImage = new RefCountedImage(newImage);
+                }
+            }
+
+            oldRef?.Release();
+
+            if (_isDisposed && newImage is not null)
+            {
+                newImage.Dispose();
             }
         }
     }
@@ -99,10 +121,14 @@ public class SkiaGpuControl : Control, IDisposable
     /// </summary>
     public override void Render(DrawingContext context)
     {
-        ProcessReleaseQueue();
-
+        RefCountedImage? imageRef = null;
+        lock (_imageLock)
+        {
+            imageRef = _currentImage?.TryAddRef();
+        }
+        
         var bounds = new Rect(0, 0, Bounds.Width, Bounds.Height);
-        context.Custom(new SkiaGpuDrawOperation(bounds, Image, _backgroundColor));
+        context.Custom(new SkiaGpuDrawOperation(bounds, imageRef, _backgroundColor));
     }
 
     /// <summary>
@@ -111,25 +137,6 @@ public class SkiaGpuControl : Control, IDisposable
     public void InvalidateSurface()
     {
         Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Render);
-    }
-
-    private void ProcessReleaseQueue()
-    {
-        var now = DateTime.Now;
-        while (_releaseQueue.TryPeek(out var item))
-        {
-            if (now >= item.ReleaseTime)
-            {
-                if (_releaseQueue.TryDequeue(out var dequeuedItem))
-                {
-                    dequeuedItem.Image.Dispose();
-                }
-            }
-            else
-            {
-                break;
-            }
-        }
     }
 
     public void Dispose()
@@ -141,18 +148,7 @@ public class SkiaGpuControl : Control, IDisposable
         }
         _isDisposed = true;
 
-        var currentImage = Image;
         SetCurrentValue(ImageProperty, null);
-
-        System.Threading.Tasks.Task.Delay(200).ContinueWith(_ =>
-        {
-            currentImage?.Dispose();
-
-            while (_releaseQueue.TryDequeue(out var item))
-            {
-                item.Image.Dispose();
-            }
-        });
     }
 
     /// <summary>
@@ -160,21 +156,28 @@ public class SkiaGpuControl : Control, IDisposable
     /// </summary>
     private class SkiaGpuDrawOperation : ICustomDrawOperation
     {
-        private readonly SKImage? _image;
+        private readonly RefCountedImage? _imageRef;
         private readonly SKColor _backgroundColor;
+        private bool _disposed;
 
         public Rect Bounds { get; }
 
-        public SkiaGpuDrawOperation(Rect bounds, SKImage? image, SKColor backgroundColor)
+        public SkiaGpuDrawOperation(Rect bounds, RefCountedImage? imageRef, SKColor backgroundColor)
         {
             Bounds = bounds;
-            _image = image;
+            _imageRef = imageRef;
             _backgroundColor = backgroundColor;
         }
 
         public void Dispose()
         {
-            // イメージはControl側で管理されているため、ここでは破棄しない
+            if (_disposed)
+            {
+                return;
+            }
+
+            _disposed = true;
+            _imageRef?.Release();
         }
 
         public bool HitTest(Avalonia.Point p) => Bounds.Contains(p);
@@ -183,7 +186,9 @@ public class SkiaGpuControl : Control, IDisposable
         {
             if (other is SkiaGpuDrawOperation op)
             {
-                return Bounds == op.Bounds && ReferenceEquals(_image, op._image) && _backgroundColor == op._backgroundColor;
+                return Bounds == op.Bounds
+                    && ReferenceEquals(_imageRef?.Image, op._imageRef?.Image)
+                    && _backgroundColor == op._backgroundColor;
             }
             return false;
         }
@@ -213,12 +218,13 @@ public class SkiaGpuControl : Control, IDisposable
                 // テーマに応じた背景色でクリア（背景透過を防ぐ）
                 canvas.Clear(_backgroundColor);
 
-                if (_image is not null)
+                var image = _imageRef?.Image;
+                if (image is not null)
                 {
                     var canvasWidth = (float)Bounds.Width;
                     var canvasHeight = (float)Bounds.Height;
-                    var imageWidth = _image.Width;
-                    var imageHeight = _image.Height;
+                    var imageWidth = image.Width;
+                    var imageHeight = image.Height;
 
                     if (imageWidth <= 0 || imageHeight <= 0)
                     {
@@ -245,12 +251,56 @@ public class SkiaGpuControl : Control, IDisposable
                         IsAntialias = true
                     };
 
-                    canvas.DrawImage(_image, destRect, sampling, paint);
+                    canvas.DrawImage(image, destRect, sampling, paint);
                 }
             }
             finally
             {
                 canvas.Restore();
+            }
+        }
+    }
+
+    private sealed class RefCountedImage
+    {
+        private int _refCount = 1;
+
+        public RefCountedImage(SKImage image)
+        {
+            Image = image;
+        }
+
+        public SKImage Image { get; }
+
+        public RefCountedImage? TryAddRef()
+        {
+            while (true)
+            {
+                var currentCount = Volatile.Read(ref _refCount);
+                if (currentCount == 0)
+                {
+                    return null;
+                }
+
+                if (Interlocked.CompareExchange(ref _refCount, currentCount + 1, currentCount) == currentCount)
+                {
+                    return this;
+                }
+            }
+        }
+
+        public void Release()
+        {
+            var remaining = Interlocked.Decrement(ref _refCount);
+            if (remaining == 0)
+            {
+                Image.Dispose();
+                return;
+            }
+
+            if (remaining < 0)
+            {
+                throw new InvalidOperationException("RefCountedImage.Release was called too many times.");
             }
         }
     }
