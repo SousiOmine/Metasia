@@ -84,6 +84,16 @@ public class PropertyRouterViewModel : ViewModelBase
         get => _colorPropertyVm;
         set => this.RaiseAndSetIfChanged(ref _colorPropertyVm, value);
     }
+    public bool IsLayerTargetProperty
+    {
+        get => _isLayerTargetProperty;
+        set => this.RaiseAndSetIfChanged(ref _isLayerTargetProperty, value);
+    }
+    public LayerTargetPropertyViewModel? LayerTargetPropertyVm
+    {
+        get => _layerTargetPropertyVm;
+        set => this.RaiseAndSetIfChanged(ref _layerTargetPropertyVm, value);
+    }
     public string PlaceholderText
     {
         get => _placeholderText;
@@ -104,6 +114,7 @@ public class PropertyRouterViewModel : ViewModelBase
     private DoublePropertyViewModel? _doublePropertyVm;
     private MetaEnumParamPropertyViewModel? _metaEnumParamPropertyVm;
     private ColorPropertyViewModel? _colorPropertyVm;
+    private LayerTargetPropertyViewModel? _layerTargetPropertyVm;
     private bool _isMetaNumberParamProperty = false;
     private bool _isMediaPathProperty = false;
     private bool _isStringProperty = false;
@@ -111,6 +122,7 @@ public class PropertyRouterViewModel : ViewModelBase
     private bool _isDoubleProperty = false;
     private bool _isMetaEnumParamProperty = false;
     private bool _isColorProperty = false;
+    private bool _isLayerTargetProperty = false;
     private bool _usePlaceholder;
     private ObjectPropertyFinder.EditablePropertyInfo _propertyInfo;
     private readonly IMetaNumberParamPropertyViewModelFactory _metaNumberParamPropertyViewModelFactory;
@@ -120,6 +132,7 @@ public class PropertyRouterViewModel : ViewModelBase
     private readonly IMetaEnumParamPropertyViewModelFactory _metaEnumParamPropertyViewModelFactory;
     private readonly IMetaFontParamPropertyViewModelFactory _metaFontParamPropertyViewModelFactory;
     private readonly IColorPropertyViewModelFactory _colorPropertyViewModelFactory;
+    private readonly ILayerTargetPropertyViewModelFactory _layerTargetPropertyViewModelFactory;
     private readonly IProjectState _projectState;
     public PropertyRouterViewModel(
         ObjectPropertyFinder.EditablePropertyInfo propertyInfo,
@@ -130,6 +143,7 @@ public class PropertyRouterViewModel : ViewModelBase
         IMetaEnumParamPropertyViewModelFactory metaEnumParamPropertyViewModelFactory,
         IMetaFontParamPropertyViewModelFactory metaFontParamPropertyViewModelFactory,
         IColorPropertyViewModelFactory colorPropertyViewModelFactory,
+        ILayerTargetPropertyViewModelFactory layerTargetPropertyViewModelFactory,
         IProjectState projectState)
     {
         ArgumentNullException.ThrowIfNull(propertyInfo);
@@ -140,6 +154,7 @@ public class PropertyRouterViewModel : ViewModelBase
         ArgumentNullException.ThrowIfNull(metaEnumParamPropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(metaFontParamPropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(colorPropertyViewModelFactory);
+        ArgumentNullException.ThrowIfNull(layerTargetPropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(projectState);
         _metaNumberParamPropertyViewModelFactory = metaNumberParamPropertyViewModelFactory;
         _mediaPathPropertyViewModelFactory = mediaPathPropertyViewModelFactory;
@@ -148,6 +163,7 @@ public class PropertyRouterViewModel : ViewModelBase
         _metaEnumParamPropertyViewModelFactory = metaEnumParamPropertyViewModelFactory;
         _metaFontParamPropertyViewModelFactory = metaFontParamPropertyViewModelFactory;
         _colorPropertyViewModelFactory = colorPropertyViewModelFactory;
+        _layerTargetPropertyViewModelFactory = layerTargetPropertyViewModelFactory;
         _projectState = projectState;
         _propertyInfo = propertyInfo;
         _projectState.TimelineChanged += OnTimelineChanged;
@@ -231,6 +247,15 @@ public class PropertyRouterViewModel : ViewModelBase
             {
                 ColorPropertyVm = _colorPropertyViewModelFactory.Create(_propertyInfo.Identifier, (ColorRgb8)_propertyInfo.PropertyValue!);
                 IsColorProperty = true;
+                UsePlaceholder = false;
+            }
+        }
+        else if (_propertyInfo.Type == typeof(LayerTarget))
+        {
+            if (LayerTargetPropertyVm is null)
+            {
+                LayerTargetPropertyVm = _layerTargetPropertyViewModelFactory.Create(_propertyInfo.Identifier, (LayerTarget)_propertyInfo.PropertyValue!);
+                IsLayerTargetProperty = true;
                 UsePlaceholder = false;
             }
         }

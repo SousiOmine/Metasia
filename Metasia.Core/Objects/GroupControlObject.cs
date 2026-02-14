@@ -29,28 +29,11 @@ public class GroupControlObject : ClipObject, IRenderable, IAudible, ILayerInter
 
     public MetaDoubleParam Volume { get; set; } = new MetaDoubleParam(100);
 
-    [EditableProperty("TargetLayerCount")]
-    [ValueRange(-1, 99999, -1, 99999)]
-    public int TargetLayerCount 
-    {
-        get => _targetLayerCount;
-        set  {
-            if (value < 0)
-            {
-                _targetLayerCount = -1;
-            }
-            else
-            {
-                _targetLayerCount = value;
-            }
-        }
-    }
+    [EditableProperty("TargetLayers")]
+    public LayerTarget TargetLayers { get; set; } = new LayerTarget(5);
 
     public List<AudioEffectBase> AudioEffects { get; set; } = new();
 
-    
-
-    private int _targetLayerCount = 5;
     private bool disposed;
 
     public GroupControlObject()
@@ -84,7 +67,7 @@ public class GroupControlObject : ClipObject, IRenderable, IAudible, ILayerInter
         return Task.FromResult<IRenderNode>(new GroupControlRenderNode()
         {
             Transform = transform,
-            ScopeLayerCount = TargetLayerCount,
+            ScopeLayerTarget = TargetLayers,
         });
     }
 

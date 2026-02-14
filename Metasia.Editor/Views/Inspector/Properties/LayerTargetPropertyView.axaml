@@ -1,0 +1,33 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:Metasia.Editor.ViewModels.Inspector.Properties"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="80"
+             x:Class="Metasia.Editor.Views.Inspector.Properties.LayerTargetPropertyView"
+             x:DataType="vm:LayerTargetPropertyViewModel">
+    <StackPanel Orientation="Vertical" Margin="2">
+        <TextBlock Text="{Binding PropertyDisplayName}"
+                   VerticalAlignment="Center"
+                   HorizontalAlignment="Left"
+                   Margin="2"/>
+        
+        <!-- Infinite checkbox -->
+        <CheckBox Content="Infinite"
+                  IsChecked="{Binding IsInfinite, Mode=TwoWay}"
+                  Margin="2,0,2,4"/>
+        
+        <!-- Layer count input -->
+        <StackPanel Orientation="Horizontal" Margin="2,0,2,2"
+                    IsEnabled="{Binding IsLayerCountEnabled}">
+            <TextBlock Text="LayerCount:"
+                       VerticalAlignment="Center"
+                       Margin="0,0,4,0"/>
+            <NumericUpDown Value="{Binding LayerCount, Mode=TwoWay}"
+                          Minimum="1"
+                          Maximum="99999"
+                          Increment="1"
+                          Width="100"/>
+        </StackPanel>
+    </StackPanel>
+</UserControl>

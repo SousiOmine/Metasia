@@ -1,15 +1,13 @@
 using Metasia.Core.Attributes;
-using Metasia.Core.Objects.AudioEffects;
 using Metasia.Core.Objects.Parameters;
 using Metasia.Core.Render;
-using Metasia.Core.Sounds;
 using SkiaSharp;
 
 namespace Metasia.Core.Objects;
 
 [Serializable]
 [ClipTypeIdentifier("CameraControlObject")]
-public class CameraControlObject : ClipObject, IRenderable, IAudible, ILayerIntervener, IDisposable
+public class CameraControlObject : ClipObject, IRenderable, ILayerIntervener, IDisposable
 {
     [EditableProperty("X")]
     [ValueRange(-99999, 99999, -2000, 2000)]
@@ -27,30 +25,9 @@ public class CameraControlObject : ClipObject, IRenderable, IAudible, ILayerInte
     [ValueRange(-99999, 99999, 0, 360)]
     public MetaNumberParam<double> Rotation { get; set; } = new MetaNumberParam<double>(0);
 
-    public MetaDoubleParam Volume { get; set; } = new MetaDoubleParam(100);
+    [EditableProperty("TargetLayers")]
+    public LayerTarget TargetLayers { get; set; } = new LayerTarget(5);
 
-    [EditableProperty("TargetLayerCount")]
-    [ValueRange(-1, 99999, -1, 99999)]
-    public int TargetLayerCount 
-    {
-        get => _targetLayerCount;
-        set  {
-            if (value < 0)
-            {
-                _targetLayerCount = -1;
-            }
-            else
-            {
-                _targetLayerCount = value;
-            }
-        }
-    }
-
-    public List<AudioEffectBase> AudioEffects { get; set; } = new();
-
-    
-
-    private int _targetLayerCount = 5;
     private bool disposed;
 
     public CameraControlObject()
@@ -81,14 +58,11 @@ public class CameraControlObject : ClipObject, IRenderable, IAudible, ILayerInte
         return Task.FromResult<IRenderNode>(new CameraControlRenderNode()
         {
             Transform = transform,
-            ScopeLayerCount = TargetLayerCount,
+            ScopeLayerTarget = TargetLayers,
         });
     }
 
-    public IAudioChunk GetAudioChunk(GetAudioContext context)
-    {
-        throw new NotImplementedException();
-    }
+
 
     
 

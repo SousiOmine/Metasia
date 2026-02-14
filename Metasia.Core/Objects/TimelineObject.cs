@@ -133,13 +133,13 @@ namespace Metasia.Core.Objects
         private class GroupControlLife(GroupControlRenderNode node)
         {
             public GroupControlRenderNode Node { get; init; } = node;
-            public int Life { get; set; } = node.ScopeLayerCount;
+            public int Life { get; set; } = node.ScopeLayerTarget.ToScopeCount();
         }
 
         private class CameraControlLife(CameraControlRenderNode node)
         {
             public CameraControlRenderNode Node { get; init; } = node;
-            public int Life { get; set; } = node.ScopeLayerCount;
+            public int Life { get; set; } = node.ScopeLayerTarget.ToScopeCount();
         }
 
         /// <summary>
@@ -224,7 +224,7 @@ namespace Metasia.Core.Objects
                     if (cameraNode is not null) 
                     {
                         cameraControlLifes.Add(new CameraControlLife(cameraNode));
-                        int targetLayerCount = cameraNode.ScopeLayerCount;
+                        int targetLayerCount = cameraNode.ScopeLayerTarget.ToScopeCount();
                         var targetLayersNode = await RenderExecuteAsync(context, cancellationToken, layerStartIndex + i + 1, layerStartIndex + i + targetLayerCount + 1);
                         
                         var compositor = new Compositor();
@@ -258,10 +258,10 @@ namespace Metasia.Core.Objects
 
         private static Task<IRenderNode> ApplyGroupControl(IRenderNode node, GroupControlRenderNode groupNode)
         {
-            node.Transform.Add(groupNode.Transform);
+            node.Transform = node.Transform.Add(groupNode.Transform);
             foreach (var child in node.Children)
             {
-                child.Transform.Add(groupNode.Transform);
+                child.Transform = child.Transform.Add(groupNode.Transform);
             }
             return Task.FromResult(node);
         }
