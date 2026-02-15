@@ -63,10 +63,27 @@ namespace Metasia.Core.Render
             return surface.Snapshot();
         }
 
-        private async Task ProcessNodeAsync(SKCanvas canvas, RenderNode node, SKSize projectResolution, SKSize renderResolution, CancellationToken cancellationToken = default)
+        public async Task ProcessNodeAsync(SKCanvas canvas, IRenderNode node, SKSize projectResolution, SKSize renderResolution, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
+            switch (node)
+            {
+                case NormalRenderNode normalNode:
+                    // 通常のノード処理
+                    await ProcessNormalNodeAsync(canvas, normalNode, projectResolution, renderResolution, cancellationToken);
+                    break;
+                default:
+                    // 未知のノードタイプ
+                    Debug.WriteLine($"Unknown node type: {node.GetType().FullName}");
+                    break;
+            }
+
+
+        }
+
+        private async Task ProcessNormalNodeAsync(SKCanvas canvas, NormalRenderNode node, SKSize projectResolution, SKSize renderResolution, CancellationToken cancellationToken = default)
+        {
             // 子ノードを再帰的に描画
             foreach (var child in node.Children)
             {

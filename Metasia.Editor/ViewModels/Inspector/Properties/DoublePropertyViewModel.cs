@@ -183,33 +183,10 @@ public class DoublePropertyViewModel : ViewModelBase, IDisposable
 
     private void OnCommandChanged(object? sender, IEditCommand command)
     {
-        // コマンドがこのプロパティに影響する場合のみ更新
-        if (IsCommandAffectThisProperty(command))
-        {
-            RefreshPropertyValue();
-        }
+        RefreshPropertyValue();
     }
 
-    private bool IsCommandAffectThisProperty(IEditCommand command)
-    {
-        // DoubleValueChangeCommandかつ同じプロパティIDの場合のみtrueを返す
-        if (command is not DoubleValueChangeCommand doubleCommand)
-        {
-            return false;
-        }
 
-        // リフレクションで_changeInfosの最初の要素を取得してPropertyIdentifierを比較
-        var changeInfosField = typeof(DoubleValueChangeCommand).GetField("_changeInfos",
-            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-
-        if (changeInfosField?.GetValue(doubleCommand) is System.Collections.Generic.IEnumerable<DoubleValueChangeCommand.DoubleValueChangeInfo> changeInfos)
-        {
-            var firstInfo = changeInfos.FirstOrDefault();
-            return firstInfo?.propertyIdentifier == _propertyIdentifier;
-        }
-
-        return false;
-    }
 
     private void RefreshPropertyValue()
     {

@@ -33,7 +33,7 @@ namespace Metasia.Core.Tests.Render
         public async Task RenderFrame_SingleNode_DrawBitmap()
         {
             // Arrange
-            var node = new RenderNode()
+            var node = new NormalRenderNode()
             {
                 Image = CreateTestImage(SKColors.Red),
                 LogicalSize = new SKSize(100, 100),
@@ -65,7 +65,7 @@ namespace Metasia.Core.Tests.Render
         public async Task RenderFrame_NodeWithRotation_RotatesBitmap()
         {
             // Arrange
-            var node = new RenderNode()
+            var node = new NormalRenderNode()
             {
                 Image = CreateTestImage(SKColors.Green, 20, 10),
                 LogicalSize = new SKSize(20, 10),
@@ -98,7 +98,7 @@ namespace Metasia.Core.Tests.Render
         public async Task RenderFrame_NodeWithAlpha_AlphaApplied()
         {
             // Arrange
-            var node = new RenderNode()
+            var node = new NormalRenderNode()
             {
                 Image = CreateTestImage(SKColors.Yellow),
                 LogicalSize = new SKSize(100, 100),
@@ -131,18 +131,18 @@ namespace Metasia.Core.Tests.Render
         public async Task RenderFrame_WithChildNodes_RendersAll()
         {
             // Arrange
-            var child = new RenderNode()
+            var child = new NormalRenderNode()
             {
                 Image = CreateTestImage(SKColors.Magenta),
                 LogicalSize = new SKSize(30, 30),
                 Transform = new Transform { Position = new SKPoint(50, 0) }
             };
 
-            var parent = new RenderNode()
+            var parent = new NormalRenderNode()
             {
                 Image = CreateTestImage(SKColors.Cyan),
                 LogicalSize = new SKSize(30, 30),
-                Children = new List<RenderNode> { child },
+                Children = new List<IRenderNode> { child },
                 Transform = new Transform { Position = new SKPoint(-50, 0) }
             };
 
@@ -172,7 +172,7 @@ namespace Metasia.Core.Tests.Render
         public async Task RenderFrame_EmptyNode_RendersBlackBackground()
         {
             // Arrange
-            var emptyNode = new RenderNode();
+            var emptyNode = new NormalRenderNode();
             var mockRenderable = CreateMockRenderable(emptyNode);
 
             // Act
@@ -200,7 +200,7 @@ namespace Metasia.Core.Tests.Render
         public async Task RenderFrame_DifferentResolutions_ScalesCorrectly()
         {
             // Arrange
-            var node = new RenderNode()
+            var node = new NormalRenderNode()
             {
                 Image = CreateTestImage(SKColors.White, 100, 100),
                 LogicalSize = new SKSize(100, 100),
@@ -232,7 +232,7 @@ namespace Metasia.Core.Tests.Render
         public async Task RenderFrame_NodeWithPosition_RendersAtCorrectPosition()
         {
             // Arrange
-            var node = new RenderNode()
+            var node = new NormalRenderNode()
             {
                 Image = CreateTestImage(SKColors.Red, 50, 50),
                 LogicalSize = new SKSize(50, 50),
@@ -275,7 +275,7 @@ namespace Metasia.Core.Tests.Render
         /// <summary>
         /// モックIRenderableオブジェクトを作成
         /// </summary>
-        private Mock<IRenderable> CreateMockRenderable(RenderNode node)
+        private Mock<IRenderable> CreateMockRenderable(IRenderNode node)
         {
             var mockRenderable = new Mock<IRenderable>();
             mockRenderable

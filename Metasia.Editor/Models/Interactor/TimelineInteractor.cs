@@ -120,5 +120,38 @@ namespace Metasia.Editor.Models.Interactor
             value = metaDoubleParam.Value;
             return true;
         }
+
+        public static IEditCommand? CreateLayerTargetValueChangeCommand(string propertyIdentifier, LayerTarget beforeValue, LayerTarget afterValue, IEnumerable<ClipObject> selectedClips)
+        {
+            List<LayerTargetValueChangeCommand.LayerTargetValueChangeInfo> changeInfos = new();
+            foreach (var clip in selectedClips)
+            {
+                var properties = ObjectPropertyFinder.FindEditableProperties(clip);
+                var property = properties.FirstOrDefault(x => x.Identifier == propertyIdentifier);
+                if (property is null || property.PropertyValue is not LayerTarget) continue;
+
+                changeInfos.Add(new LayerTargetValueChangeCommand.LayerTargetValueChangeInfo(
+                    clip,
+                    propertyIdentifier,
+                    beforeValue.Clone(),
+                    afterValue.Clone()));
+            }
+            return changeInfos.Count > 0 ? new LayerTargetValueChangeCommand(changeInfos) : null;
+        }
+
+        public static bool TryGetLayerTargetProperty(string propertyIdentifier, ClipObject clip, out LayerTarget? value)
+        {
+            value = null;
+
+            var properties = ObjectPropertyFinder.FindEditableProperties(clip);
+            var property = properties.FirstOrDefault(x => x.Identifier == propertyIdentifier);
+            if (property is null || property.PropertyValue is not LayerTarget layerTarget)
+            {
+                return false;
+            }
+
+            value = layerTarget;
+            return true;
+        }
     }
 }

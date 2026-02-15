@@ -75,7 +75,7 @@ namespace Metasia.Core.Objects
             myImage = surface.Snapshot();
         }
 
-        public Task<RenderNode> RenderAsync(RenderContext context, CancellationToken cancellationToken = default)
+        public Task<IRenderNode> RenderAsync(RenderContext context, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -91,7 +91,7 @@ namespace Metasia.Core.Objects
                 Alpha = (100.0f - (float)Alpha.Get(relativeFrame, clipLength)) / 100,
             };
 
-            return Task.FromResult(new RenderNode()
+            return Task.FromResult<IRenderNode>(new NormalRenderNode()
             {
                 Image = myImage,
                 LogicalSize = new SKSize(200, 200),

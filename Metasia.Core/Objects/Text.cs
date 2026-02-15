@@ -83,7 +83,7 @@ namespace Metasia.Core.Objects
             LoadTypeface();
         }
 
-        public Task<RenderNode> RenderAsync(RenderContext context, CancellationToken cancellationToken = default)
+        public Task<IRenderNode> RenderAsync(RenderContext context, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -105,7 +105,7 @@ namespace Metasia.Core.Objects
 
             if (bitmapWidth <= 0 || bitmapHeight <= 0 || string.IsNullOrEmpty(Contents))
             {
-                return Task.FromResult(new RenderNode());
+                return Task.FromResult<IRenderNode>(new NormalRenderNode());
             }
 
             var logicalSize = new SKSize(bitmapWidth, bitmapHeight);
@@ -119,7 +119,7 @@ namespace Metasia.Core.Objects
             int finalHeight = (int)(bitmapHeight * renderScaleHeight);
             if (finalWidth <= 0 || finalHeight <= 0)
             {
-                return Task.FromResult(new RenderNode());
+                return Task.FromResult<IRenderNode>(new NormalRenderNode());
             }
 
             SKImage image;
@@ -157,7 +157,7 @@ namespace Metasia.Core.Objects
                 Alpha = (100.0f - (float)Alpha.Get(relativeFrame, clipLength)) / 100,
             };
 
-            return Task.FromResult(new RenderNode()
+            return Task.FromResult<IRenderNode>(new NormalRenderNode()
             {
                 Image = image,
                 LogicalSize = logicalSize,

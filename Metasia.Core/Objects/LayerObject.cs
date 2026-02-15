@@ -60,7 +60,7 @@ namespace Metasia.Core.Objects
             Objects = new();
         }
 
-        public async Task<RenderNode> RenderAsync(RenderContext context, CancellationToken cancellationToken = default)
+        public async Task<IRenderNode> RenderAsync(RenderContext context, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -73,17 +73,31 @@ namespace Metasia.Core.Objects
                 }
             }
 
-            if (ApplicateObjects.Count == 0) return new RenderNode();
+            if (ApplicateObjects.Count == 0) return new NormalRenderNode();
 
-            var nodes = new List<RenderNode>();
+            var nodes = new List<IRenderNode>();
 
             foreach (var obj in ApplicateObjects)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                nodes.Add(await obj.RenderAsync(context, cancellationToken));
+                var node = await obj.RenderAsync(context, cancellationToken);
+                if (node is NormalRenderNode)
+                {
+                    nodes.Add(node);
+                }
+                else if (node is GroupControlRenderNode)
+                {
+                    // GroupControlRenderNodeがフレームに含まれる場合はこれをそのまま返す
+                    return node;
+                }
+                else if (node is CameraControlRenderNode)
+                {
+                    // CameraControlRenderNodeがフレームに含まれる場合はこれをそのまま返す
+                    return node;
+                }
             }
 
-            return new RenderNode()
+            return new NormalRenderNode()
             {
                 Children = nodes,
             };

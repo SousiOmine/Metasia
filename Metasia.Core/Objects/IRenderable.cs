@@ -13,6 +13,6 @@ namespace Metasia.Core.Objects
         /// <param name="context"></param>
         /// <param name="cancellationToken">キャンセルトークン</param>
         /// <returns></returns>
-        Task<RenderNode> RenderAsync(RenderContext context, CancellationToken cancellationToken = default);
+        Task<IRenderNode> RenderAsync(RenderContext context, CancellationToken cancellationToken = default);
     }
 }

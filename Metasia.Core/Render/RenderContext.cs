@@ -1,4 +1,5 @@
 using Metasia.Core.Media;
+using Metasia.Core.Objects;
 using Metasia.Core.Project;
 using SkiaSharp;
 
@@ -20,7 +21,14 @@ namespace Metasia.Core.Render
 
         public string ProjectPath { get; init; }
 
-        public RenderContext(int frame, SKSize projectResolution, SKSize renderResolution, IImageFileAccessor imageFileAccessor, IVideoFileAccessor videoFileAccessor, ProjectInfo projectInfo, string projectPath)
+        public RenderContext(
+            int frame,
+            SKSize projectResolution,
+            SKSize renderResolution,
+            IImageFileAccessor imageFileAccessor,
+            IVideoFileAccessor videoFileAccessor,
+            ProjectInfo projectInfo,
+            string projectPath)
         {
             Frame = frame;
 
