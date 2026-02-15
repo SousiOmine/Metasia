@@ -27,6 +27,8 @@ public class GroupControlObject : ClipObject, IRenderable, IAudible, ILayerInter
     [ValueRange(-99999, 99999, 0, 360)]
     public MetaNumberParam<double> Rotation { get; set; } = new MetaNumberParam<double>(0);
 
+    [EditableProperty("AudioVolume")]
+    [ValueRange(0, 99999, 0, 200)]
     public MetaDoubleParam Volume { get; set; } = new MetaDoubleParam(100);
 
     [EditableProperty("TargetLayers")]
@@ -38,12 +40,12 @@ public class GroupControlObject : ClipObject, IRenderable, IAudible, ILayerInter
 
     public GroupControlObject()
     {
-        
+
     }
 
     public GroupControlObject(string id) : base(id)
     {
-        
+
     }
 
     ~GroupControlObject()
@@ -52,6 +54,7 @@ public class GroupControlObject : ClipObject, IRenderable, IAudible, ILayerInter
     }
     public Task<IRenderNode> RenderAsync(RenderContext context, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(context);
         cancellationToken.ThrowIfCancellationRequested();
         //このオブジェクトのStartFrameを基準としたフレーム
         int relativeFrame = context.Frame - StartFrame;
@@ -73,10 +76,14 @@ public class GroupControlObject : ClipObject, IRenderable, IAudible, ILayerInter
 
     public IAudioChunk GetAudioChunk(GetAudioContext context)
     {
-        throw new NotImplementedException();
+        // GroupControlObject自体は音声を生成しないが、IAudibleインターフェースを実装するため空のチャンクを返す
+        IAudioChunk chunk = new AudioChunk(context.Format, context.RequiredLength);
+
+        // 音量とエフェクトはTimelineObjectで対象レイヤーの音声に適用される
+        return chunk;
     }
 
-    
+
 
     public void Dispose()
     {

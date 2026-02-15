@@ -10,18 +10,18 @@ public class LayerTarget
     /// 無限に対象レイヤーを指定するかどうか
     /// trueの場合、全ての下位レイヤーが対象となる
     /// </summary>
-    public bool IsInfinite { get; set; }
+    public bool IsInfinite { get; init; }
 
     /// <summary>
     /// IsInfiniteがfalseの場合の対象レイヤー数
     /// 1以上の値が有効
     /// </summary>
-    public int LayerCount { get; set; }
+    public int LayerCount { get; init; }
 
     /// <summary>
     /// 無限レイヤーターゲットを作成
     /// </summary>
-    public static LayerTarget Infinite { get; } = new() { IsInfinite = true, LayerCount = 0 };
+    public static LayerTarget Infinite => new() { IsInfinite = true, LayerCount = 0 };
 
     /// <summary>
     /// デフォルトコンストラクタ

@@ -79,7 +79,7 @@ namespace Metasia.Core.Render
                     break;
             }
 
-            
+
         }
 
         private async Task ProcessNormalNodeAsync(SKCanvas canvas, NormalRenderNode node, SKSize projectResolution, SKSize renderResolution, CancellationToken cancellationToken = default)

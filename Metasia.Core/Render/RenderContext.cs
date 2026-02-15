@@ -22,12 +22,12 @@ namespace Metasia.Core.Render
         public string ProjectPath { get; init; }
 
         public RenderContext(
-            int frame, 
-            SKSize projectResolution, 
-            SKSize renderResolution, 
-            IImageFileAccessor imageFileAccessor, 
-            IVideoFileAccessor videoFileAccessor, 
-            ProjectInfo projectInfo, 
+            int frame,
+            SKSize projectResolution,
+            SKSize renderResolution,
+            IImageFileAccessor imageFileAccessor,
+            IVideoFileAccessor videoFileAccessor,
+            ProjectInfo projectInfo,
             string projectPath)
         {
             Frame = frame;

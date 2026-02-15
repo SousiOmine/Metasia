@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Timers;
+using Avalonia.Threading;
 using Metasia.Core.Objects;
 using Metasia.Core.Objects.Parameters;
 using Metasia.Editor.Models;
@@ -185,13 +186,16 @@ public class LayerTargetPropertyViewModel : ViewModelBase, IDisposable
         };
         _valueEnterTimer.Elapsed += (_, _) =>
         {
-            var currentValue = new LayerTarget { IsInfinite = _isInfinite, LayerCount = _layerCount };
-            if (!AreEqual(currentValue, _beforeValue))
+            Dispatcher.UIThread.Post(() =>
             {
-                UpdateLayerTargetValue(_beforeValue, currentValue);
-            }
+                var currentValue = new LayerTarget { IsInfinite = _isInfinite, LayerCount = _layerCount };
+                if (!AreEqual(currentValue, _beforeValue))
+                {
+                    UpdateLayerTargetValue(_beforeValue, currentValue);
+                }
 
-            _isValueEnteringFlag = false;
+                _isValueEnteringFlag = false;
+            });
         };
     }
 

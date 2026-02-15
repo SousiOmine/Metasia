@@ -73,21 +73,74 @@ namespace Metasia.Core.Objects
         {
             double framerate = context.ProjectFrameRate;
 
+            // 要求範囲の開始フレームを計算
+            int startFrame = (int)(context.StartSamplePosition * framerate / context.Format.SampleRate);
+            var activeGroupControls = GetActiveGroupControlsAtFrame(startFrame);
+
             IAudioChunk resultChunk = new AudioChunk(context.Format, context.RequiredLength);
 
-            foreach (var layer in Layers)
+            for (int layerIndex = 0; layerIndex < Layers.Count; layerIndex++)
             {
+                var layer = Layers[layerIndex];
                 if (!layer.IsActive) continue;
+
+                // このレイヤーに適用されるグループ制御を取得
+                var applicableControls = activeGroupControls
+                    .Where(c => IsControlApplicableToLayer(c.control, c.layerIndex, layerIndex))
+                    .ToList();
 
                 var chunk = layer.GetAudioChunk(context);
 
+                // グループ制御の音量ゲインを計算
+                double groupGain = 1.0;
+                foreach (var (control, _) in applicableControls)
+                {
+                    groupGain *= control.Volume.Value / 100;
+                }
+
+                // グループ制御のエフェクトを適用
+                IAudioChunk processedChunk = chunk;
+                if (applicableControls.Count > 0)
+                {
+                    // ゲインを適用
+                    if (groupGain != 1.0)
+                    {
+                        for (long i = 0; i < context.RequiredLength; i++)
+                        {
+                            for (int ch = 0; ch < context.Format.ChannelCount; ch++)
+                            {
+                                long index = i * context.Format.ChannelCount + ch;
+                                processedChunk.Samples[index] *= groupGain;
+                            }
+                        }
+                    }
+
+                    // 各グループ制御のエフェクトを順次適用
+                    foreach (var (control, _) in applicableControls)
+                    {
+                        if (control.AudioEffects.Count > 0)
+                        {
+                            // グループ制御の長さを計算（制御オブジェクトの期間）
+                            double controlDuration = (control.EndFrame - control.StartFrame) / framerate;
+                            var controlContext = new GetAudioContext(context.Format, context.StartSamplePosition, context.RequiredLength, context.ProjectFrameRate, controlDuration);
+                            AudioEffectContext effectContext = new AudioEffectContext(control, controlContext);
+
+                            foreach (var effect in control.AudioEffects)
+                            {
+                                processedChunk = effect.Apply(processedChunk, effectContext);
+                            }
+                        }
+                    }
+                }
+
+                // 処理後のチャンクを結果に加算
                 for (long i = 0; i < context.RequiredLength; i++)
                 {
                     for (int ch = 0; ch < context.Format.ChannelCount; ch++)
                     {
                         long sourceIndex = i * context.Format.ChannelCount + ch;
                         long resultIndex = i * context.Format.ChannelCount + ch;
-                        resultChunk.Samples[resultIndex] += chunk.Samples[sourceIndex];
+                        resultChunk.Samples[resultIndex] += processedChunk.Samples[sourceIndex];
                         resultChunk.Samples[resultIndex] = Math.Max(-1.0, Math.Min(1.0, resultChunk.Samples[resultIndex]));
                     }
                 }
@@ -98,11 +151,11 @@ namespace Metasia.Core.Objects
             double timelineDuration = Math.Max(1, lastFrame) / framerate;
 
             var timelineContext = new GetAudioContext(context.Format, context.StartSamplePosition, context.RequiredLength, context.ProjectFrameRate, timelineDuration);
-            AudioEffectContext effectContext = new AudioEffectContext(this, timelineContext);
+            AudioEffectContext timelineEffectContext = new AudioEffectContext(this, timelineContext);
 
             foreach (var effect in AudioEffects)
             {
-                resultChunk = effect.Apply(resultChunk, effectContext);
+                resultChunk = effect.Apply(resultChunk, timelineEffectContext);
             }
 
             return resultChunk;
@@ -151,9 +204,9 @@ namespace Metasia.Core.Objects
         /// <param name="layerEndIndex">終了レイヤーインデックス（-1の場合は最後のレイヤーまで）</param>
         /// <returns></returns>
         private async Task<NormalRenderNode> RenderExecuteAsync(
-            RenderContext context, 
-            CancellationToken cancellationToken = default, 
-            int layerStartIndex = 0, 
+            RenderContext context,
+            CancellationToken cancellationToken = default,
+            int layerStartIndex = 0,
             int layerEndIndex = -1)
         {
             layerStartIndex = Math.Max(0, layerStartIndex);
@@ -162,7 +215,7 @@ namespace Metasia.Core.Objects
                 layerEndIndex = Layers.Count;
             }
             layerEndIndex = Math.Min(Layers.Count, layerEndIndex);
-            
+
             cancellationToken.ThrowIfCancellationRequested();
 
             var nodes = new List<IRenderNode>();
@@ -210,23 +263,25 @@ namespace Metasia.Core.Objects
                 else if (node is GroupControlRenderNode)
                 {
                     GroupControlRenderNode? groupNode = node as GroupControlRenderNode;
-                    if (groupNode is not null) groupControlLifes.Add(new GroupControlLife(groupNode));
-
-                    foreach (var group in groupControlLifes)
+                    if (groupNode is not null)
                     {
-                        node = await ApplyGroupControl(node, group.Node);
+                        foreach (var group in groupControlLifes)
+                        {
+                            node = await ApplyGroupControl(node, group.Node);
+                        }
+                        nodes.Add(node);
+                        groupControlLifes.Add(new GroupControlLife(groupNode));
                     }
-                    nodes.Add(node);
                 }
                 else if (node is CameraControlRenderNode)
                 {
                     CameraControlRenderNode? cameraNode = node as CameraControlRenderNode;
-                    if (cameraNode is not null) 
+                    if (cameraNode is not null)
                     {
                         cameraControlLifes.Add(new CameraControlLife(cameraNode));
                         int targetLayerCount = cameraNode.ScopeLayerTarget.ToScopeCount();
                         var targetLayersNode = await RenderExecuteAsync(context, cancellationToken, layerStartIndex + i + 1, layerStartIndex + i + targetLayerCount + 1);
-                        
+
                         var compositor = new Compositor();
                         var info = new SKImageInfo((int)context.RenderResolution.Width, (int)context.RenderResolution.Height, SKColorType.Rgba8888, SKAlphaType.Premul);
                         using var surface = SKSurface.Create(info) ?? throw new InvalidOperationException($"Failed to create SKSurface with dimensions {info.Width}x{info.Height}");
@@ -264,6 +319,53 @@ namespace Metasia.Core.Objects
                 child.Transform = child.Transform.Add(groupNode.Transform);
             }
             return Task.FromResult(node);
+        }
+
+        /// <summary>
+        /// 指定したフレームでアクティブなGroupControlObjectを収集する
+        /// </summary>
+        /// <param name="frame">フレーム位置</param>
+        /// <returns>(GroupControlObject, 配置レイヤーインデックス)のリスト</returns>
+        private List<(GroupControlObject control, int layerIndex)> GetActiveGroupControlsAtFrame(int frame)
+        {
+            var activeControls = new List<(GroupControlObject, int)>();
+
+            for (int layerIndex = 0; layerIndex < Layers.Count; layerIndex++)
+            {
+                var layer = Layers[layerIndex];
+                if (!layer.IsActive) continue;
+
+                foreach (var obj in layer.Objects.OfType<GroupControlObject>())
+                {
+                    if (obj.IsActive && obj.IsExistFromFrame(frame))
+                    {
+                        activeControls.Add((obj, layerIndex));
+                    }
+                }
+            }
+
+            return activeControls;
+        }
+
+        /// <summary>
+        /// グループ制御が指定したレイヤーに適用されるかどうかを判定する
+        /// </summary>
+        /// <param name="control">グループ制御オブジェクト</param>
+        /// <param name="controlLayerIndex">制御が配置されたレイヤーインデックス</param>
+        /// <param name="targetLayerIndex">判定対象のレイヤーインデックス</param>
+        /// <returns>適用される場合はtrue</returns>
+        private bool IsControlApplicableToLayer(GroupControlObject control, int controlLayerIndex, int targetLayerIndex)
+        {
+            // 制御は下位レイヤーにのみ適用される
+            if (targetLayerIndex <= controlLayerIndex)
+                return false;
+
+            if (control.TargetLayers.IsInfinite)
+                return true;
+
+            // 対象レイヤー数が制限されている場合
+            int layerDistance = targetLayerIndex - controlLayerIndex;
+            return layerDistance <= control.TargetLayers.LayerCount;
         }
     }
 }

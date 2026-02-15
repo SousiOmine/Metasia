@@ -32,12 +32,12 @@ public class CameraControlObject : ClipObject, IRenderable, ILayerIntervener, ID
 
     public CameraControlObject()
     {
-        
+
     }
 
     public CameraControlObject(string id) : base(id)
     {
-        
+
     }
 
 
@@ -64,7 +64,7 @@ public class CameraControlObject : ClipObject, IRenderable, ILayerIntervener, ID
 
 
 
-    
+
 
     public void Dispose()
     {

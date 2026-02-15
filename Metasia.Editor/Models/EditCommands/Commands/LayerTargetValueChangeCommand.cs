@@ -40,10 +40,11 @@ public class LayerTargetValueChangeCommand : IEditCommand
         foreach (var changeInfo in _changeInfos)
         {
             var property = ResolveProperty(changeInfo.TargetClip, changeInfo.PropertyIdentifier);
-            if (property is not null)
+            if (property is null)
             {
-                property.SetValue(changeInfo.TargetClip, changeInfo.NewValue.Clone());
+                throw new InvalidOperationException($"Property '{changeInfo.PropertyIdentifier}' not found on clip type {changeInfo.TargetClip.GetType().Name}");
             }
+            property.SetValue(changeInfo.TargetClip, changeInfo.NewValue.Clone());
         }
     }
 
@@ -52,10 +53,11 @@ public class LayerTargetValueChangeCommand : IEditCommand
         foreach (var changeInfo in _changeInfos)
         {
             var property = ResolveProperty(changeInfo.TargetClip, changeInfo.PropertyIdentifier);
-            if (property is not null)
+            if (property is null)
             {
-                property.SetValue(changeInfo.TargetClip, changeInfo.OldValue.Clone());
+                throw new InvalidOperationException($"Property '{changeInfo.PropertyIdentifier}' not found on clip type {changeInfo.TargetClip.GetType().Name}");
             }
+            property.SetValue(changeInfo.TargetClip, changeInfo.OldValue.Clone());
         }
     }
 
