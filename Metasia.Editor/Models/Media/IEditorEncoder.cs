@@ -18,6 +18,4 @@ public interface IEditorEncoder : IEncoder, IDisposable
     /// 出力パス
     /// </summary>
     string OutputPath { get; }
-
-    void SetOutputPath(string outputPath);
 }

@@ -10,7 +10,7 @@ using SkiaSharp;
 
 namespace Metasia.Editor.Models.Media;
 
-public class MediaAccessorRouter : IImageFileAccessor, IVideoFileAccessor, IDisposable
+public class MediaAccessorRouter : IImageFileAccessor, IVideoFileAccessor, IAudioFileAccessor, IDisposable
 {
     public const string StdInputAccessorId = "builtin.stdinput";
     public const string StdInputAccessorDisplayName = "Standard Input";
@@ -97,6 +97,22 @@ public class MediaAccessorRouter : IImageFileAccessor, IVideoFileAccessor, IDisp
             }
         }
         return new VideoFileAccessorResult { IsSuccessful = false, Image = null };
+    }
+
+    public async Task<AudioFileAccessorResult> GetAudioAsync(string path, TimeSpan? startTime = null, TimeSpan? duration = null)
+    {
+        foreach (var entry in _orderedAccessors)
+        {
+            if (entry.Accessor is IAudioFileAccessor audioAccessor)
+            {
+                var result = await audioAccessor.GetAudioAsync(path, startTime, duration);
+                if (result.IsSuccessful)
+                {
+                    return result;
+                }
+            }
+        }
+        return new AudioFileAccessorResult { IsSuccessful = false, Chunk = null };
     }
 
     public void RegisterAccessor(string id, string displayName, IMediaAccessor accessor)

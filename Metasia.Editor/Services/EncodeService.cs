@@ -22,9 +22,8 @@ public class EncodeService : IEncodeService
 
     private List<IEditorEncoder> _encoders = new();
 
-    public void QueueEncode(IEditorEncoder encoder, string outputPath)
+    public void QueueEncode(IEditorEncoder encoder)
     {
-        encoder.SetOutputPath(outputPath);
         _encoders.Add(encoder);
         encoder.StatusChanged += encoderStatusChanged;
         QueueUpdated?.Invoke(this, EventArgs.Empty);

@@ -30,6 +30,7 @@ public abstract class EncoderBase : IEncoder, IDisposable
     private IImageFileAccessor? _imageFileAccessor;
     private IVideoFileAccessor? _videoFileAccessor;
     private string? _projectPath;
+    protected string? _outputPath;
     private bool _disposed;
 
     private int _startFrame;
@@ -40,13 +41,15 @@ public abstract class EncoderBase : IEncoder, IDisposable
         TimelineObject targetTimeline,
         IImageFileAccessor imageFileAccessor,
         IVideoFileAccessor videoFileAccessor,
-        string projectPath)
+        string projectPath,
+        string outputPath)
     {
         _project = project;
         _targetTimeline = targetTimeline;
         _imageFileAccessor = imageFileAccessor;
         _videoFileAccessor = videoFileAccessor;
         _projectPath = projectPath;
+        _outputPath = outputPath;
 
         _startFrame = _targetTimeline.SelectionStart;
         _endFrame = _targetTimeline.SelectionEnd;

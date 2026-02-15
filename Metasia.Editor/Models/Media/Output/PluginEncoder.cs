@@ -53,15 +53,11 @@ public class PluginEncoder : IEditorEncoder, IDisposable
         TimelineObject timeline,
         IImageFileAccessor imageFileAccessor,
         IVideoFileAccessor videoFileAccessor,
-        string projectPath)
+        string projectPath,
+        string outputPath)
     {
-        _encoder.Initialize(project, timeline, imageFileAccessor, videoFileAccessor, projectPath);
-    }
-
-    public void SetOutputPath(string outputPath)
-    {
-        ArgumentException.ThrowIfNullOrEmpty(outputPath);
         OutputPath = outputPath;
+        _encoder.Initialize(project, timeline, imageFileAccessor, videoFileAccessor, projectPath, outputPath);
     }
 
     public void CancelRequest()

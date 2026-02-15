@@ -209,9 +209,24 @@ public class OutputViewModel : ViewModelBase
         var timeline = project.Timelines[SelectedTimelineIndex];
         var imageFileAccessor = _mediaAccessorRouter;
         var videoFileAccessor = _mediaAccessorRouter;
-        encoder.Initialize(project, timeline, imageFileAccessor, videoFileAccessor, OutputPath);
+        var projectPath = GetProjectPath();
+        encoder.Initialize(project, timeline, imageFileAccessor, videoFileAccessor, projectPath, OutputPath);
 
-        _encodeService.QueueEncode(encoder, OutputPath);
+        _encodeService.QueueEncode(encoder);
+    }
+
+    private string GetProjectPath()
+    {
+        var project = _projectState.CurrentProject;
+        if (project?.ProjectFilePath is not null)
+        {
+            return Path.GetDirectoryName(project.ProjectFilePath) ?? Directory.GetCurrentDirectory();
+        }
+        if (!string.IsNullOrEmpty(OutputPath))
+        {
+            return Path.GetDirectoryName(OutputPath) ?? Directory.GetCurrentDirectory();
+        }
+        return Directory.GetCurrentDirectory();
     }
 
     private void Cancel()
