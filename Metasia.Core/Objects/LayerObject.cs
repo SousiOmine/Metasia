@@ -131,7 +131,7 @@ namespace Metasia.Core.Objects
             return true;
         }
 
-        public IAudioChunk GetAudioChunk(GetAudioContext context)
+        public async Task<IAudioChunk> GetAudioChunkAsync(GetAudioContext context)
         {
             double framerate = context.ProjectFrameRate;
 
@@ -160,7 +160,7 @@ namespace Metasia.Core.Objects
 
                 // 子オブジェクトの長さを計算
                 double childDuration = (clipObject.EndFrame - clipObject.StartFrame) / framerate;
-                var chunk = obj.GetAudioChunk(new GetAudioContext(context.Format, childStartPosition, overlapLength, context.ProjectFrameRate, childDuration));
+                var chunk = await obj.GetAudioChunkAsync(new GetAudioContext(context.Format, childStartPosition, overlapLength, context.ProjectFrameRate, childDuration, context.AudioFileAccessor, context.ProjectPath));
                 double layerGain = obj.Volume?.Value / 100 ?? 1.0;
                 for (int i = 0; i < overlapLength; i++)
                 {

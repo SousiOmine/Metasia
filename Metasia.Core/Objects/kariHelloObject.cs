@@ -99,7 +99,7 @@ namespace Metasia.Core.Objects
             });
         }
 
-        public IAudioChunk GetAudioChunk(GetAudioContext context)
+        public Task<IAudioChunk> GetAudioChunkAsync(GetAudioContext context)
         {
             IAudioChunk chunk = new AudioChunk(context.Format, context.RequiredLength);
             double frequency = 440;
@@ -125,7 +125,7 @@ namespace Metasia.Core.Objects
                 chunk = effect.Apply(chunk, effectContext);
             }
 
-            return chunk;
+            return Task.FromResult(chunk);
         }
 
         /// <summary>

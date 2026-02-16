@@ -44,6 +44,7 @@ public interface IEncoder
         TimelineObject timeline,
         IImageFileAccessor imageFileAccessor,
         IVideoFileAccessor videoFileAccessor,
+        IAudioFileAccessor audioFileAccessor,
         string projectPath,
         string outputPath);
 

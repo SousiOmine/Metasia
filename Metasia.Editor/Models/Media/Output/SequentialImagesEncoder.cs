@@ -33,10 +33,11 @@ public class SequentialImagesEncoder : EncoderBase, IEditorEncoder
         TimelineObject timeline,
         IImageFileAccessor imageFileAccessor,
         IVideoFileAccessor videoFileAccessor,
+        IAudioFileAccessor audioFileAccessor,
         string projectPath,
         string outputPath)
     {
-        base.Initialize(project, timeline, imageFileAccessor, videoFileAccessor, projectPath, outputPath);
+        base.Initialize(project, timeline, imageFileAccessor, videoFileAccessor, audioFileAccessor, projectPath, outputPath);
         OutputPath = outputPath;
         _outputFileFolder = System.IO.Path.GetDirectoryName(outputPath) ?? string.Empty;
         _outputFileName = System.IO.Path.GetFileNameWithoutExtension(outputPath);

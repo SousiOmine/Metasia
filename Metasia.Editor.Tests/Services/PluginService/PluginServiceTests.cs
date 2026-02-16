@@ -88,6 +88,11 @@ namespace Metasia.Editor.Tests.Services.PluginService
             {
                 return Task.FromResult(new VideoFileAccessorResult { IsSuccessful = true });
             }
+
+            public Task<AudioFileAccessorResult> GetAudioAsync(string path, TimeSpan? startTime = null, TimeSpan? duration = null)
+            {
+                return Task.FromResult(new AudioFileAccessorResult { IsSuccessful = false, Chunk = null });
+            }
         }
     }
 }

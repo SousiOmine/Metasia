@@ -153,6 +153,9 @@ public class NewObjectSelectViewModel : ViewModelBase
         {
             "Text" => "テキスト",
             "HelloObject" => "kariHelloオブジェクト",
+            "ImageObject" => "画像",
+            "VideoObject" => "動画",
+            "AudioObject" => "音声",
             "Layer" => "レイヤー",
             _ => identifier
         };
