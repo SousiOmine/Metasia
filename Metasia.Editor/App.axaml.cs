@@ -7,6 +7,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Avalonia.Styling;
 using Avalonia.Threading;
 using Metasia.Editor.Models.EditCommands;
 using Metasia.Editor.Models.Media;
@@ -36,6 +37,7 @@ namespace Metasia.Editor
 
         private MainWindow? _mainWindow;
         private Window? _splashScreen;
+        private ISettingsService? _settingsService;
 
         public override void Initialize()
         {
@@ -129,12 +131,14 @@ namespace Metasia.Editor
 
             try
             {
-                await Services.GetRequiredService<ISettingsService>().LoadAsync();
+                _settingsService = Services.GetRequiredService<ISettingsService>();
+                await _settingsService.LoadAsync();
+                ApplyTheme(_settingsService.CurrentSettings.General.Theme);
+                _settingsService.SettingsChanged += OnSettingsChanged;
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"設定の読み込みに失敗しました。デフォルト設定を使用します: {ex.Message}");
-                // 必要に応じてデフォルト設定で続行するか、ユーザーに通知
             }
             // プラグインを読み込み
             await Services.GetRequiredService<IPluginService>().LoadPluginsAsync();
@@ -154,6 +158,22 @@ namespace Metasia.Editor
             _mainWindow!.Show();
 
             _splashScreen!.Close();
+        }
+
+        private void OnSettingsChanged()
+        {
+            if (_settingsService is null) return;
+            ApplyTheme(_settingsService.CurrentSettings.General.Theme);
+        }
+
+        private void ApplyTheme(string theme)
+        {
+            RequestedThemeVariant = theme switch
+            {
+                "dark" => ThemeVariant.Dark,
+                "light" => ThemeVariant.Light,
+                _ => ThemeVariant.Default
+            };
         }
 
         private void OnShutdownRequested(object? sender, ShutdownRequestedEventArgs e)

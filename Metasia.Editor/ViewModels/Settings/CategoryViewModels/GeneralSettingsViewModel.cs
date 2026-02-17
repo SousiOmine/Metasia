@@ -17,6 +17,7 @@ namespace Metasia.Editor.ViewModels.Settings
 
         public IReadOnlyList<SettingOption> ThemeOptions { get; } =
         [
+            new SettingOption("auto", "Auto"),
             new SettingOption("dark", "Dark"),
             new SettingOption("light", "Light")
         ];

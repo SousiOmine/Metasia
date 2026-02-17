@@ -14,7 +14,7 @@ namespace Metasia.Editor.Models.Settings
         /// UIのテーマカラー auto, dark, light
         /// </summary>
         [JsonPropertyName("theme")]
-        public string Theme { get; set; } = "dark";
+        public string Theme { get; set; } = "auto";
 
         [JsonPropertyName("autoSave")]
         public bool AutoSave { get; set; } = true;
