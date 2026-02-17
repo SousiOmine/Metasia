@@ -3,18 +3,16 @@ using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
-using Metasia.Editor.Models.DragDropData;
 using Metasia.Editor.Models.Interactor;
 using Metasia.Editor.Models.States;
 using Metasia.Editor.Models.EditCommands;
 using Metasia.Editor.Models.EditCommands.Commands;
 using Metasia.Editor.ViewModels.Dialogs;
+using Metasia.Editor.Models.DragDrop;
+using Metasia.Editor.Views.Behaviors;
 
 namespace Metasia.Editor.ViewModels.Timeline
 {
@@ -34,9 +32,6 @@ namespace Metasia.Editor.ViewModels.Timeline
             set => this.RaiseAndSetIfChanged(ref width, value);
         }
 
-        /// <summary>
-        /// ドロップ処理のコマンド
-        /// </summary>
         public ICommand HandleDropCommand { get; }
         public ICommand HandleDragOverCommand { get; }
         public ICommand HandleDragLeaveCommand { get; }
@@ -45,12 +40,14 @@ namespace Metasia.Editor.ViewModels.Timeline
 
         private TimelineViewModel parentTimeline;
         public LayerObject TargetLayer { get; private set; }
+        public TimelineObject Timeline => parentTimeline.Timeline;
 
         private readonly IClipViewModelFactory _clipViewModelFactory;
         private readonly IProjectState _projectState;
         private readonly ISelectionState selectionState;
         private readonly IEditCommandManager editCommandManager;
         private readonly ITimelineViewState _timelineViewState;
+        private readonly IDropHandlerRegistry _dropHandlerRegistry;
         private double _frame_per_DIP;
         private double width;
         private bool _disposed;
@@ -62,7 +59,8 @@ namespace Metasia.Editor.ViewModels.Timeline
             IProjectState projectState,
             ISelectionState selectionState,
             IEditCommandManager editCommandManager,
-            ITimelineViewState timelineViewState)
+            ITimelineViewState timelineViewState,
+            IDropHandlerRegistry dropHandlerRegistry)
         {
             this.parentTimeline = parentTimeline;
             TargetLayer = targetLayer;
@@ -71,12 +69,13 @@ namespace Metasia.Editor.ViewModels.Timeline
             this.selectionState = selectionState;
             this.editCommandManager = editCommandManager;
             this._timelineViewState = timelineViewState;
-            // ドロップ処理コマンドの初期化
-            HandleDropCommand = ReactiveCommand.Create<ClipsDropTargetContext>(
+            this._dropHandlerRegistry = dropHandlerRegistry;
+
+            HandleDropCommand = ReactiveCommand.Create<DropEventData>(
                 execute: ExecuteHandleDrop,
                 canExecute: this.WhenAnyValue(x => x.TargetLayer).Select(layer => layer != null)
             );
-            HandleDragOverCommand = ReactiveCommand.Create<ClipsDropTargetContext>(
+            HandleDragOverCommand = ReactiveCommand.Create<DropEventData>(
                 execute: ExecuteHandleDragOver,
                 canExecute: this.WhenAnyValue(x => x.TargetLayer).Select(layer => layer != null)
             );
@@ -102,7 +101,6 @@ namespace Metasia.Editor.ViewModels.Timeline
 
             selectionState.SelectionChanged += OnSelectionChangedWithClipSelection;
 
-            // コマンド実行時にUIを更新する
             editCommandManager.CommandExecuted += OnCommandExecuted;
             editCommandManager.CommandPreviewExecuted += OnCommandPreviewExecuted;
             editCommandManager.CommandUndone += OnCommandUndone;
@@ -117,9 +115,6 @@ namespace Metasia.Editor.ViewModels.Timeline
             }
         }
 
-        /// <summary>
-        /// レイヤーにあるクリップの大きさを再計算する
-        /// </summary>
         public void RecalculateSize()
         {
             foreach (var clip in ClipsAndBlanks)
@@ -128,81 +123,63 @@ namespace Metasia.Editor.ViewModels.Timeline
             }
         }
 
-
-        /// <summary>
-        /// 空のエリアがクリックされたときに呼び出されるメソッド
-        /// </summary>
-        /// <param name="frame">クリックされた位置のフレーム</param>
         public void EmptyAreaClicked(int frame)
         {
-            // フレーム位置にプレビューを移動
             parentTimeline.SeekFrame(frame);
         }
 
         private void AddNewClip(ClipObject clipObject)
         {
-            // 新しいクリップを適切な位置に追加（現在のカーソル位置か、レイヤーの最後）
             int startFrame = parentTimeline.Frame;
 
-            // クリップの基本プロパティを設定
             clipObject.StartFrame = startFrame;
-            clipObject.EndFrame = startFrame + 100; // デフォルトで100フレーム
+            clipObject.EndFrame = startFrame + 100;
 
-            // コマンドマネージャーに追加操作を記録
             var addCommand = new AddClipCommand(TargetLayer, clipObject);
             editCommandManager.Execute(addCommand);
 
-            // UIを更新
             RelocateClips();
         }
 
-        /// <summary>
-        /// タイムラインVMのドロップ処理を呼び出す
-        /// </summary>
-        private void ExecuteHandleDrop(ClipsDropTargetContext dropInfo)
+        private void ExecuteHandleDrop(DropEventData dropEventData)
         {
             editCommandManager.CancelPreview();
 
-            // スナッピングを適用
-            ClipInteractor.ApplyMoveSnapping(
-                dropInfo,
-                selectionState.SelectedClips,
-                parentTimeline.Timeline,
-                _timelineViewState.Frame_Per_DIP);
+            var context = new DropTargetContext(
+                dropEventData.TargetLayer,
+                dropEventData.TargetFrame,
+                dropEventData.Timeline,
+                dropEventData.DropPosition
+            );
 
-            var command = ClipInteractor.CreateMoveClipsCommand(
-                dropInfo,
-                parentTimeline.Timeline,
-                TargetLayer,
-                selectionState.SelectedClips);
+            var handler = _dropHandlerRegistry.FindHandler(dropEventData.Data, context);
+            if (handler is null) return;
 
+            var command = handler.HandleDrop(dropEventData.Data, context);
             if (command is not null)
             {
                 editCommandManager.Execute(command);
             }
         }
 
-        private void ExecuteHandleDragOver(ClipsDropTargetContext dropInfo)
+        private void ExecuteHandleDragOver(DropEventData dropEventData)
         {
-            // 既存のプレビューがあればキャンセルして元の状態に戻す
             editCommandManager.CancelPreview();
 
-            // スナッピングを適用
-            ClipInteractor.ApplyMoveSnapping(
-                dropInfo,
-                selectionState.SelectedClips,
-                parentTimeline.Timeline,
-                _timelineViewState.Frame_Per_DIP);
+            var context = new DropTargetContext(
+                dropEventData.TargetLayer,
+                dropEventData.TargetFrame,
+                dropEventData.Timeline,
+                dropEventData.DropPosition
+            );
 
-            var command = ClipInteractor.CreateMoveClipsCommand(
-                dropInfo,
-                parentTimeline.Timeline,
-                TargetLayer,
-                selectionState.SelectedClips);
+            var handler = _dropHandlerRegistry.FindHandler(dropEventData.Data, context);
+            if (handler is null) return;
 
-            if (command is not null)
+            var result = handler.HandleDragOver(dropEventData.Data, context);
+            if (result?.PreviewCommand is not null)
             {
-                editCommandManager.PreviewExecute(command);
+                editCommandManager.PreviewExecute(result.PreviewCommand);
             }
         }
 
@@ -211,18 +188,13 @@ namespace Metasia.Editor.ViewModels.Timeline
             editCommandManager.CancelPreview();
         }
 
-        /// <summary>
-        /// 配下のクリップをレイヤー配下のオブジェクトに合わせる
-        /// </summary>
         private void RelocateClips()
         {
-            //TargetLayer.ObjectsにあってClipsAndBlanksにないオブジェクトID
             List<string> objectIds = TargetLayer.Objects.Select(x => x.Id).ToList();
             List<string> clipIds = ClipsAndBlanks.Select(x => x.TargetObject.Id).ToList();
 
             var diffIds = objectIds.Except(clipIds).ToList();
 
-            // 新しく追加されたオブジェクトをClipsAndBlanksに追加
             foreach (var id in diffIds)
             {
                 var obj = TargetLayer.Objects.FirstOrDefault(x => x.Id == id);
@@ -237,10 +209,8 @@ namespace Metasia.Editor.ViewModels.Timeline
                 }
             }
 
-            // ClipsAndBlanksにあってTargetLayer.ObjectsにないオブジェクトID
             var diffIds2 = clipIds.Except(objectIds).ToList();
 
-            // ClipsAndBlanksにあってTargetLayer.Objectsにないオブジェクトを削除
             foreach (var id in diffIds2)
             {
                 var clipVM = ClipsAndBlanks.FirstOrDefault(x => x.TargetObject.Id == id);
@@ -262,22 +232,17 @@ namespace Metasia.Editor.ViewModels.Timeline
             Width = Math.Max(5000, calculatedWidth);
         }
 
-        // Event handler methods for proper cleanup
         private void OnCommandExecuted(object? sender, IEditCommand e) => RelocateClips();
         private void OnCommandPreviewExecuted(object? sender, IEditCommand e) => RelocateClips();
         private void OnCommandUndone(object? sender, IEditCommand e) => RelocateClips();
         private void OnCommandRedone(object? sender, IEditCommand e) => RelocateClips();
 
-        /// <summary>
-        /// リソースの解放処理
-        /// </summary>
         protected override void Dispose(bool disposing)
         {
             if (!_disposed)
             {
                 if (disposing)
                 {
-                    // イベントハンドラーの購読を解除
                     if (editCommandManager != null)
                     {
                         editCommandManager.CommandExecuted -= OnCommandExecuted;
@@ -307,7 +272,6 @@ namespace Metasia.Editor.ViewModels.Timeline
             base.Dispose(disposing);
         }
 
-        // Event handler methods for proper cleanup
         private void OnFramePerDIPChangedWithRecalculation()
         {
             Frame_Per_DIP = _timelineViewState.Frame_Per_DIP;

@@ -9,6 +9,8 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
 using Avalonia.Threading;
+using Metasia.Editor.Models.DragDrop;
+using Metasia.Editor.Models.DragDrop.Handlers;
 using Metasia.Editor.Models.EditCommands;
 using Metasia.Editor.Models.Media;
 using Metasia.Editor.Models.States;
@@ -100,6 +102,11 @@ namespace Metasia.Editor
             services.AddSingleton<IAudioPlaybackService, AudioPlaybackService>();
             services.AddSingleton<IEncodeService, EncodeService>();
             services.AddSingleton<INotificationService, NotificationService>();
+
+            services.AddSingleton<IDropHandlerRegistry, DropHandlerRegistry>();
+            services.AddSingleton<IDropHandler, ClipsMoveDropHandler>();
+            services.AddSingleton<IDropHandler, ExternalFileDropHandler>();
+            services.AddSingleton<IDropHandler, ProjectFileDropHandler>();
 
             services.AddTransient<IPlayerViewModelFactory, PlayerViewModelFactory>();
             services.AddTransient<ITimelineViewModelFactory, TimelineViewModelFactory>();

@@ -1,17 +1,15 @@
-using System;
 using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Xaml.Interactivity;
-using Metasia.Editor.Models.DragDropData;
-using Metasia.Editor.ViewModels.Timeline;
+using Metasia.Core.Objects;
 
 namespace Metasia.Editor.Views.Behaviors
 {
     /// <summary>
-    /// タイムラインレイヤーへのクリップドロップ処理ビヘイビア
+    /// タイムラインレイヤーへのドロップ処理ビヘイビア
     /// </summary>
     public class LayerClipDropBehavior : Behavior<Control>
     {
@@ -26,6 +24,12 @@ namespace Metasia.Editor.Views.Behaviors
 
         public static readonly StyledProperty<double> FramePerDIPProperty =
             AvaloniaProperty.Register<LayerClipDropBehavior, double>(nameof(FramePerDIP), 1.0);
+
+        public static readonly StyledProperty<LayerObject?> TargetLayerProperty =
+            AvaloniaProperty.Register<LayerClipDropBehavior, LayerObject?>(nameof(TargetLayer));
+
+        public static readonly StyledProperty<TimelineObject?> TimelineProperty =
+            AvaloniaProperty.Register<LayerClipDropBehavior, TimelineObject?>(nameof(Timeline));
 
         public ICommand? DropCommand
         {
@@ -49,6 +53,18 @@ namespace Metasia.Editor.Views.Behaviors
         {
             get => GetValue(FramePerDIPProperty);
             set => SetValue(FramePerDIPProperty, value);
+        }
+
+        public LayerObject? TargetLayer
+        {
+            get => GetValue(TargetLayerProperty);
+            set => SetValue(TargetLayerProperty, value);
+        }
+
+        public TimelineObject? Timeline
+        {
+            get => GetValue(TimelineProperty);
+            set => SetValue(TimelineProperty, value);
         }
 
         protected override void OnAttached()
@@ -78,10 +94,10 @@ namespace Metasia.Editor.Views.Behaviors
 
         private void OnDragEnter(object? sender, DragEventArgs e)
         {
-            var dropInfo = CreateDropTargetInfo(e);
-            if (dropInfo is not null && DropCommand?.CanExecute(dropInfo) == true)
+            var context = CreateDropContext(e);
+            if (context != null && DropCommand?.CanExecute(context) == true)
             {
-                e.DragEffects = DragDropEffects.Move;
+                e.DragEffects = DragDropEffects.Copy | DragDropEffects.Move;
             }
             else
             {
@@ -92,14 +108,11 @@ namespace Metasia.Editor.Views.Behaviors
 
         private void OnDragOver(object? sender, DragEventArgs e)
         {
-            var dropInfo = CreateDropTargetInfo(e);
-            if (dropInfo is not null && DropCommand?.CanExecute(dropInfo) == true)
+            var context = CreateDropContext(e);
+            if (context != null && DragOverCommand?.CanExecute(context) == true)
             {
-                e.DragEffects = DragDropEffects.Move;
-                if (DragOverCommand?.CanExecute(dropInfo) == true)
-                {
-                    DragOverCommand.Execute(dropInfo);
-                }
+                DragOverCommand.Execute(context);
+                e.DragEffects = DragDropEffects.Copy | DragDropEffects.Move;
             }
             else
             {
@@ -118,34 +131,43 @@ namespace Metasia.Editor.Views.Behaviors
 
         private void OnDrop(object? sender, DragEventArgs e)
         {
-            var dropInfo = CreateDropTargetInfo(e);
-            if (dropInfo is not null)
+            var context = CreateDropContext(e);
+            if (context != null)
             {
-                DropCommand?.Execute(dropInfo);
+                DropCommand?.Execute(context);
             }
             e.Handled = true;
         }
 
-        private ClipsDropTargetContext? CreateDropTargetInfo(DragEventArgs e)
+        private DropEventData? CreateDropContext(DragEventArgs e)
         {
-            if (e.Data.Get(DragDropFormats.ClipsMove) is ClipsMoveDragData clipsMoveDragData && AssociatedObject is not null)
-            {
-                var position = e.GetPosition(AssociatedObject);
-                return new ClipsDropTargetContext(clipsMoveDragData, CalculateTargetFrame(position.X), true);
-            }
-            return null;
+            if (AssociatedObject == null || TargetLayer == null || Timeline == null)
+                return null;
+
+            var position = e.GetPosition(AssociatedObject);
+            return new DropEventData(
+                e.Data,
+                TargetLayer,
+                CalculateTargetFrame(position.X),
+                Timeline,
+                position
+            );
         }
 
-        /// <summary>
-        /// マウス座標からフレーム(クリップ始点が0)に変換
-        /// </summary>
-        /// <param name="positionX"></param>
-        /// <returns></returns>
         private int CalculateTargetFrame(double positionX)
         {
             return (int)(positionX / FramePerDIP);
         }
-
-
     }
+
+    /// <summary>
+    /// ドロップイベントのデータ
+    /// </summary>
+    public record DropEventData(
+        IDataObject Data,
+        LayerObject TargetLayer,
+        int TargetFrame,
+        TimelineObject Timeline,
+        Point DropPosition
+    );
 }
