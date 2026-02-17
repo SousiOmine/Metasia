@@ -15,6 +15,7 @@ namespace Metasia.Editor.ViewModels
     {
         private readonly ISettingsService _settingsService;
         private readonly MediaAccessorRouter _mediaAccessorRouter;
+        private readonly IFileDialogService _fileDialogService;
         private EditorSettings _workingSettings;
         private EditorSettings _lastAppliedSettings;
 
@@ -38,14 +39,15 @@ namespace Metasia.Editor.ViewModels
         public ReactiveCommand<Unit, Unit> CancelCommand { get; }
         public ReactiveCommand<Unit, Unit> ResetToDefaultsCommand { get; }
 
-        public SettingsWindowViewModel(ISettingsService settingsService, MediaAccessorRouter mediaAccessorRouter)
+        public SettingsWindowViewModel(ISettingsService settingsService, MediaAccessorRouter mediaAccessorRouter, IFileDialogService fileDialogService)
         {
             _settingsService = settingsService;
             _mediaAccessorRouter = mediaAccessorRouter;
+            _fileDialogService = fileDialogService;
             _workingSettings = CloneSettings(_settingsService.CurrentSettings);
             _lastAppliedSettings = CloneSettings(_settingsService.CurrentSettings);
 
-            Categories.Add(new GeneralSettingsViewModel(_workingSettings));
+            Categories.Add(new GeneralSettingsViewModel(_workingSettings, _fileDialogService));
             Categories.Add(new EditorSettingsViewModel(_workingSettings, _mediaAccessorRouter));
 
             foreach (var category in Categories)

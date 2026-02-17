@@ -75,6 +75,7 @@ namespace Metasia.Editor
             services.AddSingleton<IFileDialogService>(new FileDialogService(_mainWindow));
             services.AddSingleton<IKeyBindingService, KeyBindingService>();
             services.AddSingleton<ISettingsService, SettingsService>();
+            services.AddSingleton<IAutoSaveService, AutoSaveService>();
             services.AddSingleton<SettingsWindowViewModel>();
 
             services.AddSingleton<IEditCommandManager, EditCommandManager>();
@@ -148,6 +149,15 @@ namespace Metasia.Editor
             catch (Exception ex)
             {
                 Debug.WriteLine($"設定の読み込みに失敗しました。デフォルト設定を使用します: {ex.Message}");
+            }
+
+            try
+            {
+                Services.GetRequiredService<IAutoSaveService>().Start();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"自動保存の開始に失敗しました: {ex.Message}");
             }
             // プラグインを読み込み
             await Services.GetRequiredService<IPluginService>().LoadPluginsAsync();

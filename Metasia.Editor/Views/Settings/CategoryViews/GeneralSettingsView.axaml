@@ -6,7 +6,8 @@
              mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="500"
              x:Class="Metasia.Editor.Views.Settings.GeneralSettingsView"
              x:DataType="vm:GeneralSettingsViewModel">
-    <StackPanel Spacing="10">
+    <ScrollViewer>
+        <StackPanel Spacing="10">
         <StackPanel Spacing="5">
             <TextBlock Text="Language"/>
             <ComboBox ItemsSource="{Binding LanguageOptions}"
@@ -37,5 +38,34 @@
             <TextBlock Text="Auto Save Interval (minutes)"/>
             <NumericUpDown Value="{Binding AutoSaveInterval}" Minimum="1" Maximum="60" Increment="1"/>
         </StackPanel>
+
+        <Separator Margin="0,10"/>
+
+        <CheckBox Content="Auto Backup" IsChecked="{Binding AutoBackup}"/>
+
+        <StackPanel Spacing="5">
+            <TextBlock Text="Auto Backup Interval (minutes)"/>
+            <NumericUpDown Value="{Binding AutoBackupInterval}" Minimum="1" Maximum="120" Increment="1"/>
+        </StackPanel>
+
+        <StackPanel Spacing="5">
+            <TextBlock Text="Backup Path"/>
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBox Text="{Binding AutoBackupPath}"
+                         Watermark="(Project folder/backup)"
+                         Grid.Column="0"/>
+                <Button Content="..."
+                        Command="{Binding SelectBackupPathCommand}"
+                        Width="40"
+                        Margin="5,0,0,0"
+                        Grid.Column="1"/>
+            </Grid>
+        </StackPanel>
+
+        <StackPanel Spacing="5">
+            <TextBlock Text="Max Backup Count"/>
+            <NumericUpDown Value="{Binding AutoBackupMaxCount}" Minimum="1" Maximum="100" Increment="1"/>
+        </StackPanel>
     </StackPanel>
+    </ScrollViewer>
 </UserControl>

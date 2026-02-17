@@ -21,5 +21,17 @@ namespace Metasia.Editor.Models.Settings
 
         [JsonPropertyName("autoSaveInterval")]
         public int AutoSaveInterval { get; set; } = 5;
+
+        [JsonPropertyName("autoBackup")]
+        public bool AutoBackup { get; set; } = false;
+
+        [JsonPropertyName("autoBackupInterval")]
+        public int AutoBackupInterval { get; set; } = 10;
+
+        [JsonPropertyName("autoBackupPath")]
+        public string AutoBackupPath { get; set; } = "";
+
+        [JsonPropertyName("autoBackupMaxCount")]
+        public int AutoBackupMaxCount { get; set; } = 10;
     }
 }

@@ -6,7 +6,8 @@
              mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="500"
              x:Class="Metasia.Editor.Views.Settings.EditorSettingsView"
              x:DataType="vm:EditorSettingsViewModel">
-    <StackPanel Spacing="10">
+    <ScrollViewer>
+        <StackPanel Spacing="10">
         <CheckBox Content="Snap to Grid" IsChecked="{Binding SnapToGrid}"/>
 
         <TextBlock Text="入力メソッドの優先順位" Margin="0,10,0,0"/>
@@ -27,4 +28,5 @@
             </StackPanel>
         </Grid>
     </StackPanel>
+    </ScrollViewer>
 </UserControl>

@@ -1,12 +1,18 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reactive;
+using System.Threading.Tasks;
 using ReactiveUI;
 using Metasia.Editor.Models.Settings;
+using Metasia.Editor.Services;
 
 namespace Metasia.Editor.ViewModels.Settings
 {
     public class GeneralSettingsViewModel : SettingsCategoryViewModel
     {
+        private readonly IFileDialogService? _fileDialogService;
+
         public override string Name => "General";
 
         public IReadOnlyList<SettingOption> LanguageOptions { get; } =
@@ -114,8 +120,92 @@ namespace Metasia.Editor.ViewModels.Settings
             }
         }
 
+        public bool AutoBackup
+        {
+            get => _settings.General.AutoBackup;
+            set
+            {
+                if (_settings.General.AutoBackup != value)
+                {
+                    _settings.General.AutoBackup = value;
+                    this.RaisePropertyChanged(nameof(AutoBackup));
+                    NotifySettingsEdited();
+                }
+            }
+        }
+
+        public int AutoBackupInterval
+        {
+            get => _settings.General.AutoBackupInterval;
+            set
+            {
+                if (_settings.General.AutoBackupInterval != value)
+                {
+                    _settings.General.AutoBackupInterval = value;
+                    this.RaisePropertyChanged(nameof(AutoBackupInterval));
+                    NotifySettingsEdited();
+                }
+            }
+        }
+
+        public string AutoBackupPath
+        {
+            get => _settings.General.AutoBackupPath;
+            set
+            {
+                if (_settings.General.AutoBackupPath != value)
+                {
+                    _settings.General.AutoBackupPath = value;
+                    this.RaisePropertyChanged(nameof(AutoBackupPath));
+                    this.RaisePropertyChanged(nameof(AutoBackupPathDisplay));
+                    NotifySettingsEdited();
+                }
+            }
+        }
+
+        public string AutoBackupPathDisplay => string.IsNullOrEmpty(AutoBackupPath)
+            ? "(Project folder/backup)"
+            : AutoBackupPath;
+
+        public int AutoBackupMaxCount
+        {
+            get => _settings.General.AutoBackupMaxCount;
+            set
+            {
+                if (_settings.General.AutoBackupMaxCount != value)
+                {
+                    _settings.General.AutoBackupMaxCount = value;
+                    this.RaisePropertyChanged(nameof(AutoBackupMaxCount));
+                    NotifySettingsEdited();
+                }
+            }
+        }
+
+        public ReactiveCommand<Unit, Unit> SelectBackupPathCommand { get; }
+
         public GeneralSettingsViewModel(EditorSettings settings) : base(settings)
         {
+            SelectBackupPathCommand = ReactiveCommand.CreateFromTask(SelectBackupPathExecute);
+        }
+
+        public GeneralSettingsViewModel(EditorSettings settings, IFileDialogService fileDialogService) : base(settings)
+        {
+            _fileDialogService = fileDialogService;
+            SelectBackupPathCommand = ReactiveCommand.CreateFromTask(SelectBackupPathExecute);
+        }
+
+        private async Task SelectBackupPathExecute()
+        {
+            if (_fileDialogService is null) return;
+
+            var folder = await _fileDialogService.OpenFolderDialogAsync();
+            if (folder is null) return;
+
+            var path = folder.Path?.LocalPath;
+            if (!string.IsNullOrEmpty(path))
+            {
+                AutoBackupPath = path;
+            }
         }
 
         protected override void OnSettingsUpdated()
@@ -124,6 +214,11 @@ namespace Metasia.Editor.ViewModels.Settings
             this.RaisePropertyChanged(nameof(Theme));
             this.RaisePropertyChanged(nameof(AutoSave));
             this.RaisePropertyChanged(nameof(AutoSaveInterval));
+            this.RaisePropertyChanged(nameof(AutoBackup));
+            this.RaisePropertyChanged(nameof(AutoBackupInterval));
+            this.RaisePropertyChanged(nameof(AutoBackupPath));
+            this.RaisePropertyChanged(nameof(AutoBackupPathDisplay));
+            this.RaisePropertyChanged(nameof(AutoBackupMaxCount));
             this.RaisePropertyChanged(nameof(SelectedLanguage));
             this.RaisePropertyChanged(nameof(SelectedTheme));
         }
