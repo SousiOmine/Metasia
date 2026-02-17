@@ -14,6 +14,7 @@ using Metasia.Editor.Models.Media;
 using Metasia.Editor.Models.States;
 using Metasia.Editor.Services;
 using Metasia.Editor.Services.Audio;
+using Metasia.Editor.Services.Notification;
 using Metasia.Editor.Services.PluginService;
 using Metasia.Editor.ViewModels;
 using Metasia.Editor.ViewModels.Dialogs;
@@ -98,6 +99,7 @@ namespace Metasia.Editor
             services.AddSingleton<IFontCatalogService, FontCatalogService>();
             services.AddSingleton<IAudioPlaybackService, AudioPlaybackService>();
             services.AddSingleton<IEncodeService, EncodeService>();
+            services.AddSingleton<INotificationService, NotificationService>();
 
             services.AddTransient<IPlayerViewModelFactory, PlayerViewModelFactory>();
             services.AddTransient<ITimelineViewModelFactory, TimelineViewModelFactory>();

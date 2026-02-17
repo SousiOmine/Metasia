@@ -21,11 +21,8 @@ namespace Metasia.Editor.ViewModels
     public class MainWindowViewModel : ViewModelBase
     {
         public PlayerParentViewModel PlayerParentVM { get; }
-
         public InspectorViewModel InspectorVM { get; }
-
         public TimelineParentViewModel TimelineParentVM { get; }
-
         public ToolsViewModel ToolsVM { get; }
 
         public ICommand LoadEditingProject { get; }
