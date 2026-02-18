@@ -13,6 +13,9 @@ namespace Metasia.Core.Objects
     [ClipTypeIdentifier("Text")]
     public class Text : ClipObject, IRenderable
     {
+        [EditableProperty("BlendMode")]
+        public BlendModeParam BlendMode { get; set; } = new BlendModeParam();
+
         [EditableProperty("X")]
         [ValueRange(-99999, 99999, -2000, 2000)]
         public MetaNumberParam<double> X { get; set; } = new MetaNumberParam<double>(0);
@@ -162,6 +165,7 @@ namespace Metasia.Core.Objects
                 Image = image,
                 LogicalSize = logicalSize,
                 Transform = transform,
+                BlendMode = BlendMode.Value,
             });
         }
 
@@ -254,6 +258,10 @@ namespace Metasia.Core.Objects
 
             firstText.Font = Font.Clone();
             secondText.Font = Font.Clone();
+
+            var (firstBlendMode, secondBlendMode) = BlendMode.Split();
+            firstText.BlendMode = firstBlendMode;
+            secondText.BlendMode = secondBlendMode;
 
             return (firstText, secondText);
         }

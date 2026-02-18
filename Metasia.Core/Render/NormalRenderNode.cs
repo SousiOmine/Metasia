@@ -20,6 +20,11 @@ namespace Metasia.Core.Render
         public Transform Transform { get; set; } = Transform.Identity;
 
         /// <summary>
+        /// ブレンドモード
+        /// </summary>
+        public BlendModeKind BlendMode { get; init; } = BlendModeKind.SrcOver;
+
+        /// <summary>
         /// 子ノードの描画情報リスト
         /// </summary>
         public IReadOnlyList<IRenderNode> Children { get; init; } = new List<IRenderNode>();

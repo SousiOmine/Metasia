@@ -21,6 +21,9 @@ namespace Metasia.Core.Objects
     [ClipTypeIdentifier("HelloObject")]
     public class kariHelloObject : ClipObject, IRenderable, IAudible, IDisposable
     {
+        [EditableProperty("BlendMode")]
+        public BlendModeParam BlendMode { get; set; } = new BlendModeParam();
+
         [EditableProperty("X")]
         [ValueRange(-99999, 99999, -2000, 2000)]
         public MetaNumberParam<double> X { get; set; } = new MetaNumberParam<double>(0);
@@ -96,6 +99,7 @@ namespace Metasia.Core.Objects
                 Image = myImage,
                 LogicalSize = new SKSize(200, 200),
                 Transform = transform,
+                BlendMode = BlendMode.Value,
             });
         }
 
@@ -177,6 +181,10 @@ namespace Metasia.Core.Objects
             var (firstVolume, secondVolume) = Volume.Split(relativeSplitFrame);
             firstHello.Volume = firstVolume;
             secondHello.Volume = secondVolume;
+
+            var (firstBlendMode, secondBlendMode) = BlendMode.Split();
+            firstHello.BlendMode = firstBlendMode;
+            secondHello.BlendMode = secondBlendMode;
 
             return (firstHello, secondHello);
         }

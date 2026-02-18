@@ -114,7 +114,7 @@ namespace Metasia.Core.Render
                 // Transformの回転と不透明度を適用
                 canvas.RotateDegrees(node.Transform.Rotation, destRect.MidX, destRect.MidY);
                 var sampling = new SKSamplingOptions(SKCubicResampler.Mitchell);
-                using (var paint = new SKPaint { Color = SKColors.White.WithAlpha((byte)(node.Transform.Alpha * 255)), IsAntialias = true })
+                using (var paint = new SKPaint { Color = SKColors.White.WithAlpha((byte)(node.Transform.Alpha * 255)), IsAntialias = true, BlendMode = BlendModeToSkBlendMode(node.BlendMode) })
                 {
                     try
                     {
@@ -130,6 +130,43 @@ namespace Metasia.Core.Render
                 }
                 canvas.Restore();
             }
+        }
+
+        private static SKBlendMode BlendModeToSkBlendMode(BlendModeKind mode)
+        {
+            return mode switch
+            {
+                BlendModeKind.Clear => SKBlendMode.Clear,
+                BlendModeKind.Src => SKBlendMode.Src,
+                BlendModeKind.Dst => SKBlendMode.Dst,
+                BlendModeKind.SrcOver => SKBlendMode.SrcOver,
+                BlendModeKind.DstOver => SKBlendMode.DstOver,
+                BlendModeKind.SrcIn => SKBlendMode.SrcIn,
+                BlendModeKind.DstIn => SKBlendMode.DstIn,
+                BlendModeKind.SrcOut => SKBlendMode.SrcOut,
+                BlendModeKind.DstOut => SKBlendMode.DstOut,
+                BlendModeKind.SrcATop => SKBlendMode.SrcATop,
+                BlendModeKind.DstATop => SKBlendMode.DstATop,
+                BlendModeKind.Xor => SKBlendMode.Xor,
+                BlendModeKind.Plus => SKBlendMode.Plus,
+                BlendModeKind.Modulate => SKBlendMode.Modulate,
+                BlendModeKind.Screen => SKBlendMode.Screen,
+                BlendModeKind.Overlay => SKBlendMode.Overlay,
+                BlendModeKind.Darken => SKBlendMode.Darken,
+                BlendModeKind.Lighten => SKBlendMode.Lighten,
+                BlendModeKind.ColorDodge => SKBlendMode.ColorDodge,
+                BlendModeKind.ColorBurn => SKBlendMode.ColorBurn,
+                BlendModeKind.HardLight => SKBlendMode.HardLight,
+                BlendModeKind.SoftLight => SKBlendMode.SoftLight,
+                BlendModeKind.Difference => SKBlendMode.Difference,
+                BlendModeKind.Exclusion => SKBlendMode.Exclusion,
+                BlendModeKind.Multiply => SKBlendMode.Multiply,
+                BlendModeKind.Hue => SKBlendMode.Hue,
+                BlendModeKind.Saturation => SKBlendMode.Saturation,
+                BlendModeKind.Color => SKBlendMode.Color,
+                BlendModeKind.Luminosity => SKBlendMode.Luminosity,
+                _ => SKBlendMode.SrcOver
+            };
         }
     }
 }
