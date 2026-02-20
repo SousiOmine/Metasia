@@ -8,6 +8,7 @@ using System.Collections.ObjectModel;
 using System.Reflection;
 using Metasia.Core.Attributes;
 using System.Collections.Generic;
+using Metasia.Core.Sounds;
 
 namespace Metasia.Editor.ViewModels.Dialogs;
 
@@ -110,6 +111,35 @@ public class NewObjectSelectViewModel : ViewModelBase
                 var identifier = ((ClipTypeIdentifierAttribute)objectType.attribute).Identifier;
                 var displayName = GetDisplayNameFromIdentifier(identifier);
                 var description = $"{displayName}オブジェクトを追加します";
+
+                AvailableObjectTypes.Add(new ObjectTypeInfo
+                {
+                    DisplayName = displayName,
+                    Description = description,
+                    ObjectType = objectType.type,
+                    Identifier = identifier
+                });
+            }
+        }
+
+        if (_targetTypes.Contains(TargetType.AuidoEffect))
+        {
+            objectTypes.AddRange(Assembly.GetAssembly(typeof(IAudioEffect))!
+                .GetTypes()
+                .Where(t => t.IsClass && !t.IsAbstract && typeof(IAudioEffect).IsAssignableFrom(t))
+                .Select(t => (
+                    Type: t,
+                    Attribute: t.GetCustomAttribute<AudioEffectIdentifierAttribute>()
+                ))
+                .Where(x => x.Attribute is not null)
+                .OrderBy(x => x.Attribute!.Identifier)
+                .Select(x => (type: x.Type, attribute: (Attribute)x.Attribute!)));
+
+            foreach (var objectType in objectTypes)
+            {
+                var identifier = ((AudioEffectIdentifierAttribute)objectType.attribute).Identifier;
+                var displayName = GetDisplayNameFromIdentifier(identifier);
+                var description = $"{displayName}エフェクトを追加します";
 
                 AvailableObjectTypes.Add(new ObjectTypeInfo
                 {

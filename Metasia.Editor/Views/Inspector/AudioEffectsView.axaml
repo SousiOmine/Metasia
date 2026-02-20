@@ -3,12 +3,17 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:Metasia.Editor.ViewModels.Inspector"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
              x:Class="Metasia.Editor.Views.Inspector.AudioEffectsView"
              x:DataType="vm:AudioEffectsViewModel">
     <StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="+" Command="{Binding NewEffectCommand}"/>
+            <Button Content="-" Command="{Binding DeleteEffectCommand}"/>
+        </StackPanel>
         <ListBox
-            ItemsSource="{Binding AudioEffectItems}">
+            ItemsSource="{Binding AudioEffectItems}"
+            SelectedItem="{Binding SelectedAudioEffectItem}">
             <ListBox.ItemTemplate>
                 <DataTemplate DataType="vm:AudioEffectItemViewModel">
                     <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">

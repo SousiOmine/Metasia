@@ -4,6 +4,7 @@ using Metasia.Core.Objects.Parameters;
 
 namespace Metasia.Core.Objects.AudioEffects
 {
+    [AudioEffectIdentifier("VolumeFadeEffect")]
     public class VolumeFadeEffect : AudioEffectBase
     {
         /// <summary>
@@ -22,7 +23,7 @@ namespace Metasia.Core.Objects.AudioEffects
         public override IAudioChunk Apply(IAudioChunk input, AudioEffectContext context)
         {
             // 入力チェック
-            if (input == null || input.Samples == null || input.Samples.Length == 0)
+            if (input.Samples.Length == 0)
             {
                 return input;
             }
