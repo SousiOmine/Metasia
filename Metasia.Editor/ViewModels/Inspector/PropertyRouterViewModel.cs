@@ -9,6 +9,7 @@ using Metasia.Editor.Models.States;
 using Metasia.Core.Media;
 using Metasia.Core.Objects.Parameters;
 using Metasia.Core.Objects.Parameters.Color;
+using Metasia.Core.Render;
 
 namespace Metasia.Editor.ViewModels.Inspector;
 
@@ -94,6 +95,16 @@ public class PropertyRouterViewModel : ViewModelBase
         get => _layerTargetPropertyVm;
         set => this.RaiseAndSetIfChanged(ref _layerTargetPropertyVm, value);
     }
+    public bool IsBlendModeParamProperty
+    {
+        get => _isBlendModeParamProperty;
+        set => this.RaiseAndSetIfChanged(ref _isBlendModeParamProperty, value);
+    }
+    public BlendModeParamPropertyViewModel? BlendModeParamPropertyVm
+    {
+        get => _blendModeParamPropertyVm;
+        set => this.RaiseAndSetIfChanged(ref _blendModeParamPropertyVm, value);
+    }
     public string PlaceholderText
     {
         get => _placeholderText;
@@ -115,6 +126,7 @@ public class PropertyRouterViewModel : ViewModelBase
     private MetaEnumParamPropertyViewModel? _metaEnumParamPropertyVm;
     private ColorPropertyViewModel? _colorPropertyVm;
     private LayerTargetPropertyViewModel? _layerTargetPropertyVm;
+    private BlendModeParamPropertyViewModel? _blendModeParamPropertyVm;
     private bool _isMetaNumberParamProperty = false;
     private bool _isMediaPathProperty = false;
     private bool _isStringProperty = false;
@@ -123,6 +135,7 @@ public class PropertyRouterViewModel : ViewModelBase
     private bool _isMetaEnumParamProperty = false;
     private bool _isColorProperty = false;
     private bool _isLayerTargetProperty = false;
+    private bool _isBlendModeParamProperty = false;
     private bool _usePlaceholder;
     private ObjectPropertyFinder.EditablePropertyInfo _propertyInfo;
     private readonly IMetaNumberParamPropertyViewModelFactory _metaNumberParamPropertyViewModelFactory;
@@ -133,6 +146,7 @@ public class PropertyRouterViewModel : ViewModelBase
     private readonly IMetaFontParamPropertyViewModelFactory _metaFontParamPropertyViewModelFactory;
     private readonly IColorPropertyViewModelFactory _colorPropertyViewModelFactory;
     private readonly ILayerTargetPropertyViewModelFactory _layerTargetPropertyViewModelFactory;
+    private readonly IBlendModeParamPropertyViewModelFactory _blendModeParamPropertyViewModelFactory;
     private readonly IProjectState _projectState;
     public PropertyRouterViewModel(
         ObjectPropertyFinder.EditablePropertyInfo propertyInfo,
@@ -144,6 +158,7 @@ public class PropertyRouterViewModel : ViewModelBase
         IMetaFontParamPropertyViewModelFactory metaFontParamPropertyViewModelFactory,
         IColorPropertyViewModelFactory colorPropertyViewModelFactory,
         ILayerTargetPropertyViewModelFactory layerTargetPropertyViewModelFactory,
+        IBlendModeParamPropertyViewModelFactory blendModeParamPropertyViewModelFactory,
         IProjectState projectState)
     {
         ArgumentNullException.ThrowIfNull(propertyInfo);
@@ -155,6 +170,7 @@ public class PropertyRouterViewModel : ViewModelBase
         ArgumentNullException.ThrowIfNull(metaFontParamPropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(colorPropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(layerTargetPropertyViewModelFactory);
+        ArgumentNullException.ThrowIfNull(blendModeParamPropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(projectState);
         _metaNumberParamPropertyViewModelFactory = metaNumberParamPropertyViewModelFactory;
         _mediaPathPropertyViewModelFactory = mediaPathPropertyViewModelFactory;
@@ -164,6 +180,7 @@ public class PropertyRouterViewModel : ViewModelBase
         _metaFontParamPropertyViewModelFactory = metaFontParamPropertyViewModelFactory;
         _colorPropertyViewModelFactory = colorPropertyViewModelFactory;
         _layerTargetPropertyViewModelFactory = layerTargetPropertyViewModelFactory;
+        _blendModeParamPropertyViewModelFactory = blendModeParamPropertyViewModelFactory;
         _projectState = projectState;
         _propertyInfo = propertyInfo;
         _projectState.TimelineChanged += OnTimelineChanged;
@@ -256,6 +273,15 @@ public class PropertyRouterViewModel : ViewModelBase
             {
                 LayerTargetPropertyVm = _layerTargetPropertyViewModelFactory.Create(_propertyInfo.Identifier, (LayerTarget)_propertyInfo.PropertyValue!);
                 IsLayerTargetProperty = true;
+                UsePlaceholder = false;
+            }
+        }
+        else if (_propertyInfo.Type == typeof(BlendModeParam))
+        {
+            if (BlendModeParamPropertyVm is null)
+            {
+                BlendModeParamPropertyVm = _blendModeParamPropertyViewModelFactory.Create(_propertyInfo.Identifier, (BlendModeParam)_propertyInfo.PropertyValue!);
+                IsBlendModeParamProperty = true;
                 UsePlaceholder = false;
             }
         }

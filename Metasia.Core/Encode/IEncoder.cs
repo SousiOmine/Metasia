@@ -44,7 +44,9 @@ public interface IEncoder
         TimelineObject timeline,
         IImageFileAccessor imageFileAccessor,
         IVideoFileAccessor videoFileAccessor,
-        string projectPath);
+        IAudioFileAccessor audioFileAccessor,
+        string projectPath,
+        string outputPath);
 
     /// <summary>
     /// エンコードを開始する

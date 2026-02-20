@@ -100,6 +100,9 @@ public class MediaPathPropertyViewModel : ViewModelBase
                 case MediaType.Video:
                     patterns.AddRange(["*.mp4", "*.avi", "*.mov", "*.wmv", "*.mkv", "*.webm", "*.flv"]);
                     break;
+                case MediaType.Audio:
+                    patterns.AddRange(["*.mp3", "*.wav", "*.aac", "*.m4a", "*.flac", "*.ogg", "*.wma"]);
+                    break;
                 default:
                     // ここまでで特に設定されていないやつであれば全拡張子を受け入れる
                     patterns.Add("*");

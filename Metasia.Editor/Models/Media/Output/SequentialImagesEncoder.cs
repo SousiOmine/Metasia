@@ -2,6 +2,9 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Metasia.Core.Encode;
+using Metasia.Core.Media;
+using Metasia.Core.Objects;
+using Metasia.Core.Project;
 
 namespace Metasia.Editor.Models.Media.Output;
 
@@ -25,12 +28,16 @@ public class SequentialImagesEncoder : EncoderBase, IEditorEncoder
     private CancellationTokenSource _cts = new();
     private Task? _encodingTask;
 
-    public void SetOutputPath(string outputPath)
+    public override void Initialize(
+        MetasiaProject project,
+        TimelineObject timeline,
+        IImageFileAccessor imageFileAccessor,
+        IVideoFileAccessor videoFileAccessor,
+        IAudioFileAccessor audioFileAccessor,
+        string projectPath,
+        string outputPath)
     {
-        if (Status != IEncoder.EncoderState.Waiting)
-        {
-            throw new InvalidOperationException("エンコーダーが待機状態ではありません");
-        }
+        base.Initialize(project, timeline, imageFileAccessor, videoFileAccessor, audioFileAccessor, projectPath, outputPath);
         OutputPath = outputPath;
         _outputFileFolder = System.IO.Path.GetDirectoryName(outputPath) ?? string.Empty;
         _outputFileName = System.IO.Path.GetFileNameWithoutExtension(outputPath);

@@ -19,7 +19,9 @@
 			DropCommand="{Binding HandleDropCommand}" 
 			DragOverCommand="{Binding HandleDragOverCommand}"
 			DragLeaveCommand="{Binding HandleDragLeaveCommand}"
-			FramePerDIP="{Binding Frame_Per_DIP}"/>
+			FramePerDIP="{Binding Frame_Per_DIP}"
+			TargetLayer="{Binding TargetLayer}"
+			Timeline="{Binding Timeline}"/>
 	</i:Interaction.Behaviors>
 
 	<UserControl.ContextFlyout>

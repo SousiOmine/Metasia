@@ -74,13 +74,13 @@ public class GroupControlObject : ClipObject, IRenderable, IAudible, ILayerInter
         });
     }
 
-    public IAudioChunk GetAudioChunk(GetAudioContext context)
+    public Task<IAudioChunk> GetAudioChunkAsync(GetAudioContext context)
     {
         // GroupControlObject自体は音声を生成しないが、IAudibleインターフェースを実装するため空のチャンクを返す
         IAudioChunk chunk = new AudioChunk(context.Format, context.RequiredLength);
 
         // 音量とエフェクトはTimelineObjectで対象レイヤーの音声に適用される
-        return chunk;
+        return Task.FromResult(chunk);
     }
 
 

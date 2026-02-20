@@ -1,17 +1,21 @@
 using System.Diagnostics;
-using System.Net;
 using Metasia.Core.Attributes;
 using Metasia.Core.Coordinate;
 using Metasia.Core.Media;
+using Metasia.Core.Objects.AudioEffects;
 using Metasia.Core.Objects.Parameters;
 using Metasia.Core.Render;
+using Metasia.Core.Sounds;
 using SkiaSharp;
 
 namespace Metasia.Core.Objects;
 
 [ClipTypeIdentifier("VideoObject")]
-public class VideoObject : ClipObject, IRenderable
+public class VideoObject : ClipObject, IRenderable, IAudible
 {
+    [EditableProperty("BlendMode")]
+    public BlendModeParam BlendMode { get; set; } = new BlendModeParam();
+
     [EditableProperty("X")]
     [ValueRange(-99999, 99999, -2000, 2000)]
     public MetaNumberParam<double> X { get; set; } = new MetaNumberParam<double>(0);
@@ -35,6 +39,12 @@ public class VideoObject : ClipObject, IRenderable
     [ValueRange(0, 99999, 0, 3600)]
     public MetaNumberParam<double> VideoStartSeconds { get; set; } = new MetaNumberParam<double>(0);
 
+    [EditableProperty("AudioVolume")]
+    [ValueRange(0, 99999, 0, 200)]
+    public MetaDoubleParam Volume { get; set; } = new MetaDoubleParam(100);
+
+    public List<AudioEffectBase> AudioEffects { get; set; } = new();
+
     public VideoObject()
     {
         VideoPath = new MediaPath([MediaType.Video]);
@@ -42,7 +52,7 @@ public class VideoObject : ClipObject, IRenderable
 
     public VideoObject(string id) : base(id)
     {
-
+        VideoPath = new MediaPath([MediaType.Video]);
     }
 
     public async Task<IRenderNode> RenderAsync(RenderContext context, CancellationToken cancellationToken = default)
@@ -69,6 +79,7 @@ public class VideoObject : ClipObject, IRenderable
                         Image = imageFileAccessorResult.Image,
                         LogicalSize = new SKSize(imageFileAccessorResult.Image.Width, imageFileAccessorResult.Image.Height),
                         Transform = transform,
+                        BlendMode = BlendMode.Value,
                     };
                 }
             }
@@ -79,5 +90,68 @@ public class VideoObject : ClipObject, IRenderable
         }
         Debug.WriteLine($"Failed to load video: {VideoPath}");
         return new NormalRenderNode();
+    }
+
+    public async Task<IAudioChunk> GetAudioChunkAsync(GetAudioContext context)
+    {
+        IAudioChunk result = new AudioChunk(context.Format, context.RequiredLength);
+
+        if (context.RequiredLength <= 0)
+        {
+            return result;
+        }
+
+        if (VideoPath is null || string.IsNullOrWhiteSpace(VideoPath.FileName) || context.AudioFileAccessor is null)
+        {
+            return ApplyEffects(result, context);
+        }
+
+        try
+        {
+            string fullPath = MediaPath.GetFullPath(VideoPath, context.ProjectPath);
+            int clipLength = EndFrame - StartFrame + 1;
+            int relativeFrame = (int)((context.StartSamplePosition / (double)context.Format.SampleRate) * context.ProjectFrameRate);
+            double startSeconds = VideoStartSeconds.Get(relativeFrame, clipLength) + (context.StartSamplePosition / (double)context.Format.SampleRate);
+            if (startSeconds < 0)
+            {
+                startSeconds = 0;
+            }
+
+            double durationSeconds = context.RequiredLength / (double)context.Format.SampleRate;
+            var accessorResult = await context.AudioFileAccessor
+                .GetAudioAsync(fullPath, TimeSpan.FromSeconds(startSeconds), TimeSpan.FromSeconds(durationSeconds));
+
+            if (!accessorResult.IsSuccessful || accessorResult.Chunk is null)
+            {
+                return ApplyEffects(result, context);
+            }
+
+            result = AudioChunkConverter.ConvertToFormat(accessorResult.Chunk, context.Format, context.RequiredLength);
+            double gain = Volume.Value / 100.0;
+            for (long i = 0; i < result.Samples.Length; i++)
+            {
+                result.Samples[i] = Math.Clamp(result.Samples[i] * gain, -1.0, 1.0);
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Failed to load video audio: {VideoPath}. {ex.Message}");
+            return ApplyEffects(result, context);
+        }
+
+        return ApplyEffects(result, context);
+    }
+
+    private IAudioChunk ApplyEffects(IAudioChunk chunk, GetAudioContext context)
+    {
+        IAudioChunk result = chunk;
+        AudioEffectContext effectContext = new(this, context);
+
+        foreach (var effect in AudioEffects)
+        {
+            result = effect.Apply(result, effectContext);
+        }
+
+        return result;
     }
 }

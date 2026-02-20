@@ -1,4 +1,5 @@
 using Metasia.Core.Objects;
+using Metasia.Core.Media;
 
 namespace Metasia.Core.Sounds
 {
@@ -29,6 +30,10 @@ namespace Metasia.Core.Sounds
         /// </summary>
         public double ProjectFrameRate { get; }
 
+        public IAudioFileAccessor? AudioFileAccessor { get; }
+
+        public string? ProjectPath { get; }
+
         /// <summary>
         /// コンストラクタ
         /// </summary>
@@ -44,6 +49,8 @@ namespace Metasia.Core.Sounds
             CurrentSamplePosition = getAudioContext.StartSamplePosition;
             ObjectDurationInSeconds = getAudioContext.ObjectDurationInSeconds;
             ProjectFrameRate = getAudioContext.ProjectFrameRate;
+            AudioFileAccessor = getAudioContext.AudioFileAccessor;
+            ProjectPath = getAudioContext.ProjectPath;
         }
 
         /// <summary>
@@ -52,7 +59,7 @@ namespace Metasia.Core.Sounds
         /// <param name="startPosition">音源の始端を基準とした開始位置</param>
         /// <param name="endPosition">音源の始端を基準とした終了位置</param>
         /// <returns>指定された範囲の音声データ</returns>
-        public IAudioChunk GetSourceAudio(long startPosition, long endPosition)
+        public async Task<IAudioChunk> GetSourceAudioAsync(long startPosition, long endPosition)
         {
             if (startPosition < CurrentSamplePosition)
             {
@@ -63,8 +70,8 @@ namespace Metasia.Core.Sounds
                 throw new ArgumentException("endPosition must be greater than or equal to startPosition");
             }
 
-            var audioContext = new GetAudioContext(Format, startPosition, endPosition - startPosition, ProjectFrameRate, ObjectDurationInSeconds);
-            var chunk = Source.GetAudioChunk(audioContext);
+            var audioContext = new GetAudioContext(Format, startPosition, endPosition - startPosition, ProjectFrameRate, ObjectDurationInSeconds, AudioFileAccessor, ProjectPath);
+            var chunk = await Source.GetAudioChunkAsync(audioContext);
             return chunk;
         }
     }

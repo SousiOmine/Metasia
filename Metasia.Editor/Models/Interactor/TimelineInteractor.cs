@@ -6,6 +6,7 @@ using Metasia.Core.Coordinate;
 using Metasia.Core.Objects;
 using Metasia.Core.Objects.Parameters;
 using Metasia.Core.Objects.Parameters.Color;
+using Metasia.Core.Render;
 using Metasia.Editor.Models.EditCommands;
 using Metasia.Editor.Models.EditCommands.Commands;
 
@@ -152,6 +153,24 @@ namespace Metasia.Editor.Models.Interactor
 
             value = layerTarget;
             return true;
+        }
+
+        public static IEditCommand? CreateBlendModeValueChangeCommand(string propertyIdentifier, BlendModeKind oldValue, BlendModeKind newValue, IEnumerable<ClipObject> selectedClips)
+        {
+            List<BlendModeValueChangeCommand.BlendModeValueChangeInfo> changeInfos = new();
+            foreach (var clip in selectedClips)
+            {
+                var properties = ObjectPropertyFinder.FindEditableProperties(clip);
+                var property = properties.FirstOrDefault(x => x.Identifier == propertyIdentifier);
+                if (property is null || property.PropertyValue is not BlendModeParam blendModeParam) continue;
+
+                changeInfos.Add(new BlendModeValueChangeCommand.BlendModeValueChangeInfo(
+                    clip,
+                    propertyIdentifier,
+                    oldValue,
+                    newValue));
+            }
+            return changeInfos.Count > 0 ? new BlendModeValueChangeCommand(changeInfos) : null;
         }
     }
 }

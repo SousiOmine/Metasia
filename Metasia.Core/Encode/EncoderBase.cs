@@ -29,7 +29,9 @@ public abstract class EncoderBase : IEncoder, IDisposable
     private TimelineObject? _targetTimeline;
     private IImageFileAccessor? _imageFileAccessor;
     private IVideoFileAccessor? _videoFileAccessor;
+    private IAudioFileAccessor? _audioFileAccessor;
     private string? _projectPath;
+    protected string? _outputPath;
     private bool _disposed;
 
     private int _startFrame;
@@ -40,13 +42,17 @@ public abstract class EncoderBase : IEncoder, IDisposable
         TimelineObject targetTimeline,
         IImageFileAccessor imageFileAccessor,
         IVideoFileAccessor videoFileAccessor,
-        string projectPath)
+        IAudioFileAccessor audioFileAccessor,
+        string projectPath,
+        string outputPath)
     {
         _project = project;
         _targetTimeline = targetTimeline;
         _imageFileAccessor = imageFileAccessor;
         _videoFileAccessor = videoFileAccessor;
+        _audioFileAccessor = audioFileAccessor;
         _projectPath = projectPath;
+        _outputPath = outputPath;
 
         _startFrame = _targetTimeline.SelectionStart;
         _endFrame = _targetTimeline.SelectionEnd;
@@ -103,14 +109,13 @@ public abstract class EncoderBase : IEncoder, IDisposable
 
     protected async Task<IAudioChunk> GetAudioChunkAsync(long startSample, long sampleCount, int sampleRate, int channelCount, CancellationToken ct)
     {
-        // TODO: GetAudioChunkが非同期処理に対応したらこのメソッドも非同期化する
-        if (_project is null || _targetTimeline is null)
+        if (_project is null || _targetTimeline is null || _audioFileAccessor is null || _projectPath is null)
         {
             throw new InvalidOperationException("プロジェクトまたはタイムラインが初期化されていません。");
         }
         long startPosition = (long)((double)sampleRate / _project.Info.Framerate * _startFrame) + startSample;
         double lengthInSecond = (_endFrame - _startFrame) / _project.Info.Framerate;
-        var chunk = _targetTimeline.GetAudioChunk(new GetAudioContext(new AudioFormat(sampleRate, channelCount), startPosition, sampleCount, _project.Info.Framerate, lengthInSecond));
+        var chunk = await _targetTimeline.GetAudioChunkAsync(new GetAudioContext(new AudioFormat(sampleRate, channelCount), startPosition, sampleCount, _project.Info.Framerate, lengthInSecond, _audioFileAccessor, _projectPath));
         return chunk;
     }
 

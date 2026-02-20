@@ -1,3 +1,4 @@
+using Metasia.Core.Media;
 using Metasia.Core.Objects;
 using Metasia.Core.Project;
 using Metasia.Editor.Models.States;
@@ -8,7 +9,7 @@ namespace Metasia.Editor.Services.Audio
     {
         bool IsPlaying { get; }
         long CurrentSample { get; }
-        void Play(TimelineObject timeline, ProjectInfo projectInfo, long startSample, double speed, int samplingRate, int audioChannels);
+        void Play(TimelineObject timeline, ProjectInfo projectInfo, long startSample, double speed, int samplingRate, int audioChannels, IAudioFileAccessor audioFileAccessor, string projectPath);
         void Pause();
     }
 }

@@ -7,12 +7,16 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Avalonia.Styling;
 using Avalonia.Threading;
+using Metasia.Editor.Models.DragDrop;
+using Metasia.Editor.Models.DragDrop.Handlers;
 using Metasia.Editor.Models.EditCommands;
 using Metasia.Editor.Models.Media;
 using Metasia.Editor.Models.States;
 using Metasia.Editor.Services;
 using Metasia.Editor.Services.Audio;
+using Metasia.Editor.Services.Notification;
 using Metasia.Editor.Services.PluginService;
 using Metasia.Editor.ViewModels;
 using Metasia.Editor.ViewModels.Dialogs;
@@ -36,6 +40,7 @@ namespace Metasia.Editor
 
         private MainWindow? _mainWindow;
         private Window? _splashScreen;
+        private ISettingsService? _settingsService;
 
         public override void Initialize()
         {
@@ -70,6 +75,7 @@ namespace Metasia.Editor
             services.AddSingleton<IFileDialogService>(new FileDialogService(_mainWindow));
             services.AddSingleton<IKeyBindingService, KeyBindingService>();
             services.AddSingleton<ISettingsService, SettingsService>();
+            services.AddSingleton<IAutoSaveService, AutoSaveService>();
             services.AddSingleton<SettingsWindowViewModel>();
 
             services.AddSingleton<IEditCommandManager, EditCommandManager>();
@@ -96,6 +102,12 @@ namespace Metasia.Editor
             services.AddSingleton<IFontCatalogService, FontCatalogService>();
             services.AddSingleton<IAudioPlaybackService, AudioPlaybackService>();
             services.AddSingleton<IEncodeService, EncodeService>();
+            services.AddSingleton<INotificationService, NotificationService>();
+
+            services.AddSingleton<IDropHandlerRegistry, DropHandlerRegistry>();
+            services.AddSingleton<IDropHandler, ClipsMoveDropHandler>();
+            services.AddSingleton<IDropHandler, ExternalFileDropHandler>();
+            services.AddSingleton<IDropHandler, ProjectFileDropHandler>();
 
             services.AddTransient<IPlayerViewModelFactory, PlayerViewModelFactory>();
             services.AddTransient<ITimelineViewModelFactory, TimelineViewModelFactory>();
@@ -113,6 +125,7 @@ namespace Metasia.Editor
             services.AddTransient<IMetaFontParamPropertyViewModelFactory, MetaFontParamPropertyViewModelFactory>();
             services.AddTransient<IColorPropertyViewModelFactory, ColorPropertyViewModelFactory>();
             services.AddTransient<ILayerTargetPropertyViewModelFactory, LayerTargetPropertyViewModelFactory>();
+            services.AddTransient<IBlendModeParamPropertyViewModelFactory, BlendModeParamPropertyViewModelFactory>();
             services.AddTransient<INewProjectViewModelFactory, NewProjectViewModelFactory>();
             services.AddTransient<IOutputViewModelFactory, OutputViewModelFactory>();
 
@@ -130,12 +143,23 @@ namespace Metasia.Editor
 
             try
             {
-                await Services.GetRequiredService<ISettingsService>().LoadAsync();
+                _settingsService = Services.GetRequiredService<ISettingsService>();
+                await _settingsService.LoadAsync();
+                ApplyTheme(_settingsService.CurrentSettings.General.Theme);
+                _settingsService.SettingsChanged += OnSettingsChanged;
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"設定の読み込みに失敗しました。デフォルト設定を使用します: {ex.Message}");
-                // 必要に応じてデフォルト設定で続行するか、ユーザーに通知
+            }
+
+            try
+            {
+                Services.GetRequiredService<IAutoSaveService>().Start();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"自動保存の開始に失敗しました: {ex.Message}");
             }
             // プラグインを読み込み
             await Services.GetRequiredService<IPluginService>().LoadPluginsAsync();
@@ -155,6 +179,22 @@ namespace Metasia.Editor
             _mainWindow!.Show();
 
             _splashScreen!.Close();
+        }
+
+        private void OnSettingsChanged()
+        {
+            if (_settingsService is null) return;
+            ApplyTheme(_settingsService.CurrentSettings.General.Theme);
+        }
+
+        private void ApplyTheme(string theme)
+        {
+            RequestedThemeVariant = theme switch
+            {
+                "dark" => ThemeVariant.Dark,
+                "light" => ThemeVariant.Light,
+                _ => ThemeVariant.Default
+            };
         }
 
         private void OnShutdownRequested(object? sender, ShutdownRequestedEventArgs e)

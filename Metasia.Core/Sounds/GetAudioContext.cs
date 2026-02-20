@@ -1,3 +1,5 @@
+using Metasia.Core.Media;
+
 namespace Metasia.Core.Sounds
 {
     public class GetAudioContext
@@ -15,7 +17,18 @@ namespace Metasia.Core.Sounds
         /// </summary>
         public double ObjectDurationInSeconds { get; }
 
-        public GetAudioContext(IAudioFormat format, long startSamplePosition, long requiredLength, double projectFrameRate, double objectDurationInSeconds)
+        public IAudioFileAccessor? AudioFileAccessor { get; }
+
+        public string? ProjectPath { get; }
+
+        public GetAudioContext(
+            IAudioFormat format,
+            long startSamplePosition,
+            long requiredLength,
+            double projectFrameRate,
+            double objectDurationInSeconds,
+            IAudioFileAccessor? audioFileAccessor = null,
+            string? projectPath = null)
         {
             ArgumentNullException.ThrowIfNull(format);
             if (startSamplePosition < 0)
@@ -39,6 +52,8 @@ namespace Metasia.Core.Sounds
             RequiredLength = requiredLength;
             ProjectFrameRate = projectFrameRate;
             ObjectDurationInSeconds = objectDurationInSeconds;
+            AudioFileAccessor = audioFileAccessor;
+            ProjectPath = projectPath;
         }
     }
 }

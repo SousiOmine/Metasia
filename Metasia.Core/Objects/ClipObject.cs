@@ -1,3 +1,5 @@
+using Metasia.Core.Attributes;
+using Metasia.Core.Render;
 using Metasia.Core.Xml;
 
 namespace Metasia.Core.Objects

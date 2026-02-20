@@ -5,6 +5,7 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Metasia.Core.Encode;
+using Metasia.Core.Media;
 using Metasia.Editor.Models.Media;
 using Metasia.Editor.Models.Media.Output;
 using Metasia.Editor.Models.Projects;
@@ -209,9 +210,24 @@ public class OutputViewModel : ViewModelBase
         var timeline = project.Timelines[SelectedTimelineIndex];
         var imageFileAccessor = _mediaAccessorRouter;
         var videoFileAccessor = _mediaAccessorRouter;
-        encoder.Initialize(project, timeline, imageFileAccessor, videoFileAccessor, OutputPath);
+        var projectPath = GetProjectPath();
+        encoder.Initialize(project, timeline, imageFileAccessor, videoFileAccessor, videoFileAccessor as IAudioFileAccessor, projectPath, OutputPath);
 
-        _encodeService.QueueEncode(encoder, OutputPath);
+        _encodeService.QueueEncode(encoder);
+    }
+
+    private string GetProjectPath()
+    {
+        var project = _projectState.CurrentProject;
+        if (project?.ProjectFilePath is not null)
+        {
+            return Path.GetDirectoryName(project.ProjectFilePath) ?? Directory.GetCurrentDirectory();
+        }
+        if (!string.IsNullOrEmpty(OutputPath))
+        {
+            return Path.GetDirectoryName(OutputPath) ?? Directory.GetCurrentDirectory();
+        }
+        return Directory.GetCurrentDirectory();
     }
 
     private void Cancel()

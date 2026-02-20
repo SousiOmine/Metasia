@@ -1,7 +1,9 @@
 using System;
 using System.Diagnostics;
+using System.IO;
 using Avalonia.Threading;
 using Metasia.Core.Objects;
+using Metasia.Editor.Models.Media;
 using Metasia.Editor.Services.Audio;
 
 namespace Metasia.Editor.Models.States;
@@ -35,6 +37,7 @@ public class PlaybackState : IPlaybackState
     public event Action? ReRenderingRequested;
     private readonly IProjectState _projectState;
     private readonly IAudioPlaybackService _audioPlaybackService;
+    private readonly MediaAccessorRouter _mediaAccessorRouter;
 
     private int _currentFrame;
 
@@ -42,12 +45,13 @@ public class PlaybackState : IPlaybackState
     private readonly Stopwatch _playbackStopwatch = new();
     private int _frameAtPlaybackStart;
 
-    public PlaybackState(IProjectState projectState, IAudioPlaybackService audioPlaybackService)
+    public PlaybackState(IProjectState projectState, IAudioPlaybackService audioPlaybackService, MediaAccessorRouter mediaAccessorRouter)
     {
         CurrentFrame = 0;
         IsPlaying = false;
         _projectState = projectState ?? throw new ArgumentNullException(nameof(projectState));
         _audioPlaybackService = audioPlaybackService ?? throw new ArgumentNullException(nameof(audioPlaybackService));
+        _mediaAccessorRouter = mediaAccessorRouter ?? throw new ArgumentNullException(nameof(mediaAccessorRouter));
     }
 
     public void Pause()
@@ -85,7 +89,7 @@ public class PlaybackState : IPlaybackState
             PlaybackStarted?.Invoke();
 
             long startSample = (long)(CurrentFrame / (double)_projectState.CurrentProjectInfo.Framerate * SamplingRate);
-            _audioPlaybackService.Play(_projectState.CurrentTimeline, _projectState.CurrentProjectInfo, startSample, 1.0, SamplingRate, AudioChannels);
+            _audioPlaybackService.Play(_projectState.CurrentTimeline, _projectState.CurrentProjectInfo, startSample, 1.0, SamplingRate, AudioChannels, _mediaAccessorRouter, ResolveProjectPath());
         }
         catch (Exception ex)
         {
@@ -152,5 +156,16 @@ public class PlaybackState : IPlaybackState
             timer = null;
         }
         _playbackStopwatch.Stop();
+    }
+
+    private string ResolveProjectPath()
+    {
+        var project = _projectState.CurrentProject;
+        if (project?.ProjectFilePath is not null)
+        {
+            return Path.GetDirectoryName(project.ProjectFilePath) ?? Directory.GetCurrentDirectory();
+        }
+
+        return Directory.GetCurrentDirectory();
     }
 }

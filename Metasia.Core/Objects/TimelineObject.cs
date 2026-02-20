@@ -69,7 +69,7 @@ namespace Metasia.Core.Objects
             return await RenderExecuteAsync(context, cancellationToken);
         }
 
-        public IAudioChunk GetAudioChunk(GetAudioContext context)
+        public async Task<IAudioChunk> GetAudioChunkAsync(GetAudioContext context)
         {
             double framerate = context.ProjectFrameRate;
 
@@ -89,7 +89,7 @@ namespace Metasia.Core.Objects
                     .Where(c => IsControlApplicableToLayer(c.control, c.layerIndex, layerIndex))
                     .ToList();
 
-                var chunk = layer.GetAudioChunk(context);
+                var chunk = await layer.GetAudioChunkAsync(context);
 
                 // グループ制御の音量ゲインを計算
                 double groupGain = 1.0;
@@ -122,7 +122,7 @@ namespace Metasia.Core.Objects
                         {
                             // グループ制御の長さを計算（制御オブジェクトの期間）
                             double controlDuration = (control.EndFrame - control.StartFrame) / framerate;
-                            var controlContext = new GetAudioContext(context.Format, context.StartSamplePosition, context.RequiredLength, context.ProjectFrameRate, controlDuration);
+                            var controlContext = new GetAudioContext(context.Format, context.StartSamplePosition, context.RequiredLength, context.ProjectFrameRate, controlDuration, context.AudioFileAccessor, context.ProjectPath);
                             AudioEffectContext effectContext = new AudioEffectContext(control, controlContext);
 
                             foreach (var effect in control.AudioEffects)
@@ -150,7 +150,7 @@ namespace Metasia.Core.Objects
             int lastFrame = GetLastFrameOfClips();
             double timelineDuration = Math.Max(1, lastFrame) / framerate;
 
-            var timelineContext = new GetAudioContext(context.Format, context.StartSamplePosition, context.RequiredLength, context.ProjectFrameRate, timelineDuration);
+            var timelineContext = new GetAudioContext(context.Format, context.StartSamplePosition, context.RequiredLength, context.ProjectFrameRate, timelineDuration, context.AudioFileAccessor, context.ProjectPath);
             AudioEffectContext timelineEffectContext = new AudioEffectContext(this, timelineContext);
 
             foreach (var effect in AudioEffects)

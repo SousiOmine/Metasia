@@ -17,7 +17,7 @@ public interface IEncodeService
     /// </summary>
     event EventHandler<EventArgs> QueueUpdated;
 
-    void QueueEncode(IEditorEncoder encoder, string outputPath);
+    void QueueEncode(IEditorEncoder encoder);
     void Cancel(IEditorEncoder encoder);
     void Delete(IEditorEncoder encoder);
     void ClearQueue();
