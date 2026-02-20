@@ -40,9 +40,23 @@ public class NewObjectSelectViewModel : ViewModelBase
         get => _selectedObjectType;
         set => this.RaiseAndSetIfChanged(ref _selectedObjectType, value);
     }
-
-    public NewObjectSelectViewModel()
+    
+    public enum TargetType
     {
+        Clip,
+        AuidoEffect,
+        VisualEffect
+    }
+    
+    private Collection<TargetType> _targetTypes = new();
+
+    public NewObjectSelectViewModel(params TargetType[] targetTypes)
+    {
+        foreach (var type in targetTypes)
+        {
+            _targetTypes.Add(type);
+        }
+        
         LoadAvailableObjectTypes();
 
         var canExecuteOk = this.WhenAnyValue(x => x.SelectedObjectType)
@@ -76,33 +90,38 @@ public class NewObjectSelectViewModel : ViewModelBase
     {
         AvailableObjectTypes.Clear();
 
-        // ClipTypeIdentifier属性を持つクラスを自動で収集
-        var objectTypes = Assembly.GetAssembly(typeof(ClipObject))!
-            .GetTypes()
-            .Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(ClipObject)))
-            .Select(t => new
-            {
-                Type = t,
-                Attribute = t.GetCustomAttribute<ClipTypeIdentifierAttribute>()
-            })
-            .Where(x => x.Attribute is not null)
-            .OrderBy(x => x.Attribute!.Identifier)
-            .ToList();
+        List<(Type type, Attribute attribute)> objectTypes = new();
 
-        foreach (var objectType in objectTypes)
+        if (_targetTypes.Contains(TargetType.Clip))
         {
-            var identifier = objectType.Attribute!.Identifier;
-            var displayName = GetDisplayNameFromIdentifier(identifier);
-            var description = $"{displayName}オブジェクトを追加します";
-
-            AvailableObjectTypes.Add(new ObjectTypeInfo
+            objectTypes.AddRange(Assembly.GetAssembly(typeof(ClipObject))!
+                .GetTypes()
+                .Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(ClipObject)))
+                .Select(t => (
+                    Type: t,
+                    Attribute: t.GetCustomAttribute<ClipTypeIdentifierAttribute>()
+                ))
+                .Where(x => x.Attribute is not null)
+                .OrderBy(x => x.Attribute!.Identifier)
+                .Select(x => (type: x.Type, attribute: (Attribute)x.Attribute!)));
+            
+            foreach (var objectType in objectTypes)
             {
-                DisplayName = displayName,
-                Description = description,
-                ObjectType = objectType.Type,
-                Identifier = identifier
-            });
+                var identifier = ((ClipTypeIdentifierAttribute)objectType.attribute).Identifier;
+                var displayName = GetDisplayNameFromIdentifier(identifier);
+                var description = $"{displayName}オブジェクトを追加します";
+
+                AvailableObjectTypes.Add(new ObjectTypeInfo
+                {
+                    DisplayName = displayName,
+                    Description = description,
+                    ObjectType = objectType.type,
+                    Identifier = identifier
+                });
+            }
         }
+
+        
 
         // 初期状態ではすべてのオブジェクトを表示
         FilterObjectTypes();

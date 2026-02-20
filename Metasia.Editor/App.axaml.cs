@@ -104,6 +104,7 @@ namespace Metasia.Editor
             services.AddTransient<IClipViewModelFactory, ClipViewModelFactory>();
             services.AddTransient<IPropertyRouterViewModelFactory, PropertyRouterViewModelFactory>();
             services.AddTransient<IClipSettingPaneViewModelFactory, ClipSettingPaneViewModelFactory>();
+            services.AddTransient<IAudioEffectsViewModelFactory, AudioEffectsViewModelFactory>();
             services.AddTransient<IMetaNumberParamPropertyViewModelFactory, MetaNumberParamPropertyViewModelFactory>();
             services.AddTransient<IMediaPathPropertyViewModelFactory, MediaPathPropertyViewModelFactory>();
             services.AddTransient<IStringPropertyViewModelFactory, StringPropertyViewModelFactory>();

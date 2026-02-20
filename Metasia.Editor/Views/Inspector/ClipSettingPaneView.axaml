@@ -9,15 +9,35 @@
 			 x:DataType="vm:ClipSettingPaneViewModel"
              Padding="10">
     <Border Background="Transparent" VerticalAlignment="Center" HorizontalAlignment="Stretch" Padding="10">
-        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Stretch">
-            <CheckBox Content="IsActive" IsChecked="{Binding IsActiveCheck}" Command="{Binding IsActiveCheckCommand}"></CheckBox>
-            <ItemsControl ItemsSource="{Binding Properties}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate DataType="vm:PropertyRouterViewModel">
-                        <views_inspector:PropertyRouterView/>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </StackPanel>
+        <TabControl>
+            <TabItem Header="プロパティ">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Stretch">
+                    <CheckBox Content="IsActive" IsChecked="{Binding IsActiveCheck}" Command="{Binding IsActiveCheckCommand}"></CheckBox>
+                    <ItemsControl ItemsSource="{Binding Properties}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="vm:PropertyRouterViewModel">
+                                <views_inspector:PropertyRouterView/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    
+                </StackPanel>
+            </TabItem>
+            
+            <TabItem Header="エフェクト">
+                <Expander 
+                    IsVisible="{Binding IsAudiable}"
+                    IsExpanded="True"
+                    HorizontalAlignment="Stretch">
+                    <Expander.Header>
+                        <TextBlock Text="音声エフェクト"/>
+                    </Expander.Header>
+                    
+                    <views_inspector:AudioEffectsView DataContext="{Binding AudioEffectsVm}"/>
+                </Expander>
+            </TabItem>
+        </TabControl>
+        
     </Border>
 </UserControl>

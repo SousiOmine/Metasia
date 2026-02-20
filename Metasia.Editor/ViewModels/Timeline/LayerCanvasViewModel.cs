@@ -83,7 +83,7 @@ namespace Metasia.Editor.ViewModels.Timeline
             HandleDragLeaveCommand = ReactiveCommand.Create(ExecuteHandleDragLeave);
             NewClipCommand = ReactiveCommand.CreateFromTask(async () =>
             {
-                var vm = new NewObjectSelectViewModel();
+                var vm = new NewObjectSelectViewModel(NewObjectSelectViewModel.TargetType.Clip);
                 var result = await NewObjectSelectInteraction.Handle(vm);
 
                 if (result is not null && result is ClipObject clipObject)

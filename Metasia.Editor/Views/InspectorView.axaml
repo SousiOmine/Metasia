@@ -17,7 +17,6 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
-            <TextBlock Text="{Binding TestCharacters}"/>
         </StackPanel>
         
     </ScrollViewer>

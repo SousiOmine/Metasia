@@ -30,24 +30,43 @@ public class ClipSettingPaneViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _isActiveCheck, value);
     }
 
+    public bool IsAudiable
+    {
+        get
+        {
+            if (TargetObject is null) return false;
+            return TargetObject is IAudible;
+        }
+    }
+
     public ObservableCollection<PropertyRouterViewModel> Properties { get; set; } = new();
+
+    public AudioEffectsViewModel AudioEffectsVm
+    {
+        get => _audioEffectsViewModel;
+        set => this.RaiseAndSetIfChanged(ref _audioEffectsViewModel, value);
+    }
 
     public ICommand IsActiveCheckCommand { get; set; }
 
     public event EventHandler? TargetObjectChanged;
 
     private ClipObject? _targetObject;
+    private AudioEffectsViewModel _audioEffectsViewModel;
     private bool _isActiveCheck;
     private readonly IPropertyRouterViewModelFactory _propertyRouterViewModelFactory;
+    private readonly IAudioEffectsViewModelFactory _audioEffectsViewModelFactory;
     private readonly IEditCommandManager _editCommandManager;
     public ClipSettingPaneViewModel(
         IPropertyRouterViewModelFactory propertyRouterViewModelFactory,
+        IAudioEffectsViewModelFactory audioEffectsViewModelFactory,
         IEditCommandManager editCommandManager)
     {
         ArgumentNullException.ThrowIfNull(propertyRouterViewModelFactory);
         ArgumentNullException.ThrowIfNull(editCommandManager);
         IsActiveCheckCommand = ReactiveCommand.Create(() => { isActiveCheck_Click(); });
         _propertyRouterViewModelFactory = propertyRouterViewModelFactory;
+        _audioEffectsViewModelFactory = audioEffectsViewModelFactory;
         _editCommandManager = editCommandManager;
     }
 
@@ -63,6 +82,11 @@ public class ClipSettingPaneViewModel : ViewModelBase
         foreach (var property in editableProperties)
         {
             Properties.Add(_propertyRouterViewModelFactory.Create(property));
+        }
+
+        if (TargetObject is IAudible audible)
+        {
+            AudioEffectsVm = _audioEffectsViewModelFactory.Create(audible);
         }
     }
 

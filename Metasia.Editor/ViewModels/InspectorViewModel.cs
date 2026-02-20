@@ -14,11 +14,6 @@ namespace Metasia.Editor.ViewModels
     public class InspectorViewModel : ViewModelBase
     {
         public ObservableCollection<ClipSettingPaneViewModel> ClipSettingPanes { get; set; } = new();
-        public string TestCharacters
-        {
-            get => _testCharacters;
-            set => this.RaiseAndSetIfChanged(ref _testCharacters, value);
-        }
 
         private readonly IEditCommandManager _editCommandManager;
         private string _testCharacters = String.Empty;
@@ -39,7 +34,6 @@ namespace Metasia.Editor.ViewModels
 
             _projectState.ProjectLoaded += () =>
             {
-                TestCharacters = string.Empty;
                 PlayerChanged();
             };
         }
@@ -63,11 +57,6 @@ namespace Metasia.Editor.ViewModels
                     }
                 };
             }
-        }
-
-        public void RunEditCommand(IEditCommand editCommand)
-        {
-            _editCommandManager.Execute(editCommand);
         }
     }
 }
