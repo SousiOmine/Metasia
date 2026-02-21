@@ -216,6 +216,12 @@ namespace Metasia.Editor.Tests.Models.Media
                 AudioCallCount++;
                 return Task.FromResult(new AudioFileAccessorResult { IsSuccessful = _audioSuccessful, Chunk = _audioSuccessful ? new AudioChunk(new AudioFormat(44100, 2), 0) : null });
             }
+            
+            public Task<AudioSampleResult> GetAudioBySampleAsync(string path, long startSample, long sampleCount, int sampleRate)
+            {
+                AudioCallCount++;
+                return Task.FromResult(new AudioSampleResult { IsSuccessful = _audioSuccessful, Chunk = _audioSuccessful ? new AudioChunk(new AudioFormat(sampleRate, 2), 0) : null });
+            }
         }
 
         private sealed class FakeSettingsService : ISettingsService
@@ -251,6 +257,12 @@ namespace Metasia.Editor.Tests.Models.Media
                 LastStartTime = startTime;
                 LastDuration = duration;
                 return Task.FromResult(new AudioFileAccessorResult { IsSuccessful = true, Chunk = new AudioChunk(new AudioFormat(44100, 2), 0) });
+            }
+            
+            public Task<AudioSampleResult> GetAudioBySampleAsync(string path, long startSample, long sampleCount, int sampleRate)
+            {
+                LastPath = path;
+                return Task.FromResult(new AudioSampleResult { IsSuccessful = true, Chunk = new AudioChunk(new AudioFormat(sampleRate, 2), 0) });
             }
         }
     }

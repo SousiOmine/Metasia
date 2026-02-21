@@ -50,15 +50,15 @@ public class AudioObject : ClipObject, IAudible
         try
         {
             string fullPath = MediaPath.GetFullPath(AudioPath, context.ProjectPath);
-            double startSeconds = AudioStartSeconds.Get(0, 1) + (context.StartSamplePosition / (double)context.Format.SampleRate);
-            if (startSeconds < 0)
+            long audioStartSample = (long)(AudioStartSeconds.Get(0, 1) * context.Format.SampleRate);
+            long mediaStartSample = audioStartSample + context.StartSamplePosition;
+            if (mediaStartSample < 0)
             {
-                startSeconds = 0;
+                mediaStartSample = 0;
             }
 
-            double durationSeconds = context.RequiredLength / (double)context.Format.SampleRate;
             var accessorResult = await context.AudioFileAccessor
-                .GetAudioAsync(fullPath, TimeSpan.FromSeconds(startSeconds), TimeSpan.FromSeconds(durationSeconds));
+                .GetAudioBySampleAsync(fullPath, mediaStartSample, context.RequiredLength, context.Format.SampleRate);
 
             if (!accessorResult.IsSuccessful || accessorResult.Chunk is null)
             {

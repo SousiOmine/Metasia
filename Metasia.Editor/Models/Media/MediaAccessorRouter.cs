@@ -114,6 +114,22 @@ public class MediaAccessorRouter : IImageFileAccessor, IVideoFileAccessor, IAudi
         }
         return new AudioFileAccessorResult { IsSuccessful = false, Chunk = null };
     }
+    
+    public async Task<AudioSampleResult> GetAudioBySampleAsync(string path, long startSample, long sampleCount, int sampleRate)
+    {
+        foreach (var entry in _orderedAccessors)
+        {
+            if (entry.Accessor is IAudioFileAccessor audioAccessor)
+            {
+                var result = await audioAccessor.GetAudioBySampleAsync(path, startSample, sampleCount, sampleRate);
+                if (result.IsSuccessful)
+                {
+                    return result;
+                }
+            }
+        }
+        return new AudioSampleResult { IsSuccessful = false, Chunk = null };
+    }
 
     public void RegisterAccessor(string id, string displayName, IMediaAccessor accessor)
     {
