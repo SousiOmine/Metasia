@@ -12,6 +12,10 @@ namespace Metasia.Editor.Services.Audio
 {
     public class AudioPlaybackService : IAudioPlaybackService
     {
+        private const double PrefillSeconds = 2.0;
+        private const double RefillLowWatermarkSeconds = 1.0;
+        private const double RequestChunkSeconds = 1.0;
+
         public bool IsPlaying { get; private set; }
 
         public long CurrentSample { get; private set; }
@@ -52,8 +56,9 @@ namespace Metasia.Editor.Services.Audio
                 var audioFormat = new AudioFormat(samplingRate, audioChannels);
 
                 long currentSamplePosition = startSample;
-
-                long targetBufferingSize = audioFormat.SampleRate / 2; //とりあえず0.5秒
+                long prefillBufferSize = SecondsToSamples(audioFormat.SampleRate, PrefillSeconds);
+                long refillLowWatermarkSize = SecondsToSamples(audioFormat.SampleRate, RefillLowWatermarkSeconds);
+                long requestChunkSize = SecondsToSamples(audioFormat.SampleRate, RequestChunkSeconds);
 
                 CurrentSample = currentSamplePosition;
 
@@ -61,22 +66,25 @@ namespace Metasia.Editor.Services.Audio
                 double timelineDuration = int.MaxValue / projectInfo.Framerate;
 
                 //再生開始直前にキューをある程度満たす
-                while (audioService.GetQueuedSamplesCount() < targetBufferingSize && !cancelToken.IsCancellationRequested)
+                while (audioService.GetQueuedSamplesCount() < prefillBufferSize && !cancelToken.IsCancellationRequested)
                 {
-                    IAudioChunk chunk = await timeline.GetAudioChunkAsync(new GetAudioContext(audioFormat, currentSamplePosition, targetBufferingSize, projectInfo.Framerate, timelineDuration, audioFileAccessor, projectPath));
+                    IAudioChunk chunk = await timeline.GetAudioChunkAsync(new GetAudioContext(audioFormat, currentSamplePosition, requestChunkSize, projectInfo.Framerate, timelineDuration, audioFileAccessor, projectPath));
                     audioService.InsertQueue(chunk);
-                    currentSamplePosition += targetBufferingSize;
+                    currentSamplePosition += requestChunkSize;
                     CurrentSample = currentSamplePosition;
                 }
 
                 while (!cancelToken.IsCancellationRequested)
                 {
-                    if (audioService.GetQueuedSamplesCount() < targetBufferingSize)
+                    if (audioService.GetQueuedSamplesCount() < refillLowWatermarkSize)
                     {
-                        var chunk = await timeline.GetAudioChunkAsync(new GetAudioContext(audioFormat, currentSamplePosition, targetBufferingSize, projectInfo.Framerate, timelineDuration, audioFileAccessor, projectPath));
-                        audioService.InsertQueue(chunk);
-                        currentSamplePosition += targetBufferingSize;
-                        CurrentSample = currentSamplePosition;
+                        while (audioService.GetQueuedSamplesCount() < prefillBufferSize && !cancelToken.IsCancellationRequested)
+                        {
+                            var chunk = await timeline.GetAudioChunkAsync(new GetAudioContext(audioFormat, currentSamplePosition, requestChunkSize, projectInfo.Framerate, timelineDuration, audioFileAccessor, projectPath));
+                            audioService.InsertQueue(chunk);
+                            currentSamplePosition += requestChunkSize;
+                            CurrentSample = currentSamplePosition;
+                        }
                     }
                     else
                     {
@@ -97,6 +105,11 @@ namespace Metasia.Editor.Services.Audio
             {
                 IsPlaying = false;
             }
+        }
+
+        private static long SecondsToSamples(int sampleRate, double seconds)
+        {
+            return Math.Max(1L, (long)Math.Round(sampleRate * seconds));
         }
     }
 }

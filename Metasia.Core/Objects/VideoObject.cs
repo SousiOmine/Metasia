@@ -111,15 +111,16 @@ public class VideoObject : ClipObject, IRenderable, IAudible
             string fullPath = MediaPath.GetFullPath(VideoPath, context.ProjectPath);
             int clipLength = EndFrame - StartFrame + 1;
             int relativeFrame = (int)((context.StartSamplePosition / (double)context.Format.SampleRate) * context.ProjectFrameRate);
-            double startSeconds = VideoStartSeconds.Get(relativeFrame, clipLength) + (context.StartSamplePosition / (double)context.Format.SampleRate);
-            if (startSeconds < 0)
+            double videoStartSecondsValue = VideoStartSeconds.Get(relativeFrame, clipLength);
+            long videoStartSample = (long)(videoStartSecondsValue * context.Format.SampleRate);
+            long mediaStartSample = videoStartSample + context.StartSamplePosition;
+            if (mediaStartSample < 0)
             {
-                startSeconds = 0;
+                mediaStartSample = 0;
             }
 
-            double durationSeconds = context.RequiredLength / (double)context.Format.SampleRate;
             var accessorResult = await context.AudioFileAccessor
-                .GetAudioAsync(fullPath, TimeSpan.FromSeconds(startSeconds), TimeSpan.FromSeconds(durationSeconds));
+                .GetAudioBySampleAsync(fullPath, mediaStartSample, context.RequiredLength, context.Format.SampleRate);
 
             if (!accessorResult.IsSuccessful || accessorResult.Chunk is null)
             {

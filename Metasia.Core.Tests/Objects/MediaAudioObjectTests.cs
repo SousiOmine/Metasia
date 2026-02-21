@@ -12,7 +12,7 @@ public class MediaAudioObjectTests
     public async Task AudioObject_GetAudioChunk_UsesAccessorAndAppliesVolume()
     {
         var accessor = new FakeAudioFileAccessor(
-            new AudioFileAccessorResult
+            new AudioSampleResult
             {
                 IsSuccessful = true,
                 Chunk = new AudioChunk(new AudioFormat(44100, 2), [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]),
@@ -36,8 +36,8 @@ public class MediaAudioObjectTests
 
         var chunk = await obj.GetAudioChunkAsync(context);
 
-        Assert.That(accessor.LastStartTime, Is.EqualTo(TimeSpan.FromSeconds(3)));
-        Assert.That(accessor.LastDuration, Is.EqualTo(TimeSpan.FromSeconds(4.0 / 44100)));
+        Assert.That(accessor.LastStartSample, Is.EqualTo(44100 * 2 + 44100));
+        Assert.That(accessor.LastSampleCount, Is.EqualTo(4));
         Assert.That(chunk.Length, Is.EqualTo(4));
         Assert.That(chunk.Samples.All(x => Math.Abs(x - 0.5) < 0.0001), Is.True);
     }
@@ -46,7 +46,7 @@ public class MediaAudioObjectTests
     public async Task VideoObject_GetAudioChunk_UsesVideoAudioSource()
     {
         var accessor = new FakeAudioFileAccessor(
-            new AudioFileAccessorResult
+            new AudioSampleResult
             {
                 IsSuccessful = true,
                 Chunk = new AudioChunk(new AudioFormat(44100, 2), [0.8, 0.8, 0.8, 0.8]),
@@ -81,17 +81,22 @@ public class MediaAudioObjectTests
         Assert.That(obj.AudioPath.Types, Is.EqualTo(new[] { MediaType.Audio }));
     }
 
-    private sealed class FakeAudioFileAccessor(AudioFileAccessorResult result) : IAudioFileAccessor
+    private sealed class FakeAudioFileAccessor(AudioSampleResult result) : IAudioFileAccessor
     {
-        private readonly AudioFileAccessorResult _result = result;
+        private readonly AudioSampleResult _result = result;
 
-        public TimeSpan? LastStartTime { get; private set; }
-        public TimeSpan? LastDuration { get; private set; }
+        public long LastStartSample { get; private set; }
+        public long LastSampleCount { get; private set; }
 
         public Task<AudioFileAccessorResult> GetAudioAsync(string path, TimeSpan? startTime = null, TimeSpan? duration = null)
         {
-            LastStartTime = startTime;
-            LastDuration = duration;
+            return Task.FromResult(new AudioFileAccessorResult { IsSuccessful = false, Chunk = null });
+        }
+        
+        public Task<AudioSampleResult> GetAudioBySampleAsync(string path, long startSample, long sampleCount, int sampleRate)
+        {
+            LastStartSample = startSample;
+            LastSampleCount = sampleCount;
             return Task.FromResult(_result);
         }
     }
