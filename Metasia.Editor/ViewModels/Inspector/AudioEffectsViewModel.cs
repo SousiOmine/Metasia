@@ -22,7 +22,12 @@ public class AudioEffectsViewModel : ViewModelBase
     public AudioEffectItemViewModel? SelectedAudioEffectItem
     {
         get => _selectedAudioEffectItem;
-        set => this.RaiseAndSetIfChanged(ref _selectedAudioEffectItem, value);
+        set
+        {
+            if (_selectedAudioEffectItem == value) return;
+            this.RaiseAndSetIfChanged(ref _selectedAudioEffectItem, value);
+            LoadProperties();
+        } 
     }
     
     public ObservableCollection<PropertyRouterViewModel> Properties { get; set; } = new();
@@ -63,6 +68,7 @@ public class AudioEffectsViewModel : ViewModelBase
         DeleteEffectCommand = ReactiveCommand.Create(TryDeleteEffect);
         
         _projectState.TimelineChanged += LoadEffects;
+        
         LoadEffects();
     }
 
@@ -82,6 +88,11 @@ public class AudioEffectsViewModel : ViewModelBase
             SelectedAudioEffectItem = selectedItem;
         }
         
+        LoadProperties();
+    }
+
+    private void LoadProperties()
+    {
         var selectedEffect = _target.AudioEffects.FirstOrDefault(x => x.Id == SelectedAudioEffectItem?.EffectId);
         if (selectedEffect is null) return;
         var editableProperties = ObjectPropertyFinder.FindEditableProperties(selectedEffect);
