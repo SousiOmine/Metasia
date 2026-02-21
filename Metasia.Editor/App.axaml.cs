@@ -120,7 +120,7 @@ namespace Metasia.Editor
             services.AddTransient<IMetaNumberParamPropertyViewModelFactory, MetaNumberParamPropertyViewModelFactory>();
             services.AddTransient<IMediaPathPropertyViewModelFactory, MediaPathPropertyViewModelFactory>();
             services.AddTransient<IStringPropertyViewModelFactory, StringPropertyViewModelFactory>();
-            services.AddTransient<IDoublePropertyViewModelFactory, DoublePropertyViewModelFactory>();
+            services.AddTransient<IMetaDoubleParamPropertyViewModelFactory, MetaDoubleParamPropertyViewModelFactory>();
             services.AddTransient<IMetaEnumParamPropertyViewModelFactory, MetaEnumParamPropertyViewModelFactory>();
             services.AddTransient<IMetaFontParamPropertyViewModelFactory, MetaFontParamPropertyViewModelFactory>();
             services.AddTransient<IColorPropertyViewModelFactory, ColorPropertyViewModelFactory>();

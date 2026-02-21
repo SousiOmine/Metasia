@@ -1,7 +1,7 @@
 using System;
 using System.Globalization;
-using System.Linq;
 using System.Timers;
+using Metasia.Core.Objects.Parameters;
 using Metasia.Editor.Models;
 using Metasia.Editor.Models.EditCommands;
 using Metasia.Editor.Models.EditCommands.Commands;
@@ -11,9 +11,10 @@ using ReactiveUI;
 
 namespace Metasia.Editor.ViewModels.Inspector.Properties;
 
-public class DoublePropertyViewModel : ViewModelBase, IDisposable
+public class MetaDoubleParamPropertyViewModel : ViewModelBase, IDisposable
 {
     private bool _disposed = false;
+
     public string PropertyDisplayName
     {
         get => _propertyDisplayName;
@@ -45,7 +46,6 @@ public class DoublePropertyViewModel : ViewModelBase, IDisposable
         {
             if (_suppressChangeEvents)
             {
-                // イベントを抑制している場合は内部状態のみ更新
                 _propertyValue = value;
                 _propertyValueText = value.ToString(CultureInfo.InvariantCulture);
                 _sliderValue = value;
@@ -61,7 +61,6 @@ public class DoublePropertyViewModel : ViewModelBase, IDisposable
             _propertyValue = value;
             _propertyValueText = value.ToString(CultureInfo.InvariantCulture);
 
-            // SliderValueも更新
             if (Math.Abs(_sliderValue - value) > double.Epsilon)
             {
                 _sliderValue = value;
@@ -109,7 +108,6 @@ public class DoublePropertyViewModel : ViewModelBase, IDisposable
         get => _sliderValue;
         set
         {
-            // スライダーではRecommendMin/RecommendMaxの範囲を使用
             var clamped = Math.Max(_recommendMin, Math.Min(_recommendMax, value));
             if (Math.Abs(_sliderValue - clamped) < double.Epsilon)
             {
@@ -124,7 +122,6 @@ public class DoublePropertyViewModel : ViewModelBase, IDisposable
                 PropertyValue = clamped;
             }
 
-            // スライダー操作中はプレビュー更新
             if (_isValueEnteringFlag)
             {
                 PreviewUpdateDoubleValue(_beforeValue, _propertyValue);
@@ -141,6 +138,7 @@ public class DoublePropertyViewModel : ViewModelBase, IDisposable
     private double _max = double.MaxValue;
     private double _recommendMin = double.MinValue;
     private double _recommendMax = double.MaxValue;
+    private MetaDoubleParam _targetParam;
     private ISelectionState _selectionState;
     private IEditCommandManager _editCommandManager;
     private IProjectState _projectState;
@@ -151,21 +149,22 @@ public class DoublePropertyViewModel : ViewModelBase, IDisposable
     private double _beforeValue = 0;
     private bool _suppressChangeEvents = false;
 
-    public DoublePropertyViewModel(
+    public MetaDoubleParamPropertyViewModel(
         ISelectionState selectionState,
         string propertyIdentifier,
         IEditCommandManager editCommandManager,
         IProjectState projectState,
-        double target,
+        MetaDoubleParam target,
         double min = double.MinValue,
         double max = double.MaxValue,
         double recommendMin = double.MinValue,
         double recommendMax = double.MaxValue)
     {
         _propertyDisplayName = propertyIdentifier;
-        _propertyValue = target;
-        _propertyValueText = target.ToString(CultureInfo.InvariantCulture);
-        _sliderValue = target;
+        _targetParam = target;
+        _propertyValue = target.Value;
+        _propertyValueText = target.Value.ToString(CultureInfo.InvariantCulture);
+        _sliderValue = target.Value;
         _propertyIdentifier = propertyIdentifier;
         _min = min;
         _max = max;
@@ -175,7 +174,6 @@ public class DoublePropertyViewModel : ViewModelBase, IDisposable
         _editCommandManager = editCommandManager;
         _projectState = projectState;
 
-        // Undo/Redoイベントを購読してプロパティ値の変更を検知
         _editCommandManager.CommandExecuted += OnCommandChanged;
         _editCommandManager.CommandUndone += OnCommandChanged;
         _editCommandManager.CommandRedone += OnCommandChanged;
@@ -186,16 +184,12 @@ public class DoublePropertyViewModel : ViewModelBase, IDisposable
         RefreshPropertyValue();
     }
 
-
-
     private void RefreshPropertyValue()
     {
-        // 選択中のクリップから現在のプロパティ値を取得して表示を更新
         _suppressChangeEvents = true;
 
         if (_selectionState.SelectedClips.Count > 0)
         {
-            // 最初の選択クリップの値を表示（複数選択の場合は最初のクリップに合わせる）
             var firstClip = _selectionState.SelectedClips[0];
             if (TimelineInteractor.TryGetDoubleProperty(_propertyIdentifier, firstClip, out double currentValue))
             {
@@ -236,7 +230,6 @@ public class DoublePropertyViewModel : ViewModelBase, IDisposable
             return;
         }
 
-        // 値の範囲チェック
         currentValue = Math.Max(_min, Math.Min(_max, currentValue));
         if (Math.Abs(_propertyValue - currentValue) > double.Epsilon)
         {
@@ -246,7 +239,6 @@ public class DoublePropertyViewModel : ViewModelBase, IDisposable
                 _propertyValue = currentValue;
                 _propertyValueText = currentValue.ToString(CultureInfo.InvariantCulture);
 
-                // SliderValueも更新
                 if (Math.Abs(_sliderValue - currentValue) > double.Epsilon)
                 {
                     _sliderValue = currentValue;
@@ -375,7 +367,6 @@ public class DoublePropertyViewModel : ViewModelBase, IDisposable
         {
             if (disposing)
             {
-                // イベント購読を解除
                 if (_editCommandManager != null)
                 {
                     _editCommandManager.CommandExecuted -= OnCommandChanged;
@@ -383,7 +374,6 @@ public class DoublePropertyViewModel : ViewModelBase, IDisposable
                     _editCommandManager.CommandRedone -= OnCommandChanged;
                 }
 
-                // タイマーを破棄
                 if (_valueEnterTimer != null)
                 {
                     _valueEnterTimer.Stop();

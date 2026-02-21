@@ -5,8 +5,8 @@
              xmlns:vm="using:Metasia.Editor.ViewModels.Inspector.Properties"
              xmlns:controls="using:Metasia.Editor.Controls"
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="50"
-             x:Class="Metasia.Editor.Views.Inspector.Properties.DoublePropertyView"
-             x:DataType="vm:DoublePropertyViewModel">
+             x:Class="Metasia.Editor.Views.Inspector.Properties.MetaDoubleParamPropertyView"
+             x:DataType="vm:MetaDoubleParamPropertyViewModel">
     <StackPanel Orientation="Horizontal" Margin="2">
         <TextBlock Text="{Binding PropertyDisplayName}"
                    VerticalAlignment="Center"

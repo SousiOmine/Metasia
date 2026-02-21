@@ -9,20 +9,23 @@ public class AudioEffectsViewModelFactory : IAudioEffectsViewModelFactory
 {
     private readonly IProjectState _projectState;
     private readonly IEditCommandManager _editCommandManager;
+    private readonly IPropertyRouterViewModelFactory _propertyRouterViewModelFactory;
     
     public AudioEffectsViewModelFactory(
         IProjectState projectState,
-        IEditCommandManager editCommandManager)
+        IEditCommandManager editCommandManager,
+        IPropertyRouterViewModelFactory propertyRouterViewModelFactory)
     {
         ArgumentNullException.ThrowIfNull(projectState);
         _projectState = projectState;
         _editCommandManager = editCommandManager;
+        _propertyRouterViewModelFactory = propertyRouterViewModelFactory;
     }
     public AudioEffectsViewModel Create(IAudible target)
     {
         ArgumentNullException.ThrowIfNull(target);
         
-        return new AudioEffectsViewModel(target, _projectState, _editCommandManager);
+        return new AudioEffectsViewModel(target, _projectState, _editCommandManager, _propertyRouterViewModelFactory);
     }
 }
 

@@ -6,6 +6,7 @@ using System.Windows.Input;
 using Metasia.Core.Objects;
 using Metasia.Core.Objects.AudioEffects;
 using Metasia.Core.Sounds;
+using Metasia.Editor.Models;
 using Metasia.Editor.Models.EditCommands;
 using Metasia.Editor.Models.EditCommands.Commands;
 using Metasia.Editor.Models.States;
@@ -23,6 +24,8 @@ public class AudioEffectsViewModel : ViewModelBase
         get => _selectedAudioEffectItem;
         set => this.RaiseAndSetIfChanged(ref _selectedAudioEffectItem, value);
     }
+    
+    public ObservableCollection<PropertyRouterViewModel> Properties { get; set; } = new();
 
     public ICommand NewEffectCommand { get; init; }
     public ICommand DeleteEffectCommand { get; init; }
@@ -32,16 +35,19 @@ public class AudioEffectsViewModel : ViewModelBase
     private readonly IAudible _target;
     private readonly IProjectState _projectState;
     private readonly IEditCommandManager _editCommandManager;
+    private readonly IPropertyRouterViewModelFactory _propertyRouterViewModelFactory;
     
     public AudioEffectsViewModel(
         IAudible target,
         IProjectState projectState,
-        IEditCommandManager editCommandManager
+        IEditCommandManager editCommandManager,
+        IPropertyRouterViewModelFactory propertyRouterViewModelFactory
         )
     {
         _target = target;
         _projectState = projectState;
         _editCommandManager = editCommandManager;
+        _propertyRouterViewModelFactory = propertyRouterViewModelFactory;
 
         NewEffectCommand = ReactiveCommand.CreateFromTask(async() =>
         {
@@ -74,6 +80,16 @@ public class AudioEffectsViewModel : ViewModelBase
         {
             var selectedItem = AudioEffectItems.First(x => x.EffectId == selectedId);
             SelectedAudioEffectItem = selectedItem;
+        }
+        
+        var selectedEffect = _target.AudioEffects.FirstOrDefault(x => x.Id == SelectedAudioEffectItem?.EffectId);
+        if (selectedEffect is null) return;
+        var editableProperties = ObjectPropertyFinder.FindEditableProperties(selectedEffect);
+
+        Properties.Clear();
+        foreach (var property in editableProperties)
+        {
+            Properties.Add(_propertyRouterViewModelFactory.Create(property));
         }
     }
 

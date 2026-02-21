@@ -2,18 +2,17 @@ using Avalonia.Controls;
 
 namespace Metasia.Editor.Views.Inspector.Properties;
 
-public partial class DoublePropertyView : UserControl
+public partial class MetaDoubleParamPropertyView : UserControl
 {
-    public DoublePropertyView()
+    public MetaDoubleParamPropertyView()
     {
         InitializeComponent();
 
-        // スライダーのプレビュー機能
         if (this.FindControl<Slider>("ValueSlider") is { } slider)
         {
             slider.PointerPressed += (_, _) =>
             {
-                if (DataContext is ViewModels.Inspector.Properties.DoublePropertyViewModel vm)
+                if (DataContext is ViewModels.Inspector.Properties.MetaDoubleParamPropertyViewModel vm)
                 {
                     vm.StartSliderPreview();
                 }
@@ -21,7 +20,7 @@ public partial class DoublePropertyView : UserControl
 
             slider.PointerReleased += (_, _) =>
             {
-                if (DataContext is ViewModels.Inspector.Properties.DoublePropertyViewModel vm)
+                if (DataContext is ViewModels.Inspector.Properties.MetaDoubleParamPropertyViewModel vm)
                 {
                     vm.EndSliderPreview();
                 }

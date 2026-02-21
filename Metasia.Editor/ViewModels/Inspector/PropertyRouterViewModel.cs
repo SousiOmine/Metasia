@@ -55,15 +55,15 @@ public class PropertyRouterViewModel : ViewModelBase
         get => _metaFontParamPropertyVm;
         set => this.RaiseAndSetIfChanged(ref _metaFontParamPropertyVm, value);
     }
-    public bool IsDoubleProperty
+    public bool IsMetaDoubleParamProperty
     {
-        get => _isDoubleProperty;
-        set => this.RaiseAndSetIfChanged(ref _isDoubleProperty, value);
+        get => _isMetaDoubleParamProperty;
+        set => this.RaiseAndSetIfChanged(ref _isMetaDoubleParamProperty, value);
     }
-    public DoublePropertyViewModel? DoublePropertyVm
+    public MetaDoubleParamPropertyViewModel? MetaDoubleParamPropertyVm
     {
-        get => _doublePropertyVm;
-        set => this.RaiseAndSetIfChanged(ref _doublePropertyVm, value);
+        get => _metaDoubleParamPropertyVm;
+        set => this.RaiseAndSetIfChanged(ref _metaDoubleParamPropertyVm, value);
     }
     public bool IsMetaEnumParamProperty
     {
@@ -122,7 +122,7 @@ public class PropertyRouterViewModel : ViewModelBase
     private MediaPathPropertyViewModel? _mediaPathPropertyVm;
     private StringPropertyViewModel? _stringPropertyVm;
     private MetaFontParamPropertyViewModel? _metaFontParamPropertyVm;
-    private DoublePropertyViewModel? _doublePropertyVm;
+    private MetaDoubleParamPropertyViewModel? _metaDoubleParamPropertyVm;
     private MetaEnumParamPropertyViewModel? _metaEnumParamPropertyVm;
     private ColorPropertyViewModel? _colorPropertyVm;
     private LayerTargetPropertyViewModel? _layerTargetPropertyVm;
@@ -131,7 +131,7 @@ public class PropertyRouterViewModel : ViewModelBase
     private bool _isMediaPathProperty = false;
     private bool _isStringProperty = false;
     private bool _isFontProperty = false;
-    private bool _isDoubleProperty = false;
+    private bool _isMetaDoubleParamProperty = false;
     private bool _isMetaEnumParamProperty = false;
     private bool _isColorProperty = false;
     private bool _isLayerTargetProperty = false;
@@ -141,7 +141,7 @@ public class PropertyRouterViewModel : ViewModelBase
     private readonly IMetaNumberParamPropertyViewModelFactory _metaNumberParamPropertyViewModelFactory;
     private readonly IMediaPathPropertyViewModelFactory _mediaPathPropertyViewModelFactory;
     private readonly IStringPropertyViewModelFactory _stringPropertyViewModelFactory;
-    private readonly IDoublePropertyViewModelFactory _doublePropertyViewModelFactory;
+    private readonly IMetaDoubleParamPropertyViewModelFactory _metaDoubleParamPropertyViewModelFactory;
     private readonly IMetaEnumParamPropertyViewModelFactory _metaEnumParamPropertyViewModelFactory;
     private readonly IMetaFontParamPropertyViewModelFactory _metaFontParamPropertyViewModelFactory;
     private readonly IColorPropertyViewModelFactory _colorPropertyViewModelFactory;
@@ -153,7 +153,7 @@ public class PropertyRouterViewModel : ViewModelBase
         IMetaNumberParamPropertyViewModelFactory metaNumberParamPropertyViewModelFactory,
         IMediaPathPropertyViewModelFactory mediaPathPropertyViewModelFactory,
         IStringPropertyViewModelFactory stringPropertyViewModelFactory,
-        IDoublePropertyViewModelFactory doublePropertyViewModelFactory,
+        IMetaDoubleParamPropertyViewModelFactory metaDoubleParamPropertyViewModelFactory,
         IMetaEnumParamPropertyViewModelFactory metaEnumParamPropertyViewModelFactory,
         IMetaFontParamPropertyViewModelFactory metaFontParamPropertyViewModelFactory,
         IColorPropertyViewModelFactory colorPropertyViewModelFactory,
@@ -165,7 +165,7 @@ public class PropertyRouterViewModel : ViewModelBase
         ArgumentNullException.ThrowIfNull(metaNumberParamPropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(mediaPathPropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(stringPropertyViewModelFactory);
-        ArgumentNullException.ThrowIfNull(doublePropertyViewModelFactory);
+        ArgumentNullException.ThrowIfNull(metaDoubleParamPropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(metaEnumParamPropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(metaFontParamPropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(colorPropertyViewModelFactory);
@@ -175,7 +175,7 @@ public class PropertyRouterViewModel : ViewModelBase
         _metaNumberParamPropertyViewModelFactory = metaNumberParamPropertyViewModelFactory;
         _mediaPathPropertyViewModelFactory = mediaPathPropertyViewModelFactory;
         _stringPropertyViewModelFactory = stringPropertyViewModelFactory;
-        _doublePropertyViewModelFactory = doublePropertyViewModelFactory;
+        _metaDoubleParamPropertyViewModelFactory = metaDoubleParamPropertyViewModelFactory;
         _metaEnumParamPropertyViewModelFactory = metaEnumParamPropertyViewModelFactory;
         _metaFontParamPropertyViewModelFactory = metaFontParamPropertyViewModelFactory;
         _colorPropertyViewModelFactory = colorPropertyViewModelFactory;
@@ -237,15 +237,15 @@ public class PropertyRouterViewModel : ViewModelBase
         }
         else if (_propertyInfo.Type == typeof(MetaDoubleParam))
         {
-            if (DoublePropertyVm is null)
+            if (MetaDoubleParamPropertyVm is null)
             {
                 var min = _propertyInfo.Min ?? double.MinValue;
                 var max = _propertyInfo.Max ?? double.MaxValue;
                 var recommendMin = _propertyInfo.RecommendedMin ?? min;
                 var recommendMax = _propertyInfo.RecommendedMax ?? max;
                 var metaDoubleParam = (MetaDoubleParam)_propertyInfo.PropertyValue!;
-                DoublePropertyVm = _doublePropertyViewModelFactory.Create(_propertyInfo.Identifier, metaDoubleParam.Value, min, max, recommendMin, recommendMax);
-                IsDoubleProperty = true;
+                MetaDoubleParamPropertyVm = _metaDoubleParamPropertyViewModelFactory.Create(_propertyInfo.Identifier, metaDoubleParam, min, max, recommendMin, recommendMax);
+                IsMetaDoubleParamProperty = true;
                 UsePlaceholder = false;
             }
         }

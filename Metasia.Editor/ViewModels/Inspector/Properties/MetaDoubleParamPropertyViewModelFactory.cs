@@ -1,17 +1,17 @@
 using System;
-using Metasia.Editor.Models;
+using Metasia.Core.Objects.Parameters;
 using Metasia.Editor.Models.EditCommands;
 using Metasia.Editor.Models.States;
 
 namespace Metasia.Editor.ViewModels.Inspector.Properties;
 
-public class DoublePropertyViewModelFactory : IDoublePropertyViewModelFactory
+public class MetaDoubleParamPropertyViewModelFactory : IMetaDoubleParamPropertyViewModelFactory
 {
     private readonly ISelectionState _selectionState;
     private readonly IEditCommandManager _editCommandManager;
     private readonly IProjectState _projectState;
 
-    public DoublePropertyViewModelFactory(
+    public MetaDoubleParamPropertyViewModelFactory(
         ISelectionState selectionState,
         IEditCommandManager editCommandManager,
         IProjectState projectState)
@@ -24,9 +24,9 @@ public class DoublePropertyViewModelFactory : IDoublePropertyViewModelFactory
         _projectState = projectState;
     }
 
-    public DoublePropertyViewModel Create(string propertyIdentifier, double target, double min = double.MinValue, double max = double.MaxValue, double recommendMin = double.MinValue, double recommendMax = double.MaxValue)
+    public MetaDoubleParamPropertyViewModel Create(string propertyIdentifier, MetaDoubleParam target, double min = double.MinValue, double max = double.MaxValue, double recommendMin = double.MinValue, double recommendMax = double.MaxValue)
     {
-        return new DoublePropertyViewModel(
+        return new MetaDoubleParamPropertyViewModel(
             _selectionState,
             propertyIdentifier,
             _editCommandManager,

@@ -24,8 +24,8 @@
         <Border IsVisible="{Binding IsFontProperty}">
             <views_properties:MetaFontParamPropertyView DataContext="{Binding FontPropertyVm}"/>
         </Border>
-        <Border IsVisible="{Binding IsDoubleProperty}">
-            <views_properties:DoublePropertyView DataContext="{Binding DoublePropertyVm}"/>
+        <Border IsVisible="{Binding IsMetaDoubleParamProperty}">
+            <views_properties:MetaDoubleParamPropertyView DataContext="{Binding MetaDoubleParamPropertyVm}"/>
         </Border>
         <Border IsVisible="{Binding IsMetaEnumParamProperty}">
             <views_properties:MetaEnumParamPropertyView DataContext="{Binding MetaEnumParamPropertyVm}"/>

@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:Metasia.Editor.ViewModels.Inspector"
+             xmlns:inspector="clr-namespace:Metasia.Editor.Views.Inspector"
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
              x:Class="Metasia.Editor.Views.Inspector.AudioEffectsView"
              x:DataType="vm:AudioEffectsViewModel">
@@ -22,5 +23,13 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
+        
+        <ItemsControl ItemsSource="{Binding Properties}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="vm:PropertyRouterViewModel">
+                    <inspector:PropertyRouterView/>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
     </StackPanel>
 </UserControl>
