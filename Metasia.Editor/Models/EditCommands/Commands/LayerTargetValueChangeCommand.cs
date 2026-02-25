@@ -15,7 +15,7 @@ namespace Metasia.Editor.Models.EditCommands.Commands;
 public class LayerTargetValueChangeCommand : IEditCommand
 {
     public record LayerTargetValueChangeInfo(
-        ClipObject TargetClip,
+        IMetasiaObject TargetObject,
         string PropertyIdentifier,
         LayerTarget OldValue,
         LayerTarget NewValue);
@@ -39,12 +39,12 @@ public class LayerTargetValueChangeCommand : IEditCommand
     {
         foreach (var changeInfo in _changeInfos)
         {
-            var property = ResolveProperty(changeInfo.TargetClip, changeInfo.PropertyIdentifier);
+            var property = ResolveProperty(changeInfo.TargetObject, changeInfo.PropertyIdentifier);
             if (property is null)
             {
-                throw new InvalidOperationException($"Property '{changeInfo.PropertyIdentifier}' not found on clip type {changeInfo.TargetClip.GetType().Name}");
+                throw new InvalidOperationException($"Property '{changeInfo.PropertyIdentifier}' not found on object type {changeInfo.TargetObject.GetType().Name}");
             }
-            property.SetValue(changeInfo.TargetClip, changeInfo.NewValue.Clone());
+            property.SetValue(changeInfo.TargetObject, changeInfo.NewValue.Clone());
         }
     }
 
@@ -52,18 +52,18 @@ public class LayerTargetValueChangeCommand : IEditCommand
     {
         foreach (var changeInfo in _changeInfos)
         {
-            var property = ResolveProperty(changeInfo.TargetClip, changeInfo.PropertyIdentifier);
+            var property = ResolveProperty(changeInfo.TargetObject, changeInfo.PropertyIdentifier);
             if (property is null)
             {
-                throw new InvalidOperationException($"Property '{changeInfo.PropertyIdentifier}' not found on clip type {changeInfo.TargetClip.GetType().Name}");
+                throw new InvalidOperationException($"Property '{changeInfo.PropertyIdentifier}' not found on object type {changeInfo.TargetObject.GetType().Name}");
             }
-            property.SetValue(changeInfo.TargetClip, changeInfo.OldValue.Clone());
+            property.SetValue(changeInfo.TargetObject, changeInfo.OldValue.Clone());
         }
     }
 
-    private static PropertyInfo? ResolveProperty(ClipObject clip, string propertyIdentifier)
+    private static PropertyInfo? ResolveProperty(IMetasiaObject target, string propertyIdentifier)
     {
-        var key = (clip.GetType(), propertyIdentifier);
+        var key = (target.GetType(), propertyIdentifier);
         return _propertyCache.GetOrAdd(key, static tuple =>
         {
             var (type, identifier) = tuple;

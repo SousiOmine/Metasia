@@ -11,7 +11,7 @@ namespace Metasia.Editor.Models.EditCommands.Commands;
 
 public class FontParamValueChangeCommand : IEditCommand
 {
-    public record FontParamValueChangeInfo(ClipObject TargetClip, string PropertyIdentifier, MetaFontParam BeforeValue, MetaFontParam AfterValue);
+    public record FontParamValueChangeInfo(IMetasiaObject TargetObject, string PropertyIdentifier, MetaFontParam BeforeValue, MetaFontParam AfterValue);
 
     public string Description => "フォント設定の変更";
 
@@ -32,7 +32,7 @@ public class FontParamValueChangeCommand : IEditCommand
     {
         foreach (var info in _changeInfos)
         {
-            ApplyPropertyValue(info.TargetClip, info.PropertyIdentifier, info.AfterValue);
+            ApplyPropertyValue(info.TargetObject, info.PropertyIdentifier, info.AfterValue);
         }
     }
 
@@ -40,24 +40,24 @@ public class FontParamValueChangeCommand : IEditCommand
     {
         foreach (var info in _changeInfos)
         {
-            ApplyPropertyValue(info.TargetClip, info.PropertyIdentifier, info.BeforeValue);
+            ApplyPropertyValue(info.TargetObject, info.PropertyIdentifier, info.BeforeValue);
         }
     }
 
-    private static void ApplyPropertyValue(ClipObject clip, string propertyIdentifier, MetaFontParam value)
+    private static void ApplyPropertyValue(IMetasiaObject target, string propertyIdentifier, MetaFontParam value)
     {
-        var property = ResolveProperty(clip, propertyIdentifier);
+        var property = ResolveProperty(target, propertyIdentifier);
         if (property is null)
         {
             throw new InvalidOperationException(
-                $"プロパティ '{propertyIdentifier}' をクリップ '{clip.Id}' (型: {clip.GetType().Name}) で解決できません。");
+                $"プロパティ '{propertyIdentifier}' をオブジェクト '{target.Id}' (型: {target.GetType().Name}) で解決できません。");
         }
-        property.SetValue(clip, value.Clone());
+        property.SetValue(target, value.Clone());
     }
 
-    private static PropertyInfo? ResolveProperty(ClipObject clip, string propertyIdentifier)
+    private static PropertyInfo? ResolveProperty(IMetasiaObject target, string propertyIdentifier)
     {
-        var key = (clip.GetType(), propertyIdentifier);
+        var key = (target.GetType(), propertyIdentifier);
         return PropertyCache.GetOrAdd(key, static tuple =>
         {
             var (type, identifier) = tuple;

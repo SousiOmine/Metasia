@@ -10,7 +10,7 @@ namespace Metasia.Editor.Models.EditCommands.Commands;
 
 public class StringValueChangeCommand : IEditCommand
 {
-    public record StringValueChangeInfo(ClipObject targetClip, string propertyIdentifier, string oldValue, string newValue);
+    public record StringValueChangeInfo(IMetasiaObject targetObject, string propertyIdentifier, string oldValue, string newValue);
 
     public string Description => "文字列プロパティを変更";
 
@@ -30,10 +30,10 @@ public class StringValueChangeCommand : IEditCommand
     {
         foreach (var changeInfo in _changeInfos)
         {
-            var property = ResolveProperty(changeInfo.targetClip, changeInfo.propertyIdentifier);
+            var property = ResolveProperty(changeInfo.targetObject, changeInfo.propertyIdentifier);
             if (property is not null)
             {
-                property.SetValue(changeInfo.targetClip, changeInfo.newValue);
+                property.SetValue(changeInfo.targetObject, changeInfo.newValue);
             }
         }
     }
@@ -42,17 +42,17 @@ public class StringValueChangeCommand : IEditCommand
     {
         foreach (var changeInfo in _changeInfos)
         {
-            var property = ResolveProperty(changeInfo.targetClip, changeInfo.propertyIdentifier);
+            var property = ResolveProperty(changeInfo.targetObject, changeInfo.propertyIdentifier);
             if (property is not null)
             {
-                property.SetValue(changeInfo.targetClip, changeInfo.oldValue);
+                property.SetValue(changeInfo.targetObject, changeInfo.oldValue);
             }
         }
     }
 
-    private static PropertyInfo? ResolveProperty(ClipObject clip, string propertyIdentifier)
+    private static PropertyInfo? ResolveProperty(IMetasiaObject target, string propertyIdentifier)
     {
-        var key = (clip.GetType(), propertyIdentifier);
+        var key = (target.GetType(), propertyIdentifier);
         return _propertyCache.GetOrAdd(key, static tuple =>
         {
             var (type, identifier) = tuple;

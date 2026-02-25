@@ -11,7 +11,7 @@ namespace Metasia.Editor.Models.EditCommands.Commands;
 
 public class ColorValueChangeCommand : IEditCommand
 {
-    public record ColorValueChangeInfo(ClipObject TargetClip, string PropertyIdentifier, ColorRgb8 OldValue, ColorRgb8 NewValue);
+    public record ColorValueChangeInfo(IMetasiaObject TargetObject, string PropertyIdentifier, ColorRgb8 OldValue, ColorRgb8 NewValue);
 
     public string Description => "色プロパティを変更";
 
@@ -32,10 +32,10 @@ public class ColorValueChangeCommand : IEditCommand
     {
         foreach (var changeInfo in _changeInfos)
         {
-            var property = ResolveProperty(changeInfo.TargetClip, changeInfo.PropertyIdentifier);
+            var property = ResolveProperty(changeInfo.TargetObject, changeInfo.PropertyIdentifier);
             if (property is not null)
             {
-                property.SetValue(changeInfo.TargetClip, changeInfo.NewValue.Clone());
+                property.SetValue(changeInfo.TargetObject, changeInfo.NewValue.Clone());
             }
         }
     }
@@ -44,17 +44,17 @@ public class ColorValueChangeCommand : IEditCommand
     {
         foreach (var changeInfo in _changeInfos)
         {
-            var property = ResolveProperty(changeInfo.TargetClip, changeInfo.PropertyIdentifier);
+            var property = ResolveProperty(changeInfo.TargetObject, changeInfo.PropertyIdentifier);
             if (property is not null)
             {
-                property.SetValue(changeInfo.TargetClip, changeInfo.OldValue.Clone());
+                property.SetValue(changeInfo.TargetObject, changeInfo.OldValue.Clone());
             }
         }
     }
 
-    private static PropertyInfo? ResolveProperty(ClipObject clip, string propertyIdentifier)
+    private static PropertyInfo? ResolveProperty(IMetasiaObject target, string propertyIdentifier)
     {
-        var key = (clip.GetType(), propertyIdentifier);
+        var key = (target.GetType(), propertyIdentifier);
         return _propertyCache.GetOrAdd(key, static tuple =>
         {
             var (type, identifier) = tuple;

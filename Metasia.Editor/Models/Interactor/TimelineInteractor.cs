@@ -17,15 +17,54 @@ namespace Metasia.Editor.Models.Interactor
     /// </summary>
     public static class TimelineInteractor
     {
+        private static IEnumerable<IMetasiaObject> EnumeratePropertyOwners(ClipObject clip)
+        {
+            yield return clip;
+
+            if (clip is IAudible audible)
+            {
+                foreach (var audioEffect in audible.AudioEffects)
+                {
+                    yield return audioEffect;
+                }
+            }
+        }
+
+        private static bool TryFindEditableProperty<TProperty>(
+            ClipObject clip,
+            string propertyIdentifier,
+            out IMetasiaObject owner,
+            out TProperty propertyValue)
+        {
+            foreach (var candidate in EnumeratePropertyOwners(clip))
+            {
+                var property = ObjectPropertyFinder
+                    .FindEditableProperties(candidate)
+                    .FirstOrDefault(x => x.Identifier == propertyIdentifier);
+
+                if (property?.PropertyValue is TProperty typedValue)
+                {
+                    owner = candidate;
+                    propertyValue = typedValue;
+                    return true;
+                }
+            }
+
+            owner = null!;
+            propertyValue = default!;
+            return false;
+        }
+
         public static IEditCommand? CreateCoordPointsValueChangeCommand(string propertyIdentifier, CoordPoint targetCoordPoint, double beforeValue, double afterValue, IEnumerable<ClipObject> selectedClips)
         {
             List<CoordPointsValueChangeCommand.CoordPointValueChangeInfo> changeInfos = new();
             foreach (var clip in selectedClips)
             {
-                var properties = ObjectPropertyFinder.FindEditableProperties(clip);
-                var property = properties.FirstOrDefault(x => x.Identifier == propertyIdentifier);
-                if (property is null || property.PropertyValue!.GetType() != typeof(MetaNumberParam<double>)) continue;
-                var numberParam = (MetaNumberParam<double>)property.PropertyValue!;
+                if (!TryFindEditableProperty<MetaNumberParam<double>>(clip, propertyIdentifier, out _, out var numberParam))
+                {
+                    continue;
+                }
+
                 var points = new List<CoordPoint> { numberParam.StartPoint, numberParam.EndPoint };
                 points.AddRange(numberParam.Params);
                 CoordPoint? coordPoint = points.FirstOrDefault(x => x.Id == targetCoordPoint.Id);
@@ -51,11 +90,12 @@ namespace Metasia.Editor.Models.Interactor
             List<StringValueChangeCommand.StringValueChangeInfo> changeInfos = new();
             foreach (var clip in selectedClips)
             {
-                var properties = ObjectPropertyFinder.FindEditableProperties(clip);
-                var property = properties.FirstOrDefault(x => x.Identifier == propertyIdentifier);
-                if (property is null || property.PropertyValue is not string) continue;
+                if (!TryFindEditableProperty<string>(clip, propertyIdentifier, out var owner, out _))
+                {
+                    continue;
+                }
 
-                changeInfos.Add(new StringValueChangeCommand.StringValueChangeInfo(clip, propertyIdentifier, beforeValue, afterValue));
+                changeInfos.Add(new StringValueChangeCommand.StringValueChangeInfo(owner, propertyIdentifier, beforeValue, afterValue));
             }
             return changeInfos.Count > 0 ? new StringValueChangeCommand(changeInfos) : null;
         }
@@ -65,12 +105,13 @@ namespace Metasia.Editor.Models.Interactor
             List<FontParamValueChangeCommand.FontParamValueChangeInfo> changeInfos = new();
             foreach (var clip in selectedClips)
             {
-                var properties = ObjectPropertyFinder.FindEditableProperties(clip);
-                var property = properties.FirstOrDefault(x => x.Identifier == propertyIdentifier);
-                if (property is null || property.PropertyValue is not MetaFontParam) continue;
+                if (!TryFindEditableProperty<MetaFontParam>(clip, propertyIdentifier, out var owner, out _))
+                {
+                    continue;
+                }
 
                 changeInfos.Add(new FontParamValueChangeCommand.FontParamValueChangeInfo(
-                    clip,
+                    owner,
                     propertyIdentifier,
                     beforeValue.Clone(),
                     afterValue.Clone()));
@@ -83,12 +124,13 @@ namespace Metasia.Editor.Models.Interactor
             List<DoubleValueChangeCommand.DoubleValueChangeInfo> changeInfos = new();
             foreach (var clip in selectedClips)
             {
-                var properties = ObjectPropertyFinder.FindEditableProperties(clip);
-                var property = properties.FirstOrDefault(x => x.Identifier == propertyIdentifier);
-                if (property is null || property.PropertyValue is not MetaDoubleParam) continue;
+                if (!TryFindEditableProperty<MetaDoubleParam>(clip, propertyIdentifier, out var owner, out _))
+                {
+                    continue;
+                }
 
                 var valueDifference = afterValue - beforeValue;
-                changeInfos.Add(new DoubleValueChangeCommand.DoubleValueChangeInfo(clip, propertyIdentifier, valueDifference));
+                changeInfos.Add(new DoubleValueChangeCommand.DoubleValueChangeInfo(owner, propertyIdentifier, valueDifference));
             }
             return changeInfos.Count > 0 ? new DoubleValueChangeCommand(changeInfos) : null;
         }
@@ -98,11 +140,12 @@ namespace Metasia.Editor.Models.Interactor
             List<ColorValueChangeCommand.ColorValueChangeInfo> changeInfos = new();
             foreach (var clip in selectedClips)
             {
-                var properties = ObjectPropertyFinder.FindEditableProperties(clip);
-                var property = properties.FirstOrDefault(x => x.Identifier == propertyIdentifier);
-                if (property is null || property.PropertyValue is not ColorRgb8) continue;
+                if (!TryFindEditableProperty<ColorRgb8>(clip, propertyIdentifier, out var owner, out _))
+                {
+                    continue;
+                }
 
-                changeInfos.Add(new ColorValueChangeCommand.ColorValueChangeInfo(clip, propertyIdentifier, beforeValue.Clone(), afterValue.Clone()));
+                changeInfos.Add(new ColorValueChangeCommand.ColorValueChangeInfo(owner, propertyIdentifier, beforeValue.Clone(), afterValue.Clone()));
             }
             return changeInfos.Count > 0 ? new ColorValueChangeCommand(changeInfos) : null;
         }
@@ -111,15 +154,12 @@ namespace Metasia.Editor.Models.Interactor
         {
             value = default;
 
-            var properties = ObjectPropertyFinder.FindEditableProperties(clip);
-            var property = properties.FirstOrDefault(x => x.Identifier == propertyIdentifier);
-            if (property is null || property.PropertyValue is not MetaDoubleParam metaDoubleParam)
+            if (TryFindEditableProperty<MetaDoubleParam>(clip, propertyIdentifier, out _, out var metaDoubleParam))
             {
-                return false;
+                value = metaDoubleParam.Value;
+                return true;
             }
-
-            value = metaDoubleParam.Value;
-            return true;
+            return false;
         }
 
         public static IEditCommand? CreateLayerTargetValueChangeCommand(string propertyIdentifier, LayerTarget beforeValue, LayerTarget afterValue, IEnumerable<ClipObject> selectedClips)
@@ -127,12 +167,13 @@ namespace Metasia.Editor.Models.Interactor
             List<LayerTargetValueChangeCommand.LayerTargetValueChangeInfo> changeInfos = new();
             foreach (var clip in selectedClips)
             {
-                var properties = ObjectPropertyFinder.FindEditableProperties(clip);
-                var property = properties.FirstOrDefault(x => x.Identifier == propertyIdentifier);
-                if (property is null || property.PropertyValue is not LayerTarget) continue;
+                if (!TryFindEditableProperty<LayerTarget>(clip, propertyIdentifier, out var owner, out _))
+                {
+                    continue;
+                }
 
                 changeInfos.Add(new LayerTargetValueChangeCommand.LayerTargetValueChangeInfo(
-                    clip,
+                    owner,
                     propertyIdentifier,
                     beforeValue.Clone(),
                     afterValue.Clone()));
@@ -144,15 +185,13 @@ namespace Metasia.Editor.Models.Interactor
         {
             value = null;
 
-            var properties = ObjectPropertyFinder.FindEditableProperties(clip);
-            var property = properties.FirstOrDefault(x => x.Identifier == propertyIdentifier);
-            if (property is null || property.PropertyValue is not LayerTarget layerTarget)
+            if (TryFindEditableProperty<LayerTarget>(clip, propertyIdentifier, out _, out var layerTarget))
             {
-                return false;
+                value = layerTarget;
+                return true;
             }
 
-            value = layerTarget;
-            return true;
+            return false;
         }
 
         public static IEditCommand? CreateBlendModeValueChangeCommand(string propertyIdentifier, BlendModeKind oldValue, BlendModeKind newValue, IEnumerable<ClipObject> selectedClips)
@@ -160,12 +199,13 @@ namespace Metasia.Editor.Models.Interactor
             List<BlendModeValueChangeCommand.BlendModeValueChangeInfo> changeInfos = new();
             foreach (var clip in selectedClips)
             {
-                var properties = ObjectPropertyFinder.FindEditableProperties(clip);
-                var property = properties.FirstOrDefault(x => x.Identifier == propertyIdentifier);
-                if (property is null || property.PropertyValue is not BlendModeParam blendModeParam) continue;
+                if (!TryFindEditableProperty<BlendModeParam>(clip, propertyIdentifier, out var owner, out _))
+                {
+                    continue;
+                }
 
                 changeInfos.Add(new BlendModeValueChangeCommand.BlendModeValueChangeInfo(
-                    clip,
+                    owner,
                     propertyIdentifier,
                     oldValue,
                     newValue));

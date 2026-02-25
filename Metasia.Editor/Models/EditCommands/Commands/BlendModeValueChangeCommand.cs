@@ -11,7 +11,7 @@ namespace Metasia.Editor.Models.EditCommands.Commands;
 
 public class BlendModeValueChangeCommand : IEditCommand
 {
-    public record BlendModeValueChangeInfo(ClipObject TargetClip, string PropertyIdentifier, BlendModeKind OldValue, BlendModeKind NewValue);
+    public record BlendModeValueChangeInfo(IMetasiaObject TargetObject, string PropertyIdentifier, BlendModeKind OldValue, BlendModeKind NewValue);
 
     public string Description => "ブレンドモードの変更";
 
@@ -32,7 +32,7 @@ public class BlendModeValueChangeCommand : IEditCommand
     {
         foreach (var info in _changeInfos)
         {
-            ApplyPropertyValue(info.TargetClip, info.PropertyIdentifier, info.NewValue);
+            ApplyPropertyValue(info.TargetObject, info.PropertyIdentifier, info.NewValue);
         }
     }
 
@@ -40,7 +40,7 @@ public class BlendModeValueChangeCommand : IEditCommand
     {
         foreach (var info in _changeInfos)
         {
-            ApplyPropertyValue(info.TargetClip, info.PropertyIdentifier, info.OldValue);
+            ApplyPropertyValue(info.TargetObject, info.PropertyIdentifier, info.OldValue);
         }
     }
 
@@ -49,24 +49,24 @@ public class BlendModeValueChangeCommand : IEditCommand
         Execute();
     }
 
-    private static void ApplyPropertyValue(ClipObject clip, string propertyIdentifier, BlendModeKind value)
+    private static void ApplyPropertyValue(IMetasiaObject target, string propertyIdentifier, BlendModeKind value)
     {
-        var property = ResolveProperty(clip, propertyIdentifier);
+        var property = ResolveProperty(target, propertyIdentifier);
         if (property is null)
         {
             throw new InvalidOperationException(
-                $"プロパティ '{propertyIdentifier}' をクリップ '{clip.Id}' (型: {clip.GetType().Name}) で解決できません。");
+                $"プロパティ '{propertyIdentifier}' をオブジェクト '{target.Id}' (型: {target.GetType().Name}) で解決できません。");
         }
-        var blendModeParam = (BlendModeParam?)property.GetValue(clip);
+        var blendModeParam = (BlendModeParam?)property.GetValue(target);
         if (blendModeParam is not null)
         {
             blendModeParam.Value = value;
         }
     }
 
-    private static PropertyInfo? ResolveProperty(ClipObject clip, string propertyIdentifier)
+    private static PropertyInfo? ResolveProperty(IMetasiaObject target, string propertyIdentifier)
     {
-        var key = (clip.GetType(), propertyIdentifier);
+        var key = (target.GetType(), propertyIdentifier);
         return PropertyCache.GetOrAdd(key, static tuple =>
         {
             var (type, identifier) = tuple;

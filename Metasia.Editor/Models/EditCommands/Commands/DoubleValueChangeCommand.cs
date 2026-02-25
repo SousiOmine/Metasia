@@ -11,7 +11,7 @@ namespace Metasia.Editor.Models.EditCommands.Commands;
 
 public class DoubleValueChangeCommand : IEditCommand
 {
-    public record DoubleValueChangeInfo(ClipObject targetClip, string propertyIdentifier, double valueDifference);
+    public record DoubleValueChangeInfo(IMetasiaObject targetObject, string propertyIdentifier, double valueDifference);
 
     public string Description => "数値プロパティを変更";
 
@@ -31,10 +31,10 @@ public class DoubleValueChangeCommand : IEditCommand
     {
         foreach (var changeInfo in _changeInfos)
         {
-            var property = ResolveProperty(changeInfo.targetClip, changeInfo.propertyIdentifier);
+            var property = ResolveProperty(changeInfo.targetObject, changeInfo.propertyIdentifier);
             if (property is not null && property.PropertyType == typeof(MetaDoubleParam))
             {
-                var param = (MetaDoubleParam)property.GetValue(changeInfo.targetClip)!;
+                var param = (MetaDoubleParam)property.GetValue(changeInfo.targetObject)!;
                 param.Value += changeInfo.valueDifference;
             }
         }
@@ -44,18 +44,18 @@ public class DoubleValueChangeCommand : IEditCommand
     {
         foreach (var changeInfo in _changeInfos)
         {
-            var property = ResolveProperty(changeInfo.targetClip, changeInfo.propertyIdentifier);
+            var property = ResolveProperty(changeInfo.targetObject, changeInfo.propertyIdentifier);
             if (property is not null && property.PropertyType == typeof(MetaDoubleParam))
             {
-                var param = (MetaDoubleParam)property.GetValue(changeInfo.targetClip)!;
+                var param = (MetaDoubleParam)property.GetValue(changeInfo.targetObject)!;
                 param.Value -= changeInfo.valueDifference;
             }
         }
     }
 
-    private static PropertyInfo? ResolveProperty(ClipObject clip, string propertyIdentifier)
+    private static PropertyInfo? ResolveProperty(IMetasiaObject target, string propertyIdentifier)
     {
-        var key = (clip.GetType(), propertyIdentifier);
+        var key = (target.GetType(), propertyIdentifier);
         return _propertyCache.GetOrAdd(key, static tuple =>
         {
             var (type, identifier) = tuple;

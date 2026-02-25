@@ -1,6 +1,7 @@
 using System;
 using System.Globalization;
 using System.Timers;
+using Avalonia.Threading;
 using Metasia.Core.Objects.Parameters;
 using Metasia.Editor.Models;
 using Metasia.Editor.Models.EditCommands;
@@ -277,16 +278,24 @@ public class MetaDoubleParamPropertyViewModel : ViewModelBase, IDisposable
         };
         _valueEnterTimer.Elapsed += (_, _) =>
         {
-            if (double.TryParse(_propertyValueText, NumberStyles.Float, CultureInfo.InvariantCulture, out double currentValue))
+            Dispatcher.UIThread.Post(() =>
             {
-                currentValue = Math.Max(_min, Math.Min(_max, currentValue));
-                if (Math.Abs(currentValue - _beforeValue) > double.Epsilon)
+                if (_disposed || !_isValueEnteringFlag)
                 {
-                    UpdateDoubleValue(_beforeValue, currentValue);
+                    return;
                 }
-            }
 
-            _isValueEnteringFlag = false;
+                if (double.TryParse(_propertyValueText, NumberStyles.Float, CultureInfo.InvariantCulture, out double currentValue))
+                {
+                    currentValue = Math.Max(_min, Math.Min(_max, currentValue));
+                    if (Math.Abs(currentValue - _beforeValue) > double.Epsilon)
+                    {
+                        UpdateDoubleValue(_beforeValue, currentValue);
+                    }
+                }
+
+                _isValueEnteringFlag = false;
+            });
         };
     }
 
@@ -301,6 +310,8 @@ public class MetaDoubleParamPropertyViewModel : ViewModelBase, IDisposable
 
     public void StartSliderPreview()
     {
+        _valueEnterTimer?.Stop();
+
         if (!_isValueEnteringFlag)
         {
             _beforeValue = _propertyValue;
@@ -316,16 +327,18 @@ public class MetaDoubleParamPropertyViewModel : ViewModelBase, IDisposable
 
     public void EndSliderPreview()
     {
+        _valueEnterTimer?.Stop();
+        var beforeValue = _beforeValue;
+        _isValueEnteringFlag = false;
+
         if (double.TryParse(_propertyValueText, NumberStyles.Float, CultureInfo.InvariantCulture, out double currentValue))
         {
             currentValue = Math.Max(_min, Math.Min(_max, currentValue));
-            if (Math.Abs(currentValue - _beforeValue) > double.Epsilon)
+            if (Math.Abs(currentValue - beforeValue) > double.Epsilon)
             {
-                UpdateDoubleValue(_beforeValue, currentValue);
+                UpdateDoubleValue(beforeValue, currentValue);
             }
         }
-
-        _isValueEnteringFlag = false;
     }
 
     private void UpdateDoubleValue(double beforeValue, double value)
