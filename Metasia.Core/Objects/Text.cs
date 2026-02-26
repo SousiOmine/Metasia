@@ -103,13 +103,39 @@ namespace Metasia.Core.Objects
                 IsAntialias = true,
                 Color = new SKColor(Color.R, Color.G, Color.B),
             };
-            SKRect textBounds = new();
-            skFont.MeasureText(Contents, out textBounds, skPaint);
 
-            int bitmapWidth = (int)textBounds.Width;
-            int bitmapHeight = (int)textBounds.Height;
+            if (string.IsNullOrEmpty(Contents))
+            {
+                return Task.FromResult<IRenderNode>(new NormalRenderNode());
+            }
 
-            if (bitmapWidth <= 0 || bitmapHeight <= 0 || string.IsNullOrEmpty(Contents))
+            // 改行で行を分割
+            var lines = Contents.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None);
+            float lineSpacing = skFont.Spacing;
+
+            // 各行のバウンディング情報を計算
+            float totalWidth = 0;
+            float totalHeight = 0;
+            var lineBounds = new SKRect[lines.Length];
+            for (int i = 0; i < lines.Length; i++)
+            {
+                SKRect bounds = new();
+                if (!string.IsNullOrEmpty(lines[i]))
+                {
+                    skFont.MeasureText(lines[i], out bounds, skPaint);
+                    if (bounds.Width > totalWidth)
+                    {
+                        totalWidth = bounds.Width;
+                    }
+                }
+                lineBounds[i] = bounds;
+                totalHeight += (i < lines.Length - 1) ? lineSpacing : bounds.Height;
+            }
+
+            int bitmapWidth = (int)Math.Ceiling(totalWidth);
+            int bitmapHeight = (int)Math.Ceiling(totalHeight);
+
+            if (bitmapWidth <= 0 || bitmapHeight <= 0)
             {
                 return Task.FromResult<IRenderNode>(new NormalRenderNode());
             }
@@ -136,7 +162,7 @@ namespace Metasia.Core.Objects
                 using var surface = SKSurface.Create(info);
                 using var canvas = surface.Canvas;
                 canvas.Clear(SKColors.Transparent);
-                canvas.DrawText(Contents, new SKPoint(-textBounds.Left, -textBounds.Top), skFont, skPaint);
+                DrawMultilineText(canvas, lines, lineBounds, skFont, skPaint, lineSpacing);
                 cancellationToken.ThrowIfCancellationRequested();
                 image = surface.Snapshot();
             }
@@ -148,7 +174,7 @@ namespace Metasia.Core.Objects
                 using var canvas = surface.Canvas;
                 canvas.Clear(SKColors.Transparent);
                 canvas.Scale(renderScaleWidth, renderScaleHeight);
-                canvas.DrawText(Contents, new SKPoint(-textBounds.Left, -textBounds.Top), skFont, skPaint);
+                DrawMultilineText(canvas, lines, lineBounds, skFont, skPaint, lineSpacing);
                 cancellationToken.ThrowIfCancellationRequested();
                 image = surface.Snapshot();
             }
@@ -172,6 +198,19 @@ namespace Metasia.Core.Objects
                 Transform = transform,
                 BlendMode = BlendMode.Value,
             });
+        }
+
+        private static void DrawMultilineText(SKCanvas canvas, string[] lines, SKRect[] lineBounds, SKFont skFont, SKPaint skPaint, float lineSpacing)
+        {
+            float y = 0;
+            for (int i = 0; i < lines.Length; i++)
+            {
+                if (!string.IsNullOrEmpty(lines[i]))
+                {
+                    canvas.DrawText(lines[i], new SKPoint(-lineBounds[i].Left, y - lineBounds[i].Top), skFont, skPaint);
+                }
+                y += lineSpacing;
+            }
         }
 
         private bool LoadTypeface()
