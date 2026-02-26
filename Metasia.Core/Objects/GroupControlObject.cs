@@ -1,6 +1,7 @@
 using Metasia.Core.Attributes;
 using Metasia.Core.Objects.AudioEffects;
 using Metasia.Core.Objects.Parameters;
+using Metasia.Core.Objects.VisualEffects;
 using Metasia.Core.Render;
 using Metasia.Core.Sounds;
 using SkiaSharp;
@@ -35,6 +36,8 @@ public class GroupControlObject : ClipObject, IRenderable, IAudible, ILayerInter
     public LayerTarget TargetLayers { get; set; } = new LayerTarget(5);
 
     public List<AudioEffectBase> AudioEffects { get; set; } = new();
+
+    public List<VisualEffectBase> VisualEffects { get; set; } = new();
 
     private bool disposed;
 

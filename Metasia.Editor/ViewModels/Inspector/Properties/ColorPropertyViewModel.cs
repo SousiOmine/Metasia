@@ -1,6 +1,7 @@
 using System;
 using System.Timers;
 using Avalonia.Media;
+using Avalonia.Threading;
 using Metasia.Core.Objects.Parameters.Color;
 using Metasia.Editor.Models;
 using Metasia.Editor.Models.EditCommands;
@@ -114,12 +115,15 @@ public class ColorPropertyViewModel : ViewModelBase
         };
         _valueEnterTimer.Elapsed += (_, _) =>
         {
-            if (!SelectedColor.Equals(_beforeColor))
+            Dispatcher.UIThread.Post(() =>
             {
-                UpdateColorValue(_beforeColor, SelectedColor);
-            }
+                if (!SelectedColor.Equals(_beforeColor))
+                {
+                    UpdateColorValue(_beforeColor, SelectedColor);
+                }
 
-            _isValueEnteringFlag = false;
+                _isValueEnteringFlag = false;
+            });
         };
     }
 

@@ -28,6 +28,13 @@ namespace Metasia.Editor.Models.Interactor
                     yield return audioEffect;
                 }
             }
+            if (clip is IRenderable renderable)
+            {
+                foreach (var visualEffect in renderable.VisualEffects)
+                {
+                    yield return visualEffect;
+                }
+            }
         }
 
         private static bool TryFindEditableProperty<TProperty>(

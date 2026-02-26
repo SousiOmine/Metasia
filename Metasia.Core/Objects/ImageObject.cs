@@ -3,6 +3,7 @@ using Metasia.Core.Attributes;
 using Metasia.Core.Coordinate;
 using Metasia.Core.Media;
 using Metasia.Core.Objects.Parameters;
+using Metasia.Core.Objects.VisualEffects;
 using Metasia.Core.Render;
 using SkiaSharp;
 
@@ -32,6 +33,8 @@ public class ImageObject : ClipObject, IRenderable
 
     [EditableProperty("ImagePath")]
     public MediaPath ImagePath { get; set; } = new MediaPath();
+
+    public List<VisualEffectBase> VisualEffects { get; set; } = new();
 
     public ImageObject()
     {
@@ -66,10 +69,12 @@ public class ImageObject : ClipObject, IRenderable
                     Rotation = (float)Rotation.Get(relativeFrame, clipLength),
                     Alpha = (100.0f - (float)Alpha.Get(relativeFrame, clipLength)) / 100,
                 };
+                var logicalSize = new SKSize(imageFileAccessorResult.Image.Width, imageFileAccessorResult.Image.Height);
+                var finalImage = VisualEffectPipeline.ApplyEffects(imageFileAccessorResult.Image, VisualEffects, context, StartFrame, EndFrame, logicalSize);
                 return new NormalRenderNode()
                 {
-                    Image = imageFileAccessorResult.Image,
-                    LogicalSize = new SKSize(imageFileAccessorResult.Image.Width, imageFileAccessorResult.Image.Height),
+                    Image = finalImage,
+                    LogicalSize = logicalSize,
                     Transform = transform,
                     BlendMode = BlendMode.Value,
                 };

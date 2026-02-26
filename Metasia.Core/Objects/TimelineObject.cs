@@ -1,6 +1,7 @@
 using Metasia.Core.Render;
 using Metasia.Core.Sounds;
 using Metasia.Core.Objects.AudioEffects;
+using Metasia.Core.Objects.VisualEffects;
 using Metasia.Core.Attributes;
 using Metasia.Core.Objects.Parameters;
 using SkiaSharp;
@@ -48,6 +49,8 @@ namespace Metasia.Core.Objects
         public MetaDoubleParam Volume { get; set; } = new MetaDoubleParam(100);
 
         public List<AudioEffectBase> AudioEffects { get; set; } = new();
+
+        public List<VisualEffectBase> VisualEffects { get; set; } = new();
 
         public TimelineObject(string id)
         {

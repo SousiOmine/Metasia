@@ -4,6 +4,7 @@ using Metasia.Core.Coordinate;
 using Metasia.Core.Media;
 using Metasia.Core.Objects.AudioEffects;
 using Metasia.Core.Objects.Parameters;
+using Metasia.Core.Objects.VisualEffects;
 using Metasia.Core.Render;
 using Metasia.Core.Sounds;
 using SkiaSharp;
@@ -45,6 +46,8 @@ public class VideoObject : ClipObject, IRenderable, IAudible
 
     public List<AudioEffectBase> AudioEffects { get; set; } = new();
 
+    public List<VisualEffectBase> VisualEffects { get; set; } = new();
+
     public VideoObject()
     {
         VideoPath = new MediaPath([MediaType.Video]);
@@ -74,10 +77,12 @@ public class VideoObject : ClipObject, IRenderable, IAudible
                         Rotation = (float)Rotation.Get(relativeFrame, clipLength),
                         Alpha = (100.0f - (float)Alpha.Get(relativeFrame, clipLength)) / 100,
                     };
+                    var logicalSize = new SKSize(imageFileAccessorResult.Image.Width, imageFileAccessorResult.Image.Height);
+                    var finalImage = VisualEffectPipeline.ApplyEffects(imageFileAccessorResult.Image, VisualEffects, context, StartFrame, EndFrame, logicalSize);
                     return new NormalRenderNode()
                     {
-                        Image = imageFileAccessorResult.Image,
-                        LogicalSize = new SKSize(imageFileAccessorResult.Image.Width, imageFileAccessorResult.Image.Height),
+                        Image = finalImage,
+                        LogicalSize = logicalSize,
                         Transform = transform,
                         BlendMode = BlendMode.Value,
                     };

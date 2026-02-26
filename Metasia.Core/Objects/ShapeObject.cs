@@ -1,5 +1,6 @@
 using Metasia.Core.Coordinate;
 using Metasia.Core.Objects.Parameters;
+using Metasia.Core.Objects.VisualEffects;
 using Metasia.Core.Render;
 using Metasia.Core.Xml;
 using SkiaSharp;
@@ -54,6 +55,8 @@ namespace Metasia.Core.Objects
 
         [EditableProperty("Color")]
         public ColorRgb8 Color { get; set; } = new ColorRgb8(255, 255, 255);
+
+        public List<VisualEffectBase> VisualEffects { get; set; } = new();
 
         public ShapeObject(string id) : base(id)
         {
@@ -159,9 +162,11 @@ namespace Metasia.Core.Objects
                 Alpha = (100.0f - (float)Alpha.Get(relativeFrame, clipLength)) / 100,
             };
 
+            var finalImage = VisualEffectPipeline.ApplyEffects(image, VisualEffects, context, StartFrame, EndFrame, logicalSize);
+
             return Task.FromResult<IRenderNode>(new NormalRenderNode()
             {
-                Image = image,
+                Image = finalImage,
                 LogicalSize = logicalSize,
                 Transform = transform,
                 BlendMode = BlendMode.Value,

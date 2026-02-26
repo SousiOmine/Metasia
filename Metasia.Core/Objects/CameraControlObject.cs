@@ -1,5 +1,6 @@
 using Metasia.Core.Attributes;
 using Metasia.Core.Objects.Parameters;
+using Metasia.Core.Objects.VisualEffects;
 using Metasia.Core.Render;
 using SkiaSharp;
 
@@ -27,6 +28,8 @@ public class CameraControlObject : ClipObject, IRenderable, ILayerIntervener, ID
 
     [EditableProperty("TargetLayers")]
     public LayerTarget TargetLayers { get; set; } = new LayerTarget(5);
+
+    public List<VisualEffectBase> VisualEffects { get; set; } = new();
 
     private bool disposed;
 

@@ -1,0 +1,35 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:Metasia.Editor.ViewModels.Inspector"
+             xmlns:inspector="clr-namespace:Metasia.Editor.Views.Inspector"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
+             x:Class="Metasia.Editor.Views.Inspector.VisualEffectsView"
+             x:DataType="vm:VisualEffectsViewModel">
+    <StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="+" Command="{Binding NewEffectCommand}"/>
+            <Button Content="-" Command="{Binding DeleteEffectCommand}"/>
+        </StackPanel>
+        <ListBox
+            ItemsSource="{Binding VisualEffectItems}"
+            SelectedItem="{Binding SelectedVisualEffectItem}">
+            <ListBox.ItemTemplate>
+                <DataTemplate DataType="vm:VisualEffectItemViewModel">
+                    <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding EffectName}" FontWeight="Bold"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        
+        <ItemsControl ItemsSource="{Binding Properties}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="vm:PropertyRouterViewModel">
+                    <inspector:PropertyRouterView/>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </StackPanel>
+</UserControl>

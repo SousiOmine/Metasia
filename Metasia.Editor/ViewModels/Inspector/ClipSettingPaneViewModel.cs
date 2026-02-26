@@ -48,27 +48,38 @@ public class ClipSettingPaneViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _audioEffectsViewModel, value);
     }
 
+    public VisualEffectsViewModel VisualEffectsVm
+    {
+        get => _visualEffectsViewModel;
+        set => this.RaiseAndSetIfChanged(ref _visualEffectsViewModel, value);
+    }
+
     public ICommand IsActiveCheckCommand { get; set; }
 
     public event EventHandler? TargetObjectChanged;
 
     private ClipObject? _targetObject;
     private AudioEffectsViewModel _audioEffectsViewModel;
+    private VisualEffectsViewModel _visualEffectsViewModel;
     private bool _isActiveCheck;
     private readonly IPropertyRouterViewModelFactory _propertyRouterViewModelFactory;
     private readonly IAudioEffectsViewModelFactory _audioEffectsViewModelFactory;
+    private readonly IVisualEffectsViewModelFactory _visualEffectsViewModelFactory;
     private readonly IEditCommandManager _editCommandManager;
     public ClipSettingPaneViewModel(
         IPropertyRouterViewModelFactory propertyRouterViewModelFactory,
         IAudioEffectsViewModelFactory audioEffectsViewModelFactory,
+        IVisualEffectsViewModelFactory visualEffectsViewModelFactory,
         IEditCommandManager editCommandManager)
     {
         ArgumentNullException.ThrowIfNull(propertyRouterViewModelFactory);
         ArgumentNullException.ThrowIfNull(audioEffectsViewModelFactory);
+        ArgumentNullException.ThrowIfNull(visualEffectsViewModelFactory);
         ArgumentNullException.ThrowIfNull(editCommandManager);
         IsActiveCheckCommand = ReactiveCommand.Create(() => { isActiveCheck_Click(); });
         _propertyRouterViewModelFactory = propertyRouterViewModelFactory;
         _audioEffectsViewModelFactory = audioEffectsViewModelFactory;
+        _visualEffectsViewModelFactory = visualEffectsViewModelFactory;
         _editCommandManager = editCommandManager;
     }
 
@@ -89,6 +100,11 @@ public class ClipSettingPaneViewModel : ViewModelBase
         if (TargetObject is IAudible audible)
         {
             AudioEffectsVm = _audioEffectsViewModelFactory.Create(audible);
+        }
+
+        if (TargetObject is IRenderable renderable)
+        {
+            VisualEffectsVm = _visualEffectsViewModelFactory.Create(renderable);
         }
     }
 

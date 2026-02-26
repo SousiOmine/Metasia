@@ -9,6 +9,8 @@ using System.Reflection;
 using Metasia.Core.Attributes;
 using System.Collections.Generic;
 using Metasia.Core.Sounds;
+using Metasia.Core.Objects.VisualEffects;
+using Metasia.Core.Render;
 
 namespace Metasia.Editor.ViewModels.Dialogs;
 
@@ -151,7 +153,35 @@ public class NewObjectSelectViewModel : ViewModelBase
             }
         }
 
-        // TODO: VisualEffect support is not yet implemented. Add handling for TargetType.VisualEffect here.
+        if (_targetTypes.Contains(TargetType.VisualEffect))
+        {
+            List<(Type type, Attribute attribute)> objectTypes = new();
+            objectTypes.AddRange(Assembly.GetAssembly(typeof(IVisualEffect))!
+                .GetTypes()
+                .Where(t => t.IsClass && !t.IsAbstract && typeof(IVisualEffect).IsAssignableFrom(t))
+                .Select(t => (
+                    Type: t,
+                    Attribute: t.GetCustomAttribute<VisualEffectIdentifierAttribute>()
+                ))
+                .Where(x => x.Attribute is not null)
+                .OrderBy(x => x.Attribute!.Identifier)
+                .Select(x => (type: x.Type, attribute: (Attribute)x.Attribute!)));
+
+            foreach (var objectType in objectTypes)
+            {
+                var identifier = ((VisualEffectIdentifierAttribute)objectType.attribute).Identifier;
+                var displayName = GetDisplayNameFromIdentifier(identifier);
+                var description = $"{displayName}エフェクトを追加します";
+
+                AvailableObjectTypes.Add(new ObjectTypeInfo
+                {
+                    DisplayName = displayName,
+                    Description = description,
+                    ObjectType = objectType.type,
+                    Identifier = identifier
+                });
+            }
+        }
 
         // 初期状態ではすべてのオブジェクトを表示
         FilterObjectTypes();
@@ -206,6 +236,9 @@ public class NewObjectSelectViewModel : ViewModelBase
             "VideoObject" => "動画",
             "AudioObject" => "音声",
             "Layer" => "レイヤー",
+            "ClippingEffect" => "クリッピング",
+            "BorderEffect" => "縁取り",
+            "MotionBlurEffect" => "モーションブラー",
             _ => identifier
         };
     }

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Text.Json.Serialization;
 using Metasia.Core.Objects.AudioEffects;
+using Metasia.Core.Objects.VisualEffects;
 using Metasia.Core.Attributes;
 using Metasia.Core.Objects.Parameters;
 
@@ -36,6 +37,8 @@ namespace Metasia.Core.Objects
         public MetaDoubleParam Volume { get; set; } = new MetaDoubleParam(100);
 
         public List<AudioEffectBase> AudioEffects { get; set; } = new();
+
+        public List<VisualEffectBase> VisualEffects { get; set; } = new();
 
         /// <summary>
         /// レイヤー名

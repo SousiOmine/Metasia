@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Metasia.Core.Coordinate;
 using Metasia.Core.Objects.Parameters;
+using Metasia.Core.Objects.VisualEffects;
 using Metasia.Core.Sounds;
 using System.Diagnostics;
 using System.Text.Json.Serialization;
@@ -43,6 +44,8 @@ namespace Metasia.Core.Objects
         [ValueRange(0, 99999, 0, 200)]
         public MetaDoubleParam Volume { get; set; } = new MetaDoubleParam(100);
         public List<AudioEffectBase> AudioEffects { get; set; } = new();
+
+        public List<VisualEffectBase> VisualEffects { get; set; } = new();
 
         private SKImage? myImage;
         private bool disposed;

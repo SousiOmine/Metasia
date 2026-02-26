@@ -26,16 +26,27 @@
             </TabItem>
             
             <TabItem Header="エフェクト">
-                <Expander 
-                    IsVisible="{Binding IsAudible}"
-                    IsExpanded="True"
-                    HorizontalAlignment="Stretch">
-                    <Expander.Header>
-                        <TextBlock Text="音声エフェクト"/>
-                    </Expander.Header>
-                    
-                    <views_inspector:AudioEffectsView DataContext="{Binding AudioEffectsVm}"/>
-                </Expander>
+                <StackPanel>
+                    <Expander 
+                        IsExpanded="True"
+                        HorizontalAlignment="Stretch">
+                        <Expander.Header>
+                            <TextBlock Text="ビジュアルエフェクト"/>
+                        </Expander.Header>
+                        
+                        <views_inspector:VisualEffectsView DataContext="{Binding VisualEffectsVm}"/>
+                    </Expander>
+                    <Expander 
+                        IsVisible="{Binding IsAudible}"
+                        IsExpanded="True"
+                        HorizontalAlignment="Stretch">
+                        <Expander.Header>
+                            <TextBlock Text="音声エフェクト"/>
+                        </Expander.Header>
+                        
+                        <views_inspector:AudioEffectsView DataContext="{Binding AudioEffectsVm}"/>
+                    </Expander>
+                </StackPanel>
             </TabItem>
         </TabControl>
         
