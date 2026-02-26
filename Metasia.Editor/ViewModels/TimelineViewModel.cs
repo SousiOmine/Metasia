@@ -207,6 +207,22 @@ namespace Metasia.Editor.ViewModels
 
 
         /// <summary>
+        /// 指定されたClipObjectに対応するClipViewModelのサイズを再計算する
+        /// </summary>
+        public void RecalculateClipSize(ClipObject clipObject)
+        {
+            foreach (var layerCanvas in LayerCanvas)
+            {
+                var clipVM = layerCanvas.ClipsAndBlanks.FirstOrDefault(c => c.TargetObject.Id == clipObject.Id);
+                if (clipVM != null)
+                {
+                    clipVM.RecalculateSize();
+                    return;
+                }
+            }
+        }
+
+        /// <summary>
         /// リソースの解放処理
         /// </summary>
         protected override void Dispose(bool disposing)

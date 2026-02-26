@@ -73,6 +73,13 @@ namespace Metasia.Editor.ViewModels.Timeline
         private int _originalStartFrame;
         private int _originalEndFrame;
 
+        /// <summary>
+        /// ロールエディット時の隣接クリップ（null なら通常リサイズ）
+        /// </summary>
+        private ClipObject? _adjacentClip;
+        private int _adjacentOriginalStartFrame;
+        private int _adjacentOriginalEndFrame;
+
         private TimelineViewModel parentTimeline;
         private readonly IEditCommandManager editCommandManager;
         private readonly ITimelineViewState _timelineViewState;
@@ -133,6 +140,17 @@ namespace Metasia.Editor.ViewModels.Timeline
 
             _originalStartFrame = TargetObject.StartFrame;
             _originalEndFrame = TargetObject.EndFrame;
+
+            // 隣接クリップの検出（ロールエディット判定）
+            var ownerLayer = ClipInteractor.FindOwnerLayer(parentTimeline.Timeline, TargetObject);
+            _adjacentClip = ownerLayer != null
+                ? ClipInteractor.FindAdjacentClip(TargetObject, handleName, ownerLayer)
+                : null;
+            if (_adjacentClip != null)
+            {
+                _adjacentOriginalStartFrame = _adjacentClip.StartFrame;
+                _adjacentOriginalEndFrame = _adjacentClip.EndFrame;
+            }
         }
 
         public void UpdateDrag(double pointerPositionXOnCanvas)
@@ -140,27 +158,57 @@ namespace Metasia.Editor.ViewModels.Timeline
             if (!_isDragging) return;
 
             double deltaPixels = pointerPositionXOnCanvas - _dragStartX;
-            var (newStart, newEnd) = ClipInteractor.ApplyResizeSnapping(
-                TargetObject,
-                _dragHandleName,
-                _originalStartFrame,
-                _originalEndFrame,
-                deltaPixels,
-                parentTimeline.Timeline,
-                _timelineViewState.Frame_Per_DIP);
-
             var ownerLayer = ClipInteractor.FindOwnerLayer(parentTimeline.Timeline, TargetObject);
-            if (ownerLayer is not null && ClipInteractor.CanResize(TargetObject, newStart, newEnd, ownerLayer))
+
+            if (_adjacentClip != null && ownerLayer is not null)
             {
-                var command = ClipInteractor.CreateResizeCommand(
-                    TargetObject,
-                    _originalStartFrame, newStart,
-                    _originalEndFrame, newEnd);
-                editCommandManager.PreviewExecute(command);
+                // ロールエディットモード
+                var (newStart, newEnd, adjNewStart, adjNewEnd) = ClipInteractor.ComputeRollEditFrames(
+                    TargetObject, _adjacentClip, _dragHandleName,
+                    _originalStartFrame, _originalEndFrame,
+                    _adjacentOriginalStartFrame, _adjacentOriginalEndFrame,
+                    deltaPixels, _timelineViewState.Frame_Per_DIP);
+
+                if (ClipInteractor.CanRollEdit(TargetObject, newStart, newEnd, _adjacentClip, adjNewStart, adjNewEnd, ownerLayer))
+                {
+                    var command = ClipInteractor.CreateRollEditCommand(
+                        TargetObject,
+                        _originalStartFrame, newStart,
+                        _originalEndFrame, newEnd,
+                        _adjacentClip,
+                        _adjacentOriginalStartFrame, adjNewStart,
+                        _adjacentOriginalEndFrame, adjNewEnd);
+                    editCommandManager.PreviewExecute(command);
+                }
+                else
+                {
+                    editCommandManager.CancelPreview();
+                }
             }
             else
             {
-                editCommandManager.CancelPreview();
+                // 通常リサイズモード
+                var (newStart, newEnd) = ClipInteractor.ApplyResizeSnapping(
+                    TargetObject,
+                    _dragHandleName,
+                    _originalStartFrame,
+                    _originalEndFrame,
+                    deltaPixels,
+                    parentTimeline.Timeline,
+                    _timelineViewState.Frame_Per_DIP);
+
+                if (ownerLayer is not null && ClipInteractor.CanResize(TargetObject, newStart, newEnd, ownerLayer))
+                {
+                    var command = ClipInteractor.CreateResizeCommand(
+                        TargetObject,
+                        _originalStartFrame, newStart,
+                        _originalEndFrame, newEnd);
+                    editCommandManager.PreviewExecute(command);
+                }
+                else
+                {
+                    editCommandManager.CancelPreview();
+                }
             }
         }
 
@@ -176,47 +224,94 @@ namespace Metasia.Editor.ViewModels.Timeline
             }
 
             double deltaPixels = pointerPositionXOnCanvas - _dragStartX;
-            var (newStart, newEnd) = ClipInteractor.ApplyResizeSnapping(
-                TargetObject,
-                _dragHandleName,
-                _originalStartFrame,
-                _originalEndFrame,
-                deltaPixels,
-                parentTimeline.Timeline,
-                _timelineViewState.Frame_Per_DIP);
-
             var ownerLayer = ClipInteractor.FindOwnerLayer(parentTimeline.Timeline, TargetObject);
-            bool canResize = ownerLayer is not null &&
-                            ClipInteractor.CanResize(TargetObject, newStart, newEnd, ownerLayer);
 
-            if (canResize)
+            if (_adjacentClip != null && ownerLayer is not null)
             {
-                // フレームが変化していればコマンドを実行
-                if (newStart != _originalStartFrame || newEnd != _originalEndFrame)
-                {
-                    var command = ClipInteractor.CreateResizeCommand(
-                        TargetObject,
-                        _originalStartFrame, newStart,
-                        _originalEndFrame, newEnd);
-                    editCommandManager.Execute(command);
+                // ロールエディットモード
+                var (newStart, newEnd, adjNewStart, adjNewEnd) = ClipInteractor.ComputeRollEditFrames(
+                    TargetObject, _adjacentClip, _dragHandleName,
+                    _originalStartFrame, _originalEndFrame,
+                    _adjacentOriginalStartFrame, _adjacentOriginalEndFrame,
+                    deltaPixels, _timelineViewState.Frame_Per_DIP);
 
-                    RecalculateSize();
+                bool canRollEdit = ClipInteractor.CanRollEdit(
+                    TargetObject, newStart, newEnd,
+                    _adjacentClip, adjNewStart, adjNewEnd, ownerLayer);
+
+                if (canRollEdit)
+                {
+                    bool changed = newStart != _originalStartFrame || newEnd != _originalEndFrame
+                                || adjNewStart != _adjacentOriginalStartFrame || adjNewEnd != _adjacentOriginalEndFrame;
+                    if (changed)
+                    {
+                        var command = ClipInteractor.CreateRollEditCommand(
+                            TargetObject,
+                            _originalStartFrame, newStart,
+                            _originalEndFrame, newEnd,
+                            _adjacentClip,
+                            _adjacentOriginalStartFrame, adjNewStart,
+                            _adjacentOriginalEndFrame, adjNewEnd);
+                        editCommandManager.Execute(command);
+
+                        RecalculateSize();
+                        // 隣接クリップのVMもサイズ再計算が必要
+                        parentTimeline.RecalculateClipSize(_adjacentClip);
+                    }
+                    else
+                    {
+                        editCommandManager.CancelPreview();
+                    }
                 }
                 else
                 {
-                    // 変化なしの場合はプレビューをキャンセル
                     editCommandManager.CancelPreview();
+                    RecalculateSize();
+                    parentTimeline.RecalculateClipSize(_adjacentClip);
                 }
             }
             else
             {
-                // リサイズできない場合はプレビューをキャンセルして元に戻す
-                editCommandManager.CancelPreview();
-                RecalculateSize();
+                // 通常リサイズモード
+                var (newStart, newEnd) = ClipInteractor.ApplyResizeSnapping(
+                    TargetObject,
+                    _dragHandleName,
+                    _originalStartFrame,
+                    _originalEndFrame,
+                    deltaPixels,
+                    parentTimeline.Timeline,
+                    _timelineViewState.Frame_Per_DIP);
+
+                bool canResize = ownerLayer is not null &&
+                                ClipInteractor.CanResize(TargetObject, newStart, newEnd, ownerLayer);
+
+                if (canResize)
+                {
+                    if (newStart != _originalStartFrame || newEnd != _originalEndFrame)
+                    {
+                        var command = ClipInteractor.CreateResizeCommand(
+                            TargetObject,
+                            _originalStartFrame, newStart,
+                            _originalEndFrame, newEnd);
+                        editCommandManager.Execute(command);
+
+                        RecalculateSize();
+                    }
+                    else
+                    {
+                        editCommandManager.CancelPreview();
+                    }
+                }
+                else
+                {
+                    editCommandManager.CancelPreview();
+                    RecalculateSize();
+                }
             }
 
             _isDragging = false;
             _dragHandleName = string.Empty;
+            _adjacentClip = null;
         }
     }
 }
