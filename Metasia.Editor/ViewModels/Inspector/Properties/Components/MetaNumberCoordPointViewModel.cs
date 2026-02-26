@@ -2,7 +2,6 @@ using System;
 using System.Timers;
 using System.Windows.Input;
 using Metasia.Core.Coordinate;
-using Metasia.Core.Objects.Parameters;
 using ReactiveUI;
 
 namespace Metasia.Editor.ViewModels.Inspector.Properties.Components;
@@ -123,13 +122,11 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
     private double _max = double.MaxValue;
     private double _recommendedMin = double.MinValue;
     private double _recommendedMax = double.MaxValue;
-    private const double _valueEnterThreshold = 0.2;
     private const double _frameEnterThreshold = 0.2;
     private const double _doubleComparisonTolerance = 1e-6;
 
-    private Timer? _valueEnterTimer;
     private Timer? _frameEnterTimer;
-    private bool _isValueEnteringFlag = false;
+    private bool _isInteracting = false;
     private bool _isFrameEnteringFlag = false;
     private double _beforeValue = 0;
     private int _beforeFrame = 0;
@@ -155,7 +152,12 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
         });
         AddPointCommand = ReactiveCommand.Create(AddPoint);
         RemovePointCommand = ReactiveCommand.Create(RemovePoint);
+        InteractionStartedCommand = ReactiveCommand.Create(StartInteraction);
+        InteractionCompletedCommand = ReactiveCommand.Create(EndInteraction);
     }
+
+    public ICommand InteractionStartedCommand { get; }
+    public ICommand InteractionCompletedCommand { get; }
 
     public void RefreshFromTarget(
         CoordPoint target,
@@ -224,48 +226,12 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
             return;
         }
 
-        if (!_isValueEnteringFlag)
-        {
-            _beforeValue = previousValue;
-            _isValueEnteringFlag = true;
-        }
-
-        if (AreClose(PointValue, _beforeValue))
-        {
-            _isValueEnteringFlag = false;
-            return;
-        }
-
-        EnsureValueEnterTimer();
-        ValueSliderMoving();
-
-        if (_valueEnterTimer is not null)
-        {
-            _valueEnterTimer.Stop();
-            _valueEnterTimer.Start();
-        }
-    }
-
-    private void EnsureValueEnterTimer()
-    {
-        if (_valueEnterTimer is not null)
+        if (!_isInteracting)
         {
             return;
         }
 
-        _valueEnterTimer = new Timer(_valueEnterThreshold * 1000)
-        {
-            AutoReset = false
-        };
-        _valueEnterTimer.Elapsed += (_, _) =>
-        {
-            if (!AreClose(PointValue, _beforeValue))
-            {
-                _parentViewModel.UpdatePointValue(_target, _beforeValue, PointValue);
-            }
-
-            _isValueEnteringFlag = false;
-        };
+        _parentViewModel.PreviewUpdatePointValue(_target, _beforeValue, PointValue);
     }
 
     private static bool AreClose(double left, double right)
@@ -273,9 +239,21 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
         return Math.Abs(left - right) <= _doubleComparisonTolerance;
     }
 
-    private void ValueSliderMoving()
+    private void StartInteraction()
     {
-        _parentViewModel.PreviewUpdatePointValue(_target, _beforeValue, PointValue);
+        _isInteracting = true;
+        _beforeValue = _pointValue;
+    }
+
+    private void EndInteraction()
+    {
+        _isInteracting = false;
+        var beforeValue = _beforeValue;
+
+        if (!AreClose(PointValue, beforeValue))
+        {
+            _parentViewModel.UpdatePointValue(_target, beforeValue, PointValue);
+        }
     }
 
     private void TryFrameEnter()

@@ -1,10 +1,12 @@
 using System;
 using System.Globalization;
+using System.Windows.Input;
 using Avalonia;
 using Avalonia.Data;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Threading;
 
 namespace Metasia.Editor.Controls;
@@ -85,6 +87,24 @@ public class InspectorNumericUpDown : TemplatedControl
         set => SetValue(IsEditingProperty, value);
     }
 
+    public static readonly StyledProperty<ICommand?> InteractionStartedCommandProperty =
+        AvaloniaProperty.Register<InspectorNumericUpDown, ICommand?>(nameof(InteractionStartedCommand));
+
+    public static readonly StyledProperty<ICommand?> InteractionCompletedCommandProperty =
+        AvaloniaProperty.Register<InspectorNumericUpDown, ICommand?>(nameof(InteractionCompletedCommand));
+
+    public ICommand? InteractionStartedCommand
+    {
+        get => GetValue(InteractionStartedCommandProperty);
+        set => SetValue(InteractionStartedCommandProperty, value);
+    }
+
+    public ICommand? InteractionCompletedCommand
+    {
+        get => GetValue(InteractionCompletedCommandProperty);
+        set => SetValue(InteractionCompletedCommandProperty, value);
+    }
+
     public static readonly DirectProperty<InspectorNumericUpDown, string> DisplayTextProperty =
         AvaloniaProperty.RegisterDirect<InspectorNumericUpDown, string>(nameof(DisplayText), o => o.DisplayText);
 
@@ -112,6 +132,7 @@ public class InspectorNumericUpDown : TemplatedControl
 
     private bool _pointerCaptured;
     private bool _dragging;
+    private bool _buttonInteracting;
     private Point _pressPoint;
     private double _pressValue;
     private double _editStartValue;
@@ -144,11 +165,17 @@ public class InspectorNumericUpDown : TemplatedControl
         if (_upButton is not null)
         {
             _upButton.Click -= UpButtonOnClick;
+            _upButton.RemoveHandler(PointerPressedEvent, UpDownButtonOnPointerPressed);
+            _upButton.RemoveHandler(PointerReleasedEvent, UpDownButtonOnPointerReleased);
+            _upButton.RemoveHandler(PointerCaptureLostEvent, UpDownButtonOnPointerCaptureLost);
         }
 
         if (_downButton is not null)
         {
             _downButton.Click -= DownButtonOnClick;
+            _downButton.RemoveHandler(PointerPressedEvent, UpDownButtonOnPointerPressed);
+            _downButton.RemoveHandler(PointerReleasedEvent, UpDownButtonOnPointerReleased);
+            _downButton.RemoveHandler(PointerCaptureLostEvent, UpDownButtonOnPointerCaptureLost);
         }
 
         _displayBorder = e.NameScope.Find<Border>("PART_DisplayBorder");
@@ -173,11 +200,17 @@ public class InspectorNumericUpDown : TemplatedControl
         if (_upButton is not null)
         {
             _upButton.Click += UpButtonOnClick;
+            _upButton.AddHandler(PointerPressedEvent, UpDownButtonOnPointerPressed, RoutingStrategies.Tunnel);
+            _upButton.AddHandler(PointerReleasedEvent, UpDownButtonOnPointerReleased, RoutingStrategies.Tunnel);
+            _upButton.AddHandler(PointerCaptureLostEvent, UpDownButtonOnPointerCaptureLost, RoutingStrategies.Tunnel);
         }
 
         if (_downButton is not null)
         {
             _downButton.Click += DownButtonOnClick;
+            _downButton.AddHandler(PointerPressedEvent, UpDownButtonOnPointerPressed, RoutingStrategies.Tunnel);
+            _downButton.AddHandler(PointerReleasedEvent, UpDownButtonOnPointerReleased, RoutingStrategies.Tunnel);
+            _downButton.AddHandler(PointerCaptureLostEvent, UpDownButtonOnPointerCaptureLost, RoutingStrategies.Tunnel);
         }
 
         OnValueChanged();
@@ -189,6 +222,7 @@ public class InspectorNumericUpDown : TemplatedControl
         {
             _editStartValue = Value;
             EditText = Value.ToString(FormatString, CultureInfo.InvariantCulture);
+            ExecuteInteractionStarted();
 
             Dispatcher.UIThread.Post(() =>
             {
@@ -248,6 +282,7 @@ public class InspectorNumericUpDown : TemplatedControl
         if (!_dragging && Math.Abs(dx) >= 3)
         {
             _dragging = true;
+            ExecuteInteractionStarted();
         }
 
         if (!_dragging)
@@ -268,21 +303,30 @@ public class InspectorNumericUpDown : TemplatedControl
         }
 
         var wasDragging = _dragging;
+        _dragging = false;
 
         e.Pointer.Capture(null);
         _pointerCaptured = false;
 
-        if (!wasDragging)
+        if (wasDragging)
+        {
+            ExecuteInteractionCompleted();
+        }
+        else
         {
             IsEditing = true;
         }
 
-        _dragging = false;
         e.Handled = true;
     }
 
     private void DisplayBorderOnPointerCaptureLost(object? sender, PointerCaptureLostEventArgs e)
     {
+        if (_dragging)
+        {
+            ExecuteInteractionCompleted();
+        }
+
         _pointerCaptured = false;
         _dragging = false;
     }
@@ -315,6 +359,7 @@ public class InspectorNumericUpDown : TemplatedControl
         {
             Value = _editStartValue;
             IsEditing = false;
+            ExecuteInteractionCompleted();
             e.Handled = true;
         }
     }
@@ -327,6 +372,7 @@ public class InspectorNumericUpDown : TemplatedControl
         }
 
         IsEditing = false;
+        ExecuteInteractionCompleted();
     }
 
     private void UpButtonOnClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -347,6 +393,49 @@ public class InspectorNumericUpDown : TemplatedControl
         }
 
         Value = CoerceValue(Value - Increment);
+    }
+
+    private void UpDownButtonOnPointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (!IsEditing)
+        {
+            _buttonInteracting = true;
+            ExecuteInteractionStarted();
+        }
+    }
+
+    private void UpDownButtonOnPointerReleased(object? sender, PointerReleasedEventArgs e)
+    {
+        if (_buttonInteracting)
+        {
+            _buttonInteracting = false;
+            ExecuteInteractionCompleted();
+        }
+    }
+
+    private void UpDownButtonOnPointerCaptureLost(object? sender, PointerCaptureLostEventArgs e)
+    {
+        if (_buttonInteracting)
+        {
+            _buttonInteracting = false;
+            ExecuteInteractionCompleted();
+        }
+    }
+
+    private void ExecuteInteractionStarted()
+    {
+        if (InteractionStartedCommand?.CanExecute(null) == true)
+        {
+            InteractionStartedCommand.Execute(null);
+        }
+    }
+
+    private void ExecuteInteractionCompleted()
+    {
+        if (InteractionCompletedCommand?.CanExecute(null) == true)
+        {
+            InteractionCompletedCommand.Execute(null);
+        }
     }
 
     private double CoerceValue(double value)

@@ -41,18 +41,21 @@
         <controls:InspectorNumericUpDown Minimum="{Binding Min}"
                                          Maximum="{Binding Max}"
                                          Value="{Binding PointValue}"
+                                         InteractionStartedCommand="{Binding InteractionStartedCommand}"
+                                         InteractionCompletedCommand="{Binding InteractionCompletedCommand}"
                                          Width="100"
                                          Increment="1"
                                          DragValuePerPixel="1"
                                          FormatString="F2"
                                          VerticalAlignment="Center"/>
-        <Slider x:Name="ValueSlider"
-                Minimum="{Binding RecommendedMin}"
-                Maximum="{Binding RecommendedMax}"
-                Value="{Binding SliderPointValue}"
-                Width="100"
-                Height="40"
-                Margin="5,0,10,0"
-                VerticalAlignment="Center"></Slider>
+        <controls:InspectorSlider Minimum="{Binding RecommendedMin}"
+                                 Maximum="{Binding RecommendedMax}"
+                                 Value="{Binding SliderPointValue}"
+                                 InteractionStartedCommand="{Binding InteractionStartedCommand}"
+                                 InteractionCompletedCommand="{Binding InteractionCompletedCommand}"
+                                 Width="100"
+                                 Height="40"
+                                 Margin="5,0,10,0"
+                                 VerticalAlignment="Center"/>
     </StackPanel>
 </UserControl>

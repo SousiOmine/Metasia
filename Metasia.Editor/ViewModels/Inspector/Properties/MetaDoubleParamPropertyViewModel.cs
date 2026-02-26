@@ -1,8 +1,7 @@
 using System;
 using System.Globalization;
 using System.Linq;
-using System.Timers;
-using Avalonia.Threading;
+using System.Windows.Input;
 using Metasia.Core.Objects.Parameters;
 using Metasia.Editor.Models;
 using Metasia.Editor.Models.EditCommands;
@@ -15,8 +14,6 @@ namespace Metasia.Editor.ViewModels.Inspector.Properties;
 
 public class MetaDoubleParamPropertyViewModel : ViewModelBase, IDisposable
 {
-    private bool _disposed = false;
-
     public string PropertyDisplayName
     {
         get => _propertyDisplayName;
@@ -123,11 +120,6 @@ public class MetaDoubleParamPropertyViewModel : ViewModelBase, IDisposable
             {
                 PropertyValue = clamped;
             }
-
-            if (_isValueEnteringFlag)
-            {
-                PreviewUpdateDoubleValue(_beforeValue, _propertyValue);
-            }
         }
     }
 
@@ -144,10 +136,8 @@ public class MetaDoubleParamPropertyViewModel : ViewModelBase, IDisposable
     private ISelectionState _selectionState;
     private IEditCommandManager _editCommandManager;
     private IProjectState _projectState;
-    private const double _valueEnterThreshold = 0.2;
 
-    private Timer? _valueEnterTimer;
-    private bool _isValueEnteringFlag = false;
+    private bool _isInteracting = false;
     private double _beforeValue = 0;
     private bool _suppressChangeEvents = false;
 
@@ -177,7 +167,13 @@ public class MetaDoubleParamPropertyViewModel : ViewModelBase, IDisposable
         _projectState = projectState;
 
         _projectState.TimelineChanged += OnTimelineChanged;
+
+        InteractionStartedCommand = ReactiveCommand.Create(StartInteraction);
+        InteractionCompletedCommand = ReactiveCommand.Create(EndInteraction);
     }
+
+    public ICommand InteractionStartedCommand { get; }
+    public ICommand InteractionCompletedCommand { get; }
 
     private void OnTimelineChanged()
     {
@@ -212,20 +208,13 @@ public class MetaDoubleParamPropertyViewModel : ViewModelBase, IDisposable
             return;
         }
 
-        if (!_isValueEnteringFlag)
-        {
-            double.TryParse(previousText, NumberStyles.Float, CultureInfo.InvariantCulture, out _beforeValue);
-            _isValueEnteringFlag = true;
-        }
-
-        if (!double.TryParse(_propertyValueText, NumberStyles.Float, CultureInfo.InvariantCulture, out double currentValue))
+        if (!_isInteracting)
         {
             return;
         }
 
-        if (Math.Abs(currentValue - _beforeValue) < double.Epsilon)
+        if (!double.TryParse(_propertyValueText, NumberStyles.Float, CultureInfo.InvariantCulture, out double currentValue))
         {
-            _isValueEnteringFlag = false;
             return;
         }
 
@@ -253,81 +242,19 @@ public class MetaDoubleParamPropertyViewModel : ViewModelBase, IDisposable
             }
         }
 
-        EnsureValueEnterTimer();
-        ValueChanging();
-
-        if (_valueEnterTimer is not null)
-        {
-            _valueEnterTimer.Stop();
-            _valueEnterTimer.Start();
-        }
+        PreviewUpdateDoubleValue(_beforeValue, currentValue);
     }
 
-    private void EnsureValueEnterTimer()
+    private void StartInteraction()
     {
-        if (_valueEnterTimer is not null)
-        {
-            return;
-        }
-
-        _valueEnterTimer = new Timer(_valueEnterThreshold * 1000)
-        {
-            AutoReset = false
-        };
-        _valueEnterTimer.Elapsed += (_, _) =>
-        {
-            Dispatcher.UIThread.Post(() =>
-            {
-                if (_disposed || !_isValueEnteringFlag)
-                {
-                    return;
-                }
-
-                if (double.TryParse(_propertyValueText, NumberStyles.Float, CultureInfo.InvariantCulture, out double currentValue))
-                {
-                    currentValue = Math.Max(_min, Math.Min(_max, currentValue));
-                    if (Math.Abs(currentValue - _beforeValue) > double.Epsilon)
-                    {
-                        UpdateDoubleValue(_beforeValue, currentValue);
-                    }
-                }
-
-                _isValueEnteringFlag = false;
-            });
-        };
+        _isInteracting = true;
+        _beforeValue = _propertyValue;
     }
 
-    private void ValueChanging()
+    private void EndInteraction()
     {
-        if (double.TryParse(_propertyValueText, NumberStyles.Float, CultureInfo.InvariantCulture, out double currentValue))
-        {
-            currentValue = Math.Max(_min, Math.Min(_max, currentValue));
-            PreviewUpdateDoubleValue(_beforeValue, currentValue);
-        }
-    }
-
-    public void StartSliderPreview()
-    {
-        _valueEnterTimer?.Stop();
-
-        if (!_isValueEnteringFlag)
-        {
-            _beforeValue = _propertyValue;
-            _isValueEnteringFlag = true;
-        }
-
-        if (double.TryParse(_propertyValueText, NumberStyles.Float, CultureInfo.InvariantCulture, out double currentValue))
-        {
-            currentValue = Math.Max(_min, Math.Min(_max, currentValue));
-            PreviewUpdateDoubleValue(_beforeValue, currentValue);
-        }
-    }
-
-    public void EndSliderPreview()
-    {
-        _valueEnterTimer?.Stop();
+        _isInteracting = false;
         var beforeValue = _beforeValue;
-        _isValueEnteringFlag = false;
 
         if (double.TryParse(_propertyValueText, NumberStyles.Float, CultureInfo.InvariantCulture, out double currentValue))
         {
@@ -374,24 +301,12 @@ public class MetaDoubleParamPropertyViewModel : ViewModelBase, IDisposable
 
     protected virtual void Dispose(bool disposing)
     {
-        if (!_disposed)
+        if (disposing)
         {
-            if (disposing)
+            if (_projectState != null)
             {
-                if (_projectState != null)
-                {
-                    _projectState.TimelineChanged -= OnTimelineChanged;
-                }
-
-                if (_valueEnterTimer != null)
-                {
-                    _valueEnterTimer.Stop();
-                    _valueEnterTimer.Dispose();
-                    _valueEnterTimer = null;
-                }
+                _projectState.TimelineChanged -= OnTimelineChanged;
             }
-
-            _disposed = true;
         }
     }
 }
