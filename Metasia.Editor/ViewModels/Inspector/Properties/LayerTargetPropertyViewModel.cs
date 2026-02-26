@@ -111,13 +111,11 @@ public class LayerTargetPropertyViewModel : ViewModelBase, IDisposable
         _editCommandManager = editCommandManager;
         _projectState = projectState;
 
-        // Undo/Redoイベントを購読してプロパティ値の変更を検知
-        _editCommandManager.CommandExecuted += OnCommandChanged;
-        _editCommandManager.CommandUndone += OnCommandChanged;
-        _editCommandManager.CommandRedone += OnCommandChanged;
+        // プロジェクトの変更を検知してプロパティ値を更新
+        _projectState.TimelineChanged += OnTimelineChanged;
     }
 
-    private void OnCommandChanged(object? sender, IEditCommand command)
+    private void OnTimelineChanged()
     {
         RefreshPropertyValue();
     }
@@ -126,28 +124,22 @@ public class LayerTargetPropertyViewModel : ViewModelBase, IDisposable
 
     private void RefreshPropertyValue()
     {
-        // 選択中のクリップから現在のプロパティ値を取得して表示を更新
-        _suppressChangeEvents = true;
+        var clip = _selectionState.CurrentSelectedClip ?? _selectionState.SelectedClips.FirstOrDefault();
+        if (clip is null) return;
 
-        if (_selectionState.SelectedClips.Count > 0)
+        var properties = ObjectPropertyFinder.FindEditableProperties(clip);
+        var property = properties.FirstOrDefault(x => x.Identifier == _propertyIdentifier && x.Type == typeof(LayerTarget));
+        if (property?.PropertyValue is LayerTarget layerTarget)
         {
-            // 最初の選択クリップの値を表示（複数選択の場合は最初のクリップに合わせる）
-            var firstClip = _selectionState.SelectedClips[0];
-            if (TimelineInteractor.TryGetLayerTargetProperty(_propertyIdentifier, firstClip, out LayerTarget? currentValue))
-            {
-                if (currentValue is not null)
-                {
-                    _isInfinite = currentValue.IsInfinite;
-                    _layerCount = currentValue.IsInfinite ? 5 : currentValue.LayerCount;
+            _suppressChangeEvents = true;
+            _isInfinite = layerTarget.IsInfinite;
+            _layerCount = layerTarget.IsInfinite ? 5 : layerTarget.LayerCount;
 
-                    this.RaisePropertyChanged(nameof(IsInfinite));
-                    this.RaisePropertyChanged(nameof(LayerCount));
-                    this.RaisePropertyChanged(nameof(IsLayerCountEnabled));
-                }
-            }
+            this.RaisePropertyChanged(nameof(IsInfinite));
+            this.RaisePropertyChanged(nameof(LayerCount));
+            this.RaisePropertyChanged(nameof(IsLayerCountEnabled));
+            _suppressChangeEvents = false;
         }
-
-        _suppressChangeEvents = false;
     }
 
     private void TryValueEnter(LayerTarget previousValue, LayerTarget currentValue)
@@ -249,11 +241,9 @@ public class LayerTargetPropertyViewModel : ViewModelBase, IDisposable
             if (disposing)
             {
                 // イベント購読を解除
-                if (_editCommandManager != null)
+                if (_projectState != null)
                 {
-                    _editCommandManager.CommandExecuted -= OnCommandChanged;
-                    _editCommandManager.CommandUndone -= OnCommandChanged;
-                    _editCommandManager.CommandRedone -= OnCommandChanged;
+                    _projectState.TimelineChanged -= OnTimelineChanged;
                 }
 
                 // タイマーを破棄

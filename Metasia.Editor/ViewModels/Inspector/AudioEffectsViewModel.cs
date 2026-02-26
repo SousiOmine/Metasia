@@ -56,7 +56,7 @@ public class AudioEffectsViewModel : ViewModelBase
 
         NewEffectCommand = ReactiveCommand.CreateFromTask(async() =>
         {
-            var selectVm = new NewObjectSelectViewModel(NewObjectSelectViewModel.TargetType.AuidoEffect);
+            var selectVm = new NewObjectSelectViewModel(NewObjectSelectViewModel.TargetType.AudioEffect);
             var result = await NewObjectSelectInteraction.Handle(selectVm);
             if (result is AudioEffectBase effect)
             {
@@ -112,6 +112,15 @@ public class AudioEffectsViewModel : ViewModelBase
         
         var command = new AudioEffectRemoveCommand(_target, selectedEffect);
         _editCommandManager.Execute(command);
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            _projectState.TimelineChanged -= LoadEffects;
+        }
+        base.Dispose(disposing);
     }
 }
 

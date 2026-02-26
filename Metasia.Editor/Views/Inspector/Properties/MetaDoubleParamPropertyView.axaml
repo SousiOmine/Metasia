@@ -17,9 +17,9 @@
                                          Maximum="{Binding Max}"
                                          Width="130"
                                          VerticalAlignment="Center"
-                                         Increment="1"
-                                         DragValuePerPixel="1"
-                                         FormatString="F0"/>
+                                         Increment="0.1"
+                                         DragValuePerPixel="0.1"
+                                         FormatString="F2"/>
         <Slider x:Name="ValueSlider"
                 Minimum="{Binding RecommendMin}"
                 Maximum="{Binding RecommendMax}"

@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.Linq;
 using System.Timers;
 using Avalonia.Threading;
 using Metasia.Core.Objects.Parameters;
@@ -175,36 +176,33 @@ public class MetaDoubleParamPropertyViewModel : ViewModelBase, IDisposable
         _editCommandManager = editCommandManager;
         _projectState = projectState;
 
-        _editCommandManager.CommandExecuted += OnCommandChanged;
-        _editCommandManager.CommandUndone += OnCommandChanged;
-        _editCommandManager.CommandRedone += OnCommandChanged;
+        _projectState.TimelineChanged += OnTimelineChanged;
     }
 
-    private void OnCommandChanged(object? sender, IEditCommand command)
+    private void OnTimelineChanged()
     {
         RefreshPropertyValue();
     }
 
     private void RefreshPropertyValue()
     {
-        _suppressChangeEvents = true;
+        var clip = _selectionState.CurrentSelectedClip ?? _selectionState.SelectedClips.FirstOrDefault();
+        if (clip is null) return;
 
-        if (_selectionState.SelectedClips.Count > 0)
+        var properties = ObjectPropertyFinder.FindEditableProperties(clip);
+        var property = properties.FirstOrDefault(x => x.Identifier == _propertyIdentifier && x.Type == typeof(MetaDoubleParam));
+        if (property?.PropertyValue is MetaDoubleParam doubleParam)
         {
-            var firstClip = _selectionState.SelectedClips[0];
-            if (TimelineInteractor.TryGetDoubleProperty(_propertyIdentifier, firstClip, out double currentValue))
-            {
-                _propertyValue = currentValue;
-                _propertyValueText = currentValue.ToString(CultureInfo.InvariantCulture);
-                _sliderValue = currentValue;
+            _suppressChangeEvents = true;
+            _propertyValue = doubleParam.Value;
+            _propertyValueText = doubleParam.Value.ToString(CultureInfo.InvariantCulture);
+            _sliderValue = doubleParam.Value;
 
-                this.RaisePropertyChanged(nameof(PropertyValue));
-                this.RaisePropertyChanged(nameof(PropertyValueText));
-                this.RaisePropertyChanged(nameof(SliderValue));
-            }
+            this.RaisePropertyChanged(nameof(PropertyValue));
+            this.RaisePropertyChanged(nameof(PropertyValueText));
+            this.RaisePropertyChanged(nameof(SliderValue));
+            _suppressChangeEvents = false;
         }
-
-        _suppressChangeEvents = false;
     }
 
     private void TryValueEnter(string previousText)
@@ -380,11 +378,9 @@ public class MetaDoubleParamPropertyViewModel : ViewModelBase, IDisposable
         {
             if (disposing)
             {
-                if (_editCommandManager != null)
+                if (_projectState != null)
                 {
-                    _editCommandManager.CommandExecuted -= OnCommandChanged;
-                    _editCommandManager.CommandUndone -= OnCommandChanged;
-                    _editCommandManager.CommandRedone -= OnCommandChanged;
+                    _projectState.TimelineChanged -= OnTimelineChanged;
                 }
 
                 if (_valueEnterTimer != null)

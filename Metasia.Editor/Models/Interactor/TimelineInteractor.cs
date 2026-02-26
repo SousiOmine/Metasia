@@ -150,18 +150,6 @@ namespace Metasia.Editor.Models.Interactor
             return changeInfos.Count > 0 ? new ColorValueChangeCommand(changeInfos) : null;
         }
 
-        public static bool TryGetDoubleProperty(string propertyIdentifier, ClipObject clip, out double value)
-        {
-            value = default;
-
-            if (TryFindEditableProperty<MetaDoubleParam>(clip, propertyIdentifier, out _, out var metaDoubleParam))
-            {
-                value = metaDoubleParam.Value;
-                return true;
-            }
-            return false;
-        }
-
         public static IEditCommand? CreateLayerTargetValueChangeCommand(string propertyIdentifier, LayerTarget beforeValue, LayerTarget afterValue, IEnumerable<ClipObject> selectedClips)
         {
             List<LayerTargetValueChangeCommand.LayerTargetValueChangeInfo> changeInfos = new();
@@ -179,19 +167,6 @@ namespace Metasia.Editor.Models.Interactor
                     afterValue.Clone()));
             }
             return changeInfos.Count > 0 ? new LayerTargetValueChangeCommand(changeInfos) : null;
-        }
-
-        public static bool TryGetLayerTargetProperty(string propertyIdentifier, ClipObject clip, out LayerTarget? value)
-        {
-            value = null;
-
-            if (TryFindEditableProperty<LayerTarget>(clip, propertyIdentifier, out _, out var layerTarget))
-            {
-                value = layerTarget;
-                return true;
-            }
-
-            return false;
         }
 
         public static IEditCommand? CreateBlendModeValueChangeCommand(string propertyIdentifier, BlendModeKind oldValue, BlendModeKind newValue, IEnumerable<ClipObject> selectedClips)

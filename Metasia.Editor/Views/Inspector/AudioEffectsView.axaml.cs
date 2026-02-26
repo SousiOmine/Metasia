@@ -22,24 +22,37 @@ public partial class AudioEffectsView : UserControl
             if (DataContext is AudioEffectsViewModel viewModel)
             {
                 _viewModel = viewModel;
-            }
-            
-            _newObjectSelectHandlerDisposable = _viewModel.NewObjectSelectInteraction.RegisterHandler(async interaction =>
-            {
-                if (TopLevel.GetTopLevel(this) is not Window ownerWindow)
+                _newObjectSelectHandlerDisposable?.Dispose();
+                _newObjectSelectHandlerDisposable = _viewModel.NewObjectSelectInteraction.RegisterHandler(async interaction =>
                 {
-                    Debug.WriteLine("LayerCanvasView: Owning window was not found when opening NewObjectSelectWindow.");
-                    interaction.SetOutput(null);
-                    return;
-                }
+                    if (TopLevel.GetTopLevel(this) is not Window ownerWindow)
+                    {
+                        Debug.WriteLine("AudioEffectsView: Owning window was not found when opening NewObjectSelectWindow.");
+                        interaction.SetOutput(null);
+                        return;
+                    }
 
-                var dialog = new NewObjectSelectWindow()
-                {
-                    DataContext = interaction.Input
-                };
-                var result = await dialog.ShowDialog<IMetasiaObject?>(ownerWindow);
-                interaction.SetOutput(result);
-            });
+                    var dialog = new NewObjectSelectWindow()
+                    {
+                        DataContext = interaction.Input
+                    };
+                    var result = await dialog.ShowDialog<IMetasiaObject?>(ownerWindow);
+                    interaction.SetOutput(result);
+                });
+            }
+            else
+            {
+                _newObjectSelectHandlerDisposable?.Dispose();
+                _newObjectSelectHandlerDisposable = null;
+                _viewModel = null;
+            }
         };
+    }
+
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnDetachedFromVisualTree(e);
+        _newObjectSelectHandlerDisposable?.Dispose();
+        _newObjectSelectHandlerDisposable = null;
     }
 }

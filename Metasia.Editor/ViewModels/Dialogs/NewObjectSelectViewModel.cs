@@ -45,7 +45,7 @@ public class NewObjectSelectViewModel : ViewModelBase
     public enum TargetType
     {
         Clip,
-        AuidoEffect,
+        AudioEffect,
         VisualEffect
     }
     
@@ -91,10 +91,9 @@ public class NewObjectSelectViewModel : ViewModelBase
     {
         AvailableObjectTypes.Clear();
 
-        List<(Type type, Attribute attribute)> objectTypes = new();
-
         if (_targetTypes.Contains(TargetType.Clip))
         {
+            List<(Type type, Attribute attribute)> objectTypes = new();
             objectTypes.AddRange(Assembly.GetAssembly(typeof(ClipObject))!
                 .GetTypes()
                 .Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(ClipObject)))
@@ -122,8 +121,9 @@ public class NewObjectSelectViewModel : ViewModelBase
             }
         }
 
-        if (_targetTypes.Contains(TargetType.AuidoEffect))
+        if (_targetTypes.Contains(TargetType.AudioEffect))
         {
+            List<(Type type, Attribute attribute)> objectTypes = new();
             objectTypes.AddRange(Assembly.GetAssembly(typeof(IAudioEffect))!
                 .GetTypes()
                 .Where(t => t.IsClass && !t.IsAbstract && typeof(IAudioEffect).IsAssignableFrom(t))
@@ -151,7 +151,7 @@ public class NewObjectSelectViewModel : ViewModelBase
             }
         }
 
-        
+        // TODO: VisualEffect support is not yet implemented. Add handling for TargetType.VisualEffect here.
 
         // 初期状態ではすべてのオブジェクトを表示
         FilterObjectTypes();

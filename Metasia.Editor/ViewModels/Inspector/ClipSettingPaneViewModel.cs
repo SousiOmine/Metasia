@@ -20,6 +20,7 @@ public class ClipSettingPaneViewModel : ViewModelBase
             if (_targetObject == value) return;
             _targetObject = value;
             TargetObjectChanged?.Invoke(this, EventArgs.Empty);
+            this.RaisePropertyChanged(nameof(IsAudible));
             buildSettingUI();
         }
     }
@@ -30,7 +31,7 @@ public class ClipSettingPaneViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _isActiveCheck, value);
     }
 
-    public bool IsAudiable
+    public bool IsAudible
     {
         get
         {
@@ -63,6 +64,7 @@ public class ClipSettingPaneViewModel : ViewModelBase
         IEditCommandManager editCommandManager)
     {
         ArgumentNullException.ThrowIfNull(propertyRouterViewModelFactory);
+        ArgumentNullException.ThrowIfNull(audioEffectsViewModelFactory);
         ArgumentNullException.ThrowIfNull(editCommandManager);
         IsActiveCheckCommand = ReactiveCommand.Create(() => { isActiveCheck_Click(); });
         _propertyRouterViewModelFactory = propertyRouterViewModelFactory;

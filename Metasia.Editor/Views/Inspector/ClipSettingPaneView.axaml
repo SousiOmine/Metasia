@@ -27,7 +27,7 @@
             
             <TabItem Header="エフェクト">
                 <Expander 
-                    IsVisible="{Binding IsAudiable}"
+                    IsVisible="{Binding IsAudible}"
                     IsExpanded="True"
                     HorizontalAlignment="Stretch">
                     <Expander.Header>

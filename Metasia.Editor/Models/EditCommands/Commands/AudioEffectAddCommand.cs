@@ -10,6 +10,7 @@ public class AudioEffectAddCommand : IEditCommand
 
     private readonly IAudible _target;
     private readonly AudioEffectBase _effect;
+    private int? _index;
 
     public AudioEffectAddCommand(IAudible target, AudioEffectBase effect)
     {
@@ -21,7 +22,19 @@ public class AudioEffectAddCommand : IEditCommand
     {
         if (!_target.AudioEffects.Contains(_effect))
         {
-            _target.AudioEffects.Add(_effect);
+            if (_index.HasValue)
+            {
+                _target.AudioEffects.Insert(_index.Value, _effect);
+            }
+            else
+            {
+                _index = _target.AudioEffects.Count;
+                _target.AudioEffects.Add(_effect);
+            }
+        }
+        else
+        {
+            _index = _target.AudioEffects.IndexOf(_effect);
         }
     }
 
@@ -29,6 +42,7 @@ public class AudioEffectAddCommand : IEditCommand
     {
         if (_target.AudioEffects.Contains(_effect))
         {
+            _index = _target.AudioEffects.IndexOf(_effect);
             _target.AudioEffects.Remove(_effect);
         }
     }

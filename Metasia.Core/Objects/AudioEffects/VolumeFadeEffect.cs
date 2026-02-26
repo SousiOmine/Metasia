@@ -23,7 +23,8 @@ namespace Metasia.Core.Objects.AudioEffects
         public override IAudioChunk Apply(IAudioChunk input, AudioEffectContext context)
         {
             // 入力チェック
-            if (input.Samples.Length == 0)
+            if (input is null) return input;
+            if (input.Samples is null || input.Samples.Length == 0)
             {
                 return input;
             }

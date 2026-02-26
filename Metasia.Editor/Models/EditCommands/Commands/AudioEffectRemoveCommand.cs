@@ -17,6 +17,10 @@ public class AudioEffectRemoveCommand : IEditCommand
         _target = target ?? throw new ArgumentNullException(nameof(target));
         _effect = effect ?? throw new ArgumentNullException(nameof(effect));
         _removedIndex = target.AudioEffects.IndexOf(effect);
+        if (_removedIndex == -1)
+        {
+            throw new ArgumentException("指定されたオーディオエフェクトがターゲットのAudioEffectsリストに存在しません。", nameof(effect));
+        }
     }
 
     public void Execute()
