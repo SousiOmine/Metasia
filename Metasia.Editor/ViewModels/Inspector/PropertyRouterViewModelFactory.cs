@@ -16,7 +16,8 @@ public class PropertyRouterViewModelFactory : IPropertyRouterViewModelFactory
     private readonly IMetaFontParamPropertyViewModelFactory _metaFontParamPropertyViewModelFactory;
     private readonly IColorPropertyViewModelFactory _colorPropertyViewModelFactory;
     private readonly ILayerTargetPropertyViewModelFactory _layerTargetPropertyViewModelFactory;
-    private readonly IBlendModeParamPropertyViewModelFactory _blendModeParamPropertyViewModelFactory;
+private readonly IBlendModeParamPropertyViewModelFactory _blendModeParamPropertyViewModelFactory;
+    private readonly IBoolPropertyViewModelFactory _boolPropertyViewModelFactory;
 
     public PropertyRouterViewModelFactory(
         IMetaNumberParamPropertyViewModelFactory metaNumberParamPropertyViewModelFactory,
@@ -28,6 +29,7 @@ public class PropertyRouterViewModelFactory : IPropertyRouterViewModelFactory
         IColorPropertyViewModelFactory colorPropertyViewModelFactory,
         ILayerTargetPropertyViewModelFactory layerTargetPropertyViewModelFactory,
         IBlendModeParamPropertyViewModelFactory blendModeParamPropertyViewModelFactory,
+        IBoolPropertyViewModelFactory boolPropertyViewModelFactory,
         IProjectState projectState)
     {
         ArgumentNullException.ThrowIfNull(metaNumberParamPropertyViewModelFactory);
@@ -38,7 +40,8 @@ public class PropertyRouterViewModelFactory : IPropertyRouterViewModelFactory
         ArgumentNullException.ThrowIfNull(metaFontParamPropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(colorPropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(layerTargetPropertyViewModelFactory);
-        ArgumentNullException.ThrowIfNull(blendModeParamPropertyViewModelFactory);
+ArgumentNullException.ThrowIfNull(blendModeParamPropertyViewModelFactory);
+        ArgumentNullException.ThrowIfNull(boolPropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(projectState);
         _metaNumberParamPropertyViewModelFactory = metaNumberParamPropertyViewModelFactory;
         _mediaPathPropertyViewModelFactory = mediaPathPropertyViewModelFactory;
@@ -49,12 +52,13 @@ public class PropertyRouterViewModelFactory : IPropertyRouterViewModelFactory
         _colorPropertyViewModelFactory = colorPropertyViewModelFactory;
         _layerTargetPropertyViewModelFactory = layerTargetPropertyViewModelFactory;
         _blendModeParamPropertyViewModelFactory = blendModeParamPropertyViewModelFactory;
+        _boolPropertyViewModelFactory = boolPropertyViewModelFactory;
         _projectState = projectState;
     }
 
     public PropertyRouterViewModel Create(ObjectPropertyFinder.EditablePropertyInfo propertyInfo)
     {
         ArgumentNullException.ThrowIfNull(propertyInfo);
-        return new PropertyRouterViewModel(propertyInfo, _metaNumberParamPropertyViewModelFactory, _mediaPathPropertyViewModelFactory, _stringPropertyViewModelFactory, _metaDoubleParamPropertyViewModelFactory, _metaEnumParamPropertyViewModelFactory, _metaFontParamPropertyViewModelFactory, _colorPropertyViewModelFactory, _layerTargetPropertyViewModelFactory, _blendModeParamPropertyViewModelFactory, _projectState);
+        return new PropertyRouterViewModel(propertyInfo, _metaNumberParamPropertyViewModelFactory, _mediaPathPropertyViewModelFactory, _stringPropertyViewModelFactory, _metaDoubleParamPropertyViewModelFactory, _metaEnumParamPropertyViewModelFactory, _metaFontParamPropertyViewModelFactory, _colorPropertyViewModelFactory, _layerTargetPropertyViewModelFactory, _blendModeParamPropertyViewModelFactory, _boolPropertyViewModelFactory, _projectState);
     }
 }

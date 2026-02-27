@@ -1,0 +1,18 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:Metasia.Editor.ViewModels.Inspector.Properties"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="50"
+             x:Class="Metasia.Editor.Views.Inspector.Properties.BoolPropertyView"
+             x:DataType="vm:BoolPropertyViewModel">
+    <StackPanel Orientation="Horizontal" Margin="2">
+        <CheckBox IsChecked="{Binding PropertyValue, Mode=TwoWay}"
+                  VerticalAlignment="Center"
+                  Margin="2"/>
+        <TextBlock Text="{Binding PropertyDisplayName}" 
+                   VerticalAlignment="Center" 
+                   HorizontalAlignment="Left"
+                   Margin="2"/>
+    </StackPanel>
+</UserControl>

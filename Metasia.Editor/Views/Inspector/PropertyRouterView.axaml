@@ -36,8 +36,11 @@
         <Border IsVisible="{Binding IsLayerTargetProperty}">
             <views_properties:LayerTargetPropertyView DataContext="{Binding LayerTargetPropertyVm}"/>
         </Border>
-        <Border IsVisible="{Binding IsBlendModeParamProperty}">
+<Border IsVisible="{Binding IsBlendModeParamProperty}">
             <views_properties:BlendModeParamPropertyView DataContext="{Binding BlendModeParamPropertyVm}"/>
+        </Border>
+        <Border IsVisible="{Binding IsBoolProperty}">
+            <views_properties:BoolPropertyView DataContext="{Binding BoolPropertyVm}"/>
         </Border>
     </StackPanel>
 </UserControl>

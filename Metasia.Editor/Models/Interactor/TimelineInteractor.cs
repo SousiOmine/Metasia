@@ -176,7 +176,7 @@ namespace Metasia.Editor.Models.Interactor
             return changeInfos.Count > 0 ? new LayerTargetValueChangeCommand(changeInfos) : null;
         }
 
-        public static IEditCommand? CreateBlendModeValueChangeCommand(string propertyIdentifier, BlendModeKind oldValue, BlendModeKind newValue, IEnumerable<ClipObject> selectedClips)
+public static IEditCommand? CreateBlendModeValueChangeCommand(string propertyIdentifier, BlendModeKind oldValue, BlendModeKind newValue, IEnumerable<ClipObject> selectedClips)
         {
             List<BlendModeValueChangeCommand.BlendModeValueChangeInfo> changeInfos = new();
             foreach (var clip in selectedClips)
@@ -193,6 +193,21 @@ namespace Metasia.Editor.Models.Interactor
                     newValue));
             }
             return changeInfos.Count > 0 ? new BlendModeValueChangeCommand(changeInfos) : null;
+        }
+
+        public static IEditCommand? CreateBoolValueChangeCommand(string propertyIdentifier, bool beforeValue, bool afterValue, IEnumerable<ClipObject> selectedClips)
+        {
+            List<BoolValueChangeCommand.BoolValueChangeInfo> changeInfos = new();
+            foreach (var clip in selectedClips)
+            {
+                if (!TryFindEditableProperty<bool>(clip, propertyIdentifier, out var owner, out _))
+                {
+                    continue;
+                }
+
+                changeInfos.Add(new BoolValueChangeCommand.BoolValueChangeInfo(owner, propertyIdentifier, beforeValue, afterValue));
+            }
+            return changeInfos.Count > 0 ? new BoolValueChangeCommand(changeInfos) : null;
         }
     }
 }
