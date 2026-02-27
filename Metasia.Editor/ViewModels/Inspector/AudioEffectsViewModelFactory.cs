@@ -10,7 +10,7 @@ public class AudioEffectsViewModelFactory : IAudioEffectsViewModelFactory
     private readonly IProjectState _projectState;
     private readonly IEditCommandManager _editCommandManager;
     private readonly IPropertyRouterViewModelFactory _propertyRouterViewModelFactory;
-    
+
     public AudioEffectsViewModelFactory(
         IProjectState projectState,
         IEditCommandManager editCommandManager,
@@ -24,7 +24,7 @@ public class AudioEffectsViewModelFactory : IAudioEffectsViewModelFactory
     public AudioEffectsViewModel Create(IAudible target)
     {
         ArgumentNullException.ThrowIfNull(target);
-        
+
         return new AudioEffectsViewModel(target, _projectState, _editCommandManager, _propertyRouterViewModelFactory);
     }
 }

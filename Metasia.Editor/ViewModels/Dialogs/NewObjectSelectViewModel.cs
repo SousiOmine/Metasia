@@ -43,14 +43,14 @@ public class NewObjectSelectViewModel : ViewModelBase
         get => _selectedObjectType;
         set => this.RaiseAndSetIfChanged(ref _selectedObjectType, value);
     }
-    
+
     public enum TargetType
     {
         Clip,
         AudioEffect,
         VisualEffect
     }
-    
+
     private Collection<TargetType> _targetTypes = new();
 
     public NewObjectSelectViewModel(params TargetType[] targetTypes)
@@ -59,7 +59,7 @@ public class NewObjectSelectViewModel : ViewModelBase
         {
             _targetTypes.Add(type);
         }
-        
+
         LoadAvailableObjectTypes();
 
         var canExecuteOk = this.WhenAnyValue(x => x.SelectedObjectType)
@@ -106,7 +106,7 @@ public class NewObjectSelectViewModel : ViewModelBase
                 .Where(x => x.Attribute is not null)
                 .OrderBy(x => x.Attribute!.Identifier)
                 .Select(x => (type: x.Type, attribute: (Attribute)x.Attribute!)));
-            
+
             foreach (var objectType in objectTypes)
             {
                 var identifier = ((ClipTypeIdentifierAttribute)objectType.attribute).Identifier;

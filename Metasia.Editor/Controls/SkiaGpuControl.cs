@@ -126,7 +126,7 @@ public class SkiaGpuControl : Control, IDisposable
         {
             imageRef = _currentImage?.TryAddRef();
         }
-        
+
         var bounds = new Rect(0, 0, Bounds.Width, Bounds.Height);
         context.Custom(new SkiaGpuDrawOperation(bounds, imageRef, _backgroundColor));
     }

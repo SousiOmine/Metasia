@@ -216,7 +216,7 @@ namespace Metasia.Editor.Tests.Models.Media
                 AudioCallCount++;
                 return Task.FromResult(new AudioFileAccessorResult { IsSuccessful = _audioSuccessful, Chunk = _audioSuccessful ? new AudioChunk(new AudioFormat(44100, 2), 0) : null });
             }
-            
+
             public Task<AudioSampleResult> GetAudioBySampleAsync(string path, long startSample, long sampleCount, int sampleRate)
             {
                 AudioCallCount++;
@@ -258,7 +258,7 @@ namespace Metasia.Editor.Tests.Models.Media
                 LastDuration = duration;
                 return Task.FromResult(new AudioFileAccessorResult { IsSuccessful = true, Chunk = new AudioChunk(new AudioFormat(44100, 2), 0) });
             }
-            
+
             public Task<AudioSampleResult> GetAudioBySampleAsync(string path, long startSample, long sampleCount, int sampleRate)
             {
                 LastPath = path;

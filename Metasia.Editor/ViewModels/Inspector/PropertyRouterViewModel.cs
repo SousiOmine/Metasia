@@ -95,7 +95,7 @@ public class PropertyRouterViewModel : ViewModelBase
         get => _layerTargetPropertyVm;
         set => this.RaiseAndSetIfChanged(ref _layerTargetPropertyVm, value);
     }
-public bool IsBlendModeParamProperty
+    public bool IsBlendModeParamProperty
     {
         get => _isBlendModeParamProperty;
         set => this.RaiseAndSetIfChanged(ref _isBlendModeParamProperty, value);
@@ -136,7 +136,7 @@ public bool IsBlendModeParamProperty
     private MetaEnumParamPropertyViewModel? _metaEnumParamPropertyVm;
     private ColorPropertyViewModel? _colorPropertyVm;
     private LayerTargetPropertyViewModel? _layerTargetPropertyVm;
-private BlendModeParamPropertyViewModel? _blendModeParamPropertyVm;
+    private BlendModeParamPropertyViewModel? _blendModeParamPropertyVm;
     private BoolPropertyViewModel? _boolPropertyVm;
     private bool _isMetaNumberParamProperty = false;
     private bool _isMediaPathProperty = false;
@@ -158,7 +158,7 @@ private BlendModeParamPropertyViewModel? _blendModeParamPropertyVm;
     private readonly IMetaFontParamPropertyViewModelFactory _metaFontParamPropertyViewModelFactory;
     private readonly IColorPropertyViewModelFactory _colorPropertyViewModelFactory;
     private readonly ILayerTargetPropertyViewModelFactory _layerTargetPropertyViewModelFactory;
-private readonly IBlendModeParamPropertyViewModelFactory _blendModeParamPropertyViewModelFactory;
+    private readonly IBlendModeParamPropertyViewModelFactory _blendModeParamPropertyViewModelFactory;
     private readonly IBoolPropertyViewModelFactory _boolPropertyViewModelFactory;
     private readonly IProjectState _projectState;
     public PropertyRouterViewModel(
@@ -184,7 +184,7 @@ private readonly IBlendModeParamPropertyViewModelFactory _blendModeParamProperty
         ArgumentNullException.ThrowIfNull(metaFontParamPropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(colorPropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(layerTargetPropertyViewModelFactory);
-ArgumentNullException.ThrowIfNull(blendModeParamPropertyViewModelFactory);
+        ArgumentNullException.ThrowIfNull(blendModeParamPropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(boolPropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(projectState);
         _metaNumberParamPropertyViewModelFactory = metaNumberParamPropertyViewModelFactory;
@@ -292,7 +292,7 @@ ArgumentNullException.ThrowIfNull(blendModeParamPropertyViewModelFactory);
                 UsePlaceholder = false;
             }
         }
-else if (_propertyInfo.Type == typeof(BlendModeParam))
+        else if (_propertyInfo.Type == typeof(BlendModeParam))
         {
             if (BlendModeParamPropertyVm is null)
             {

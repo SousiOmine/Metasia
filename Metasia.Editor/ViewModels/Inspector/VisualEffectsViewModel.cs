@@ -98,7 +98,7 @@ public class VisualEffectsViewModel : ViewModelBase
         if (selectedEffect is null) return;
         var editableProperties = ObjectPropertyFinder.FindEditableProperties(selectedEffect);
 
-        
+
         foreach (var property in editableProperties)
         {
             Properties.Add(_propertyRouterViewModelFactory.Create(property));

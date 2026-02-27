@@ -92,7 +92,7 @@ public class MediaAudioObjectTests
         {
             return Task.FromResult(new AudioFileAccessorResult { IsSuccessful = false, Chunk = null });
         }
-        
+
         public Task<AudioSampleResult> GetAudioBySampleAsync(string path, long startSample, long sampleCount, int sampleRate)
         {
             LastStartSample = startSample;

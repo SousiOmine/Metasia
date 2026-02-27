@@ -16,7 +16,7 @@ public partial class AudioEffectsView : UserControl
     public AudioEffectsView()
     {
         InitializeComponent();
-        
+
         this.DataContextChanged += (sender, args) =>
         {
             if (DataContext is AudioEffectsViewModel viewModel)

@@ -23,14 +23,14 @@ public record DropPreviewResult
     public DropEffect Effect { get; init; }
 
     public static DropPreviewResult None => new() { CanDrop = false, Effect = DropEffect.None };
-    
+
     public static DropPreviewResult Move(IEditCommand? previewCommand = null) => new()
     {
         CanDrop = true,
         PreviewCommand = previewCommand,
         Effect = DropEffect.Move
     };
-    
+
     public static DropPreviewResult Copy(IEditCommand? previewCommand = null) => new()
     {
         CanDrop = true,

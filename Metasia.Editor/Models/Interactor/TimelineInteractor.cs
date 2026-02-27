@@ -176,7 +176,7 @@ namespace Metasia.Editor.Models.Interactor
             return changeInfos.Count > 0 ? new LayerTargetValueChangeCommand(changeInfos) : null;
         }
 
-public static IEditCommand? CreateBlendModeValueChangeCommand(string propertyIdentifier, BlendModeKind oldValue, BlendModeKind newValue, IEnumerable<ClipObject> selectedClips)
+        public static IEditCommand? CreateBlendModeValueChangeCommand(string propertyIdentifier, BlendModeKind oldValue, BlendModeKind newValue, IEnumerable<ClipObject> selectedClips)
         {
             List<BlendModeValueChangeCommand.BlendModeValueChangeInfo> changeInfos = new();
             foreach (var clip in selectedClips)

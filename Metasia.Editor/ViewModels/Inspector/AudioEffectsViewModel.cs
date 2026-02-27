@@ -27,21 +27,21 @@ public class AudioEffectsViewModel : ViewModelBase
             if (_selectedAudioEffectItem == value) return;
             this.RaiseAndSetIfChanged(ref _selectedAudioEffectItem, value);
             LoadProperties();
-        } 
+        }
     }
-    
+
     public ObservableCollection<PropertyRouterViewModel> Properties { get; set; } = new();
 
     public ICommand NewEffectCommand { get; init; }
     public ICommand DeleteEffectCommand { get; init; }
     public Interaction<NewObjectSelectViewModel, IMetasiaObject?> NewObjectSelectInteraction { get; } = new();
-    
+
     private AudioEffectItemViewModel? _selectedAudioEffectItem;
     private readonly IAudible _target;
     private readonly IProjectState _projectState;
     private readonly IEditCommandManager _editCommandManager;
     private readonly IPropertyRouterViewModelFactory _propertyRouterViewModelFactory;
-    
+
     public AudioEffectsViewModel(
         IAudible target,
         IProjectState projectState,
@@ -54,7 +54,7 @@ public class AudioEffectsViewModel : ViewModelBase
         _editCommandManager = editCommandManager;
         _propertyRouterViewModelFactory = propertyRouterViewModelFactory;
 
-        NewEffectCommand = ReactiveCommand.CreateFromTask(async() =>
+        NewEffectCommand = ReactiveCommand.CreateFromTask(async () =>
         {
             var selectVm = new NewObjectSelectViewModel(NewObjectSelectViewModel.TargetType.AudioEffect);
             var result = await NewObjectSelectInteraction.Handle(selectVm);
@@ -64,11 +64,11 @@ public class AudioEffectsViewModel : ViewModelBase
                 _editCommandManager.Execute(command);
             }
         });
-        
+
         DeleteEffectCommand = ReactiveCommand.Create(TryDeleteEffect);
-        
+
         _projectState.TimelineChanged += LoadEffects;
-        
+
         LoadEffects();
     }
 
@@ -76,7 +76,7 @@ public class AudioEffectsViewModel : ViewModelBase
     {
         var selectedId = SelectedAudioEffectItem is null ? string.Empty : SelectedAudioEffectItem.EffectId;
         AudioEffectItems.Clear();
-        
+
         foreach (AudioEffectBase effect in _target.AudioEffects)
         {
             AudioEffectItems.Add(new AudioEffectItemViewModel(effect));
@@ -87,7 +87,7 @@ public class AudioEffectsViewModel : ViewModelBase
             var selectedItem = AudioEffectItems.First(x => x.EffectId == selectedId);
             SelectedAudioEffectItem = selectedItem;
         }
-        
+
         LoadProperties();
     }
 
@@ -109,7 +109,7 @@ public class AudioEffectsViewModel : ViewModelBase
         if (SelectedAudioEffectItem is null) return;
         var selectedEffect = _target.AudioEffects.Find(x => x.Id == SelectedAudioEffectItem.EffectId);
         if (selectedEffect is null) return;
-        
+
         var command = new AudioEffectRemoveCommand(_target, selectedEffect);
         _editCommandManager.Execute(command);
     }

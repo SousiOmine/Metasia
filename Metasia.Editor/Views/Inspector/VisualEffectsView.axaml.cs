@@ -16,7 +16,7 @@ public partial class VisualEffectsView : UserControl
     public VisualEffectsView()
     {
         InitializeComponent();
-        
+
         this.DataContextChanged += (sender, args) =>
         {
             if (DataContext is VisualEffectsViewModel viewModel)
