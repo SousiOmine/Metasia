@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -22,6 +23,7 @@ public partial class TimelineView : UserControl
     private readonly IKeyBindingService? _keyBindingService;
     private KeyModifiers _timelineZoomModifier = KeyModifiers.Control;
     private bool _isDraggingTimeline = false;
+    private TimelineViewModel? _subscribedVM;
 
     public TimelineView()
     {
@@ -30,6 +32,8 @@ public partial class TimelineView : UserControl
         // キーバインディングサービスを取得
         _keyBindingService = App.Current?.Services?.GetService<IKeyBindingService>();
         LoadTimelineZoomModifier();
+
+        DataContextChanged += OnDataContextChanged;
 
         LayerButtonScroll.AddHandler(InputElement.PointerWheelChangedEvent, (sender, e) =>
         {
@@ -144,6 +148,38 @@ public partial class TimelineView : UserControl
             {
                 _timelineZoomModifier = modifier.Value;
             }
+        }
+    }
+
+    private void OnDataContextChanged(object? sender, EventArgs e)
+    {
+        if (_subscribedVM != null)
+        {
+            _subscribedVM.PropertyChanged -= OnViewModelPropertyChanged;
+            _subscribedVM = null;
+        }
+
+        if (DataContext is TimelineViewModel vm)
+        {
+            _subscribedVM = vm;
+            _subscribedVM.PropertyChanged += OnViewModelPropertyChanged;
+        }
+    }
+
+    private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName != nameof(TimelineViewModel.CursorLeft)) return;
+        if (_subscribedVM is null) return;
+
+        double cursorLeft = _subscribedVM.CursorLeft;
+        double viewportWidth = TimescaleScroll.Viewport.Width;
+        double scrollRight = TimescaleScroll.Offset.X + viewportWidth;
+
+        if (cursorLeft >= scrollRight || cursorLeft < TimescaleScroll.Offset.X)
+        {
+            double newOffset = Math.Max(0, cursorLeft - viewportWidth * 0.1);
+            TimescaleScroll.Offset = new Vector(newOffset, TimescaleScroll.Offset.Y);
+            LinesScroll.Offset = new Vector(newOffset, LinesScroll.Offset.Y);
         }
     }
 
