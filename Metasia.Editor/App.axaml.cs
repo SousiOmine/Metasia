@@ -9,6 +9,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
 using Avalonia.Threading;
+using Metasia.Editor.Models;
 using Metasia.Editor.Models.DragDrop;
 using Metasia.Editor.Models.DragDrop.Handlers;
 using Metasia.Editor.Models.EditCommands;
@@ -96,6 +97,7 @@ namespace Metasia.Editor
             services.AddSingleton<ISelectionState, SelectionState>();
             services.AddSingleton<IPlaybackState, PlaybackState>();
             services.AddSingleton<ITimelineViewState, TimelineViewState>();
+            services.AddSingleton<IClipColorProvider, DefaultClipColorProvider>();
 
             services.AddSingleton<MediaAccessorRouter>();
             services.AddSingleton<IPluginService, PluginService>();

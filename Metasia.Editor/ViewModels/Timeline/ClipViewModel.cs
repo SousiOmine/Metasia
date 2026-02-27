@@ -1,5 +1,7 @@
 using Avalonia;
+using Avalonia.Media;
 using Metasia.Core.Objects;
+using Metasia.Editor.Models;
 using Metasia.Editor.Models.EditCommands;
 using Metasia.Editor.Models.EditCommands.Commands;
 using Metasia.Editor.Models.Interactor;
@@ -83,16 +85,20 @@ namespace Metasia.Editor.ViewModels.Timeline
         private TimelineViewModel parentTimeline;
         private readonly IEditCommandManager editCommandManager;
         private readonly ITimelineViewState _timelineViewState;
+        private readonly IClipColorProvider _clipColorProvider;
         public ICommand RemoveClipCommand { get; }
         public ICommand SplitClipCommand { get; }
 
-        public ClipViewModel(ClipObject targetObject, TimelineViewModel parentTimeline, IEditCommandManager editCommandManager, ITimelineViewState timelineViewState)
+        public IBrush ClipColor => _clipColorProvider.GetBrush(TargetObject);
+
+        public ClipViewModel(ClipObject targetObject, TimelineViewModel parentTimeline, IEditCommandManager editCommandManager, ITimelineViewState timelineViewState, IClipColorProvider clipColorProvider)
         {
             TargetObject = targetObject;
             this.parentTimeline = parentTimeline;
             IsSelecting = false;
             this.editCommandManager = editCommandManager;
             this._timelineViewState = timelineViewState;
+            this._clipColorProvider = clipColorProvider;
             // 削除コマンドの初期化
             RemoveClipCommand = ReactiveCommand.Create(() => parentTimeline.ClipRemove(TargetObject));
 

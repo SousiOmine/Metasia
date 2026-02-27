@@ -14,7 +14,7 @@
 		<converter:ClipSelectConverter x:Key="ClipConverter"/>
 	</UserControl.Resources>
 	<Border x:Name="Clip" 
-			BorderBrush="Transparent" Background="LightGreen" BorderThickness="1" CornerRadius="10" ClipToBounds="True"
+			BorderBrush="Transparent" Background="{Binding ClipColor}" BorderThickness="1" CornerRadius="10" ClipToBounds="True"
 	        Opacity="{Binding IsSelecting, Converter={StaticResource ClipConverter}}"
 			>
 		<i:Interaction.Behaviors>
