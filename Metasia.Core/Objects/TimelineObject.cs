@@ -297,6 +297,16 @@ namespace Metasia.Core.Objects
                             Transform = cameraNode.Transform,
                         };
 
+                        if (cameraNode.VisualEffectContext is not null && renderedNode is NormalRenderNode normalRenderNode && normalRenderNode.Image is not null)
+                        {
+                            normalRenderNode.Image = VisualEffectPipeline.ApplyEffects(
+                                normalRenderNode.Image,
+                                cameraNode.VisualEffects,
+                                cameraNode.VisualEffectContext);
+                        }
+
+                        
+
                         foreach (var group in groupControlLifes)
                         {
                             renderedNode = await ApplyGroupControl(renderedNode, group.Node);
@@ -314,12 +324,33 @@ namespace Metasia.Core.Objects
             };
         }
 
-        private static Task<IRenderNode> ApplyGroupControl(IRenderNode node, GroupControlRenderNode groupNode)
+        private static Task<IRenderNode> ApplyGroupControl(
+            IRenderNode node,
+            GroupControlRenderNode groupNode)
         {
             node.Transform = node.Transform.Add(groupNode.Transform);
+
+            if (node is NormalRenderNode normalNode && normalNode.Image is not null && groupNode.VisualEffectContext is not null)
+            {
+                var newImage = VisualEffectPipeline.ApplyEffects(
+                    normalNode.Image,
+                    groupNode.VisualEffects,
+                    groupNode.VisualEffectContext);
+                normalNode.Image = newImage;
+            }
+
             foreach (var child in node.Children)
             {
                 child.Transform = child.Transform.Add(groupNode.Transform);
+
+                if (child is NormalRenderNode childNormalNode && childNormalNode.Image is not null && groupNode.VisualEffectContext is not null)
+                {
+                    var newImage = VisualEffectPipeline.ApplyEffects(
+                        childNormalNode.Image,
+                        groupNode.VisualEffects,
+                        groupNode.VisualEffectContext);
+                    childNormalNode.Image = newImage;
+                }
             }
             return Task.FromResult(node);
         }

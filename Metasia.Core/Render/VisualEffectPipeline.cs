@@ -20,7 +20,7 @@ namespace Metasia.Core.Render
         /// <returns>エフェクト適用後の画像</returns>
         public static SKImage ApplyEffects(
             SKImage input,
-            List<VisualEffectBase> effects,
+            IReadOnlyList<VisualEffectBase> effects,
             RenderContext renderContext,
             int startFrame,
             int endFrame,
@@ -32,6 +32,19 @@ namespace Metasia.Core.Render
             }
 
             var context = VisualEffectContext.FromRenderContext(renderContext, startFrame, endFrame, logicalSize);
+            return ApplyEffects(input, effects, context);
+        }
+
+        public static SKImage ApplyEffects(
+            SKImage input,
+            IReadOnlyList<VisualEffectBase> effects,
+            VisualEffectContext context)
+        {
+            if (effects is null || effects.Count == 0)
+            {
+                return input;
+            }
+
             SKImage current = input;
 
             foreach (var effect in effects)

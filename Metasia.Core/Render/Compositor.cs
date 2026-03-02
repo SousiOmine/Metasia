@@ -74,8 +74,8 @@ namespace Metasia.Core.Render
                     await ProcessNormalNodeAsync(canvas, normalNode, projectResolution, renderResolution, cancellationToken);
                     break;
                 default:
-                    // 未知のノードタイプ
-                    Debug.WriteLine($"Unknown node type: {node.GetType().FullName}");
+                    // とりあえずNormalRenderNode以外は処理しない
+                    //Debug.WriteLine($"Unknown node type: {node.GetType().FullName}");
                     break;
             }
 

@@ -74,6 +74,8 @@ public class GroupControlObject : ClipObject, IRenderable, IAudible, ILayerInter
         {
             Transform = transform,
             ScopeLayerTarget = TargetLayers,
+            VisualEffects = VisualEffects,
+            VisualEffectContext = VisualEffectContext.FromRenderContext(context, StartFrame, EndFrame, context.ProjectResolution)
         });
     }
 

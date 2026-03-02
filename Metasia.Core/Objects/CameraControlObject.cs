@@ -62,6 +62,8 @@ public class CameraControlObject : ClipObject, IRenderable, ILayerIntervener, ID
         {
             Transform = transform,
             ScopeLayerTarget = TargetLayers,
+            VisualEffects = VisualEffects,
+            VisualEffectContext = VisualEffectContext.FromRenderContext(context, StartFrame, EndFrame, context.ProjectResolution)
         });
     }
 
