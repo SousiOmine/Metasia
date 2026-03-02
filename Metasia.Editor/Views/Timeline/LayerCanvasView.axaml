@@ -30,25 +30,48 @@
 		</MenuFlyout>
 	</UserControl.ContextFlyout>
 
-	<ItemsControl ItemsSource="{Binding ClipsAndBlanks}"
+	<Grid>
+		<ItemsControl ItemsSource="{Binding ControlHighlights}"
+		              IsHitTestVisible="False"
+		              Background="Transparent">
+			<ItemsControl.ItemsPanel>
+				<ItemsPanelTemplate>
+					<Canvas/>
+				</ItemsPanelTemplate>
+			</ItemsControl.ItemsPanel>
+			<ItemsControl.ItemContainerTheme>
+				<ControlTheme x:DataType="vm:ControlHighlightInfo" TargetType="ContentPresenter">
+					<Setter Property="Canvas.Left" Value="{Binding Left}" />
+				</ControlTheme>
+			</ItemsControl.ItemContainerTheme>
+			<ItemsControl.ItemTemplate>
+				<DataTemplate DataType="vm:ControlHighlightInfo">
+					<Border Width="{Binding Width}" Height="30"
+					        Background="#28808080" IsHitTestVisible="False"/>
+				</DataTemplate>
+			</ItemsControl.ItemTemplate>
+		</ItemsControl>
+
+		<ItemsControl ItemsSource="{Binding ClipsAndBlanks}"
 	              Background="Transparent">
-		<ItemsControl.ItemsPanel>
-			<ItemsPanelTemplate>
-				<Canvas/>
-			</ItemsPanelTemplate>
-		</ItemsControl.ItemsPanel>
+			<ItemsControl.ItemsPanel>
+				<ItemsPanelTemplate>
+					<Canvas/>
+				</ItemsPanelTemplate>
+			</ItemsControl.ItemsPanel>
 
-		<ItemsControl.ItemContainerTheme>
-			<ControlTheme x:DataType="vm:ClipViewModel" TargetType="ContentPresenter">
-				<Setter Property="Canvas.Left" Value="{Binding StartFrame}" />
-			</ControlTheme>
-		</ItemsControl.ItemContainerTheme>
+			<ItemsControl.ItemContainerTheme>
+				<ControlTheme x:DataType="vm:ClipViewModel" TargetType="ContentPresenter">
+					<Setter Property="Canvas.Left" Value="{Binding StartFrame}" />
+				</ControlTheme>
+			</ItemsControl.ItemContainerTheme>
 
-		<ItemsControl.ItemTemplate>
-			<DataTemplate DataType="vm:ClipViewModel">
-				<views_controls:ClipView Height="30"/>
-			</DataTemplate>
-		</ItemsControl.ItemTemplate>
-	</ItemsControl>
+			<ItemsControl.ItemTemplate>
+				<DataTemplate DataType="vm:ClipViewModel">
+					<views_controls:ClipView Height="30"/>
+				</DataTemplate>
+			</ItemsControl.ItemTemplate>
+		</ItemsControl>
+	</Grid>
 
 </UserControl>

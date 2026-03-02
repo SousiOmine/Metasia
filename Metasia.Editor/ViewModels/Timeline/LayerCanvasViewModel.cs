@@ -48,6 +48,8 @@ namespace Metasia.Editor.ViewModels.Timeline
         private readonly IEditCommandManager editCommandManager;
         private readonly ITimelineViewState _timelineViewState;
         private readonly IDropHandlerRegistry _dropHandlerRegistry;
+        public ObservableCollection<ControlHighlightInfo> ControlHighlights { get; } = new();
+
         private double _frame_per_DIP;
         private double width;
         private bool _disposed;
@@ -276,6 +278,15 @@ namespace Metasia.Editor.ViewModels.Timeline
         {
             Frame_Per_DIP = _timelineViewState.Frame_Per_DIP;
             ChangeFramePerDIP();
+            RecalculateControlHighlights();
+        }
+
+        public void RecalculateControlHighlights()
+        {
+            foreach (var h in ControlHighlights)
+            {
+                h.Recalculate(_timelineViewState.Frame_Per_DIP);
+            }
         }
 
         private void OnProjectLoaded() => RelocateClips();

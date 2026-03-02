@@ -128,6 +128,13 @@ namespace Metasia.Editor.ViewModels
                 LayerButtons.Add(layerButtonViewModelFactory.Create(layer));
                 LayerCanvas.Add(layerCanvasViewModelFactory.Create(this, layer));
             }
+
+            editCommandManager.CommandExecuted += OnCommandExecutedForControl;
+            editCommandManager.CommandUndone += OnCommandUndoneForControl;
+            editCommandManager.CommandRedone += OnCommandRedoneForControl;
+            _projectState.TimelineChanged += UpdateControlLayerHighlights;
+
+            UpdateControlLayerHighlights();
         }
 
 
@@ -232,6 +239,10 @@ namespace Metasia.Editor.ViewModels
                 // イベントハンドラーの購読解除
                 _timelineViewState.Frame_Per_DIP_Changed -= OnFramePerDIPChanged;
                 playbackState.PlaybackFrameChanged -= OnPlaybackFrameChanged;
+                editCommandManager.CommandExecuted -= OnCommandExecutedForControl;
+                editCommandManager.CommandUndone -= OnCommandUndoneForControl;
+                editCommandManager.CommandRedone -= OnCommandRedoneForControl;
+                _projectState.TimelineChanged -= UpdateControlLayerHighlights;
             }
 
             base.Dispose(disposing);
@@ -267,6 +278,58 @@ namespace Metasia.Editor.ViewModels
         private void ChangeFramePerDIP()
         {
             CursorLeft = Frame * _frame_per_DIP;
+        }
+
+        private void OnCommandExecutedForControl(object? sender, IEditCommand e) => UpdateControlLayerHighlights();
+        private void OnCommandUndoneForControl(object? sender, IEditCommand e) => UpdateControlLayerHighlights();
+        private void OnCommandRedoneForControl(object? sender, IEditCommand e) => UpdateControlLayerHighlights();
+
+        /// <summary>
+        /// 制御系オブジェクト(GroupControl/CameraControl)の影響範囲を計算し、
+        /// 対象レイヤーの ControlHighlights / IsUnderControl を更新する
+        /// </summary>
+        private void UpdateControlLayerHighlights()
+        {
+            int layerCount = Timeline.Layers.Count;
+            var rangesPerLayer = new List<(int StartFrame, int EndFrame)>[layerCount];
+            for (int i = 0; i < layerCount; i++)
+                rangesPerLayer[i] = new();
+
+            for (int i = 0; i < layerCount; i++)
+            {
+                var layer = Timeline.Layers[i];
+                foreach (var obj in layer.Objects.OfType<ILayerIntervener>())
+                {
+                    if (obj is ClipObject clip && clip.IsActive)
+                    {
+                        int targetCount = ((ILayerIntervener)obj).TargetLayers.ToScopeCount();
+                        for (int j = 1; j <= targetCount && i + j < layerCount; j++)
+                        {
+                            rangesPerLayer[i + j].Add((clip.StartFrame, clip.EndFrame));
+                        }
+                    }
+                }
+            }
+
+            double framePerDip = _timelineViewState.Frame_Per_DIP;
+            for (int i = 0; i < layerCount; i++)
+            {
+                if (i < LayerCanvas.Count)
+                {
+                    var canvas = LayerCanvas[i];
+                    canvas.ControlHighlights.Clear();
+                    foreach (var (startFrame, endFrame) in rangesPerLayer[i])
+                    {
+                        var info = new Timeline.ControlHighlightInfo
+                        {
+                            StartFrame = startFrame,
+                            EndFrame = endFrame,
+                        };
+                        info.Recalculate(framePerDip);
+                        canvas.ControlHighlights.Add(info);
+                    }
+                }
+            }
         }
     }
 }
