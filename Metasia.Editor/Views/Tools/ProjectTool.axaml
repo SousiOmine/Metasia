@@ -1,25 +1,20 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vmTools="using:Metasia.Editor.ViewModels.Tools"
+             xmlns:models="using:Metasia.Editor.Models.Tools.ProjectTool"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Metasia.Editor.Views.Tools.ProjectTool"
              x:DataType="vmTools:ProjectToolViewModel">
-    <TreeView ItemsSource="{Binding Nodes}" SelectionMode="Multiple" SelectedItems="{Binding SelectedNodes}">
+    <TreeView ItemsSource="{Binding Nodes}" SelectedItem="{Binding SelectedNode, Mode=TwoWay}"
+              ScrollViewer.HorizontalScrollBarVisibility="Disabled">
         <TreeView.ItemTemplate>
-            <TreeDataTemplate ItemsSource="{Binding SubNodes}">
+            <TreeDataTemplate x:DataType="models:ProjectObjectTreeNode" ItemsSource="{Binding SubNodes}">
 				<StackPanel Orientation="Horizontal">
-					<TextBlock Text="{Binding Title}" />
+					<TextBlock Text="{Binding Title}" Padding="0" Margin="0,1" />
 				</StackPanel>
             </TreeDataTemplate>
         </TreeView.ItemTemplate>
-		<TreeView.ContextMenu>
-			<ContextMenu>
-				<MenuItem Header="開く" IsVisible="{Binding IsFileSelecting}"/>
-				<MenuItem Header="外部のアプリケーションで開く"/>
-				<MenuItem Header="削除"/>
-			</ContextMenu>
-		</TreeView.ContextMenu>
     </TreeView>
 </UserControl>

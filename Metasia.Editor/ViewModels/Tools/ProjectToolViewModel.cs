@@ -1,11 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.IO;
-using System.Runtime.InteropServices.JavaScript;
-using System.Windows.Input;
-using DynamicData;
-using Metasia.Editor.Models.FileSystem;
+using Metasia.Core.Objects;
 using Metasia.Editor.Models.States;
 using Metasia.Editor.Models.Tools.ProjectTool;
 using ReactiveUI;
@@ -14,92 +9,60 @@ namespace Metasia.Editor.ViewModels.Tools
 {
     public class ProjectToolViewModel : ViewModelBase
     {
-        public string ProjectDir_Path { get; private set; } = String.Empty;
-
-        public ObservableCollection<FileTreeNode> Nodes { get; private set; } = new ObservableCollection<FileTreeNode>();
+        public ObservableCollection<ProjectObjectTreeNode> Nodes
+        {
+            get => _nodes;
+            private set => this.RaiseAndSetIfChanged(ref _nodes, value);
+        }
 
         /// <summary>
-        /// 選択中のノード（複数選択可能）
+        /// 選択中のノード
         /// </summary>
-        public ObservableCollection<FileTreeNode> SelectedNodes { get; } = new ObservableCollection<FileTreeNode>();
-
-
-
-        public bool IsFileSelecting
+        public ProjectObjectTreeNode? SelectedNode
         {
-            get => _isFileSelected;
-            set => this.RaiseAndSetIfChanged(ref _isFileSelected, value);
+            get => _selectedNode;
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _selectedNode, value);
+                OnNodeSelected(value);
+            }
         }
 
-        public ICommand OpenFileByExternalApp { get; }
+        private ObservableCollection<ProjectObjectTreeNode> _nodes = new();
+        private ProjectObjectTreeNode? _selectedNode;
+        private readonly IProjectState _projectState;
+        private readonly ISelectionState _selectionState;
 
-        private bool _isFileSelected;
-
-        private PlayerParentViewModel _playerParentViewModel;
-        private IProjectState _projectState;
-
-        public ProjectToolViewModel(PlayerParentViewModel playerParentViewModel, IProjectState projectState)
+        public ProjectToolViewModel(PlayerParentViewModel playerParentViewModel, IProjectState projectState, ISelectionState selectionState)
         {
-            _playerParentViewModel = playerParentViewModel;
             _projectState = projectState;
-            ProjectDir_Path = _projectState.CurrentProject?.ProjectPath.Path ?? String.Empty;
+            _selectionState = selectionState;
 
-            _projectState.ProjectLoaded += () =>
-            {
-                ProjectDir_Path = _projectState.CurrentProject?.ProjectPath.Path ?? String.Empty;
-                LoadDirectory();
-            };
+            _projectState.ProjectLoaded += BuildObjectTree;
+            _projectState.ProjectClosed += OnProjectClosed;
+            _projectState.TimelineChanged += BuildObjectTree;
 
-            //プロジェクトディレクトリなしで作成された時はファイルを開くとかの案内を表示したい
-            if (String.IsNullOrEmpty(ProjectDir_Path))
-            {
-
-            }
-
-            OpenFileByExternalApp = ReactiveCommand.Create(() =>
-            {
-                //ファイルやディレクトリを外部アプリで開く処理を書く
-            });
-
-            //選択中のノードが変更された時にコンテキストメニューの表示を変更する
-            SelectedNodes.CollectionChanged += (sender, args) =>
-            {
-                if (SelectedNodes.Count <= 0)
-                {
-                    IsFileSelecting = false;
-                    return;
-                }
-                if (SelectedNodes[0].ResourceEntity is FileEntity)
-                {
-                    IsFileSelecting = true;
-                }
-                else
-                {
-                    IsFileSelecting = false;
-                }
-            };
-
-            if (String.IsNullOrEmpty(ProjectDir_Path))
-            {
-                var kari = new DirectoryEntity("./../");
-                foreach (var entity in kari.GetSubordinates())
-                {
-                    Nodes.Add(new FileTreeNode(entity));
-                }
-            }
-            else
-            {
-                LoadDirectory();
-            }
+            BuildObjectTree();
         }
 
-        public void LoadDirectory()
+        private void BuildObjectTree()
         {
-            var projectDir = new DirectoryEntity(ProjectDir_Path);
+            Nodes = ProjectObjectTreeNode.BuildFromProject(_projectState.CurrentProject);
+        }
+
+        private void OnProjectClosed()
+        {
             Nodes.Clear();
-            foreach (var entity in projectDir.GetSubordinates())
+        }
+
+        private void OnNodeSelected(ProjectObjectTreeNode? node)
+        {
+            if (node is null) return;
+
+            if (node.NodeType == ProjectObjectNodeType.Clip && node.SourceObject is ClipObject clip)
             {
-                Nodes.Add(new FileTreeNode(entity));
+                _selectionState.ClearSelectedClips();
+                _selectionState.SelectClip(clip);
             }
         }
     }
