@@ -6,6 +6,7 @@ using Metasia.Editor.Models.EditCommands;
 using Metasia.Editor.Models.EditCommands.Commands;
 using Metasia.Editor.Models.Interactor;
 using Metasia.Editor.Models.States;
+using Metasia.Editor.Services;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
@@ -86,12 +87,16 @@ namespace Metasia.Editor.ViewModels.Timeline
         private readonly IEditCommandManager editCommandManager;
         private readonly ITimelineViewState _timelineViewState;
         private readonly IClipColorProvider _clipColorProvider;
+        private readonly ISelectionState _selectionState;
+        private readonly IProjectState _projectState;
+        private readonly IFileDialogService _fileDialogService;
         public ICommand RemoveClipCommand { get; }
         public ICommand SplitClipCommand { get; }
+        public ICommand ExportTemplateCommand { get; }
 
         public IBrush ClipColor => _clipColorProvider.GetBrush(TargetObject);
 
-        public ClipViewModel(ClipObject targetObject, TimelineViewModel parentTimeline, IEditCommandManager editCommandManager, ITimelineViewState timelineViewState, IClipColorProvider clipColorProvider)
+        public ClipViewModel(ClipObject targetObject, TimelineViewModel parentTimeline, IEditCommandManager editCommandManager, ITimelineViewState timelineViewState, IClipColorProvider clipColorProvider, ISelectionState selectionState, IProjectState projectState, IFileDialogService fileDialogService)
         {
             TargetObject = targetObject;
             this.parentTimeline = parentTimeline;
@@ -99,17 +104,60 @@ namespace Metasia.Editor.ViewModels.Timeline
             this.editCommandManager = editCommandManager;
             this._timelineViewState = timelineViewState;
             this._clipColorProvider = clipColorProvider;
-            // 削除コマンドの初期化
+            this._selectionState = selectionState;
+            this._projectState = projectState;
+            this._fileDialogService = fileDialogService;
             RemoveClipCommand = ReactiveCommand.Create(() => parentTimeline.ClipRemove(TargetObject));
 
-            // 分割コマンドの初期化
             SplitClipCommand = ReactiveCommand.Create(() => parentTimeline.SplitSelectedClips());
+
+            ExportTemplateCommand = ReactiveCommand.CreateFromTask(ExportTemplateAsync);
 
             _timelineViewState.Frame_Per_DIP_Changed += () =>
             {
                 Frame_Per_DIP = _timelineViewState.Frame_Per_DIP;
             };
             Frame_Per_DIP = _timelineViewState.Frame_Per_DIP;
+        }
+
+        private async Task ExportTemplateAsync()
+        {
+            var selectedClips = _selectionState.SelectedClips;
+            if (selectedClips.Count == 0) return;
+
+            if (_projectState.CurrentTimeline == null) return;
+
+            var file = await _fileDialogService.SaveFileDialogAsync(
+                "テンプレートを保存",
+                new[] { "mtmp" },
+                "mtmp");
+
+            if (file == null) return;
+
+            string filePath = file.Path.LocalPath;
+            if (string.IsNullOrWhiteSpace(filePath))
+            {
+                Debug.WriteLine("Invalid file path: path is null or empty");
+                return;
+            }
+
+            try
+            {
+                var template = Core.Xml.ClipTemplateSerializer.CreateFromClips(selectedClips, _projectState.CurrentTimeline);
+                Core.Xml.ClipTemplateSerializer.SaveToFile(template, filePath);
+            }
+            catch (System.IO.IOException ex)
+            {
+                Debug.WriteLine($"IO error saving template: {ex.Message}");
+            }
+            catch (System.UnauthorizedAccessException ex)
+            {
+                Debug.WriteLine($"Access denied saving template: {ex.Message}");
+            }
+            catch (System.Exception ex)
+            {
+                Debug.WriteLine($"Failed to save template: {ex.Message}");
+            }
         }
 
         /// <summary>

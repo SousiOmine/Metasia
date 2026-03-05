@@ -110,6 +110,7 @@ namespace Metasia.Editor
             services.AddSingleton<IDropHandler, ClipsMoveDropHandler>();
             services.AddSingleton<IDropHandler, ExternalFileDropHandler>();
             services.AddSingleton<IDropHandler, ProjectFileDropHandler>();
+            services.AddSingleton<IDropHandler, ClipTemplateDropHandler>();
 
             services.AddTransient<IPlayerViewModelFactory, PlayerViewModelFactory>();
             services.AddTransient<ITimelineViewModelFactory, TimelineViewModelFactory>();

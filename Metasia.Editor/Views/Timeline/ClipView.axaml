@@ -32,6 +32,7 @@
 			<MenuFlyout>
 				<MenuItem Header="分割" Command="{Binding SplitClipCommand}" />
 				<MenuItem Header="削除" Command="{Binding RemoveClipCommand}" />
+				<MenuItem Header="テンプレートファイルを出力" Command="{Binding ExportTemplateCommand}" />
 			</MenuFlyout>
 		</Border.ContextFlyout>
 	</Border>
