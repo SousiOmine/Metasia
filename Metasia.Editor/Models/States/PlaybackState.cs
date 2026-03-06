@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using Avalonia.Threading;
 using Metasia.Core.Objects;
+using Metasia.Core.Render.Cache;
 using Metasia.Editor.Models.Media;
 using Metasia.Editor.Services.Audio;
 
@@ -29,6 +30,8 @@ public class PlaybackState : IPlaybackState
 
     public int AudioChannels { get; } = 2;
 
+    public IRenderImageCache? ImageCache { get; private set; }
+
     public event Action? PlaybackStarted;
     public event Action? PlaybackPaused;
     public event Action? PlaybackSeeked;
@@ -52,6 +55,8 @@ public class PlaybackState : IPlaybackState
         _projectState = projectState ?? throw new ArgumentNullException(nameof(projectState));
         _audioPlaybackService = audioPlaybackService ?? throw new ArgumentNullException(nameof(audioPlaybackService));
         _mediaAccessorRouter = mediaAccessorRouter ?? throw new ArgumentNullException(nameof(mediaAccessorRouter));
+
+        ImageCache = new LruImageCache(1000);
     }
 
     public void Pause()

@@ -1,3 +1,4 @@
+using Metasia.Core.Render.Cache;
 using SkiaSharp;
 
 namespace Metasia.Core.Render
@@ -8,6 +9,11 @@ namespace Metasia.Core.Render
         /// 描画されるピクセルデータ
         /// </summary>
         public SKImage? Image { get; set; }
+
+        /// <summary>
+        /// Imageをキャッシュに格納した場合、そのキャッシュキー
+        /// </summary>
+        public long ImageCacheKey { get; set; } = IRenderImageCache.NO_CACHE_KEY;
 
         /// <summary>
         /// Imageがプロジェクト解像度において持つべき論理的なサイズ

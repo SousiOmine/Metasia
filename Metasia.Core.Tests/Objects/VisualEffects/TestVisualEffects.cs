@@ -1,6 +1,7 @@
 using System.Xml.Serialization;
 using Metasia.Core.Objects.VisualEffects;
 using Metasia.Core.Render;
+using Metasia.Core.Render.Cache;
 using SkiaSharp;
 
 namespace Metasia.Core.Tests.Objects.VisualEffects
@@ -21,11 +22,11 @@ namespace Metasia.Core.Tests.Objects.VisualEffects
         [XmlIgnore]
         public VisualEffectContext? LastContext { get; private set; }
 
-        public override SKImage Apply(SKImage input, VisualEffectContext context)
+        public override VisualEffectResult Apply(SKImage input, VisualEffectContext context)
         {
             ApplyCallCount++;
             LastContext = context;
-            return input;
+            return new VisualEffectResult(input, context.TargetImageCacheKey);
         }
     }
 
@@ -34,12 +35,12 @@ namespace Metasia.Core.Tests.Objects.VisualEffects
     /// </summary>
     public class TestRedFillEffect : VisualEffectBase
     {
-        public override SKImage Apply(SKImage input, VisualEffectContext context)
+        public override VisualEffectResult Apply(SKImage input, VisualEffectContext context)
         {
             var info = new SKImageInfo(input.Width, input.Height, SKColorType.Rgba8888, SKAlphaType.Premul);
             using var surface = SKSurface.Create(info);
             surface.Canvas.Clear(SKColors.Red);
-            return surface.Snapshot();
+            return new VisualEffectResult(surface.Snapshot(), context.TargetImageCacheKey);
         }
     }
 
@@ -48,12 +49,12 @@ namespace Metasia.Core.Tests.Objects.VisualEffects
     /// </summary>
     public class TestGreenFillEffect : VisualEffectBase
     {
-        public override SKImage Apply(SKImage input, VisualEffectContext context)
+        public override VisualEffectResult Apply(SKImage input, VisualEffectContext context)
         {
             var info = new SKImageInfo(input.Width, input.Height, SKColorType.Rgba8888, SKAlphaType.Premul);
             using var surface = SKSurface.Create(info);
             surface.Canvas.Clear(SKColors.Green);
-            return surface.Snapshot();
+            return new VisualEffectResult(surface.Snapshot(), context.TargetImageCacheKey);
         }
     }
 
@@ -62,12 +63,30 @@ namespace Metasia.Core.Tests.Objects.VisualEffects
     /// </summary>
     public class TestYellowFillEffect : VisualEffectBase
     {
-        public override SKImage Apply(SKImage input, VisualEffectContext context)
+        public override VisualEffectResult Apply(SKImage input, VisualEffectContext context)
         {
             var info = new SKImageInfo(input.Width, input.Height, SKColorType.Rgba8888, SKAlphaType.Premul);
             using var surface = SKSurface.Create(info);
             surface.Canvas.Clear(SKColors.Yellow);
-            return surface.Snapshot();
+            return new VisualEffectResult(surface.Snapshot(), context.TargetImageCacheKey);
+        }
+    }
+
+    /// <summary>
+    /// 指定したキャッシュキーを返すテスト用エフェクト
+    /// </summary>
+    public class TestCacheKeyEffect : VisualEffectBase
+    {
+        [XmlIgnore]
+        public long LastReceivedCacheKey { get; private set; } = IRenderImageCache.NO_CACHE_KEY;
+
+        [XmlIgnore]
+        public long ReturnedCacheKey { get; set; } = IRenderImageCache.NO_CACHE_KEY;
+
+        public override VisualEffectResult Apply(SKImage input, VisualEffectContext context)
+        {
+            LastReceivedCacheKey = context.TargetImageCacheKey;
+            return new VisualEffectResult(input, ReturnedCacheKey);
         }
     }
 }

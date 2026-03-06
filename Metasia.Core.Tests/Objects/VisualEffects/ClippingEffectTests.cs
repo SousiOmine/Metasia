@@ -30,7 +30,7 @@ namespace Metasia.Core.Tests.Objects.VisualEffects
 
             var result = effect.Apply(input, context);
 
-            Assert.That(result, Is.SameAs(input));
+            Assert.That(result.Image, Is.SameAs(input));
         }
 
         [Test]
@@ -41,10 +41,10 @@ namespace Metasia.Core.Tests.Objects.VisualEffects
             using var input = CreateTestImage(SKColors.Red);
             var context = CreateContext();
 
-            using var result = effect.Apply(input, context);
+            var result = effect.Apply(input, context);
 
             Assert.That(result, Is.Not.Null);
-            using var bitmap = SKBitmap.FromImage(result);
+            using var bitmap = SKBitmap.FromImage(result.Image);
             // 上部20pxはクリッピングされて透明になる
             Assert.That(bitmap.GetPixel(50, 5).Alpha, Is.EqualTo(0));
             // 下部はそのまま残る
@@ -59,10 +59,10 @@ namespace Metasia.Core.Tests.Objects.VisualEffects
             using var input = CreateTestImage(SKColors.Blue);
             var context = CreateContext();
 
-            using var result = effect.Apply(input, context);
+            var result = effect.Apply(input, context);
 
             Assert.That(result, Is.Not.Null);
-            using var bitmap = SKBitmap.FromImage(result);
+            using var bitmap = SKBitmap.FromImage(result.Image);
             Assert.That(bitmap.GetPixel(5, 50).Alpha, Is.EqualTo(0));
             Assert.That(bitmap.GetPixel(60, 50), Is.EqualTo(SKColors.Blue));
         }
@@ -78,11 +78,11 @@ namespace Metasia.Core.Tests.Objects.VisualEffects
             using var input = CreateTestImage(SKColors.Green);
             var context = CreateContext();
 
-            using var result = effect.Apply(input, context);
+            var result = effect.Apply(input, context);
 
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.Width, Is.EqualTo(input.Width));
-            Assert.That(result.Height, Is.EqualTo(input.Height));
+            Assert.That(result.Image.Width, Is.EqualTo(input.Width));
+            Assert.That(result.Image.Height, Is.EqualTo(input.Height));
         }
 
         [Test]

@@ -32,7 +32,7 @@ namespace Metasia.Core.Tests.Objects.VisualEffects
 
             var result = effect.Apply(input, context);
 
-            Assert.That(result, Is.SameAs(input));
+            Assert.That(result.Image, Is.SameAs(input));
         }
 
         [Test]
@@ -43,12 +43,12 @@ namespace Metasia.Core.Tests.Objects.VisualEffects
             using var input = CreateTestImage(SKColors.Red);
             var context = CreateContext();
 
-            using var result = effect.Apply(input, context);
+            var result = effect.Apply(input, context);
 
             Assert.That(result, Is.Not.Null);
             // 縁取りサイズ5の場合、両側で+10ピクセル拡張
-            Assert.That(result.Width, Is.EqualTo(input.Width + 10));
-            Assert.That(result.Height, Is.EqualTo(input.Height + 10));
+            Assert.That(result.Image.Width, Is.EqualTo(input.Width + 10));
+            Assert.That(result.Image.Height, Is.EqualTo(input.Height + 10));
         }
 
         [Test]
@@ -60,11 +60,11 @@ namespace Metasia.Core.Tests.Objects.VisualEffects
             using var input = CreateTestImage(SKColors.Red);
             var context = CreateContext();
 
-            using var result = effect.Apply(input, context);
+            var result = effect.Apply(input, context);
 
-            using var bitmap = SKBitmap.FromImage(result);
+            using var bitmap = SKBitmap.FromImage(result.Image);
             // 中央はオリジナルの赤が保持されている
-            Assert.That(bitmap.GetPixel(result.Width / 2, result.Height / 2), Is.EqualTo(SKColors.Red));
+            Assert.That(bitmap.GetPixel(result.Image.Width / 2, result.Image.Height / 2), Is.EqualTo(SKColors.Red));
         }
 
         [Test]

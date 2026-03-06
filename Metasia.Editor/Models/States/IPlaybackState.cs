@@ -1,4 +1,5 @@
 using System;
+using Metasia.Core.Render.Cache;
 
 
 namespace Metasia.Editor.Models.States;
@@ -24,6 +25,11 @@ public interface IPlaybackState : IDisposable
     /// プレビュー再生時の音声チャンネル数
     /// </summary>
     int AudioChannels { get; }
+
+    /// <summary>
+    /// 再生に使用される画像キャッシュ。存在しない場合はnullを返す
+    /// </summary>
+    IRenderImageCache? ImageCache { get; }
 
     /// <summary>
     /// 再生を開始する

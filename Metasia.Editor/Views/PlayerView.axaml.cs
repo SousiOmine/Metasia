@@ -176,7 +176,8 @@ public partial class PlayerView : UserControl, IDisposable
                         mediaAccessorRouter,
                         mediaAccessorRouter,
                         projectInfo,
-                        VM.ProjectPath);
+                        VM.ProjectPath,
+                        imageCache: _currentPlaybackState?.ImageCache);
 
                     // 「最新完了フレーム」を表示する
                     Dispatcher.UIThread.Post(() =>

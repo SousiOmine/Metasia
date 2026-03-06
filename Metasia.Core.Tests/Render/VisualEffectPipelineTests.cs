@@ -2,6 +2,7 @@ using Metasia.Core.Media;
 using Metasia.Core.Objects.VisualEffects;
 using Metasia.Core.Project;
 using Metasia.Core.Render;
+using Metasia.Core.Render.Cache;
 using Metasia.Core.Tests.Objects.VisualEffects;
 using SkiaSharp;
 
@@ -39,7 +40,7 @@ namespace Metasia.Core.Tests.Render
             var result = VisualEffectPipeline.ApplyEffects(input, null!, _renderContext, 0, 100, new SKSize(100, 100));
 
             // Assert
-            Assert.That(result, Is.SameAs(input));
+            Assert.That(result.Image, Is.SameAs(input));
         }
 
         [Test]
@@ -53,7 +54,7 @@ namespace Metasia.Core.Tests.Render
             var result = VisualEffectPipeline.ApplyEffects(input, effects, _renderContext, 0, 100, new SKSize(100, 100));
 
             // Assert
-            Assert.That(result, Is.SameAs(input));
+            Assert.That(result.Image, Is.SameAs(input));
         }
 
         [Test]
@@ -67,7 +68,7 @@ namespace Metasia.Core.Tests.Render
             };
 
             // Act
-            using var result = VisualEffectPipeline.ApplyEffects(input, effects, _renderContext, 0, 100, new SKSize(50, 50));
+            using var result = VisualEffectPipeline.ApplyEffects(input, effects, _renderContext, 0, 100, new SKSize(50, 50)).Image;
 
             // Assert
             using var bitmap = SKBitmap.FromImage(result);
@@ -86,7 +87,7 @@ namespace Metasia.Core.Tests.Render
             };
 
             // Act - 最後のエフェクト(Green)が最終結果になるはず
-            using var result = VisualEffectPipeline.ApplyEffects(input, effects, _renderContext, 0, 100, new SKSize(50, 50));
+            using var result = VisualEffectPipeline.ApplyEffects(input, effects, _renderContext, 0, 100, new SKSize(50, 50)).Image;
 
             // Assert
             using var bitmap = SKBitmap.FromImage(result);
@@ -105,7 +106,7 @@ namespace Metasia.Core.Tests.Render
             var result = VisualEffectPipeline.ApplyEffects(input, effects, _renderContext, 0, 100, new SKSize(50, 50));
 
             // Assert - 非アクティブなので入力画像がそのまま返る
-            Assert.That(result, Is.SameAs(input));
+            Assert.That(result.Image, Is.SameAs(input));
         }
 
         [Test]
@@ -121,7 +122,7 @@ namespace Metasia.Core.Tests.Render
             };
 
             // Act
-            using var result = VisualEffectPipeline.ApplyEffects(input, effects, _renderContext, 0, 100, new SKSize(50, 50));
+            using var result = VisualEffectPipeline.ApplyEffects(input, effects, _renderContext, 0, 100, new SKSize(50, 50)).Image;
 
             // Assert - Greenのみ適用される
             using var bitmap = SKBitmap.FromImage(result);
@@ -140,7 +141,7 @@ namespace Metasia.Core.Tests.Render
             var result = VisualEffectPipeline.ApplyEffects(input, effects, _renderContext, 0, 100, new SKSize(50, 50));
 
             // Assert
-            Assert.That(result, Is.SameAs(input));
+            Assert.That(result.Image, Is.SameAs(input));
             Assert.That(passThroughEffect.ApplyCallCount, Is.EqualTo(0));
         }
 
@@ -174,12 +175,39 @@ namespace Metasia.Core.Tests.Render
             };
 
             // Act
-            using var result = VisualEffectPipeline.ApplyEffects(input, effects, _renderContext, 0, 100, new SKSize(50, 50));
+            using var result = VisualEffectPipeline.ApplyEffects(input, effects, _renderContext, 0, 100, new SKSize(50, 50)).Image;
 
             // Assert - パススルーが受け取った結果（赤）がそのまま返される
             Assert.That(passThroughEffect.ApplyCallCount, Is.EqualTo(1));
             using var bitmap = SKBitmap.FromImage(result);
             Assert.That(bitmap.GetPixel(25, 25), Is.EqualTo(SKColors.Red));
+        }
+
+        [Test]
+        public void ApplyEffects_NoEffects_PreservesNoCacheKeyByDefault()
+        {
+            using var input = CreateTestImage(SKColors.Blue);
+            var effects = new List<VisualEffectBase>();
+
+            var result = VisualEffectPipeline.ApplyEffects(input, effects, _renderContext, 0, 100, new SKSize(100, 100));
+
+            Assert.That(result.Image, Is.SameAs(input));
+            Assert.That(result.ImageCacheKey, Is.EqualTo(IRenderImageCache.NO_CACHE_KEY));
+        }
+
+        [Test]
+        public void ApplyEffects_UsesFinalEffectCacheKey()
+        {
+            using var input = CreateTestImage(SKColors.Blue);
+            var first = new TestCacheKeyEffect { ReturnedCacheKey = 111 };
+            var second = new TestCacheKeyEffect { ReturnedCacheKey = 222 };
+            var effects = new List<VisualEffectBase> { first, second };
+
+            var result = VisualEffectPipeline.ApplyEffects(input, effects, _renderContext, 0, 100, new SKSize(100, 100), imageCacheKey: 10);
+
+            Assert.That(first.LastReceivedCacheKey, Is.EqualTo(10));
+            Assert.That(second.LastReceivedCacheKey, Is.EqualTo(111));
+            Assert.That(result.ImageCacheKey, Is.EqualTo(222));
         }
 
         #region ヘルパーメソッド

@@ -1,3 +1,4 @@
+using Metasia.Core.Render.Cache;
 using SkiaSharp;
 
 namespace Metasia.Core.Render
@@ -37,13 +38,25 @@ namespace Metasia.Core.Render
         /// </summary>
         public SKSize LogicalSize { get; }
 
+        /// <summary>
+        /// 画像キャッシュ
+        /// </summary>
+        public IRenderImageCache? ImageCache { get; }
+
+        /// <summary>
+        /// 適用対象のSKImageに割り当てられたキャッシュキー
+        /// </summary>
+        public long TargetImageCacheKey { get; set; } = 0;
+
         public VisualEffectContext(
             int frame,
             int relativeFrame,
             int clipLength,
             SKSize projectResolution,
             SKSize renderResolution,
-            SKSize logicalSize)
+            SKSize logicalSize,
+            IRenderImageCache? imageCache = null,
+            long targetImageCacheKey = IRenderImageCache.NO_CACHE_KEY)
         {
             Frame = frame;
             RelativeFrame = relativeFrame;
@@ -51,12 +64,20 @@ namespace Metasia.Core.Render
             ProjectResolution = projectResolution;
             RenderResolution = renderResolution;
             LogicalSize = logicalSize;
+            ImageCache = imageCache;
+            TargetImageCacheKey = targetImageCacheKey;
         }
 
         /// <summary>
         /// RenderContextとクリップ情報からVisualEffectContextを生成する
         /// </summary>
-        public static VisualEffectContext FromRenderContext(RenderContext renderContext, int startFrame, int endFrame, SKSize logicalSize)
+        public static VisualEffectContext FromRenderContext(
+            RenderContext renderContext,
+            int startFrame,
+            int endFrame,
+            SKSize logicalSize,
+            IRenderImageCache? imageCache = null,
+            long targetImageCacheKey = IRenderImageCache.NO_CACHE_KEY)
         {
             int relativeFrame = renderContext.Frame - startFrame;
             int clipLength = endFrame - startFrame + 1;
@@ -66,7 +87,9 @@ namespace Metasia.Core.Render
                 clipLength,
                 renderContext.ProjectResolution,
                 renderContext.RenderResolution,
-                logicalSize);
+                logicalSize,
+                imageCache ?? renderContext.ImageCache ?? null,
+                targetImageCacheKey);
         }
     }
 }

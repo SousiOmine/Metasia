@@ -70,13 +70,14 @@ public class ImageObject : ClipObject, IRenderable
                     Alpha = (100.0f - (float)Alpha.Get(relativeFrame, clipLength)) / 100,
                 };
                 var logicalSize = new SKSize(imageFileAccessorResult.Image.Width, imageFileAccessorResult.Image.Height);
-                var finalImage = VisualEffectPipeline.ApplyEffects(imageFileAccessorResult.Image, VisualEffects, context, StartFrame, EndFrame, logicalSize);
+                var finalResult = VisualEffectPipeline.ApplyEffects(imageFileAccessorResult.Image, VisualEffects, context, StartFrame, EndFrame, logicalSize);
                 return new NormalRenderNode()
                 {
-                    Image = finalImage,
+                    Image = finalResult.Image,
                     LogicalSize = logicalSize,
                     Transform = transform,
                     BlendMode = BlendMode.Value,
+                    ImageCacheKey = finalResult.ImageCacheKey,
                 };
             }
 

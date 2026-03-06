@@ -1,6 +1,7 @@
 using Metasia.Core.Media;
 using Metasia.Core.Objects;
 using Metasia.Core.Project;
+using Metasia.Core.Render.Cache;
 using SkiaSharp;
 
 namespace Metasia.Core.Render
@@ -21,6 +22,8 @@ namespace Metasia.Core.Render
 
         public string ProjectPath { get; init; }
 
+        public IRenderImageCache? ImageCache { get; init; }
+
         public RenderContext(
             int frame,
             SKSize projectResolution,
@@ -28,7 +31,8 @@ namespace Metasia.Core.Render
             IImageFileAccessor imageFileAccessor,
             IVideoFileAccessor videoFileAccessor,
             ProjectInfo projectInfo,
-            string projectPath)
+            string projectPath,
+            IRenderImageCache? imageCache = null)
         {
             Frame = frame;
 
@@ -50,6 +54,7 @@ namespace Metasia.Core.Render
             VideoFileAccessor = videoFileAccessor;
             ProjectInfo = projectInfo;
             ProjectPath = projectPath ?? string.Empty;
+            ImageCache = imageCache;
         }
     }
 }

@@ -154,29 +154,34 @@ namespace Metasia.Core.Objects
                 return Task.FromResult<IRenderNode>(new NormalRenderNode());
             }
 
-            SKImage image;
-            if (renderScaleWidth == 1.0f && renderScaleHeight == 1.0f)
+            SKImage? image = context.ImageCache?.TryGet(GetImageHashCode(relativeFrame, renderScaleWidth, renderScaleHeight));
+
+            if (image is null)
             {
-                // リサイズ不要な場合は直接描画
-                var info = new SKImageInfo(bitmapWidth, bitmapHeight, SKColorType.Rgba8888, SKAlphaType.Premul);
-                using var surface = SKSurface.Create(info);
-                using var canvas = surface.Canvas;
-                canvas.Clear(SKColors.Transparent);
-                DrawMultilineText(canvas, lines, lineBounds, skFont, skPaint, lineSpacing);
-                cancellationToken.ThrowIfCancellationRequested();
-                image = surface.Snapshot();
-            }
-            else
-            {
-                // リサイズが必要な場合は、一度大きなサイズで描画してからスケール
-                var info = new SKImageInfo(finalWidth, finalHeight, SKColorType.Rgba8888, SKAlphaType.Premul);
-                using var surface = SKSurface.Create(info);
-                using var canvas = surface.Canvas;
-                canvas.Clear(SKColors.Transparent);
-                canvas.Scale(renderScaleWidth, renderScaleHeight);
-                DrawMultilineText(canvas, lines, lineBounds, skFont, skPaint, lineSpacing);
-                cancellationToken.ThrowIfCancellationRequested();
-                image = surface.Snapshot();
+                if (renderScaleWidth == 1.0f && renderScaleHeight == 1.0f)
+                {
+                    // リサイズ不要な場合は直接描画
+                    var info = new SKImageInfo(bitmapWidth, bitmapHeight, SKColorType.Rgba8888, SKAlphaType.Premul);
+                    using var surface = SKSurface.Create(info);
+                    using var canvas = surface.Canvas;
+                    canvas.Clear(SKColors.Transparent);
+                    DrawMultilineText(canvas, lines, lineBounds, skFont, skPaint, lineSpacing);
+                    cancellationToken.ThrowIfCancellationRequested();
+                    image = surface.Snapshot();
+                }
+                else
+                {
+                    // リサイズが必要な場合は、一度大きなサイズで描画してからスケール
+                    var info = new SKImageInfo(finalWidth, finalHeight, SKColorType.Rgba8888, SKAlphaType.Premul);
+                    using var surface = SKSurface.Create(info);
+                    using var canvas = surface.Canvas;
+                    canvas.Clear(SKColors.Transparent);
+                    canvas.Scale(renderScaleWidth, renderScaleHeight);
+                    DrawMultilineText(canvas, lines, lineBounds, skFont, skPaint, lineSpacing);
+                    cancellationToken.ThrowIfCancellationRequested();
+                    image = surface.Snapshot();
+                }
+                context.ImageCache?.Set(GetImageHashCode(relativeFrame, renderScaleWidth, renderScaleHeight), image);
             }
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -189,14 +194,16 @@ namespace Metasia.Core.Objects
                 Alpha = (100.0f - (float)Alpha.Get(relativeFrame, clipLength)) / 100,
             };
 
-            var finalImage = VisualEffectPipeline.ApplyEffects(image, VisualEffects, context, StartFrame, EndFrame, logicalSize);
+            long imageCacheKey = GetImageHashCode(relativeFrame, renderScaleWidth, renderScaleHeight);
+            var finalResult = VisualEffectPipeline.ApplyEffects(image, VisualEffects, context, StartFrame, EndFrame, logicalSize, imageCacheKey);
 
             return Task.FromResult<IRenderNode>(new NormalRenderNode()
             {
-                Image = finalImage,
+                Image = finalResult.Image,
                 LogicalSize = logicalSize,
                 Transform = transform,
                 BlendMode = BlendMode.Value,
+                ImageCacheKey = finalResult.ImageCacheKey,
             });
         }
 
@@ -320,6 +327,21 @@ namespace Metasia.Core.Objects
             var copy = MetasiaObjectXmlSerializer.Deserialize<Text>(xml);
             copy.Id = Id + "_copy";
             return copy;
+        }
+
+        private long GetImageHashCode(int relativeFrame, float renderScaleWidth, float renderScaleHeight)
+        {
+            var hash = new HashCode();
+            hash.Add(nameof(Text));
+            hash.Add(Contents);
+            hash.Add(TextSize.Get(relativeFrame, EndFrame - StartFrame + 1));
+            hash.Add(Color);
+            hash.Add(Font.FamilyName);
+            hash.Add(Font.IsBold);
+            hash.Add(Font.IsItalic);
+            hash.Add(renderScaleWidth);
+            hash.Add(renderScaleHeight);
+            return hash.ToHashCode();
         }
     }
 }

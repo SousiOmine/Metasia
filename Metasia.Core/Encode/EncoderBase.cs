@@ -101,7 +101,7 @@ public abstract class EncoderBase : IEncoder, IDisposable
                 _videoFileAccessor,
                 _project.Info,
                 _projectPath,
-                ct);
+                cancellationToken: ct);
 
             yield return skBitmap;
         }

@@ -1,5 +1,6 @@
 using Metasia.Core.Attributes;
 using Metasia.Core.Render;
+using Metasia.Core.Render.Cache;
 using SkiaSharp;
 
 namespace Metasia.Core.Objects.VisualEffects;
@@ -16,9 +17,25 @@ public class FlipEffect : VisualEffectBase
     [EditableProperty("FlipVertical")]
     public bool FlipVertical { get; set; } = false;
 
-    public override SKImage Apply(SKImage input, VisualEffectContext context)
+    public override VisualEffectResult Apply(SKImage input, VisualEffectContext context)
     {
-        if (input is null) return input;
+        if (input is null) return new VisualEffectResult(input, context.TargetImageCacheKey);
+
+        if (!FlipHorizontal && !FlipVertical)
+        {
+            return new VisualEffectResult(input, context.TargetImageCacheKey);
+        }
+
+        if (context.TargetImageCacheKey != IRenderImageCache.NO_CACHE_KEY)
+        {
+            long cacheKey = GetImageHashCode(context);
+            var cachedImage = context.ImageCache?.TryGet(cacheKey);
+            if (cachedImage != null)
+            {
+                return new VisualEffectResult(cachedImage, cacheKey);
+            }
+        }
+        
 
         int width = input.Width;
         int height = input.Height;
@@ -43,6 +60,26 @@ public class FlipEffect : VisualEffectBase
         canvas.Scale(scaleX, scaleY);
         canvas.DrawImage(input, 0, 0, paint);
 
-        return surface.Snapshot();
+        var result = surface.Snapshot();
+        if (context.TargetImageCacheKey != IRenderImageCache.NO_CACHE_KEY)
+        {
+            long cacheKey = GetImageHashCode(context);
+            context.ImageCache?.Set(cacheKey, result);
+            return new VisualEffectResult(result, cacheKey);
+        }
+        else
+        {
+            return new VisualEffectResult(result, IRenderImageCache.NO_CACHE_KEY);
+        }
+    }
+
+    private long GetImageHashCode(VisualEffectContext context)
+    {
+        var hash = new HashCode();
+        hash.Add(nameof(FlipEffect));
+        hash.Add(context.TargetImageCacheKey);
+        hash.Add(FlipHorizontal);
+        hash.Add(FlipVertical);
+        return hash.ToHashCode();
     }
 }

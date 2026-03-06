@@ -1,6 +1,7 @@
 using Metasia.Core.Attributes;
 using Metasia.Core.Objects.Parameters;
 using Metasia.Core.Render;
+using Metasia.Core.Render.Cache;
 using SkiaSharp;
 
 namespace Metasia.Core.Objects.VisualEffects
@@ -19,17 +20,27 @@ namespace Metasia.Core.Objects.VisualEffects
         [ValueRange(0, 200, 0, 100)]
         public MetaNumberParam<double> Strength { get; set; } = new MetaNumberParam<double>(10);
 
-        public override SKImage Apply(SKImage input, VisualEffectContext context)
+        public override VisualEffectResult Apply(SKImage input, VisualEffectContext context)
         {
-            if (input is null) return input;
+            if (input is null) return new VisualEffectResult(input, context.TargetImageCacheKey);
 
             int relativeFrame = context.RelativeFrame;
             int clipLength = context.ClipLength;
 
             float strength = (float)Strength.Get(relativeFrame, clipLength);
-            if (strength <= 0) return input;
+            if (strength <= 0) return new VisualEffectResult(input, context.TargetImageCacheKey);
 
             float angle = (float)Angle.Get(relativeFrame, clipLength);
+
+            if (context.TargetImageCacheKey != IRenderImageCache.NO_CACHE_KEY)
+            {
+                long cacheKey = GetImageHashCode(context);
+                var cachedImage = context.ImageCache?.TryGet(cacheKey);
+                if (cachedImage != null)
+                {
+                    return new VisualEffectResult(cachedImage, cacheKey);
+                }
+            }
 
             // 角度をラジアンに変換してX/Y方向のブラー量を計算
             float radians = angle * MathF.PI / 180f;
@@ -54,7 +65,27 @@ namespace Metasia.Core.Objects.VisualEffects
 
             canvas.DrawImage(input, 0, 0, paint);
 
-            return surface.Snapshot();
+            var result = surface.Snapshot();
+            if (context.TargetImageCacheKey != IRenderImageCache.NO_CACHE_KEY)
+            {
+                long cacheKey = GetImageHashCode(context);
+                context.ImageCache?.Set(cacheKey, result);
+                return new VisualEffectResult(result, cacheKey);
+            }
+            else
+            {
+                return new VisualEffectResult(result, IRenderImageCache.NO_CACHE_KEY);
+            }
+        }
+
+        private long GetImageHashCode(VisualEffectContext context)
+        {
+            var hash = new HashCode();
+            hash.Add(nameof(MotionBlurEffect));
+            hash.Add(context.TargetImageCacheKey);
+            hash.Add(Angle.Get(context.RelativeFrame, context.ClipLength));
+            hash.Add(Strength.Get(context.RelativeFrame, context.ClipLength));
+            return hash.ToHashCode();
         }
     }
 }
