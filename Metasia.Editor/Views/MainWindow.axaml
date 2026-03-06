@@ -46,6 +46,10 @@
 					<MenuItem Header="元に戻す" Command="{Binding Undo}"/>
 					<MenuItem Header="やり直し" Command="{Binding Redo}"/>
 					<Separator/>
+					<MenuItem Header="コピー" Command="{Binding Copy}"/>
+					<MenuItem Header="切り取り" Command="{Binding Cut}"/>
+					<MenuItem Header="貼り付け" Command="{Binding Paste}"/>
+					<Separator/>
 					<MenuItem Header="フレーム選択範囲">
 						<MenuItem Header="現在のフレームをタイムラインの選択開始フレームにする" Command="{Binding SetTimelineSelectionStart}"/>
 						<MenuItem Header="現在のフレームをタイムラインの選択終了フレームにする" Command="{Binding SetTimelineSelectionEnd}"/>

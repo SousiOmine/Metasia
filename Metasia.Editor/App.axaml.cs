@@ -98,6 +98,7 @@ namespace Metasia.Editor
             services.AddSingleton<IPlaybackState, PlaybackState>();
             services.AddSingleton<ITimelineViewState, TimelineViewState>();
             services.AddSingleton<IClipColorProvider, DefaultClipColorProvider>();
+            services.AddSingleton<IClipboardService, ClipboardService>();
 
             services.AddSingleton<MediaAccessorRouter>();
             services.AddSingleton<IPluginService, PluginService>();

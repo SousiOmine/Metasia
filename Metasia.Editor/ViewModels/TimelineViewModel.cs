@@ -1,4 +1,5 @@
-﻿using Metasia.Core.Objects;
+using Metasia.Core.Objects;
+using Metasia.Core.Xml;
 using Metasia.Editor.ViewModels.Timeline;
 using ReactiveUI;
 using System;
@@ -8,6 +9,7 @@ using System.Linq;
 using Metasia.Editor.Models.EditCommands;
 using Metasia.Editor.Models.EditCommands.Commands;
 using Metasia.Editor.Models.States;
+using Metasia.Editor.Services;
 
 namespace Metasia.Editor.ViewModels
 {
@@ -89,6 +91,7 @@ namespace Metasia.Editor.ViewModels
         private readonly IEditCommandManager editCommandManager;
         private readonly IProjectState _projectState;
         private readonly ITimelineViewState _timelineViewState;
+        private readonly IClipboardService _clipboardService;
 
         private bool _isUpdatingFramePerDIP = false;
 
@@ -99,7 +102,8 @@ namespace Metasia.Editor.ViewModels
             IPlaybackState playbackState,
             IProjectState projectState,
             IEditCommandManager editCommandManager,
-            ITimelineViewState timelineViewState)
+            ITimelineViewState timelineViewState,
+            IClipboardService clipboardService)
         {
             ArgumentNullException.ThrowIfNull(layerButtonViewModelFactory);
             ArgumentNullException.ThrowIfNull(layerCanvasViewModelFactory);
@@ -107,11 +111,13 @@ namespace Metasia.Editor.ViewModels
             ArgumentNullException.ThrowIfNull(projectState);
             ArgumentNullException.ThrowIfNull(editCommandManager);
             ArgumentNullException.ThrowIfNull(projectState.CurrentTimeline);
+            ArgumentNullException.ThrowIfNull(clipboardService);
             this.selectionState = selectionState;
             this.playbackState = playbackState;
             _projectState = projectState;
             this.editCommandManager = editCommandManager;
             _timelineViewState = timelineViewState;
+            _clipboardService = clipboardService;
 
             _timelineViewState.Frame_Per_DIP_Changed += OnFramePerDIPChanged;
             Frame_Per_DIP = _timelineViewState.Frame_Per_DIP;
@@ -209,6 +215,75 @@ namespace Metasia.Editor.ViewModels
 
             IEditCommand command = new ClipsSplitCommand(selectedClips, ownerLayers!, splitFrame);
             editCommandManager.Execute(command);
+        }
+
+        public void CopySelectedClips()
+        {
+            var selectedClips = selectionState.SelectedClips.ToList();
+            if (selectedClips.Count == 0)
+                return;
+
+            var template = ClipTemplateSerializer.CreateFromClips(selectedClips, Timeline);
+            var xml = ClipTemplateSerializer.Serialize(template);
+            _clipboardService.StoreClips(xml);
+        }
+
+        public void CutSelectedClips()
+        {
+            var selectedClips = selectionState.SelectedClips.ToList();
+            if (selectedClips.Count == 0)
+                return;
+
+            CopySelectedClips();
+
+            var removeCommands = new List<IEditCommand>();
+            foreach (var clip in selectedClips)
+            {
+                var ownerLayer = FindOwnerLayer(clip);
+                if (ownerLayer is not null)
+                {
+                    removeCommands.Add(new ClipRemoveCommand(clip, ownerLayer));
+                }
+            }
+
+            if (removeCommands.Count > 0)
+            {
+                var command = new CompositeCommand(removeCommands, "クリップのカット");
+                editCommandManager.Execute(command);
+                selectionState.ClearSelectedClips();
+            }
+        }
+
+        public void PasteClips()
+        {
+            if (!_clipboardService.HasClips)
+                return;
+
+            var xml = _clipboardService.GetStoredClips();
+            if (string.IsNullOrEmpty(xml))
+                return;
+
+            var template = ClipTemplateSerializer.Deserialize(xml);
+            int targetFrame = Frame;
+
+            var clipsWithLayers = ClipTemplateSerializer.InstantiateClips(template, targetFrame, 0, Timeline);
+            
+            var validClips = clipsWithLayers
+                .Where(item => item.layerIndex >= 0)
+                .Select(item => (item.clip, item.layerIndex))
+                .ToList();
+
+            if (validClips.Count == 0)
+                return;
+
+            var command = new PasteClipsCommand(Timeline, validClips);
+            editCommandManager.Execute(command);
+
+            selectionState.ClearSelectedClips();
+            foreach (var (clip, _) in command.PlacedClips)
+            {
+                selectionState.SelectClip(clip);
+            }
         }
 
 

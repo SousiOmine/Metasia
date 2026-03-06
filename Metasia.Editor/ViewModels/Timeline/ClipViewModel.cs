@@ -93,6 +93,9 @@ namespace Metasia.Editor.ViewModels.Timeline
         public ICommand RemoveClipCommand { get; }
         public ICommand SplitClipCommand { get; }
         public ICommand ExportTemplateCommand { get; }
+        public ICommand CopyCommand { get; }
+        public ICommand CutCommand { get; }
+        public ICommand PasteCommand { get; }
 
         public IBrush ClipColor => _clipColorProvider.GetBrush(TargetObject);
 
@@ -112,6 +115,10 @@ namespace Metasia.Editor.ViewModels.Timeline
             SplitClipCommand = ReactiveCommand.Create(() => parentTimeline.SplitSelectedClips());
 
             ExportTemplateCommand = ReactiveCommand.CreateFromTask(ExportTemplateAsync);
+
+            CopyCommand = ReactiveCommand.Create(() => parentTimeline.CopySelectedClips());
+            CutCommand = ReactiveCommand.Create(() => parentTimeline.CutSelectedClips());
+            PasteCommand = ReactiveCommand.Create(() => parentTimeline.PasteClips());
 
             _timelineViewState.Frame_Per_DIP_Changed += () =>
             {

@@ -67,6 +67,21 @@ namespace Metasia.Editor.Services.KeyBinding
                 {
                     CommandId = "PlayPauseToggle",
                     Gesture = new KeyGesture(Key.Space)
+                },
+                new KeyBindingDefinition
+                {
+                    CommandId = "Copy",
+                    Gesture = new KeyGesture(Key.C, KeyModifiers.Control)
+                },
+                new KeyBindingDefinition
+                {
+                    CommandId = "Paste",
+                    Gesture = new KeyGesture(Key.V, KeyModifiers.Control)
+                },
+                new KeyBindingDefinition
+                {
+                    CommandId = "Cut",
+                    Gesture = new KeyGesture(Key.X, KeyModifiers.Control)
                 }
             });
 

@@ -30,6 +30,10 @@
 		
 		<Border.ContextFlyout>
 			<MenuFlyout>
+				<MenuItem Header="コピー" Command="{Binding CopyCommand}" />
+				<MenuItem Header="切り取り" Command="{Binding CutCommand}" />
+				<MenuItem Header="貼り付け" Command="{Binding PasteCommand}" />
+				<Separator/>
 				<MenuItem Header="分割" Command="{Binding SplitClipCommand}" />
 				<MenuItem Header="削除" Command="{Binding RemoveClipCommand}" />
 				<MenuItem Header="テンプレートファイルを出力" Command="{Binding ExportTemplateCommand}" />

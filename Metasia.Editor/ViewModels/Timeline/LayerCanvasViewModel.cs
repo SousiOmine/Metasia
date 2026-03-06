@@ -37,6 +37,7 @@ namespace Metasia.Editor.ViewModels.Timeline
         public ICommand HandleDragLeaveCommand { get; }
         public Interaction<NewObjectSelectViewModel, IMetasiaObject?> NewObjectSelectInteraction { get; } = new();
         public ICommand NewClipCommand { get; }
+        public ICommand PasteCommand { get; }
 
         private TimelineViewModel parentTimeline;
         public LayerObject TargetLayer { get; private set; }
@@ -92,6 +93,7 @@ namespace Metasia.Editor.ViewModels.Timeline
                     AddNewClip(clipObject);
                 }
             });
+            PasteCommand = ReactiveCommand.Create(() => parentTimeline.PasteClips());
 
             _timelineViewState.Frame_Per_DIP_Changed += OnFramePerDIPChangedWithRecalculation;
             Frame_Per_DIP = _timelineViewState.Frame_Per_DIP;

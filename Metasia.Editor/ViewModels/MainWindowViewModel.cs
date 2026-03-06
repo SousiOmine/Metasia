@@ -33,6 +33,10 @@ namespace Metasia.Editor.ViewModels
         public ICommand Undo { get; }
         public ICommand Redo { get; }
 
+        public ICommand Copy { get; }
+        public ICommand Paste { get; }
+        public ICommand Cut { get; }
+
         public ICommand SetTimelineSelectionStart { get; }
         public ICommand SetTimelineSelectionEnd { get; }
         public ICommand ClearTimelineSelection { get; }
@@ -86,6 +90,10 @@ namespace Metasia.Editor.ViewModels
             Undo = ReactiveCommand.Create(UndoExecute);
             Redo = ReactiveCommand.Create(RedoExecute);
 
+            Copy = ReactiveCommand.Create(() => TimelineParentVM.Copy());
+            Paste = ReactiveCommand.Create(() => TimelineParentVM.Paste());
+            Cut = ReactiveCommand.Create(() => TimelineParentVM.Cut());
+
             // キーバインディングサービスにコマンドを登録
             RegisterCommands(keyBindingService);
         }
@@ -103,6 +111,9 @@ namespace Metasia.Editor.ViewModels
                 keyBindingService.RegisterCommand("CreateNewProject", CreateNewProject);
                 keyBindingService.RegisterCommand("OverrideSaveEditingProject", OverrideSaveEditingProject);
                 keyBindingService.RegisterCommand("OpenSettings", OpenSettings);
+                keyBindingService.RegisterCommand("Copy", Copy);
+                keyBindingService.RegisterCommand("Paste", Paste);
+                keyBindingService.RegisterCommand("Cut", Cut);
             }
         }
 

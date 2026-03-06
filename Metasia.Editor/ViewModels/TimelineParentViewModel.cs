@@ -1,6 +1,7 @@
 using ReactiveUI;
 using System;
 using Metasia.Editor.Models.States;
+using System.Windows.Input;
 
 namespace Metasia.Editor.ViewModels
 {
@@ -18,6 +19,10 @@ namespace Metasia.Editor.ViewModels
             set { this.RaiseAndSetIfChanged(ref _isTimelineShow, value); }
         }
 
+        public ICommand? CopyCommand { get; set; }
+        public ICommand? PasteCommand { get; set; }
+        public ICommand? CutCommand { get; set; }
+
         private TimelineViewModel? _timelineViewModel;
 
         private bool _isTimelineShow = false;
@@ -26,6 +31,11 @@ namespace Metasia.Editor.ViewModels
         public TimelineParentViewModel(ITimelineViewModelFactory timelineViewModelFactory, IProjectState projectState)
         {
             ArgumentNullException.ThrowIfNull(timelineViewModelFactory);
+            
+            CopyCommand = ReactiveCommand.Create(Copy);
+            PasteCommand = ReactiveCommand.Create(Paste);
+            CutCommand = ReactiveCommand.Create(Cut);
+            
             _projectState = projectState;
             _projectState.ProjectLoaded += () =>
             {
@@ -45,6 +55,21 @@ namespace Metasia.Editor.ViewModels
                 CurrentTimelineViewModel = timelineViewModelFactory.Create();
                 IsTimelineShow = true;
             }
+        }
+
+        public void Copy()
+        {
+            CurrentTimelineViewModel?.CopySelectedClips();
+        }
+
+        public void Paste()
+        {
+            CurrentTimelineViewModel?.PasteClips();
+        }
+
+        public void Cut()
+        {
+            CurrentTimelineViewModel?.CutSelectedClips();
         }
     }
 }

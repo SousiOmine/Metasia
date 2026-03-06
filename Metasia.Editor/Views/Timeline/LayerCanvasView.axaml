@@ -27,6 +27,8 @@
 	<UserControl.ContextFlyout>
 		<MenuFlyout>
 			<MenuItem Header="クリップを追加" Command="{Binding NewClipCommand}"/>
+			<Separator/>
+			<MenuItem Header="貼り付け" Command="{Binding PasteCommand}"/>
 		</MenuFlyout>
 	</UserControl.ContextFlyout>
 
