@@ -13,6 +13,7 @@ namespace Metasia.Editor.Models.Plugins
         private const string EDITOR_PLUGINS_FOLDER_NAME = "Plugins";
 
         private static List<IEditorPlugin> editorPlugins = [];
+        private static List<PluginLoadContext> loadContexts = [];
 
         public static async Task<IEnumerable<IEditorPlugin>> LoadEditorPluginsAsync()
         {
@@ -33,7 +34,10 @@ namespace Metasia.Editor.Models.Plugins
                 {
                     try
                     {
-                        var assembly = Assembly.LoadFrom(pluginFile);
+                        var loadContext = new PluginLoadContext(pluginFile);
+                        loadContexts.Add(loadContext);
+
+                        var assembly = loadContext.LoadFromAssemblyPath(pluginFile);
                         foreach (var type in assembly.GetTypes())
                         {
                             if (typeof(IEditorPlugin).IsAssignableFrom(type) && !type.IsInterface && !type.IsAbstract)
@@ -52,6 +56,7 @@ namespace Metasia.Editor.Models.Plugins
                 }
             }
             // TODO: Coreプラグイン実装時にここでCoreプラグインを読み込む
+            await Task.CompletedTask;
         }
     }
 }
