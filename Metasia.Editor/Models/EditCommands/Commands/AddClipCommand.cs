@@ -18,6 +18,11 @@ namespace Metasia.Editor.Models.EditCommands.Commands
 
         public void Execute()
         {
+            if (string.IsNullOrWhiteSpace(_targetObject.Id))
+            {
+                _targetObject.Id = Guid.NewGuid().ToString();
+            }
+
             // オブジェクトをレイヤーに追加
             if (!_ownerLayer.Objects.Contains(_targetObject))
             {
