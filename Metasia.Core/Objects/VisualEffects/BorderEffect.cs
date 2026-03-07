@@ -1,7 +1,9 @@
+using System.Reflection.Metadata;
 using Metasia.Core.Attributes;
 using Metasia.Core.Objects.Parameters;
 using Metasia.Core.Objects.Parameters.Color;
 using Metasia.Core.Render;
+using Metasia.Core.Render.Cache;
 using SkiaSharp;
 
 namespace Metasia.Core.Objects.VisualEffects
@@ -19,15 +21,26 @@ namespace Metasia.Core.Objects.VisualEffects
         [EditableProperty("BorderColor")]
         public ColorRgb8 Color { get; set; } = new ColorRgb8(0, 0, 0);
 
-        public override SKImage Apply(SKImage input, VisualEffectContext context)
+        public override VisualEffectResult Apply(SKImage input, VisualEffectContext context)
         {
-            if (input is null) return input;
+            if (input is null) return new VisualEffectResult(input, context.TargetImageCacheKey);
+
+            if (context.TargetImageCacheKey != IRenderImageCache.NO_CACHE_KEY)
+            {
+                long cacheKey = GetImageHashCode(context);
+                var cachedImage = context.ImageCache?.TryGet(cacheKey);
+                if (cachedImage is not null)
+                {
+                    return new VisualEffectResult(cachedImage, cacheKey);
+                }
+            }
+
 
             int relativeFrame = context.RelativeFrame;
             int clipLength = context.ClipLength;
 
             float size = (float)Size.Get(relativeFrame, clipLength);
-            if (size <= 0) return input;
+            if (size <= 0) return new VisualEffectResult(input, context.TargetImageCacheKey);
 
             SKColor color = new SKColor(Color.R, Color.G, Color.B, 255);
 
@@ -57,7 +70,30 @@ namespace Metasia.Core.Objects.VisualEffects
             // 2. 元の画像を上に重ねる
             canvas.DrawImage(input, expand, expand);
 
-            return surface.Snapshot();
+            var result = surface.Snapshot();
+
+            if (context.TargetImageCacheKey != IRenderImageCache.NO_CACHE_KEY)
+            {
+                long cacheKey = GetImageHashCode(context);
+                context.ImageCache?.Set(cacheKey, result);
+                return new VisualEffectResult(result, cacheKey);
+            }
+            else
+            {
+                return new VisualEffectResult(result, IRenderImageCache.NO_CACHE_KEY);
+            }
+        }
+
+        private long GetImageHashCode(VisualEffectContext context)
+        {
+            var hash = new HashCode();
+            hash.Add(nameof(BorderEffect));
+            hash.Add(context.TargetImageCacheKey);
+            hash.Add(Size.Get(context.RelativeFrame, context.ClipLength));
+            hash.Add(Color.R);
+            hash.Add(Color.G);
+            hash.Add(Color.B);
+            return hash.ToHashCode();
         }
     }
 }

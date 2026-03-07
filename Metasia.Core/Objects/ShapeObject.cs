@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Metasia.Core.Attributes;
 using Metasia.Core.Objects.Parameters.Color;
+using System.Reflection.Metadata;
 
 namespace Metasia.Core.Objects
 {
@@ -70,6 +71,8 @@ namespace Metasia.Core.Objects
         {
             cancellationToken.ThrowIfCancellationRequested();
 
+            ArgumentNullException.ThrowIfNull(context);
+
             //このオブジェクトのStartFrameを基準としたフレーム
             int relativeFrame = context.Frame - StartFrame;
 
@@ -106,53 +109,63 @@ namespace Metasia.Core.Objects
                 return Task.FromResult<IRenderNode>(new NormalRenderNode());
             }
 
-            SKImage image;
-            var info = new SKImageInfo(finalWidth, finalHeight, SKColorType.Rgba8888, SKAlphaType.Premul);
-            using var surface = SKSurface.Create(info) ?? throw new InvalidOperationException($"Failed to create SKSurface with dimensions {finalWidth}x{finalHeight}");
 
-            using var canvas = surface.Canvas;
+            SKImage? image = null;
+            long imageCacheKey = GetImageHashCode(relativeFrame, renderScaleWidth, renderScaleHeight);
+            image = context.ImageCache?.TryGet(imageCacheKey);
 
-            canvas.Clear(SKColors.Transparent);
-            canvas.Scale(renderScaleWidth, renderScaleHeight);
-
-            using (SKPaint paint = new SKPaint())
+            if (image is null)
             {
-                paint.Color = shapeColor;
-                paint.IsAntialias = true;
+                var info = new SKImageInfo(finalWidth, finalHeight, SKColorType.Rgba8888, SKAlphaType.Premul);
+                using var surface = SKSurface.Create(info) ?? throw new InvalidOperationException($"Failed to create SKSurface with dimensions {finalWidth}x{finalHeight}");
 
-                switch (Shape.SelectedValue)
+                using var canvas = surface.Canvas;
+
+                canvas.Clear(SKColors.Transparent);
+                canvas.Scale(renderScaleWidth, renderScaleHeight);
+
+                using (SKPaint paint = new SKPaint())
                 {
-                    case "Circle":
-                        float radiusX = width / 2f;
-                        float radiusY = height / 2f;
-                        canvas.DrawOval(new SKRect(width / 2f - radiusX, height / 2f - radiusY, width / 2f + radiusX, height / 2f + radiusY), paint);
-                        break;
-                    case "Square":
-                        canvas.DrawRect(0, 0, width, height, paint);
-                        break;
-                    case "Triangle":
-                        {
-                            using var path = new SKPath();
-                            path.MoveTo(width / 2f, 0);
-                            path.LineTo(0, height);
-                            path.LineTo(width, height);
-                            path.Close();
-                            canvas.DrawPath(path, paint);
+                    paint.Color = shapeColor;
+                    paint.IsAntialias = true;
+
+                    switch (Shape.SelectedValue)
+                    {
+                        case "Circle":
+                            float radiusX = width / 2f;
+                            float radiusY = height / 2f;
+                            canvas.DrawOval(new SKRect(width / 2f - radiusX, height / 2f - radiusY, width / 2f + radiusX, height / 2f + radiusY), paint);
                             break;
-                        }
-                    case "Star":
-                        float outerRadiusX = width / 2f;
-                        float outerRadiusY = height / 2f;
-                        float innerRadiusX = outerRadiusX / 2f;
-                        float innerRadiusY = outerRadiusY / 2f;
-                        DrawStarWithAspectRatio(canvas, paint, width / 2f, height / 2f, outerRadiusX, outerRadiusY, innerRadiusX, innerRadiusY, 5);
-                        break;
+                        case "Square":
+                            canvas.DrawRect(0, 0, width, height, paint);
+                            break;
+                        case "Triangle":
+                            {
+                                using var path = new SKPath();
+                                path.MoveTo(width / 2f, 0);
+                                path.LineTo(0, height);
+                                path.LineTo(width, height);
+                                path.Close();
+                                canvas.DrawPath(path, paint);
+                                break;
+                            }
+                        case "Star":
+                            float outerRadiusX = width / 2f;
+                            float outerRadiusY = height / 2f;
+                            float innerRadiusX = outerRadiusX / 2f;
+                            float innerRadiusY = outerRadiusY / 2f;
+                            DrawStarWithAspectRatio(canvas, paint, width / 2f, height / 2f, outerRadiusX, outerRadiusY, innerRadiusX, innerRadiusY, 5);
+                            break;
+                    }
                 }
+
+                cancellationToken.ThrowIfCancellationRequested();
+
+                image = surface.Snapshot();
+                context?.ImageCache?.Set(imageCacheKey, image);
             }
 
-            cancellationToken.ThrowIfCancellationRequested();
 
-            image = surface.Snapshot();
 
             var transform = new Transform()
             {
@@ -162,14 +175,15 @@ namespace Metasia.Core.Objects
                 Alpha = (100.0f - (float)Alpha.Get(relativeFrame, clipLength)) / 100,
             };
 
-            var finalImage = VisualEffectPipeline.ApplyEffects(image, VisualEffects, context, StartFrame, EndFrame, logicalSize);
+            var finalResult = VisualEffectPipeline.ApplyEffects(image, VisualEffects, context, StartFrame, EndFrame, logicalSize, imageCacheKey: imageCacheKey);
 
             return Task.FromResult<IRenderNode>(new NormalRenderNode()
             {
-                Image = finalImage,
+                Image = finalResult.Image,
                 LogicalSize = logicalSize,
                 Transform = transform,
                 BlendMode = BlendMode.Value,
+                ImageCacheKey = finalResult.ImageCacheKey
             });
         }
 
@@ -275,6 +289,20 @@ namespace Metasia.Core.Objects
             var copy = MetasiaObjectXmlSerializer.Deserialize<ShapeObject>(xml);
             copy.Id = Id + "_copy";
             return copy;
+        }
+
+        private long GetImageHashCode(int relativeFrame, float renderScaleWidth, float renderScaleHeight)
+        {
+            var hash = new HashCode();
+            hash.Add(nameof(ShapeObject));
+            hash.Add(renderScaleWidth);
+            hash.Add(renderScaleHeight);
+            hash.Add(Size.Get(relativeFrame, EndFrame - StartFrame + 1));
+            hash.Add(AspectRatio.Get(relativeFrame, EndFrame - StartFrame + 1));
+            hash.Add(Shape.SelectedIndex);
+            hash.Add(Color);
+            hash.Add(BlendMode.GetHashCode());
+            return hash.ToHashCode();
         }
     }
 }

@@ -2,6 +2,7 @@ using System.Diagnostics;
 using Metasia.Core.Media;
 using Metasia.Core.Objects;
 using Metasia.Core.Project;
+using Metasia.Core.Render.Cache;
 using SkiaSharp;
 
 namespace Metasia.Core.Render
@@ -29,6 +30,7 @@ namespace Metasia.Core.Render
             IVideoFileAccessor videoFileAccessor,
             ProjectInfo projectInfo,
             string projectPath,
+            IRenderImageCache? imageCache = null,
             CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(root);
@@ -48,7 +50,7 @@ namespace Metasia.Core.Render
 
                 cancellationToken.ThrowIfCancellationRequested();
 
-                var context = new RenderContext(frame, projectResolution, renderResolution, imageFileAccessor, videoFileAccessor, projectInfo, projectPath);
+                var context = new RenderContext(frame, projectResolution, renderResolution, imageFileAccessor, videoFileAccessor, projectInfo, projectPath, imageCache);
                 var rootNode = await root.RenderAsync(context, cancellationToken);
 
                 cancellationToken.ThrowIfCancellationRequested();

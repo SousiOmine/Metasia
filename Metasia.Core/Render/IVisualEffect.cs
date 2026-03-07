@@ -13,7 +13,7 @@ namespace Metasia.Core.Render
         /// </summary>
         /// <param name="input">入力画像</param>
         /// <param name="context">エフェクトのコンテキスト</param>
-        /// <returns>適用後の画像</returns>
-        SKImage Apply(SKImage input, VisualEffectContext context);
+        /// <returns>適用後の画像とキャッシュキーを含む結果</returns>
+        VisualEffectResult Apply(SKImage input, VisualEffectContext context);
     }
 }

@@ -302,10 +302,10 @@ namespace Metasia.Core.Objects
                             normalRenderNode.Image = VisualEffectPipeline.ApplyEffects(
                                 normalRenderNode.Image,
                                 cameraNode.VisualEffects,
-                                cameraNode.VisualEffectContext);
+                                cameraNode.VisualEffectContext).Image;
                         }
 
-                        
+
 
                         foreach (var group in groupControlLifes)
                         {
@@ -332,11 +332,12 @@ namespace Metasia.Core.Objects
 
             if (node is NormalRenderNode normalNode && normalNode.Image is not null && groupNode.VisualEffectContext is not null)
             {
+                groupNode.VisualEffectContext.TargetImageCacheKey = normalNode.ImageCacheKey;
                 var newImage = VisualEffectPipeline.ApplyEffects(
                     normalNode.Image,
                     groupNode.VisualEffects,
                     groupNode.VisualEffectContext);
-                normalNode.Image = newImage;
+                normalNode.Image = newImage.Image;
             }
 
             foreach (var child in node.Children)
@@ -345,11 +346,12 @@ namespace Metasia.Core.Objects
 
                 if (child is NormalRenderNode childNormalNode && childNormalNode.Image is not null && groupNode.VisualEffectContext is not null)
                 {
+                    groupNode.VisualEffectContext.TargetImageCacheKey = childNormalNode.ImageCacheKey;
                     var newImage = VisualEffectPipeline.ApplyEffects(
                         childNormalNode.Image,
                         groupNode.VisualEffects,
                         groupNode.VisualEffectContext);
-                    childNormalNode.Image = newImage;
+                    childNormalNode.Image = newImage.Image;
                 }
             }
             return Task.FromResult(node);

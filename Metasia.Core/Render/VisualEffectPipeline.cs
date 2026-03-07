@@ -1,4 +1,5 @@
 using Metasia.Core.Objects.VisualEffects;
+using Metasia.Core.Render.Cache;
 using SkiaSharp;
 
 namespace Metasia.Core.Render
@@ -9,7 +10,7 @@ namespace Metasia.Core.Render
     public static class VisualEffectPipeline
     {
         /// <summary>
-        /// エフェクトリストを順番に適用し、最終的な画像を返す
+        /// エフェクトリストを順番に適用し、最終的な結果を返す
         /// </summary>
         /// <param name="input">入力画像</param>
         /// <param name="effects">適用するエフェクトのリスト</param>
@@ -17,45 +18,65 @@ namespace Metasia.Core.Render
         /// <param name="startFrame">クリップの開始フレーム</param>
         /// <param name="endFrame">クリップの終了フレーム</param>
         /// <param name="logicalSize">元画像の論理サイズ</param>
-        /// <returns>エフェクト適用後の画像</returns>
-        public static SKImage ApplyEffects(
+        /// <returns>エフェクト適用後の結果</returns>
+        public static VisualEffectResult ApplyEffects(
             SKImage input,
             IReadOnlyList<VisualEffectBase> effects,
             RenderContext renderContext,
             int startFrame,
             int endFrame,
-            SKSize logicalSize)
+            SKSize logicalSize,
+            long imageCacheKey = IRenderImageCache.NO_CACHE_KEY)
         {
             if (effects is null || effects.Count == 0)
             {
-                return input;
+                return new VisualEffectResult(input, imageCacheKey);
             }
 
-            var context = VisualEffectContext.FromRenderContext(renderContext, startFrame, endFrame, logicalSize);
+            var context = VisualEffectContext.FromRenderContext(renderContext, startFrame, endFrame, logicalSize, targetImageCacheKey: imageCacheKey);
             return ApplyEffects(input, effects, context);
         }
 
-        public static SKImage ApplyEffects(
+        /// <summary>
+        /// エフェクトリストを順番に適用し、最終的な結果を返す
+        /// </summary>
+        /// <param name="input">入力画像</param>
+        /// <param name="effects">適用するエフェクトのリスト</param>
+        /// <param name="context">ビジュアルエフェクトコンテキスト</param>
+        /// <returns>エフェクト適用後の結果</returns>
+        public static VisualEffectResult ApplyEffects(
             SKImage input,
             IReadOnlyList<VisualEffectBase> effects,
             VisualEffectContext context)
         {
             if (effects is null || effects.Count == 0)
             {
-                return input;
+                return new VisualEffectResult(input, context.TargetImageCacheKey);
             }
 
             SKImage current = input;
+            long currentCacheKey = context.TargetImageCacheKey;
 
             foreach (var effect in effects)
             {
                 if (effect.IsActive)
                 {
-                    current = effect.Apply(current, context);
+                    var result = effect.Apply(current, context);
+                    current = result.Image;
+                    currentCacheKey = result.ImageCacheKey;
+                    context = new VisualEffectContext(
+                        context.Frame,
+                        context.RelativeFrame,
+                        context.ClipLength,
+                        context.ProjectResolution,
+                        context.RenderResolution,
+                        context.LogicalSize,
+                        context.ImageCache,
+                        currentCacheKey);
                 }
             }
 
-            return current;
+            return new VisualEffectResult(current, currentCacheKey);
         }
     }
 }

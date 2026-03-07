@@ -47,11 +47,11 @@ namespace Metasia.Core.Tests.Objects.VisualEffects
             var context = CreateTestContext();
 
             // Act
-            using var result = effect.Apply(inputImage, context);
+            var result = effect.Apply(inputImage, context);
 
             // Assert
             Assert.That(result, Is.Not.Null);
-            Assert.That(result, Is.SameAs(inputImage));
+            Assert.That(result.Image, Is.SameAs(inputImage));
         }
 
         [Test]
@@ -81,11 +81,11 @@ namespace Metasia.Core.Tests.Objects.VisualEffects
             var context = CreateTestContext();
 
             // Act
-            using var result = effect.Apply(inputImage, context);
+            var result = effect.Apply(inputImage, context);
 
             // Assert
             Assert.That(result, Is.Not.Null);
-            using var bitmap = SKBitmap.FromImage(result);
+            using var bitmap = SKBitmap.FromImage(result.Image);
             Assert.That(bitmap.GetPixel(25, 25), Is.EqualTo(SKColors.Red));
         }
 

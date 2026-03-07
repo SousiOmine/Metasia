@@ -35,7 +35,7 @@ namespace Metasia.Core.Tests.Objects.VisualEffects
 
             var result = effect.Apply(input, context);
 
-            Assert.That(result, Is.SameAs(input));
+            Assert.That(result.Image, Is.SameAs(input));
         }
 
         [Test]
@@ -46,11 +46,11 @@ namespace Metasia.Core.Tests.Objects.VisualEffects
             using var input = CreateTestImage();
             var context = CreateContext();
 
-            using var result = effect.Apply(input, context);
+            var result = effect.Apply(input, context);
 
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.Width, Is.EqualTo(input.Width));
-            Assert.That(result.Height, Is.EqualTo(input.Height));
+            Assert.That(result.Image.Width, Is.EqualTo(input.Width));
+            Assert.That(result.Image.Height, Is.EqualTo(input.Height));
         }
 
         [Test]
@@ -62,9 +62,9 @@ namespace Metasia.Core.Tests.Objects.VisualEffects
             using var input = CreateTestImage();
             var context = CreateContext();
 
-            using var result = effect.Apply(input, context);
+            var result = effect.Apply(input, context);
             using var inputBitmap = SKBitmap.FromImage(input);
-            using var resultBitmap = SKBitmap.FromImage(result);
+            using var resultBitmap = SKBitmap.FromImage(result.Image);
 
             // ブラーが適用されると、元は透明だった領域にも色がにじむ
             // 赤い四角の右隣（元は透明）に色が広がっているはず
