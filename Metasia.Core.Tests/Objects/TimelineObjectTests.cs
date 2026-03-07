@@ -1,12 +1,15 @@
-using NUnit.Framework;
+using Metasia.Core.Media;
 using Metasia.Core.Objects;
+using Metasia.Core.Project;
+using Metasia.Core.Render;
+using SkiaSharp;
 
 namespace Metasia.Core.Tests.Objects
 {
     [TestFixture]
     public class TimelineObjectTests
     {
-        private TimelineObject _timelineObject;
+        private TimelineObject _timelineObject = null!;
 
         [SetUp]
         public void Setup()
@@ -17,10 +20,8 @@ namespace Metasia.Core.Tests.Objects
         [Test]
         public void Constructor_WithId_InitializesCorrectly()
         {
-            // Arrange & Act
             var timeline = new TimelineObject("test-id");
 
-            // Assert
             Assert.That(timeline.Id, Is.EqualTo("test-id"));
             Assert.That(timeline.Volume.Value, Is.EqualTo(100.0));
             Assert.That(timeline.Layers, Is.Not.Null);
@@ -31,10 +32,8 @@ namespace Metasia.Core.Tests.Objects
         [Test]
         public void Constructor_WithoutParameters_InitializesWithDefaults()
         {
-            // Arrange & Act
             var timeline = new TimelineObject();
 
-            // Assert
             Assert.That(timeline.Volume.Value, Is.EqualTo(100.0));
             Assert.That(timeline.Layers, Is.Not.Null);
             Assert.That(timeline.Layers.Count, Is.EqualTo(0));
@@ -43,36 +42,28 @@ namespace Metasia.Core.Tests.Objects
         [Test]
         public void Volume_CanBeModified()
         {
-            // Arrange
-            Assert.That(_timelineObject.Volume.Value, Is.EqualTo(100.0)); // デフォルト値確認
+            Assert.That(_timelineObject.Volume.Value, Is.EqualTo(100.0));
 
-            // Act
             _timelineObject.Volume = 75;
 
-            // Assert
             Assert.That(_timelineObject.Volume.Value, Is.EqualTo(75.0));
         }
 
         [Test]
         public void Layers_CanAddAndRemove()
         {
-            // Arrange
             var layer1 = new LayerObject("layer1", "Layer 1");
             var layer2 = new LayerObject("layer2", "Layer 2");
 
-            // Act - Add
             _timelineObject.Layers.Add(layer1);
             _timelineObject.Layers.Add(layer2);
 
-            // Assert - Add
             Assert.That(_timelineObject.Layers.Count, Is.EqualTo(2));
             Assert.That(_timelineObject.Layers[0].Id, Is.EqualTo("layer1"));
             Assert.That(_timelineObject.Layers[1].Id, Is.EqualTo("layer2"));
 
-            // Act - Remove
             _timelineObject.Layers.Remove(layer1);
 
-            // Assert - Remove
             Assert.That(_timelineObject.Layers.Count, Is.EqualTo(1));
             Assert.That(_timelineObject.Layers[0].Id, Is.EqualTo("layer2"));
         }
@@ -80,17 +71,14 @@ namespace Metasia.Core.Tests.Objects
         [Test]
         public void Layers_MaintainOrder()
         {
-            // Arrange
             var layer1 = new LayerObject("layer1", "Layer 1");
             var layer2 = new LayerObject("layer2", "Layer 2");
             var layer3 = new LayerObject("layer3", "Layer 3");
 
-            // Act
             _timelineObject.Layers.Add(layer1);
             _timelineObject.Layers.Add(layer2);
             _timelineObject.Layers.Add(layer3);
 
-            // Assert - 順序が保持されることを確認
             Assert.That(_timelineObject.Layers[0].Name, Is.EqualTo("Layer 1"));
             Assert.That(_timelineObject.Layers[1].Name, Is.EqualTo("Layer 2"));
             Assert.That(_timelineObject.Layers[2].Name, Is.EqualTo("Layer 3"));
@@ -99,7 +87,6 @@ namespace Metasia.Core.Tests.Objects
         [Test]
         public void Layers_CanInsertAtSpecificIndex()
         {
-            // Arrange
             var layer1 = new LayerObject("layer1", "Layer 1");
             var layer2 = new LayerObject("layer2", "Layer 2");
             var layer3 = new LayerObject("layer3", "Layer 3");
@@ -107,10 +94,8 @@ namespace Metasia.Core.Tests.Objects
             _timelineObject.Layers.Add(layer1);
             _timelineObject.Layers.Add(layer3);
 
-            // Act
             _timelineObject.Layers.Insert(1, layer2);
 
-            // Assert
             Assert.That(_timelineObject.Layers.Count, Is.EqualTo(3));
             Assert.That(_timelineObject.Layers[0].Name, Is.EqualTo("Layer 1"));
             Assert.That(_timelineObject.Layers[1].Name, Is.EqualTo("Layer 2"));
@@ -120,26 +105,21 @@ namespace Metasia.Core.Tests.Objects
         [Test]
         public void Layers_CanClear()
         {
-            // Arrange
             _timelineObject.Layers.Add(new LayerObject("layer1", "Layer 1"));
             _timelineObject.Layers.Add(new LayerObject("layer2", "Layer 2"));
             Assert.That(_timelineObject.Layers.Count, Is.EqualTo(2));
 
-            // Act
             _timelineObject.Layers.Clear();
 
-            // Assert
             Assert.That(_timelineObject.Layers.Count, Is.EqualTo(0));
         }
 
         [Test]
         public void IMetasiaObject_Properties_WorkCorrectly()
         {
-            // TimelineObjectはIMetasiaObjectを実装しているので、基本プロパティを確認
             Assert.That(_timelineObject.Id, Is.EqualTo("timeline-id"));
             Assert.That(_timelineObject.IsActive, Is.True);
 
-            // 変更も可能
             _timelineObject.Id = "modified-id";
             _timelineObject.IsActive = false;
 
@@ -150,10 +130,8 @@ namespace Metasia.Core.Tests.Objects
         [Test]
         public void SelectionRange_DefaultValues()
         {
-            // Arrange & Act
             var timeline = new TimelineObject();
 
-            // Assert
             Assert.That(timeline.SelectionStart, Is.EqualTo(0));
             Assert.That(timeline.SelectionEnd, Is.EqualTo(int.MaxValue));
         }
@@ -161,14 +139,11 @@ namespace Metasia.Core.Tests.Objects
         [Test]
         public void SelectionRange_CanBeModified()
         {
-            // Arrange
             var timeline = new TimelineObject();
 
-            // Act
             timeline.SelectionStart = 50;
             timeline.SelectionEnd = 200;
 
-            // Assert
             Assert.That(timeline.SelectionStart, Is.EqualTo(50));
             Assert.That(timeline.SelectionEnd, Is.EqualTo(200));
         }
@@ -176,20 +151,16 @@ namespace Metasia.Core.Tests.Objects
         [Test]
         public void GetLastFrameOfClips_EmptyTimeline_ReturnsZero()
         {
-            // Arrange
             var timeline = new TimelineObject();
 
-            // Act
             int lastFrame = timeline.GetLastFrameOfClips();
 
-            // Assert
             Assert.That(lastFrame, Is.EqualTo(0));
         }
 
         [Test]
         public void GetLastFrameOfClips_WithClips_ReturnsMaximumEndFrame()
         {
-            // Arrange
             var timeline = new TimelineObject();
             var layer = new LayerObject("layer1", "Layer 1");
             timeline.Layers.Add(layer);
@@ -202,17 +173,14 @@ namespace Metasia.Core.Tests.Objects
             layer.Objects.Add(clip2);
             layer.Objects.Add(clip3);
 
-            // Act
             int lastFrame = timeline.GetLastFrameOfClips();
 
-            // Assert
             Assert.That(lastFrame, Is.EqualTo(300));
         }
 
         [Test]
         public void GetLastFrameOfClips_MultipleLayers_ReturnsMaximumEndFrame()
         {
-            // Arrange
             var timeline = new TimelineObject();
             var layer1 = new LayerObject("layer1", "Layer 1");
             var layer2 = new LayerObject("layer2", "Layer 2");
@@ -223,11 +191,67 @@ namespace Metasia.Core.Tests.Objects
             layer1.Objects.Add(new ClipObject("clip1") { StartFrame = 0, EndFrame = 100 });
             layer2.Objects.Add(new ClipObject("clip2") { StartFrame = 50, EndFrame = 200 });
 
-            // Act
             int lastFrame = timeline.GetLastFrameOfClips();
 
-            // Assert
             Assert.That(lastFrame, Is.EqualTo(200));
+        }
+
+        [Test]
+        public async Task RenderAsync_NestedGroupControls_DoNotDoubleApplyOuterTransform()
+        {
+            var timeline = new TimelineObject("timeline");
+
+            var outerLayer = new LayerObject("layer-1", "Outer");
+            outerLayer.Objects.Add(new GroupControlObject("outer")
+            {
+                StartFrame = 0,
+                EndFrame = 10,
+                X = new(10)
+            });
+
+            var innerLayer = new LayerObject("layer-2", "Inner");
+            innerLayer.Objects.Add(new GroupControlObject("inner")
+            {
+                StartFrame = 0,
+                EndFrame = 10,
+                X = new(20)
+            });
+
+            var contentLayer = new LayerObject("layer-3", "Content");
+            contentLayer.Objects.Add(new kariHelloObject("content")
+            {
+                StartFrame = 0,
+                EndFrame = 10,
+                X = new(5)
+            });
+
+            timeline.Layers.Add(outerLayer);
+            timeline.Layers.Add(innerLayer);
+            timeline.Layers.Add(contentLayer);
+
+            var context = new RenderContext(
+                frame: 0,
+                projectResolution: new SKSize(1920, 1080),
+                renderResolution: new SKSize(1920, 1080),
+                imageFileAccessor: new EmptyImageFileAccessor(),
+                videoFileAccessor: new EmptyVideoFileAccessor(),
+                projectInfo: new ProjectInfo(30, new SKSize(1920, 1080), 44100, 2),
+                projectPath: string.Empty);
+
+            var result = await timeline.RenderAsync(context);
+
+            Assert.That(result, Is.InstanceOf<NormalRenderNode>());
+            var root = (NormalRenderNode)result;
+            Assert.That(root.Children, Has.Count.EqualTo(1));
+            Assert.That(root.Children[0], Is.InstanceOf<NormalRenderNode>());
+
+            var layerNode = (NormalRenderNode)root.Children[0];
+            Assert.That(layerNode.Children, Has.Count.EqualTo(1));
+            Assert.That(layerNode.Children[0], Is.InstanceOf<NormalRenderNode>());
+
+            var contentNode = (NormalRenderNode)layerNode.Children[0];
+            Assert.That(contentNode.Transform.Position.X, Is.EqualTo(35).Within(0.001f));
+            Assert.That(contentNode.Transform.Position.Y, Is.EqualTo(0).Within(0.001f));
         }
     }
 }

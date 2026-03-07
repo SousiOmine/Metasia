@@ -268,11 +268,6 @@ namespace Metasia.Core.Objects
                     GroupControlRenderNode? groupNode = node as GroupControlRenderNode;
                     if (groupNode is not null)
                     {
-                        foreach (var group in groupControlLifes)
-                        {
-                            node = await ApplyGroupControl(node, group.Node);
-                        }
-                        nodes.Add(node);
                         groupControlLifes.Add(new GroupControlLife(groupNode));
                     }
                 }
