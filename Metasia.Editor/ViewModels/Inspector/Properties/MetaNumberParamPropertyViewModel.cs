@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
+using Avalonia.Threading;
 using Metasia.Core.Coordinate;
 using Metasia.Core.Objects.Parameters;
 using Metasia.Editor.Models;
@@ -140,6 +141,18 @@ public class MetaNumberParamPropertyViewModel : ViewModelBase
         }
     }
 
+    public void PreviewUpdatePointFrame(CoordPoint targetCoordPoint, int beforeFrame, int frame)
+    {
+        var points = new List<CoordPoint> { _propertyValue.StartPoint, _propertyValue.EndPoint };
+        points.AddRange(_propertyValue.Params);
+        var targetPoint = points.FirstOrDefault(x => x.Id == targetCoordPoint.Id);
+        if (targetPoint is not null)
+        {
+            var command = new CoordPointFrameChangeCommand(_propertyValue, targetCoordPoint, beforeFrame, frame);
+            _editCommandManager.PreviewExecute(command);
+        }
+    }
+
     public void AddPointRequest(CoordPoint from)
     {
         var points = new List<CoordPoint> { _propertyValue.StartPoint };
@@ -187,7 +200,13 @@ public class MetaNumberParamPropertyViewModel : ViewModelBase
 
     private void OnTimelineChanged()
     {
-        RestructureParams();
+        if (Dispatcher.UIThread.CheckAccess())
+        {
+            RestructureParams();
+            return;
+        }
+
+        Dispatcher.UIThread.Post(RestructureParams);
     }
 
     private void RestructureParams()

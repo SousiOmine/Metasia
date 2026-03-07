@@ -1,5 +1,4 @@
 using System;
-using System.Timers;
 using System.Windows.Input;
 using Metasia.Core.Coordinate;
 using ReactiveUI;
@@ -122,12 +121,10 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
     private double _max = double.MaxValue;
     private double _recommendedMin = double.MinValue;
     private double _recommendedMax = double.MaxValue;
-    private const double _frameEnterThreshold = 0.2;
     private const double _doubleComparisonTolerance = 1e-6;
 
-    private Timer? _frameEnterTimer;
     private bool _isInteracting = false;
-    private bool _isFrameEnteringFlag = false;
+    private bool _isFrameInteracting = false;
     private double _beforeValue = 0;
     private int _beforeFrame = 0;
     private bool _suppressChangeEvents = false;
@@ -148,16 +145,20 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
         RefreshFromTarget(target, pointType, min, max, recommendedMin, recommendedMax);
         this.WhenAnyValue(vm => vm.PointFrame).Subscribe(_ =>
         {
-            TryFrameEnter();
+            TryPreviewFrameChange();
         });
         AddPointCommand = ReactiveCommand.Create(AddPoint);
         RemovePointCommand = ReactiveCommand.Create(RemovePoint);
         InteractionStartedCommand = ReactiveCommand.Create(StartInteraction);
         InteractionCompletedCommand = ReactiveCommand.Create(EndInteraction);
+        FrameInteractionStartedCommand = ReactiveCommand.Create(StartFrameInteraction);
+        FrameInteractionCompletedCommand = ReactiveCommand.Create(EndFrameInteraction);
     }
 
     public ICommand InteractionStartedCommand { get; }
     public ICommand InteractionCompletedCommand { get; }
+    public ICommand FrameInteractionStartedCommand { get; }
+    public ICommand FrameInteractionCompletedCommand { get; }
 
     public void RefreshFromTarget(
         CoordPoint target,
@@ -256,37 +257,38 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
         }
     }
 
-    private void TryFrameEnter()
+    private void TryPreviewFrameChange()
     {
         if (_suppressChangeEvents)
         {
             return;
         }
-        if (_isFrameEnteringFlag)
+
+        if (!_isFrameInteracting)
         {
-            if (_frameEnterTimer is null)
-            {
-                _frameEnterTimer = new Timer(_frameEnterThreshold * 1000)
-                {
-                    AutoReset = false
-                };
-                _frameEnterTimer.Elapsed += (sender, e) =>
-                {
-                    if (PointFrame != _beforeFrame)
-                    {
-                        _parentViewModel.UpdatePointFrame(_target, _beforeFrame, PointFrame);
-                        _isFrameEnteringFlag = false;
-                    }
-                };
-            }
-            _frameEnterTimer.Stop();
-            _frameEnterTimer.Start();
-        }
-        else
-        {
-            _beforeFrame = PointFrame;
+            return;
         }
 
-        _isFrameEnteringFlag = true;
+        if (PointFrame != _beforeFrame)
+        {
+            _parentViewModel.PreviewUpdatePointFrame(_target, _beforeFrame, PointFrame);
+        }
+    }
+
+    private void StartFrameInteraction()
+    {
+        _isFrameInteracting = true;
+        _beforeFrame = _pointFrame;
+    }
+
+    private void EndFrameInteraction()
+    {
+        _isFrameInteracting = false;
+        var beforeFrame = _beforeFrame;
+
+        if (PointFrame != beforeFrame)
+        {
+            _parentViewModel.UpdatePointFrame(_target, beforeFrame, PointFrame);
+        }
     }
 }

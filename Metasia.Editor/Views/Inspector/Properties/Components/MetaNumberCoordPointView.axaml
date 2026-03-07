@@ -26,6 +26,8 @@
                                                  Increment="1"
                                                  SnapToIncrement="True"
                                                  DragValuePerPixel="0.2"
+                                                 InteractionStartedCommand="{Binding FrameInteractionStartedCommand}"
+                                                 InteractionCompletedCommand="{Binding FrameInteractionCompletedCommand}"
                                                  IsVisible="{Binding IsMidpoint}">
                     <controls:InspectorNumericUpDown.ContextMenu>
                         <ContextMenu>
