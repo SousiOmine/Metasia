@@ -305,7 +305,7 @@ namespace Metasia.Core.Objects
                                 cameraNode.VisualEffectContext).Image;
                         }
 
-                        
+
 
                         foreach (var group in groupControlLifes)
                         {

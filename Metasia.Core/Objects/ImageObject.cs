@@ -50,6 +50,7 @@ public class ImageObject : ClipObject, IRenderable
     {
         cancellationToken.ThrowIfCancellationRequested();
 
+
         int relativeFrame = context.Frame - StartFrame;
         int clipLength = EndFrame - StartFrame + 1;
         if (ImagePath is null || string.IsNullOrWhiteSpace(ImagePath.FileName))
@@ -57,36 +58,55 @@ public class ImageObject : ClipObject, IRenderable
             return new NormalRenderNode();
         }
 
-        try
-        {
-            var imageFileAccessorResult = await context.ImageFileAccessor.GetImageAsync(MediaPath.GetFullPath(ImagePath, context.ProjectPath));
-            if (imageFileAccessorResult.IsSuccessful && imageFileAccessorResult.Image is not null)
-            {
-                var transform = new Transform()
-                {
-                    Position = new SKPoint((float)X.Get(relativeFrame, clipLength), (float)Y.Get(relativeFrame, clipLength)),
-                    Scale = (float)Scale.Get(relativeFrame, clipLength) / 100,
-                    Rotation = (float)Rotation.Get(relativeFrame, clipLength),
-                    Alpha = (100.0f - (float)Alpha.Get(relativeFrame, clipLength)) / 100,
-                };
-                var logicalSize = new SKSize(imageFileAccessorResult.Image.Width, imageFileAccessorResult.Image.Height);
-                var finalResult = VisualEffectPipeline.ApplyEffects(imageFileAccessorResult.Image, VisualEffects, context, StartFrame, EndFrame, logicalSize);
-                return new NormalRenderNode()
-                {
-                    Image = finalResult.Image,
-                    LogicalSize = logicalSize,
-                    Transform = transform,
-                    BlendMode = BlendMode.Value,
-                    ImageCacheKey = finalResult.ImageCacheKey,
-                };
-            }
+        long imageHashCode = GetImageHashCode();
+        SKImage? image = context?.ImageCache?.TryGet(imageHashCode);
 
-            Debug.WriteLine($"Failed to load image: {ImagePath}");
-        }
-        catch (Exception ex)
+        if (image is null)
         {
-            Debug.WriteLine($"Failed to load image: {ImagePath}. {ex.Message}");
+            try
+            {
+                var imageFileAccessorResult = await context.ImageFileAccessor.GetImageAsync(MediaPath.GetFullPath(ImagePath, context.ProjectPath));
+                if (imageFileAccessorResult.IsSuccessful && imageFileAccessorResult.Image is not null)
+                {
+                    image = imageFileAccessorResult.Image;
+                    context?.ImageCache?.Set(imageHashCode, imageFileAccessorResult.Image);
+                }
+
+                Debug.WriteLine($"Failed to load image: {ImagePath}");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Failed to load image: {ImagePath}. {ex.Message}");
+            }
         }
-        return new NormalRenderNode();
+
+        if (image is null) return new NormalRenderNode();
+
+        var transform = new Transform()
+        {
+            Position = new SKPoint((float)X.Get(relativeFrame, clipLength), (float)Y.Get(relativeFrame, clipLength)),
+            Scale = (float)Scale.Get(relativeFrame, clipLength) / 100,
+            Rotation = (float)Rotation.Get(relativeFrame, clipLength),
+            Alpha = (100.0f - (float)Alpha.Get(relativeFrame, clipLength)) / 100,
+        };
+        var logicalSize = new SKSize(image.Width, image.Height);
+        var finalResult = VisualEffectPipeline.ApplyEffects(image, VisualEffects, context, StartFrame, EndFrame, logicalSize, imageCacheKey: imageHashCode);
+        return new NormalRenderNode()
+        {
+            Image = finalResult.Image,
+            LogicalSize = logicalSize,
+            Transform = transform,
+            BlendMode = BlendMode.Value,
+            ImageCacheKey = finalResult.ImageCacheKey,
+        };
+    }
+
+    private long GetImageHashCode()
+    {
+        var hash = new HashCode();
+        hash.Add(nameof(ImageObject));
+        hash.Add(ImagePath.FileName);
+
+        return hash.ToHashCode();
     }
 }

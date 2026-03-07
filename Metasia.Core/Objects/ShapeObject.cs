@@ -72,7 +72,7 @@ namespace Metasia.Core.Objects
             cancellationToken.ThrowIfCancellationRequested();
 
             ArgumentNullException.ThrowIfNull(context);
-            
+
             //このオブジェクトのStartFrameを基準としたフレーム
             int relativeFrame = context.Frame - StartFrame;
 
@@ -165,7 +165,7 @@ namespace Metasia.Core.Objects
                 context?.ImageCache?.Set(imageCacheKey, image);
             }
 
-            
+
 
             var transform = new Transform()
             {

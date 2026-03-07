@@ -35,7 +35,7 @@ public class FlipEffect : VisualEffectBase
                 return new VisualEffectResult(cachedImage, cacheKey);
             }
         }
-        
+
 
         int width = input.Width;
         int height = input.Height;

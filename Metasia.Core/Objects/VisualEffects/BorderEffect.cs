@@ -34,7 +34,7 @@ namespace Metasia.Core.Objects.VisualEffects
                     return new VisualEffectResult(cachedImage, cacheKey);
                 }
             }
-            
+
 
             int relativeFrame = context.RelativeFrame;
             int clipLength = context.ClipLength;

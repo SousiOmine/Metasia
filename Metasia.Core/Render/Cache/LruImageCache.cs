@@ -29,7 +29,7 @@ public class LruImageCache : IRenderImageCache
             }
             return node?.Value.image;
         }
-        
+
     }
 
     public void Set(long key, SKImage image)
@@ -44,7 +44,7 @@ public class LruImageCache : IRenderImageCache
             }
             var newNode = cacheList.AddFirst((key, image));
             cacheMap[key] = newNode;
-            
+
             if (cacheList.Count > capacity)
             {
                 var last = cacheList.Last;
@@ -56,7 +56,7 @@ public class LruImageCache : IRenderImageCache
                 }
             }
         }
-        
+
     }
 
     public void Clear()
@@ -71,6 +71,6 @@ public class LruImageCache : IRenderImageCache
             cacheMap.Clear();
         }
 
-        
+
     }
 }
