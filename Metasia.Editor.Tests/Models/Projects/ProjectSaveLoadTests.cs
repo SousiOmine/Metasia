@@ -5,6 +5,9 @@ using Metasia.Editor.Models.Projects;
 using Metasia.Editor.Models;
 using System.IO;
 using System.IO.Compression;
+using System.Text;
+using Metasia.Core.Objects;
+using Metasia.Core.Xml;
 
 namespace Metasia.Editor.Tests.Models.Projects
 {
@@ -128,6 +131,70 @@ namespace Metasia.Editor.Tests.Models.Projects
             var ex = Assert.Throws<Exception>(() =>
                 ProjectSaveLoadManager.Load(_projectFilePath));
             Assert.That(ex.Message, Does.Contain("project.json"));
+        }
+
+        [Test]
+        public void Load_AssignsIdsToObjectsWithMissingIds()
+        {
+            var projectFileJson = """
+                {
+                  "Framerate": 60,
+                  "Resolution": {
+                    "Width": 1920,
+                    "Height": 1080
+                  },
+                  "AudioSamplingRate": 48000,
+                  "AudioChannels": 2,
+                  "RootTimelineId": "RootTimeline"
+                }
+                """;
+
+            var timeline = new TimelineObject
+            {
+                Id = "",
+                Layers =
+                {
+                    new LayerObject
+                    {
+                        Id = "",
+                        Objects =
+                        {
+                            new ImageObject
+                            {
+                                Id = "",
+                                StartFrame = 0,
+                                EndFrame = 149
+                            }
+                        }
+                    }
+                }
+            };
+
+            var timelineXml = MetasiaObjectXmlSerializer.Serialize(timeline);
+
+            using (var archive = ZipFile.Open(_projectFilePath, ZipArchiveMode.Create))
+            {
+                var projectEntry = archive.CreateEntry("project.json");
+                using (var writer = new StreamWriter(projectEntry.Open(), Encoding.UTF8))
+                {
+                    writer.Write(projectFileJson);
+                }
+
+                var timelineEntry = archive.CreateEntry("timelines/RootTimeline.xml");
+                using (var writer = new StreamWriter(timelineEntry.Open(), Encoding.UTF8))
+                {
+                    writer.Write(timelineXml);
+                }
+            }
+
+            var loadedProject = ProjectSaveLoadManager.Load(_projectFilePath);
+            var loadedTimeline = loadedProject.Timelines.Single();
+            var loadedLayer = loadedTimeline.Layers.Single();
+            var loadedClip = loadedLayer.Objects.Single();
+
+            Assert.That(loadedTimeline.Id, Is.Not.Null.And.Not.Empty);
+            Assert.That(loadedLayer.Id, Is.Not.Null.And.Not.Empty);
+            Assert.That(loadedClip.Id, Is.Not.Null.And.Not.Empty);
         }
     }
 }

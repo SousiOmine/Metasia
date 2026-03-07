@@ -7,6 +7,8 @@ using System.Text.Json;
 using DynamicData;
 using Metasia.Core.Xml;
 using Metasia.Core.Objects;
+using Metasia.Core.Render;
+using Metasia.Core.Sounds;
 using Metasia.Editor.Models.FileSystem;
 using Metasia.Editor.Models.Projects;
 using System.Collections.Generic;
@@ -150,6 +152,7 @@ public class ProjectSaveLoadManager
                         throw new Exception("タイムラインファイルのフォーマットが不正です。");
                     }
 
+                    EnsureIdsAssigned(timelineObject);
                     timelines.Add(timelineObject);
                 }
                 catch (Exception e)
@@ -185,5 +188,68 @@ public class ProjectSaveLoadManager
         }
 
         return $"{timeline.Id}.xml";
+    }
+
+    /// <summary>
+    /// IDが振られていないオブジェクトがあればランダムにIDを付与
+    /// </summary>
+    /// <param name="timeline"></param>
+    private static void EnsureIdsAssigned(TimelineObject timeline)
+    {
+        AssignIdIfMissing(timeline);
+
+        foreach (var visualEffect in timeline.VisualEffects)
+        {
+            AssignIdIfMissing(visualEffect);
+        }
+
+        foreach (var audioEffect in timeline.AudioEffects)
+        {
+            AssignIdIfMissing(audioEffect);
+        }
+
+        foreach (var layer in timeline.Layers)
+        {
+            AssignIdIfMissing(layer);
+
+            foreach (var visualEffect in layer.VisualEffects)
+            {
+                AssignIdIfMissing(visualEffect);
+            }
+
+            foreach (var audioEffect in layer.AudioEffects)
+            {
+                AssignIdIfMissing(audioEffect);
+            }
+
+            foreach (var clip in layer.Objects)
+            {
+                AssignIdIfMissing(clip);
+
+                if (clip is IRenderable renderable)
+                {
+                    foreach (var visualEffect in renderable.VisualEffects)
+                    {
+                        AssignIdIfMissing(visualEffect);
+                    }
+                }
+
+                if (clip is IAudible audible)
+                {
+                    foreach (var audioEffect in audible.AudioEffects)
+                    {
+                        AssignIdIfMissing(audioEffect);
+                    }
+                }
+            }
+        }
+    }
+
+    private static void AssignIdIfMissing(IMetasiaObject target)
+    {
+        if (string.IsNullOrWhiteSpace(target.Id))
+        {
+            target.Id = Guid.NewGuid().ToString();
+        }
     }
 }
