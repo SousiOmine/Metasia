@@ -7,17 +7,17 @@ using Metasia.Core.Sounds;
 
 namespace Metasia.Core.Objects;
 
-[ClipTypeIdentifier("AudioObject")]
+[ClipTypeIdentifier("AudioObject", DisplayKey = "clip.audio.name", FallbackText = "音声")]
 public class AudioObject : ClipObject, IAudible
 {
-    [EditableProperty("AudioPath")]
+    [EditableProperty("AudioPath", DisplayKey = "property.audio.path", FallbackText = "音声ファイル")]
     public MediaPath AudioPath { get; set; } = new();
 
-    [EditableProperty("AudioStartSeconds")]
+    [EditableProperty("AudioStartSeconds", DisplayKey = "property.common.audio_start_seconds", FallbackText = "音声開始秒")]
     [ValueRange(0, 99999, 0, 3600)]
     public MetaNumberParam<double> AudioStartSeconds { get; set; } = new(0);
 
-    [EditableProperty("AudioVolume")]
+    [EditableProperty("AudioVolume", DisplayKey = "property.common.audio_volume", FallbackText = "音量")]
     [ValueRange(0, 99999, 0, 200)]
     public MetaDoubleParam Volume { get; set; } = new(100);
 

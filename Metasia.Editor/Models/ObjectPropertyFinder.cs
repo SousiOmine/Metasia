@@ -7,8 +7,11 @@ namespace Metasia.Editor.Models;
 public class ObjectPropertyFinder
 {
     public record EditablePropertyInfo(
+        Type OwnerType,
         Type Type,
         string Identifier,
+        string? DisplayKey,
+        string? FallbackText,
         object? PropertyValue,
         double? Min,
         double? Max,
@@ -36,8 +39,11 @@ public class ObjectPropertyFinder
             double? recommendedMax = rangeAttr?.RecommendedMax ?? max;
 
             properties.Add(new EditablePropertyInfo(
+                type,
                 prop.PropertyType,
                 editablePropertyAttribute.PropertyIdentifier,
+                editablePropertyAttribute.DisplayKey,
+                editablePropertyAttribute.FallbackText,
                 prop.GetValue(target),
                 min,
                 max,

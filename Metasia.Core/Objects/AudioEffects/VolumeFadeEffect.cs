@@ -4,20 +4,20 @@ using Metasia.Core.Objects.Parameters;
 
 namespace Metasia.Core.Objects.AudioEffects
 {
-    [AudioEffectIdentifier("VolumeFadeEffect")]
+    [AudioEffectIdentifier("VolumeFadeEffect", DisplayKey = "effect.audio.volume_fade.name", FallbackText = "音量フェード")]
     public class VolumeFadeEffect : AudioEffectBase
     {
         /// <summary>
         /// フェードイン時の時間
         /// </summary>
-		[EditableProperty("FadeInTimeFromSeconds")]
+		[EditableProperty("FadeInTimeFromSeconds", DisplayKey = "property.effect.volume_fade.in_seconds", FallbackText = "フェードイン(s)")]
         [ValueRange(0, 10, 0, 5)]
         public MetaDoubleParam In { get; set; } = new MetaDoubleParam(0.5);
 
         /// <summary>
         /// フェードアウト時の時間
         /// </summary>
-        [EditableProperty("FadeOutTimeFromSeconds")]
+        [EditableProperty("FadeOutTimeFromSeconds", DisplayKey = "property.effect.volume_fade.out_seconds", FallbackText = "フェードアウト(s)")]
         [ValueRange(0, 10, 0, 5)]
         public MetaDoubleParam Out { get; set; } = new MetaDoubleParam(0.5);
         public override IAudioChunk Apply(IAudioChunk input, AudioEffectContext context)

@@ -10,6 +10,7 @@ using Metasia.Core.Media;
 using Metasia.Core.Objects.Parameters;
 using Metasia.Core.Objects.Parameters.Color;
 using Metasia.Core.Render;
+using Metasia.Editor.Models;
 
 namespace Metasia.Editor.ViewModels.Inspector;
 
@@ -208,6 +209,8 @@ public class PropertyRouterViewModel : ViewModelBase
 
     private void RestructureProperty()
     {
+        var displayName = DisplayTextResolver.ResolvePropertyDisplayName(_propertyInfo);
+
         if (_propertyInfo.Type == typeof(MetaNumberParam<double>))
         {
             if (MetaNumberParamPropertyVm is null)
@@ -220,6 +223,7 @@ public class PropertyRouterViewModel : ViewModelBase
                 {
                     MetaNumberParamPropertyVm = _metaNumberParamPropertyViewModelFactory.Create(_propertyInfo.Identifier, (MetaNumberParam<double>)_propertyInfo.PropertyValue!, _propertyInfo.Min.Value, _propertyInfo.Max.Value, _propertyInfo.RecommendedMin.Value, _propertyInfo.RecommendedMax.Value);
                 }
+                MetaNumberParamPropertyVm.PropertyDisplayName = displayName;
                 IsMetaNumberParamProperty = true;
                 UsePlaceholder = false;
             }
@@ -229,6 +233,7 @@ public class PropertyRouterViewModel : ViewModelBase
             if (MediaPathPropertyVm is null)
             {
                 MediaPathPropertyVm = _mediaPathPropertyViewModelFactory.Create(_propertyInfo.Identifier, (MediaPath)_propertyInfo.PropertyValue!);
+                MediaPathPropertyVm.PropertyDisplayName = displayName;
                 IsMediaPathProperty = true;
                 UsePlaceholder = false;
             }
@@ -238,6 +243,7 @@ public class PropertyRouterViewModel : ViewModelBase
             if (StringPropertyVm is null)
             {
                 StringPropertyVm = _stringPropertyViewModelFactory.Create(_propertyInfo.Identifier, (string)_propertyInfo.PropertyValue!);
+                StringPropertyVm.PropertyDisplayName = displayName;
                 IsStringProperty = true;
                 UsePlaceholder = false;
             }
@@ -247,6 +253,7 @@ public class PropertyRouterViewModel : ViewModelBase
             if (FontPropertyVm is null)
             {
                 FontPropertyVm = _metaFontParamPropertyViewModelFactory.Create(_propertyInfo.Identifier, (MetaFontParam)_propertyInfo.PropertyValue!);
+                FontPropertyVm.PropertyDisplayName = displayName;
                 IsFontProperty = true;
                 UsePlaceholder = false;
             }
@@ -261,6 +268,7 @@ public class PropertyRouterViewModel : ViewModelBase
                 var recommendMax = _propertyInfo.RecommendedMax ?? max;
                 var metaDoubleParam = (MetaDoubleParam)_propertyInfo.PropertyValue!;
                 MetaDoubleParamPropertyVm = _metaDoubleParamPropertyViewModelFactory.Create(_propertyInfo.Identifier, metaDoubleParam, min, max, recommendMin, recommendMax);
+                MetaDoubleParamPropertyVm.PropertyDisplayName = displayName;
                 IsMetaDoubleParamProperty = true;
                 UsePlaceholder = false;
             }
@@ -270,6 +278,7 @@ public class PropertyRouterViewModel : ViewModelBase
             if (MetaEnumParamPropertyVm is null)
             {
                 MetaEnumParamPropertyVm = _metaEnumParamPropertyViewModelFactory.Create(_propertyInfo.Identifier, (MetaEnumParam)_propertyInfo.PropertyValue!);
+                MetaEnumParamPropertyVm.PropertyDisplayName = displayName;
                 IsMetaEnumParamProperty = true;
                 UsePlaceholder = false;
             }
@@ -279,6 +288,7 @@ public class PropertyRouterViewModel : ViewModelBase
             if (ColorPropertyVm is null)
             {
                 ColorPropertyVm = _colorPropertyViewModelFactory.Create(_propertyInfo.Identifier, (ColorRgb8)_propertyInfo.PropertyValue!);
+                ColorPropertyVm.PropertyDisplayName = displayName;
                 IsColorProperty = true;
                 UsePlaceholder = false;
             }
@@ -288,6 +298,7 @@ public class PropertyRouterViewModel : ViewModelBase
             if (LayerTargetPropertyVm is null)
             {
                 LayerTargetPropertyVm = _layerTargetPropertyViewModelFactory.Create(_propertyInfo.Identifier, (LayerTarget)_propertyInfo.PropertyValue!);
+                LayerTargetPropertyVm.PropertyDisplayName = displayName;
                 IsLayerTargetProperty = true;
                 UsePlaceholder = false;
             }
@@ -297,6 +308,7 @@ public class PropertyRouterViewModel : ViewModelBase
             if (BlendModeParamPropertyVm is null)
             {
                 BlendModeParamPropertyVm = _blendModeParamPropertyViewModelFactory.Create(_propertyInfo.Identifier, (BlendModeParam)_propertyInfo.PropertyValue!);
+                BlendModeParamPropertyVm.PropertyDisplayName = displayName;
                 IsBlendModeParamProperty = true;
                 UsePlaceholder = false;
             }
@@ -306,13 +318,14 @@ public class PropertyRouterViewModel : ViewModelBase
             if (BoolPropertyVm is null)
             {
                 BoolPropertyVm = _boolPropertyViewModelFactory.Create(_propertyInfo.Identifier, (bool)_propertyInfo.PropertyValue!);
+                BoolPropertyVm.PropertyDisplayName = displayName;
                 IsBoolProperty = true;
                 UsePlaceholder = false;
             }
         }
         else
         {
-            PlaceholderText = _propertyInfo.Identifier + " " + _propertyInfo.Type;
+            PlaceholderText = displayName + " " + _propertyInfo.Type;
             UsePlaceholder = true;
         }
     }

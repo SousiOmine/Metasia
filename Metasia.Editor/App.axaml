@@ -4,6 +4,14 @@
               x:Class="Metasia.Editor.App"
               xmlns:local="using:Metasia.Editor">
 
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <MergeResourceInclude Source="/Resources/Strings/DisplayTexts.axaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+
     <Application.DataTemplates>
         <local:ViewLocator/>
     </Application.DataTemplates>

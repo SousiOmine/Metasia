@@ -9,14 +9,14 @@ namespace Metasia.Core.Objects.VisualEffects
     /// <summary>
     /// モーションブラーエフェクト - 指定した角度と強度で方向性のあるブラーを適用する
     /// </summary>
-    [VisualEffectIdentifier("MotionBlurEffect")]
+    [VisualEffectIdentifier("MotionBlurEffect", DisplayKey = "effect.visual.motion_blur.name", FallbackText = "モーションブラー")]
     public class MotionBlurEffect : VisualEffectBase
     {
-        [EditableProperty("BlurAngle")]
+        [EditableProperty("BlurAngle", DisplayKey = "property.effect.motion_blur.angle", FallbackText = "角度")]
         [ValueRange(-180, 180, -180, 180)]
         public MetaNumberParam<double> Angle { get; set; } = new MetaNumberParam<double>(0);
 
-        [EditableProperty("BlurStrength")]
+        [EditableProperty("BlurStrength", DisplayKey = "property.effect.motion_blur.strength", FallbackText = "強度")]
         [ValueRange(0, 200, 0, 100)]
         public MetaNumberParam<double> Strength { get; set; } = new MetaNumberParam<double>(10);
 

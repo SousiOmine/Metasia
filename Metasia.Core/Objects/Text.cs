@@ -11,33 +11,33 @@ using System.Threading.Tasks;
 namespace Metasia.Core.Objects
 {
     [Serializable]
-    [ClipTypeIdentifier("Text")]
+    [ClipTypeIdentifier("Text", DisplayKey = "clip.text.name", FallbackText = "テキスト")]
     public class Text : ClipObject, IRenderable
     {
-        [EditableProperty("BlendMode")]
+        [EditableProperty("BlendMode", DisplayKey = "property.common.blend_mode", FallbackText = "合成モード")]
         public BlendModeParam BlendMode { get; set; } = new BlendModeParam();
 
-        [EditableProperty("X")]
+        [EditableProperty("X", DisplayKey = "property.common.x", FallbackText = "X")]
         [ValueRange(-99999, 99999, -2000, 2000)]
         public MetaNumberParam<double> X { get; set; } = new MetaNumberParam<double>(0);
 
-        [EditableProperty("Y")]
+        [EditableProperty("Y", DisplayKey = "property.common.y", FallbackText = "Y")]
         [ValueRange(-99999, 99999, -2000, 2000)]
         public MetaNumberParam<double> Y { get; set; } = new MetaNumberParam<double>(0);
 
-        [EditableProperty("Scale")]
+        [EditableProperty("Scale", DisplayKey = "property.common.scale", FallbackText = "拡大率")]
         [ValueRange(0, 99999, 0, 1000)]
         public MetaNumberParam<double> Scale { get; set; } = new MetaNumberParam<double>(100);
 
-        [EditableProperty("Alpha")]
+        [EditableProperty("Alpha", DisplayKey = "property.common.alpha", FallbackText = "透明度")]
         [ValueRange(0, 100, 0, 100)]
         public MetaNumberParam<double> Alpha { get; set; } = new MetaNumberParam<double>(0);
 
-        [EditableProperty("Rotation")]
+        [EditableProperty("Rotation", DisplayKey = "property.common.rotation", FallbackText = "回転")]
         [ValueRange(-99999, 99999, 0, 360)]
         public MetaNumberParam<double> Rotation { get; set; } = new MetaNumberParam<double>(0);
 
-        [EditableProperty("Font")]
+        [EditableProperty("Font", DisplayKey = "property.common.font", FallbackText = "フォント")]
         public MetaFontParam Font
         {
             get => _font;
@@ -62,14 +62,14 @@ namespace Metasia.Core.Objects
             }
         }
 
-        [EditableProperty("TextContents")]
+        [EditableProperty("TextContents", DisplayKey = "property.text.contents", FallbackText = "テキスト内容")]
         public string Contents { get; set; } = string.Empty;
 
-        [EditableProperty("TextSize")]
+        [EditableProperty("TextSize", DisplayKey = "property.text.size", FallbackText = "文字サイズ")]
         [ValueRange(0, 2000, 0, 500)]
         public MetaNumberParam<double> TextSize { get; set; } = new MetaNumberParam<double>(100);
 
-        [EditableProperty("Color")]
+        [EditableProperty("Color", DisplayKey = "property.common.color", FallbackText = "色")]
         public ColorRgb8 Color { get; set; } = new ColorRgb8(255, 255, 255);
 
         public List<VisualEffectBase> VisualEffects { get; set; } = new();

@@ -9,22 +9,22 @@ namespace Metasia.Core.Objects.VisualEffects
     /// <summary>
     /// クリッピングエフェクト - 画像の上下左右を切り取る
     /// </summary>
-    [VisualEffectIdentifier("ClippingEffect")]
+    [VisualEffectIdentifier("ClippingEffect", DisplayKey = "effect.visual.clipping.name", FallbackText = "クリッピング")]
     public class ClippingEffect : VisualEffectBase
     {
-        [EditableProperty("ClipTop")]
+        [EditableProperty("ClipTop", DisplayKey = "property.effect.clip.top", FallbackText = "上")]
         [ValueRange(0, 99999, 0, 1000)]
         public MetaNumberParam<double> Top { get; set; } = new MetaNumberParam<double>(0);
 
-        [EditableProperty("ClipBottom")]
+        [EditableProperty("ClipBottom", DisplayKey = "property.effect.clip.bottom", FallbackText = "下")]
         [ValueRange(0, 99999, 0, 1000)]
         public MetaNumberParam<double> Bottom { get; set; } = new MetaNumberParam<double>(0);
 
-        [EditableProperty("ClipLeft")]
+        [EditableProperty("ClipLeft", DisplayKey = "property.effect.clip.left", FallbackText = "左")]
         [ValueRange(0, 99999, 0, 1000)]
         public MetaNumberParam<double> Left { get; set; } = new MetaNumberParam<double>(0);
 
-        [EditableProperty("ClipRight")]
+        [EditableProperty("ClipRight", DisplayKey = "property.effect.clip.right", FallbackText = "右")]
         [ValueRange(0, 99999, 0, 1000)]
         public MetaNumberParam<double> Right { get; set; } = new MetaNumberParam<double>(0);
 

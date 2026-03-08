@@ -8,13 +8,13 @@ namespace Metasia.Core.Objects.VisualEffects;
 /// <summary>
 /// フリップエフェクト - 水平方向と垂直方向の反転をつけることができる
 /// </summary>
-[VisualEffectIdentifier("FlipEffect")]
+[VisualEffectIdentifier("FlipEffect", DisplayKey = "effect.visual.flip.name", FallbackText = "反転")]
 public class FlipEffect : VisualEffectBase
 {
-    [EditableProperty("FlipHorizontal")]
+    [EditableProperty("FlipHorizontal", DisplayKey = "property.effect.flip.horizontal", FallbackText = "左右反転")]
     public bool FlipHorizontal { get; set; } = false;
 
-    [EditableProperty("FlipVertical")]
+    [EditableProperty("FlipVertical", DisplayKey = "property.effect.flip.vertical", FallbackText = "上下反転")]
     public bool FlipVertical { get; set; } = false;
 
     public override VisualEffectResult Apply(SKImage input, VisualEffectContext context)

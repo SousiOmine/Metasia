@@ -4,13 +4,12 @@ namespace Metasia.Core.Attributes;
 public class ClipTypeIdentifierAttribute : Attribute
 {
     public string Identifier { get; }
+    public string? DisplayKey { get; init; }
+    public string? FallbackText { get; init; }
 
     public ClipTypeIdentifierAttribute(string clipType)
     {
-        if (string.IsNullOrWhiteSpace(clipType))
-        {
-            throw new ArgumentException("Clip type cannot be null or whitespace", nameof(clipType));
-        }
+        ArgumentException.ThrowIfNullOrWhiteSpace(clipType);
         Identifier = clipType;
     }
 }

@@ -132,6 +132,6 @@ public sealed class AudioEffectItemViewModel : ViewModelBase
     public AudioEffectItemViewModel(IAudioEffect effect)
     {
         EffectId = effect.Id;
-        EffectName = effect.GetType().Name;
+        EffectName = DisplayTextResolver.ResolveAudioEffectDisplayName(effect.GetType());
     }
 }

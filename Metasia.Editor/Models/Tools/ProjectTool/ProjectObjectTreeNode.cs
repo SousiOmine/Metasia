@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using Metasia.Core.Objects;
+using Metasia.Editor.Models;
 
 namespace Metasia.Editor.Models.Tools.ProjectTool
 {
@@ -80,7 +81,7 @@ namespace Metasia.Editor.Models.Tools.ProjectTool
             {
                 foreach (var effect in renderable.VisualEffects)
                 {
-                    string effectName = effect.GetType().Name;
+                    string effectName = DisplayTextResolver.ResolveVisualEffectDisplayName(effect.GetType());
                     effectNodes.Add(new ProjectObjectTreeNode(
                         $"[Visual] {effectName}",
                         ProjectObjectNodeType.VisualEffect,
@@ -93,7 +94,7 @@ namespace Metasia.Editor.Models.Tools.ProjectTool
             {
                 foreach (var effect in audible.AudioEffects)
                 {
-                    string effectName = effect.GetType().Name;
+                    string effectName = DisplayTextResolver.ResolveAudioEffectDisplayName(effect.GetType());
                     effectNodes.Add(new ProjectObjectTreeNode(
                         $"[Audio] {effectName}",
                         ProjectObjectNodeType.AudioEffect,
@@ -101,7 +102,7 @@ namespace Metasia.Editor.Models.Tools.ProjectTool
                 }
             }
 
-            string clipTypeName = clip.GetType().Name;
+            string clipTypeName = DisplayTextResolver.ResolveClipDisplayName(clip.GetType());
             string title = $"{clipTypeName} ({clip.Id})";
             var subNodes = effectNodes.Count > 0 ? effectNodes : null;
             return new ProjectObjectTreeNode(title, ProjectObjectNodeType.Clip, clip, subNodes);

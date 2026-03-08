@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using Metasia.Core.Sounds;
 using Metasia.Core.Objects.VisualEffects;
 using Metasia.Core.Render;
+using Metasia.Editor.Models;
 
 namespace Metasia.Editor.ViewModels.Dialogs;
 
@@ -110,7 +111,7 @@ public class NewObjectSelectViewModel : ViewModelBase
             foreach (var objectType in objectTypes)
             {
                 var identifier = ((ClipTypeIdentifierAttribute)objectType.attribute).Identifier;
-                var displayName = GetDisplayNameFromIdentifier(identifier);
+                var displayName = DisplayTextResolver.ResolveClipDisplayName(objectType.type);
                 var description = $"{displayName}オブジェクトを追加します";
 
                 AvailableObjectTypes.Add(new ObjectTypeInfo
@@ -140,7 +141,7 @@ public class NewObjectSelectViewModel : ViewModelBase
             foreach (var objectType in objectTypes)
             {
                 var identifier = ((AudioEffectIdentifierAttribute)objectType.attribute).Identifier;
-                var displayName = GetDisplayNameFromIdentifier(identifier);
+                var displayName = DisplayTextResolver.ResolveAudioEffectDisplayName(objectType.type);
                 var description = $"{displayName}エフェクトを追加します";
 
                 AvailableObjectTypes.Add(new ObjectTypeInfo
@@ -170,7 +171,7 @@ public class NewObjectSelectViewModel : ViewModelBase
             foreach (var objectType in objectTypes)
             {
                 var identifier = ((VisualEffectIdentifierAttribute)objectType.attribute).Identifier;
-                var displayName = GetDisplayNameFromIdentifier(identifier);
+                var displayName = DisplayTextResolver.ResolveVisualEffectDisplayName(objectType.type);
                 var description = $"{displayName}エフェクトを追加します";
 
                 AvailableObjectTypes.Add(new ObjectTypeInfo
@@ -226,20 +227,4 @@ public class NewObjectSelectViewModel : ViewModelBase
         }
     }
 
-    private string GetDisplayNameFromIdentifier(string identifier)
-    {
-        return identifier switch
-        {
-            "Text" => "テキスト",
-            "HelloObject" => "kariHelloオブジェクト",
-            "ImageObject" => "画像",
-            "VideoObject" => "動画",
-            "AudioObject" => "音声",
-            "Layer" => "レイヤー",
-            "ClippingEffect" => "クリッピング",
-            "BorderEffect" => "縁取り",
-            "MotionBlurEffect" => "モーションブラー",
-            _ => identifier
-        };
-    }
 }

@@ -4,6 +4,8 @@ namespace Metasia.Core.Attributes;
 public class VisualEffectIdentifierAttribute : Attribute
 {
     public string Identifier { get; }
+    public string? DisplayKey { get; init; }
+    public string? FallbackText { get; init; }
 
     public VisualEffectIdentifierAttribute(string identifier)
     {

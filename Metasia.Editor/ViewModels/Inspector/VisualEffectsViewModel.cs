@@ -133,6 +133,6 @@ public sealed class VisualEffectItemViewModel : ViewModelBase
     public VisualEffectItemViewModel(IVisualEffect effect)
     {
         EffectId = effect.Id;
-        EffectName = effect.GetType().Name;
+        EffectName = DisplayTextResolver.ResolveVisualEffectDisplayName(effect.GetType());
     }
 }

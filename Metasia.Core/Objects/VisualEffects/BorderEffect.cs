@@ -11,14 +11,14 @@ namespace Metasia.Core.Objects.VisualEffects
     /// <summary>
     /// 縁取りエフェクト - オブジェクトの輪郭に沿って縁取りを描画する
     /// </summary>
-    [VisualEffectIdentifier("BorderEffect")]
+    [VisualEffectIdentifier("BorderEffect", DisplayKey = "effect.visual.border.name", FallbackText = "縁取り")]
     public class BorderEffect : VisualEffectBase
     {
-        [EditableProperty("BorderSize")]
+        [EditableProperty("BorderSize", DisplayKey = "property.effect.border.size", FallbackText = "縁取りサイズ")]
         [ValueRange(0, 500, 0, 50)]
         public MetaNumberParam<double> Size { get; set; } = new MetaNumberParam<double>(3);
 
-        [EditableProperty("BorderColor")]
+        [EditableProperty("BorderColor", DisplayKey = "property.effect.border.color", FallbackText = "縁取り色")]
         public ColorRgb8 Color { get; set; } = new ColorRgb8(0, 0, 0);
 
         public override VisualEffectResult Apply(SKImage input, VisualEffectContext context)

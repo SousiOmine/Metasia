@@ -11,36 +11,36 @@ using SkiaSharp;
 
 namespace Metasia.Core.Objects;
 
-[ClipTypeIdentifier("VideoObject")]
+[ClipTypeIdentifier("VideoObject", DisplayKey = "clip.video.name", FallbackText = "動画")]
 public class VideoObject : ClipObject, IRenderable, IAudible
 {
-    [EditableProperty("BlendMode")]
+    [EditableProperty("BlendMode", DisplayKey = "property.common.blend_mode", FallbackText = "合成モード")]
     public BlendModeParam BlendMode { get; set; } = new BlendModeParam();
 
-    [EditableProperty("X")]
+    [EditableProperty("X", DisplayKey = "property.common.x", FallbackText = "X")]
     [ValueRange(-99999, 99999, -2000, 2000)]
     public MetaNumberParam<double> X { get; set; } = new MetaNumberParam<double>(0);
-    [EditableProperty("Y")]
+    [EditableProperty("Y", DisplayKey = "property.common.y", FallbackText = "Y")]
     [ValueRange(-99999, 99999, -2000, 2000)]
     public MetaNumberParam<double> Y { get; set; } = new MetaNumberParam<double>(0);
-    [EditableProperty("Scale")]
+    [EditableProperty("Scale", DisplayKey = "property.common.scale", FallbackText = "拡大率")]
     [ValueRange(0, 99999, 0, 1000)]
     public MetaNumberParam<double> Scale { get; set; } = new MetaNumberParam<double>(100);
-    [EditableProperty("Alpha")]
+    [EditableProperty("Alpha", DisplayKey = "property.common.alpha", FallbackText = "透明度")]
     [ValueRange(0, 100, 0, 100)]
     public MetaNumberParam<double> Alpha { get; set; } = new MetaNumberParam<double>(0);
-    [EditableProperty("Rotation")]
+    [EditableProperty("Rotation", DisplayKey = "property.common.rotation", FallbackText = "回転")]
     [ValueRange(-99999, 99999, 0, 360)]
     public MetaNumberParam<double> Rotation { get; set; } = new MetaNumberParam<double>(0);
 
-    [EditableProperty("VideoPath")]
+    [EditableProperty("VideoPath", DisplayKey = "property.video.path", FallbackText = "動画ファイル")]
     public MediaPath VideoPath { get; set; } = new MediaPath();
 
-    [EditableProperty("VideoStartSeconds")]
+    [EditableProperty("VideoStartSeconds", DisplayKey = "property.video.start_seconds", FallbackText = "再生開始位置(s)")]
     [ValueRange(0, 99999, 0, 3600)]
     public MetaNumberParam<double> VideoStartSeconds { get; set; } = new MetaNumberParam<double>(0);
 
-    [EditableProperty("AudioVolume")]
+    [EditableProperty("AudioVolume", DisplayKey = "property.common.audio_volume", FallbackText = "音量")]
     [ValueRange(0, 99999, 0, 200)]
     public MetaDoubleParam Volume { get; set; } = new MetaDoubleParam(100);
 

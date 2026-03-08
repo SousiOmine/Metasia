@@ -17,44 +17,44 @@ using System.Reflection.Metadata;
 namespace Metasia.Core.Objects
 {
     [Serializable]
-    [ClipTypeIdentifier("Shape")]
+    [ClipTypeIdentifier("Shape", DisplayKey = "clip.shape.name", FallbackText = "図形")]
     public class ShapeObject : ClipObject, IRenderable
     {
-        [EditableProperty("BlendMode")]
+        [EditableProperty("BlendMode", DisplayKey = "property.common.blend_mode", FallbackText = "合成モード")]
         public BlendModeParam BlendMode { get; set; } = new BlendModeParam();
 
-        [EditableProperty("X")]
+        [EditableProperty("X", DisplayKey = "property.common.x", FallbackText = "X")]
         [ValueRange(-99999, 99999, -2000, 2000)]
         public MetaNumberParam<double> X { get; set; } = new MetaNumberParam<double>(0);
 
-        [EditableProperty("Y")]
+        [EditableProperty("Y", DisplayKey = "property.common.y", FallbackText = "Y")]
         [ValueRange(-99999, 99999, -2000, 2000)]
         public MetaNumberParam<double> Y { get; set; } = new MetaNumberParam<double>(0);
 
-        [EditableProperty("Size")]
+        [EditableProperty("Size", DisplayKey = "property.shape.size", FallbackText = "サイズ")]
         [ValueRange(1, 99999, 10, 2000)]
         public MetaNumberParam<double> Size { get; set; } = new MetaNumberParam<double>(100);
 
-        [EditableProperty("AspectRatio")]
+        [EditableProperty("AspectRatio", DisplayKey = "property.shape.aspect_ratio", FallbackText = "縦横比")]
         [ValueRange(0.0001, 100, 0.0001, 30)]
         public MetaNumberParam<double> AspectRatio { get; set; } = new MetaNumberParam<double>(1.0);
 
-        [EditableProperty("Scale")]
+        [EditableProperty("Scale", DisplayKey = "property.common.scale", FallbackText = "拡大率")]
         [ValueRange(0, 99999, 0, 1000)]
         public MetaNumberParam<double> Scale { get; set; } = new MetaNumberParam<double>(100);
 
-        [EditableProperty("Alpha")]
+        [EditableProperty("Alpha", DisplayKey = "property.common.alpha", FallbackText = "透明度")]
         [ValueRange(0, 100, 0, 100)]
         public MetaNumberParam<double> Alpha { get; set; } = new MetaNumberParam<double>(0);
 
-        [EditableProperty("Rotation")]
+        [EditableProperty("Rotation", DisplayKey = "property.common.rotation", FallbackText = "回転")]
         [ValueRange(-99999, 99999, 0, 360)]
         public MetaNumberParam<double> Rotation { get; set; } = new MetaNumberParam<double>(0);
 
-        [EditableProperty("Shape")]
+        [EditableProperty("Shape", DisplayKey = "property.shape.shape", FallbackText = "図形タイプ")]
         public MetaEnumParam Shape { get; set; } = new MetaEnumParam("Circle", "Square", "Triangle", "Star");
 
-        [EditableProperty("Color")]
+        [EditableProperty("Color", DisplayKey = "property.common.color", FallbackText = "色")]
         public ColorRgb8 Color { get; set; } = new ColorRgb8(255, 255, 255);
 
         public List<VisualEffectBase> VisualEffects { get; set; } = new();
