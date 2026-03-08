@@ -10,6 +10,7 @@ using Metasia.Editor.Models.Media;
 using Metasia.Editor.Models.Media.Output;
 using Metasia.Editor.Models.Projects;
 using Metasia.Editor.Models.States;
+using Metasia.Editor.Plugin;
 using Metasia.Editor.Services;
 using Metasia.Editor.Services.PluginService;
 using ReactiveUI;
@@ -27,7 +28,11 @@ public class OutputViewModel : ViewModelBase
     public int SelectedEncoderIndex
     {
         get => _selectedEncoderIndex;
-        set => this.RaiseAndSetIfChanged(ref _selectedEncoderIndex, value);
+        set
+        {
+            this.RaiseAndSetIfChanged(ref _selectedEncoderIndex, value);
+            UpdateSelectedEncoderSession();
+        }
     }
 
     public ObservableCollection<string> TimelineList { get; } = [];
@@ -46,6 +51,8 @@ public class OutputViewModel : ViewModelBase
 
     public ObservableCollection<EncoderQueueItemViewModel> OutputHistory { get; } = [];
 
+    public bool HasSelectedPluginSettings => _selectedOutputSession?.SettingsView is not null;
+
     public ICommand SelectOutputPathCommand { get; }
     public ICommand OutputCommand { get; }
     public ICommand CancelCommand { get; }
@@ -54,7 +61,7 @@ public class OutputViewModel : ViewModelBase
 
     private int _selectedEncoderIndex = 0;
 
-    private readonly List<EncoderInfo> _encoders = [];
+    private readonly List<OutputEncoderEntry> _encoders = [];
     private int _selectedTimelineIndex = 0;
     private string _outputPath = string.Empty;
     private readonly IProjectState _projectState;
@@ -62,6 +69,17 @@ public class OutputViewModel : ViewModelBase
     private readonly IFileDialogService _fileDialogService;
     private readonly IPluginService _pluginService;
     private readonly IEncodeService _encodeService;
+    private IMediaOutputSession? _selectedOutputSession;
+
+    public IMediaOutputSession? SelectedOutputSession
+    {
+        get => _selectedOutputSession;
+        private set
+        {
+            this.RaiseAndSetIfChanged(ref _selectedOutputSession, value);
+            this.RaisePropertyChanged(nameof(HasSelectedPluginSettings));
+        }
+    }
 
     public OutputViewModel(
         IProjectState projectState,
@@ -100,6 +118,7 @@ public class OutputViewModel : ViewModelBase
             _projectState.ProjectLoaded -= UIReflesh;
             _projectState.ProjectClosed -= UIReflesh;
             _projectState.TimelineChanged -= UIReflesh;
+            SelectedOutputSession?.Dispose();
         }
 
         base.Dispose(disposing);
@@ -107,32 +126,41 @@ public class OutputViewModel : ViewModelBase
 
     private void LoadEncoders()
     {
+        DisposeSelectedSession();
         _encoders.Clear();
-        List<EncoderInfo> encoderList = [];
         foreach (var plugin in _pluginService.MediaOutputPlugins)
         {
-            var factory = new PluginEncoderFactory(plugin);
-            encoderList.Add(new EncoderInfo(
-                factory.Name,
+            _encoders.Add(new OutputEncoderEntry(
+                plugin.Name,
                 plugin.PluginIdentifier,
-                factory.SupportedExtensions,
-                factory
-            ));
+                plugin.SupportedExtensions,
+                plugin));
         }
         var sequentialImagesFactory = new SequentialImagesEncoderFactory();
-        encoderList.Add(new EncoderInfo(
+        _encoders.Add(new OutputEncoderEntry(
             sequentialImagesFactory.Name,
             "標準",
             sequentialImagesFactory.SupportedExtensions,
-            sequentialImagesFactory
-        ));
+            sequentialImagesFactory));
 
         OutputMethodList.Clear();
-        foreach (var encoderInfo in encoderList)
+        foreach (var encoderInfo in _encoders)
         {
             OutputMethodList.Add(encoderInfo.DisplayName);
-            _encoders.Add(encoderInfo);
         }
+
+        if (_encoders.Count == 0)
+        {
+            SelectedEncoderIndex = -1;
+            return;
+        }
+
+        if (SelectedEncoderIndex < 0 || SelectedEncoderIndex >= _encoders.Count)
+        {
+            _selectedEncoderIndex = 0;
+        }
+
+        UpdateSelectedEncoderSession();
     }
 
     private void UIReflesh()
@@ -192,7 +220,7 @@ public class OutputViewModel : ViewModelBase
         }
 
         var encoderInfo = _encoders[SelectedEncoderIndex];
-        var encoder = encoderInfo.Factory.CreateEncoder();
+        var encoder = encoderInfo.CreateEncoder(SelectedOutputSession);
         var project = _projectState.CurrentProject.CreateMetasiaProject();
 
         if (project.Timelines is null || project.Timelines.Count == 0)
@@ -233,6 +261,151 @@ public class OutputViewModel : ViewModelBase
     private void Cancel()
     {
         CancelAction?.Invoke();
+    }
+
+    private void UpdateSelectedEncoderSession()
+    {
+        DisposeSelectedSession();
+
+        if (SelectedEncoderIndex < 0 || SelectedEncoderIndex >= _encoders.Count)
+        {
+            SelectedOutputSession = null;
+            return;
+        }
+
+        SelectedOutputSession = _encoders[SelectedEncoderIndex].CreateSession();
+    }
+
+    private void DisposeSelectedSession()
+    {
+        SelectedOutputSession?.Dispose();
+        SelectedOutputSession = null;
+    }
+}
+
+internal sealed class OutputEncoderEntry
+{
+    public string Name { get; }
+    public string OriginName { get; }
+    public string[] SupportedExtensions { get; }
+
+    public OutputEncoderEntry(string name, string originName, string[] supportedExtensions, IMediaOutputPlugin plugin)
+    {
+        Name = name;
+        OriginName = originName;
+        SupportedExtensions = supportedExtensions;
+        _plugin = plugin;
+    }
+
+    public OutputEncoderEntry(string name, string originName, string[] supportedExtensions, IEditorEncoderFactory factory)
+    {
+        Name = name;
+        OriginName = originName;
+        SupportedExtensions = supportedExtensions;
+        _factory = factory;
+    }
+
+    public string DisplayName => $"{Name} ({OriginName})";
+
+    private readonly IMediaOutputPlugin? _plugin;
+    private readonly IEditorEncoderFactory? _factory;
+
+    public IMediaOutputSession? CreateSession()
+    {
+        return _plugin?.CreateSession();
+    }
+
+    public IEditorEncoder CreateEncoder(IMediaOutputSession? session)
+    {
+        if (_factory is not null)
+        {
+            return _factory.CreateEncoder();
+        }
+
+        if (session is null)
+        {
+            throw new InvalidOperationException("出力セッションが初期化されていません。");
+        }
+
+        return new SessionPluginEncoder(session.Name, session.SupportedExtensions, session.CreateEncoderInstance());
+    }
+}
+
+internal sealed class SessionPluginEncoder : IEditorEncoder, IDisposable
+{
+    public string Name { get; private set; }
+    public string[] SupportedExtensions { get; private set; }
+    public double ProgressRate { get; private set; }
+    public IEncoder.EncoderState Status { get; private set; }
+    public string OutputPath { get; private set; } = string.Empty;
+
+    public event EventHandler<EventArgs> StatusChanged = delegate { };
+    public event EventHandler<EventArgs> EncodeStarted = delegate { };
+    public event EventHandler<EventArgs> EncodeCompleted = delegate { };
+    public event EventHandler<EventArgs> EncodeFailed = delegate { };
+
+    private readonly EncoderBase _encoder;
+    private readonly EventHandler<EventArgs> _onStatusChanged;
+    private readonly EventHandler<EventArgs> _onEncodeStarted;
+    private readonly EventHandler<EventArgs> _onEncodeCompleted;
+    private readonly EventHandler<EventArgs> _onEncodeFailed;
+
+    public SessionPluginEncoder(string name, string[] supportedExtensions, EncoderBase encoder)
+    {
+        _encoder = encoder;
+
+        Name = name;
+        SupportedExtensions = supportedExtensions;
+
+        _onStatusChanged = (_, _) => OnStatusChanged();
+        _onEncodeStarted = (_, e) => EncodeStarted.Invoke(this, e);
+        _onEncodeCompleted = (_, e) => EncodeCompleted.Invoke(this, e);
+        _onEncodeFailed = (_, e) => EncodeFailed.Invoke(this, e);
+
+        _encoder.StatusChanged += _onStatusChanged;
+        _encoder.EncodeStarted += _onEncodeStarted;
+        _encoder.EncodeCompleted += _onEncodeCompleted;
+        _encoder.EncodeFailed += _onEncodeFailed;
+    }
+
+    public void Initialize(
+        Metasia.Core.Project.MetasiaProject project,
+        Metasia.Core.Objects.TimelineObject timeline,
+        IImageFileAccessor imageFileAccessor,
+        IVideoFileAccessor videoFileAccessor,
+        IAudioFileAccessor audioFileAccessor,
+        string projectPath,
+        string outputPath)
+    {
+        OutputPath = outputPath;
+        _encoder.Initialize(project, timeline, imageFileAccessor, videoFileAccessor, audioFileAccessor, projectPath, outputPath);
+    }
+
+    public void CancelRequest()
+    {
+        _encoder.CancelRequest();
+    }
+
+    public void Start()
+    {
+        _encoder.Start();
+    }
+
+    public void Dispose()
+    {
+        _encoder.StatusChanged -= _onStatusChanged;
+        _encoder.EncodeStarted -= _onEncodeStarted;
+        _encoder.EncodeCompleted -= _onEncodeCompleted;
+        _encoder.EncodeFailed -= _onEncodeFailed;
+        _encoder.Dispose();
+        GC.SuppressFinalize(this);
+    }
+
+    private void OnStatusChanged()
+    {
+        ProgressRate = _encoder.ProgressRate;
+        Status = _encoder.Status;
+        StatusChanged.Invoke(this, EventArgs.Empty);
     }
 }
 

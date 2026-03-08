@@ -54,8 +54,14 @@ public abstract class EncoderBase : IEncoder, IDisposable
         _projectPath = projectPath;
         _outputPath = outputPath;
 
-        _startFrame = _targetTimeline.SelectionStart;
-        _endFrame = _targetTimeline.SelectionEnd;
+        var lastFrame = Math.Max(_targetTimeline.GetLastFrameOfClips(), 0);
+        var selectionStart = Math.Max(_targetTimeline.SelectionStart, 0);
+        var selectionEnd = _targetTimeline.SelectionEnd == TimelineObject.MAX_LENGTH
+            ? lastFrame
+            : Math.Max(_targetTimeline.SelectionEnd, 0);
+
+        _startFrame = Math.Clamp(Math.Min(selectionStart, selectionEnd), 0, lastFrame);
+        _endFrame = Math.Clamp(Math.Max(selectionStart, selectionEnd), 0, lastFrame);
     }
 
     public abstract void CancelRequest();

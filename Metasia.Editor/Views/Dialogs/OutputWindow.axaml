@@ -30,6 +30,18 @@
                 <Button Grid.Column="2" Content="選択" Command="{Binding SelectOutputPathCommand}"/>
             </Grid>
 
+            <Border Margin="0,10,0,0"
+                    Padding="10"
+                    BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                    BorderThickness="1"
+                    CornerRadius="6"
+                    IsVisible="{Binding HasSelectedPluginSettings}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="プラグイン設定" FontWeight="SemiBold"/>
+                    <ContentControl x:Name="PluginSettingsHost"/>
+                </StackPanel>
+            </Border>
+
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="4">
                 <Button Content="出力" Command="{Binding OutputCommand}"/>
                 <Button Content="キャンセル" Command="{Binding CancelCommand}"/>
