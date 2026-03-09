@@ -81,23 +81,35 @@ namespace Metasia.Editor.Services
             }
         }
 
-        public async Task UpdateSettingsAsync(EditorSettings settings)
+        public void UpdateSettings(EditorSettings settings)
         {
-            await Task.Run(() =>
+            lock (_lock)
             {
-                lock (_lock)
+                try
                 {
-                    CurrentSettings = settings;
                     Directory.CreateDirectory(_settingsDirectory);
-                    var json = JsonSerializer.Serialize(CurrentSettings, new JsonSerializerOptions
+                    var json = JsonSerializer.Serialize(settings, new JsonSerializerOptions
                     {
                         WriteIndented = true
                     });
-                    File.WriteAllText(_settingsFilePath, json);
+                    var tempFilePath = _settingsFilePath + ".tmp";
+                    File.WriteAllText(tempFilePath, json);
+                    File.Move(tempFilePath, _settingsFilePath, true);
+                    CurrentSettings = settings;
                 }
-            });
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"設定ファイルの保存エラー: {ex.Message}");
+                    return;
+                }
+            }
 
             SettingsChanged?.Invoke();
+        }
+
+        public async Task UpdateSettingsAsync(EditorSettings settings)
+        {
+            await Task.Run(() => UpdateSettings(settings));
         }
     }
 }

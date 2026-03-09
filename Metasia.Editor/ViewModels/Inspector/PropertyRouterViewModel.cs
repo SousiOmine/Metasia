@@ -1,4 +1,3 @@
-using Metasia.Editor.Models;
 using Metasia.Core.Objects;
 using Metasia.Editor.ViewModels.Inspector.Properties;
 using Metasia.Editor.Views.Inspector.Properties;

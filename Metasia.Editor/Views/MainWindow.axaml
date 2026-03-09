@@ -63,13 +63,13 @@
 
 				</MenuItem>
 			</Menu>
-			<Grid DockPanel.Dock="Bottom">
+			<Grid DockPanel.Dock="Bottom" x:Name="MainLayoutGrid">
 				<Grid.RowDefinitions>
 					<RowDefinition Height="*"/>
 					<RowDefinition Height="5"/>
 					<RowDefinition Height="*"/>
 				</Grid.RowDefinitions>
-				<Grid>
+				<Grid x:Name="TopPaneGrid">
 					<Grid.ColumnDefinitions>
 						<ColumnDefinition Width="*"/>
 						<ColumnDefinition Width="5"/>

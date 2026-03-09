@@ -104,10 +104,15 @@ namespace Metasia.Editor.Tests.ViewModels.Settings
             public Task LoadAsync() => Task.CompletedTask;
             public Task SaveAsync() => Task.CompletedTask;
 
-            public Task UpdateSettingsAsync(EditorSettings settings)
+            public void UpdateSettings(EditorSettings settings)
             {
                 CurrentSettings = settings;
                 SettingsChanged?.Invoke();
+            }
+
+            public Task UpdateSettingsAsync(EditorSettings settings)
+            {
+                UpdateSettings(settings);
                 return Task.CompletedTask;
             }
         }

@@ -9,6 +9,7 @@ namespace Metasia.Editor.Services
         EditorSettings CurrentSettings { get; }
         Task LoadAsync();
         Task SaveAsync();
+        void UpdateSettings(EditorSettings settings);
         Task UpdateSettingsAsync(EditorSettings settings);
         event Action? SettingsChanged;
     }

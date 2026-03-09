@@ -42,10 +42,15 @@ namespace Metasia.Editor.Tests.Services.PluginService
             public Task LoadAsync() => Task.CompletedTask;
             public Task SaveAsync() => Task.CompletedTask;
 
-            public Task UpdateSettingsAsync(Metasia.Editor.Models.Settings.EditorSettings settings)
+            public void UpdateSettings(Metasia.Editor.Models.Settings.EditorSettings settings)
             {
                 CurrentSettings = settings;
                 SettingsChanged?.Invoke();
+            }
+
+            public Task UpdateSettingsAsync(Metasia.Editor.Models.Settings.EditorSettings settings)
+            {
+                UpdateSettings(settings);
                 return Task.CompletedTask;
             }
         }

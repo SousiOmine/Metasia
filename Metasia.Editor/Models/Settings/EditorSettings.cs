@@ -12,5 +12,8 @@ namespace Metasia.Editor.Models.Settings
 
         [JsonPropertyName("editor")]
         public EditorBehaviorSettings Editor { get; set; } = new();
+
+        [JsonPropertyName("mainWindowLayout")]
+        public MainWindowLayoutSettings MainWindowLayout { get; set; } = new();
     }
 }
