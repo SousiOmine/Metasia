@@ -1,0 +1,87 @@
+name: Release
+
+env:
+    APP_NAME: MetasiaEditor
+    DOTNET_VERSION: 9.0.x
+on:
+    push:
+        tags: ['v*']
+
+jobs:
+    test:
+        name: Test
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+              with:
+                fetch-depth: 1
+
+            - name: Setup dotnet
+              uses: actions/setup-dotnet@v4
+              with:
+                dotnet-version: ${{ env.DOTNET_VERSION }}
+
+            - name: Restore
+              run: dotnet restore
+
+            - name: Build
+              run: dotnet build -c Release
+
+            - name: Test
+              run: dotnet test
+
+    release:
+        needs: test
+        name: Release (${{ matrix.rid }})
+        runs-on: ${{ matrix.os }}
+        strategy:
+            matrix:
+                include:
+                    - os: windows-latest
+                      preset: windows-x64
+                      rid: win-x64
+                    - os: ubuntu-latest
+                      preset: linux-x64
+                      rid: linux-x64
+                    - os: macos-latest
+                      preset: osx-arm64
+                      rid: osx-arm64
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+              with:
+                fetch-depth: 1
+
+            - name: Setup dotnet
+              uses: actions/setup-dotnet@v4
+              with:
+                dotnet-version: ${{ env.DOTNET_VERSION }}
+
+            - name: Extract version from tag
+              run: |
+                VERSION=${GITHUB_REF#refs/tags/v}
+                echo "VERSION=$VERSION" >> $GITHUB_ENV
+                # Directory.Build.propsのバージョンを更新
+                sed -i "s/<Version>.*<\/Version>/<Version>$VERSION<\/Version>/" Directory.Build.props
+                sed -i "s/<AssemblyVersion>.*<\/AssemblyVersion>/<AssemblyVersion>${VERSION}.0<\/AssemblyVersion>/" Directory.Build.props
+                sed -i "s/<FileVersion>.*<\/FileVersion>/<FileVersion>${VERSION}.0<\/FileVersion>/" Directory.Build.props
+              shell: bash
+
+            - name: Build
+              run: dotnet publish -c Release -r ${{ matrix.rid}} --self-contained -o ./output
+
+            - name: Create release asset
+              run: |
+                if [ "${{ matrix.os }}" == "windows-latest" ]; then
+                  powershell Compress-Archive -Path output/* -DestinationPath ${{ env.APP_NAME }}-${{ matrix.preset }}.zip
+                else
+                  cd output && zip -r ../${{ env.APP_NAME }}-${{ matrix.preset }}.zip *
+                fi
+              shell: bash
+
+            - name: Upload release asset
+              uses: softprops/action-gh-release@v2
+              with:
+                files: ${{ env.APP_NAME }}-${{ matrix.preset }}.zip
