@@ -35,6 +35,8 @@ jobs:
         needs: test
         name: Release (${{ matrix.rid }})
         runs-on: ${{ matrix.os }}
+        permissions:
+            contents: write
         strategy:
             matrix:
                 include:
