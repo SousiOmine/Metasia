@@ -30,11 +30,11 @@ jobs:
               run: dotnet build -c Release
 
             - name: Test
-              run: dotnet test
+              run: dotnet test -c Release
 
-    release:
+    build:
         needs: test
-        name: Release (${{ matrix.rid }})
+        name: Build (${{ matrix.rid }})
         runs-on: ${{ matrix.os }}
         permissions:
             contents: write
@@ -87,19 +87,38 @@ jobs:
                   cd output && zip -r ../${{ env.APP_NAME }}-${{ matrix.preset }}.zip *
               shell: bash
 
-            - name: Upload release asset
-              uses: softprops/action-gh-release@v2
-              with:
-                files: ${{ env.APP_NAME }}-${{ matrix.preset }}.zip
-
             - name: Upload artifact
               uses: actions/upload-artifact@v4
               with:
                 name: ${{ env.APP_NAME }}-${{ matrix.preset }}
                 path: ${{ env.APP_NAME }}-${{ matrix.preset }}.zip
 
+    release:
+        needs: build
+        name: Create GitHub Release
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+
+        steps:
+            - name: Download release asset
+              uses: actions/download-artifact@v4
+              with:
+                path: release-assets
+
+            - name: Move release asset
+              run: |
+                mkdir -p upload
+                find release-assets -name '*.zip' -exec cp {} upload/ \;
+              shell: bash
+
+            - name: Create GitHub Release
+              uses: softprops/action-gh-release@v2
+              with:
+                files: upload/*.zip
+
     publish_packages:
-        needs: test
+        needs: [test, build]
         name: Publish NuGet Packages
         runs-on: ubuntu-latest
         permissions:
@@ -133,7 +152,8 @@ jobs:
             - name: Push to NuGet
               run: |
                 VERSION=${GITHUB_REF#refs/tags/v}
-                dotnet pack -c Release -o artifacts/packages -p:Version=$VERSION
+                dotnet pack Metasia.Core/Metasia.Core.csproj -c Release -o artifacts/packages -p:Version=$VERSION
+                dotnet pack Metasia.Editor.Plugin/Metasia.Editor.Plugin.csproj -c Release -o artifacts/packages -p:Version=$VERSION
                 dotnet nuget push ./artifacts/packages/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate
 
             - name: Upload packages
