@@ -3,9 +3,10 @@ name: Release
 env:
     APP_NAME: MetasiaEditor
     DOTNET_VERSION: 9.0.x
+
 on:
     push:
-        tags: ['v*']
+        tags: ['v*.*.*']
 
 jobs:
     test:
@@ -72,7 +73,7 @@ jobs:
               shell: bash
 
             - name: Build
-              run: dotnet publish -c Release -r ${{ matrix.rid }} --self-contained -o ./output
+              run: dotnet publish Metasia.Editor -c Release -r ${{ matrix.rid }} --self-contained -o ./output
 
             - name: Create release asset (Windows)
               if: runner.os == 'Windows'
@@ -90,3 +91,53 @@ jobs:
               uses: softprops/action-gh-release@v2
               with:
                 files: ${{ env.APP_NAME }}-${{ matrix.preset }}.zip
+
+            - name: Upload artifact
+              uses: actions/upload-artifact@v4
+              with:
+                name: ${{ env.APP_NAME }}-${{ matrix.preset }}
+                path: ${{ env.APP_NAME }}-${{ matrix.preset }}.zip
+
+    publish_packages:
+        needs: test
+        name: Publish NuGet Packages
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+            packages: write
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+              with:
+                fetch-depth: 1
+                
+            - name: Setup dotnet
+              uses: actions/setup-dotnet@v4
+              with:
+                dotnet-version: ${{ env.DOTNET_VERSION }}
+
+            - name: Extract version from tag
+              run: |
+                VERSION=${GITHUB_REF#refs/tags/v}
+                echo "VERSION=$VERSION" >> $GITHUB_ENV
+                # Directory.Build.propsのバージョンを更新
+                perl -i -pe "s|<Version>.*</Version>|<Version>$VERSION</Version>|" Directory.Build.props
+                perl -i -pe "s|<AssemblyVersion>.*</AssemblyVersion>|<AssemblyVersion>${VERSION}.0</AssemblyVersion>|" Directory.Build.props
+                perl -i -pe "s|<FileVersion>.*</FileVersion>|<FileVersion>${VERSION}.0</FileVersion>|" Directory.Build.props
+              shell: bash
+
+            - name: Restore & build packages
+              run: dotnet build -c Release
+
+            - name: Push to NuGet
+              run: |
+                VERSION=${GITHUB_REF#refs/tags/v}
+                dotnet pack -c Release -o artifacts/packages -p:Version=$VERSION
+                dotnet nuget push ./artifacts/packages/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate
+
+            - name: Upload packages
+              uses: actions/upload-artifact@v4
+              with:
+                name: packages
+                path: artifacts/packages

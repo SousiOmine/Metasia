@@ -4,6 +4,15 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+
+    <IsPackable>true</IsPackable>
+    <PackageId>Metasia.Editor.Plugin</PackageId>
+    <Author>SousiOmine</Author>
+    <Description>動画編集ソフトMetasiaエディタのプラグイン開発に使用するライブラリ</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/SousiOmine/Metasia</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/SousiOmine/Metasia.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>
