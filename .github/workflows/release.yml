@@ -60,6 +60,7 @@ jobs:
               uses: actions/setup-dotnet@v4
               with:
                 dotnet-version: ${{ env.DOTNET_VERSION }}
+                cache: true
 
             - name: Extract version from tag
               run: |
@@ -72,15 +73,18 @@ jobs:
               shell: bash
 
             - name: Build
-              run: dotnet publish -c Release -r ${{ matrix.rid}} --self-contained -o ./output
+              run: dotnet publish -c Release -r ${{ matrix.rid }} --self-contained -o ./output
 
-            - name: Create release asset
+            - name: Create release asset (Windows)
+              if: runner.os == 'Windows'
               run: |
-                if [ "${{ matrix.os }}" == "windows-latest" ]; then
-                  powershell Compress-Archive -Path output/* -DestinationPath ${{ env.APP_NAME }}-${{ matrix.preset }}.zip
-                else
+                powershell Compress-Archive -Path 'output/*' -DestinationPath '${{ env.APP_NAME }}-${{ matrix.preset }}.zip'
+              shell: pwsh
+
+            - name: Create release asset (Unix)
+              if: runner.os != 'Windows'
+              run: |
                   cd output && zip -r ../${{ env.APP_NAME }}-${{ matrix.preset }}.zip *
-                fi
               shell: bash
 
             - name: Upload release asset
