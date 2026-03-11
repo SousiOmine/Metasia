@@ -1,0 +1,54 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Metasia.Editor.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="20"
+             x:Class="Metasia.Editor.Views.MenuView"
+             x:DataType="vm:MenuViewModel">
+
+    <Menu>
+        <MenuItem Header="ファイル">
+            <MenuItem Header="新規プロジェクト作成" Command="{Binding CreateNewProject}"/>
+            <Separator/>
+            <MenuItem Header="開く"/>
+            <MenuItem Header="閉じる"/>
+            <Separator/>
+            <MenuItem Header="編集プロジェクトを開く" Command="{Binding LoadEditingProject}"/>
+            <MenuItem Header="編集プロジェクトの保存"/>
+            <MenuItem Header="編集プロジェクトの上書き" Command="{Binding OverrideSaveEditingProject}"/>
+            <Separator/>
+            <MenuItem Header="出力" Command="{Binding OpenOutput}"/>
+            <Separator/>
+            <MenuItem Header="環境設定" Command="{Binding OpenSettings}"/>
+            <Separator/>
+            <MenuItem Header="終了"/>
+        </MenuItem>
+        <MenuItem Header="フィルタ">
+
+        </MenuItem>
+        <MenuItem Header="設定">
+
+        </MenuItem>
+        <MenuItem Header="編集">
+            <MenuItem Header="元に戻す" Command="{Binding Undo}"/>
+            <MenuItem Header="やり直し" Command="{Binding Redo}"/>
+            <Separator/>
+            <MenuItem Header="コピー" Command="{Binding Copy}"/>
+            <MenuItem Header="切り取り" Command="{Binding Cut}"/>
+            <MenuItem Header="貼り付け" Command="{Binding Paste}"/>
+            <Separator/>
+            <MenuItem Header="フレーム選択範囲">
+                <MenuItem Header="現在のフレームをタイムラインの選択開始フレームにする" Command="{Binding SetTimelineSelectionStart}"/>
+                <MenuItem Header="現在のフレームをタイムラインの選択終了フレームにする" Command="{Binding SetTimelineSelectionEnd}"/>
+                <MenuItem Header="選択範囲を解除" Command="{Binding ClearTimelineSelection}"/>
+            </MenuItem>
+        </MenuItem>
+        <MenuItem Header="表示" IsEnabled="False">
+
+        </MenuItem>
+        <MenuItem Header="その他" IsEnabled="False">
+
+        </MenuItem>
+    </Menu>
+</UserControl>

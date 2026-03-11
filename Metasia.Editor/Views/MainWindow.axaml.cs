@@ -9,24 +9,18 @@ using Microsoft.Extensions.DependencyInjection;
 using Metasia.Editor.Models.Settings;
 using Metasia.Editor.Services;
 using Metasia.Editor.ViewModels;
-using Metasia.Editor.ViewModels.Dialogs;
-using Metasia.Editor.Views.Dialogs;
-using Metasia.Editor.Views.Settings;
 
 namespace Metasia.Editor.Views
 {
     public partial class MainWindow : Window
     {
         private MainWindowViewModel? _viewModel => DataContext as MainWindowViewModel;
-        private IDisposable? _newProjectHandlerDisposable;
-        private IDisposable? _outputHandlerDisposable;
-        private OutputWindow? _outputWindow;
-        private IDisposable? _openSettingsHandlerDisposable;
         private readonly Grid? _mainLayoutGrid;
         private readonly Grid? _topPaneGrid;
         private bool _layoutRestored;
         private bool _isSavingLayout;
         private Size? _lastNormalWindowSize;
+        private MenuView? _menuView;
 
         public MainWindow()
         {
@@ -34,6 +28,7 @@ namespace Metasia.Editor.Views
 
             _mainLayoutGrid = this.FindControl<Grid>("MainLayoutGrid");
             _topPaneGrid = this.FindControl<Grid>("TopPaneGrid");
+            _menuView = this.FindControl<MenuView>("MainMenuView");
 
             DataContextChanged += OnDataContextChanged;
             Opened += OnOpened;
@@ -48,95 +43,18 @@ namespace Metasia.Editor.Views
 
         private void OnDataContextChanged(object? sender, EventArgs args)
         {
-            // Dispose previous handler if it exists
-            _newProjectHandlerDisposable?.Dispose();
-            _openSettingsHandlerDisposable?.Dispose();
-            _newProjectHandlerDisposable = null;
-            _outputHandlerDisposable?.Dispose();
-            _outputHandlerDisposable = null;
-            _outputWindow?.Close();
-            _outputWindow = null;
-            _openSettingsHandlerDisposable = null;
-
             if (_viewModel is not { } viewModel)
             {
                 return;
             }
 
-            // ViewModelが設定された後にキーバインディングを適用
             var keyBindingService = App.Current?.Services?.GetService<IKeyBindingService>();
             keyBindingService?.ApplyKeyBindings(this);
 
-            // NewProjectInteractionのハンドラーを登録
-            _newProjectHandlerDisposable = viewModel.NewProjectInteraction.RegisterHandler(async interaction =>
+            if (_menuView is not null && App.Current?.Services is not null)
             {
-                try
-                {
-                    var dialog = new NewProjectDialog()
-                    {
-                        DataContext = interaction.Input
-                    };
-                    var result = await dialog.ShowDialog<(bool, string, Metasia.Core.Project.ProjectInfo, Metasia.Core.Project.MetasiaProject?)>(this);
-                    interaction.SetOutput(result);
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Error in NewProjectInteraction handler: {ex.Message}");
-                    interaction.SetOutput((false, ex.Message, null, null));
-                }
-            });
-
-            // OutputInteractionのハンドラーを登録
-            _outputHandlerDisposable = viewModel.OutputInteraction.RegisterHandler(interaction =>
-            {
-                try
-                {
-                    if (_outputWindow is null)
-                    {
-                        _outputWindow = new OutputWindow()
-                        {
-                            DataContext = interaction.Input
-                        };
-                        _outputWindow.Show(this);
-                        _outputWindow.Closed += (s, e) =>
-                        {
-                            _outputWindow = null;
-                        };
-                    }
-                    else
-                    {
-                        _outputWindow.Activate();
-                    }
-                    interaction.SetOutput(null);
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Error in OutputInteraction handler: {ex.Message}");
-                    interaction.SetOutput(null);
-                }
-            });
-            // OpenSettingsInteractionのハンドラーを登録
-            _openSettingsHandlerDisposable = viewModel.OpenSettingsInteraction.RegisterHandler(async interaction =>
-            {
-                try
-                {
-                    var serviceProvider = App.Current?.Services;
-                    if (serviceProvider is not null)
-                    {
-                        var settingsWindow = new SettingsWindow()
-                        {
-                            DataContext = serviceProvider.GetRequiredService<SettingsWindowViewModel>()
-                        };
-                        await settingsWindow.ShowDialog(this);
-                    }
-                    interaction.SetOutput(Unit.Default);
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Error in OpenSettingsInteraction handler: {ex.Message}");
-                    interaction.SetOutput(Unit.Default);
-                }
-            });
+                _menuView.DataContext = App.Current.Services.GetRequiredService<MenuViewModel>();
+            }
         }
 
         private void OnOpened(object? sender, EventArgs e)
@@ -339,15 +257,6 @@ namespace Metasia.Editor.Views
 
         protected override void OnUnloaded(Avalonia.Interactivity.RoutedEventArgs e)
         {
-            _newProjectHandlerDisposable?.Dispose();
-            _openSettingsHandlerDisposable?.Dispose();
-            _newProjectHandlerDisposable = null;
-            _outputHandlerDisposable?.Dispose();
-            _outputHandlerDisposable = null;
-            _outputWindow?.Close();
-            _outputWindow = null;
-            _openSettingsHandlerDisposable = null;
-
             DataContextChanged -= OnDataContextChanged;
             Opened -= OnOpened;
             Closing -= OnClosing;

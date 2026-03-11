@@ -137,6 +137,7 @@ namespace Metasia.Editor
 
 
             services.AddTransient<MainWindowViewModel>();
+            services.AddSingleton<MenuViewModel>();
             services.AddSingleton<PlayerParentViewModel>();
             services.AddSingleton<TimelineParentViewModel>();
             services.AddSingleton<InspectorViewModel>();
