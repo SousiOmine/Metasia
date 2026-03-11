@@ -42,6 +42,17 @@ namespace Metasia.Editor.ViewModels
         /// <summary>
         /// 現在表示しているフレーム 変更すると再描写する
         /// </summary>
+        public string CurrentTime
+        {
+            get
+            {
+                if (TargetProjectInfo is null || TargetProjectInfo.Framerate <= 0) return "00:00:00.00";
+                double totalSeconds = (double)Frame / TargetProjectInfo.Framerate;
+                var ts = TimeSpan.FromSeconds(totalSeconds);
+                return $"{(int)ts.TotalHours:D2}:{ts.Minutes:D2}:{ts.Seconds:D2}.{(ts.Milliseconds / 10):D2}";
+            }
+        }
+
         public int Frame
         {
             get => frame;
@@ -50,6 +61,7 @@ namespace Metasia.Editor.ViewModels
                 if (frame != value)
                 {
                     this.RaiseAndSetIfChanged(ref frame, value);
+                    this.RaisePropertyChanged(nameof(CurrentTime));
 
                     if (!_isUpdatingFrameFromPlayback)
                     {
