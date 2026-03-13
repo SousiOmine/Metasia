@@ -92,14 +92,14 @@ namespace Metasia.Core.Xml
                 if (clipType == null)
                 {
                     clipType = AppDomain.CurrentDomain.GetAssemblies()
-                        .SelectMany(a => 
+                        .SelectMany(a =>
                         {
                             try { return a.GetTypes(); }
                             catch { return Array.Empty<Type>(); }
                         })
                         .FirstOrDefault(t => t.Name == entry.ClipTypeName || t.FullName == entry.ClipTypeName);
                 }
-                
+
                 if (clipType == null)
                 {
                     throw new InvalidOperationException($"Could not find clip type: {entry.ClipTypeName}");
@@ -112,7 +112,7 @@ namespace Metasia.Core.Xml
                 }
                 var genericMethod = deserializeMethod.MakeGenericMethod(clipType);
                 var clip = genericMethod.Invoke(null, new object[] { entry.ClipXml }) as ClipObject;
-                
+
                 if (clip == null)
                 {
                     throw new InvalidOperationException($"Failed to deserialize clip of type: {entry.ClipTypeName}");

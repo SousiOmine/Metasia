@@ -160,26 +160,24 @@ namespace Metasia.Core.Objects
             {
                 if (renderScaleWidth == 1.0f && renderScaleHeight == 1.0f)
                 {
-                    // リサイズ不要な場合は直接描画
                     var info = new SKImageInfo(bitmapWidth, bitmapHeight, SKColorType.Rgba8888, SKAlphaType.Premul);
-                    using var surface = SKSurface.Create(info);
+                    using var surface = context.SurfaceFactory.CreateSurface(info);
                     using var canvas = surface.Canvas;
                     canvas.Clear(SKColors.Transparent);
                     DrawMultilineText(canvas, lines, lineBounds, skFont, skPaint, lineSpacing);
                     cancellationToken.ThrowIfCancellationRequested();
-                    image = surface.Snapshot();
+                    image = context.SurfaceFactory.Snapshot(surface, context.PreferRasterOutput);
                 }
                 else
                 {
-                    // リサイズが必要な場合は、一度大きなサイズで描画してからスケール
                     var info = new SKImageInfo(finalWidth, finalHeight, SKColorType.Rgba8888, SKAlphaType.Premul);
-                    using var surface = SKSurface.Create(info);
+                    using var surface = context.SurfaceFactory.CreateSurface(info);
                     using var canvas = surface.Canvas;
                     canvas.Clear(SKColors.Transparent);
                     canvas.Scale(renderScaleWidth, renderScaleHeight);
                     DrawMultilineText(canvas, lines, lineBounds, skFont, skPaint, lineSpacing);
                     cancellationToken.ThrowIfCancellationRequested();
-                    image = surface.Snapshot();
+                    image = context.SurfaceFactory.Snapshot(surface, context.PreferRasterOutput);
                 }
                 context.ImageCache?.Set(GetImageHashCode(relativeFrame, renderScaleWidth, renderScaleHeight), image);
             }

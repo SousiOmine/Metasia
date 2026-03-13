@@ -41,26 +41,37 @@ public class FlipEffect : VisualEffectBase
         int height = input.Height;
 
         var info = new SKImageInfo(width, height, SKColorType.Rgba8888, SKAlphaType.Premul);
-        using var surface = SKSurface.Create(info);
+        using var surface = context.SurfaceFactory.CreateSurface(info);
         var canvas = surface.Canvas;
         canvas.Clear(SKColors.Transparent);
 
-        using var paint = new SKPaint();
-        paint.IsAntialias = true;
-        float scaleX = FlipHorizontal ? -1 : 1;
-        float scaleY = FlipVertical ? -1 : 1;
-        if (FlipHorizontal)
+        var drawImage = context.SurfaceFactory.GetDrawImage(input);
+        try
         {
-            canvas.Translate(width, 0);
+            using var paint = new SKPaint();
+            paint.IsAntialias = true;
+            float scaleX = FlipHorizontal ? -1 : 1;
+            float scaleY = FlipVertical ? -1 : 1;
+            if (FlipHorizontal)
+            {
+                canvas.Translate(width, 0);
+            }
+            if (FlipVertical)
+            {
+                canvas.Translate(0, height);
+            }
+            canvas.Scale(scaleX, scaleY);
+            canvas.DrawImage(drawImage, 0, 0, paint);
         }
-        if (FlipVertical)
+        finally
         {
-            canvas.Translate(0, height);
+            if (!ReferenceEquals(drawImage, input))
+            {
+                drawImage.Dispose();
+            }
         }
-        canvas.Scale(scaleX, scaleY);
-        canvas.DrawImage(input, 0, 0, paint);
 
-        var result = surface.Snapshot();
+        var result = context.SurfaceFactory.Snapshot(surface, context.PreferRasterOutput);
         if (context.TargetImageCacheKey != IRenderImageCache.NO_CACHE_KEY)
         {
             long cacheKey = GetImageHashCode(context);

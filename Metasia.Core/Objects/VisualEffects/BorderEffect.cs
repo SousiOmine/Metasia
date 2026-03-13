@@ -53,24 +53,32 @@ namespace Metasia.Core.Objects.VisualEffects
             int newHeight = height + expand * 2;
 
             var info = new SKImageInfo(newWidth, newHeight, SKColorType.Rgba8888, SKAlphaType.Premul);
-            using var surface = SKSurface.Create(info);
+            using var surface = context.SurfaceFactory.CreateSurface(info);
             var canvas = surface.Canvas;
             canvas.Clear(SKColors.Transparent);
 
-            // 膨張（Dilate）フィルタで縁取りを作成
-            using var dilateFilter = SKImageFilter.CreateDilate((int)Math.Ceiling(size), (int)Math.Ceiling(size));
-            using var colorFilter = SKColorFilter.CreateBlendMode(color, SKBlendMode.SrcIn);
+            var drawImage = context.SurfaceFactory.GetDrawImage(input);
+            try
+            {
+                using var dilateFilter = SKImageFilter.CreateDilate((int)Math.Ceiling(size), (int)Math.Ceiling(size));
+                using var colorFilter = SKColorFilter.CreateBlendMode(color, SKBlendMode.SrcIn);
 
-            // 1. 膨張した画像を色付きで描画（縁取り部分）
-            using var borderPaint = new SKPaint();
-            borderPaint.ImageFilter = dilateFilter;
-            borderPaint.ColorFilter = colorFilter;
-            canvas.DrawImage(input, expand, expand, borderPaint);
+                using var borderPaint = new SKPaint();
+                borderPaint.ImageFilter = dilateFilter;
+                borderPaint.ColorFilter = colorFilter;
+                canvas.DrawImage(drawImage, expand, expand, borderPaint);
 
-            // 2. 元の画像を上に重ねる
-            canvas.DrawImage(input, expand, expand);
+                canvas.DrawImage(drawImage, expand, expand);
+            }
+            finally
+            {
+                if (!ReferenceEquals(drawImage, input))
+                {
+                    drawImage.Dispose();
+                }
+            }
 
-            var result = surface.Snapshot();
+            var result = context.SurfaceFactory.Snapshot(surface, context.PreferRasterOutput);
 
             if (context.TargetImageCacheKey != IRenderImageCache.NO_CACHE_KEY)
             {

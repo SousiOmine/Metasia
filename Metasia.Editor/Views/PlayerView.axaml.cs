@@ -31,6 +31,7 @@ public partial class PlayerView : UserControl, IDisposable
     private bool _isRendering = false;
     private bool _disposed = false;
     private IPlaybackState? _currentPlaybackState;
+    private IRenderSurfaceFactory? _surfaceFactory;
 
     public PlayerView()
     {
@@ -54,6 +55,7 @@ public partial class PlayerView : UserControl, IDisposable
                     _currentPlaybackState = playbackState;
                 }
                 mediaAccessorRouter = App.Current?.Services?.GetRequiredService<MediaAccessorRouter>();
+                _surfaceFactory = App.Current?.Services?.GetService<IRenderSurfaceFactory>();
             }
             catch (InvalidOperationException ex)
             {
@@ -177,7 +179,9 @@ public partial class PlayerView : UserControl, IDisposable
                         mediaAccessorRouter,
                         projectInfo,
                         VM.ProjectPath,
-                        imageCache: _currentPlaybackState?.ImageCache);
+                        imageCache: _currentPlaybackState?.ImageCache,
+                        surfaceFactory: _surfaceFactory,
+                        preferRasterOutput: true);
 
                     // 「最新完了フレーム」を表示する
                     Dispatcher.UIThread.Post(() =>

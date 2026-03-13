@@ -24,6 +24,10 @@ namespace Metasia.Core.Render
 
         public IRenderImageCache? ImageCache { get; init; }
 
+        public IRenderSurfaceFactory SurfaceFactory { get; init; }
+
+        public bool PreferRasterOutput { get; init; }
+
         public RenderContext(
             int frame,
             SKSize projectResolution,
@@ -32,7 +36,9 @@ namespace Metasia.Core.Render
             IVideoFileAccessor videoFileAccessor,
             ProjectInfo projectInfo,
             string projectPath,
-            IRenderImageCache? imageCache = null)
+            IRenderImageCache? imageCache = null,
+            IRenderSurfaceFactory? surfaceFactory = null,
+            bool preferRasterOutput = false)
         {
             Frame = frame;
 
@@ -55,6 +61,8 @@ namespace Metasia.Core.Render
             ProjectInfo = projectInfo;
             ProjectPath = projectPath ?? string.Empty;
             ImageCache = imageCache;
+            SurfaceFactory = surfaceFactory ?? new NullRenderSurfaceFactory();
+            PreferRasterOutput = preferRasterOutput;
         }
     }
 }

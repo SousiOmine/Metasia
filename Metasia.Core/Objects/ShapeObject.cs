@@ -117,7 +117,7 @@ namespace Metasia.Core.Objects
             if (image is null)
             {
                 var info = new SKImageInfo(finalWidth, finalHeight, SKColorType.Rgba8888, SKAlphaType.Premul);
-                using var surface = SKSurface.Create(info) ?? throw new InvalidOperationException($"Failed to create SKSurface with dimensions {finalWidth}x{finalHeight}");
+                using var surface = context.SurfaceFactory.CreateSurface(info);
 
                 using var canvas = surface.Canvas;
 
@@ -161,7 +161,7 @@ namespace Metasia.Core.Objects
 
                 cancellationToken.ThrowIfCancellationRequested();
 
-                image = surface.Snapshot();
+                image = context.SurfaceFactory.Snapshot(surface, context.PreferRasterOutput);
                 context?.ImageCache?.Set(imageCacheKey, image);
             }
 

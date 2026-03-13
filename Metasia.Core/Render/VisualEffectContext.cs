@@ -44,6 +44,16 @@ namespace Metasia.Core.Render
         public IRenderImageCache? ImageCache { get; }
 
         /// <summary>
+        /// レンダリングサーフェスファクトリ
+        /// </summary>
+        public IRenderSurfaceFactory SurfaceFactory { get; }
+
+        /// <summary>
+        /// エフェクト出力をラスタ画像として保持するか
+        /// </summary>
+        public bool PreferRasterOutput { get; }
+
+        /// <summary>
         /// 適用対象のSKImageに割り当てられたキャッシュキー
         /// </summary>
         public long TargetImageCacheKey { get; set; } = 0;
@@ -56,6 +66,8 @@ namespace Metasia.Core.Render
             SKSize renderResolution,
             SKSize logicalSize,
             IRenderImageCache? imageCache = null,
+            IRenderSurfaceFactory? surfaceFactory = null,
+            bool preferRasterOutput = false,
             long targetImageCacheKey = IRenderImageCache.NO_CACHE_KEY)
         {
             Frame = frame;
@@ -65,6 +77,8 @@ namespace Metasia.Core.Render
             RenderResolution = renderResolution;
             LogicalSize = logicalSize;
             ImageCache = imageCache;
+            SurfaceFactory = surfaceFactory ?? new NullRenderSurfaceFactory();
+            PreferRasterOutput = preferRasterOutput;
             TargetImageCacheKey = targetImageCacheKey;
         }
 
@@ -89,6 +103,8 @@ namespace Metasia.Core.Render
                 renderContext.RenderResolution,
                 logicalSize,
                 imageCache ?? renderContext.ImageCache ?? null,
+                renderContext.SurfaceFactory,
+                renderContext.PreferRasterOutput,
                 targetImageCacheKey);
         }
     }

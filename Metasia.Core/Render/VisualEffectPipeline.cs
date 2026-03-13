@@ -68,11 +68,13 @@ namespace Metasia.Core.Render
                         context.Frame,
                         context.RelativeFrame,
                         context.ClipLength,
-                        context.ProjectResolution,
-                        context.RenderResolution,
-                        context.LogicalSize,
-                        context.ImageCache,
-                        currentCacheKey);
+                    context.ProjectResolution,
+                    context.RenderResolution,
+                    context.LogicalSize,
+                    context.ImageCache,
+                    context.SurfaceFactory,
+                    context.PreferRasterOutput,
+                    currentCacheKey);
                 }
             }
 

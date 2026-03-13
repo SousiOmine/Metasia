@@ -19,7 +19,9 @@ using Metasia.Editor.Services;
 using Metasia.Editor.Services.Audio;
 using Metasia.Editor.Services.Notification;
 using Metasia.Editor.Services.PluginService;
+using Metasia.Editor.Services.Rendering;
 using Metasia.Editor.ViewModels;
+using Metasia.Core.Render;
 using Metasia.Editor.ViewModels.Dialogs;
 using Metasia.Editor.ViewModels.Inspector;
 using Metasia.Editor.ViewModels.Inspector.Properties;
@@ -106,6 +108,15 @@ namespace Metasia.Editor
             services.AddSingleton<IAudioPlaybackService, AudioPlaybackService>();
             services.AddSingleton<IEncodeService, EncodeService>();
             services.AddSingleton<INotificationService, NotificationService>();
+
+            if (OperatingSystem.IsWindows())
+            {
+                services.AddSingleton<IRenderSurfaceFactory, D3D12RenderSurfaceFactory>();
+            }
+            else
+            {
+                services.AddSingleton<IRenderSurfaceFactory, NullRenderSurfaceFactory>();
+            }
 
             services.AddSingleton<IDropHandlerRegistry, DropHandlerRegistry>();
             services.AddSingleton<IDropHandler, ClipsMoveDropHandler>();

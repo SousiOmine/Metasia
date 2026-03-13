@@ -62,15 +62,25 @@ namespace Metasia.Core.Objects.VisualEffects
             int newHeight = Math.Max(1, srcHeight - top - bottom);
 
             var info = new SKImageInfo(srcWidth, srcHeight, SKColorType.Rgba8888, SKAlphaType.Premul);
-            using var surface = SKSurface.Create(info);
+            using var surface = context.SurfaceFactory.CreateSurface(info);
             var canvas = surface.Canvas;
             canvas.Clear(SKColors.Transparent);
 
-            // クリッピング領域を設定して描画
-            canvas.ClipRect(new SKRect(left, top, srcWidth - right, srcHeight - bottom));
-            canvas.DrawImage(input, 0, 0);
+            var drawImage = context.SurfaceFactory.GetDrawImage(input);
+            try
+            {
+                canvas.ClipRect(new SKRect(left, top, srcWidth - right, srcHeight - bottom));
+                canvas.DrawImage(drawImage, 0, 0);
+            }
+            finally
+            {
+                if (!ReferenceEquals(drawImage, input))
+                {
+                    drawImage.Dispose();
+                }
+            }
 
-            var result = surface.Snapshot();
+            var result = context.SurfaceFactory.Snapshot(surface, context.PreferRasterOutput);
 
             if (context.TargetImageCacheKey != IRenderImageCache.NO_CACHE_KEY)
             {

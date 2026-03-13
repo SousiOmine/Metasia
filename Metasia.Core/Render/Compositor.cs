@@ -31,26 +31,28 @@ namespace Metasia.Core.Render
             ProjectInfo projectInfo,
             string projectPath,
             IRenderImageCache? imageCache = null,
+            IRenderSurfaceFactory? surfaceFactory = null,
+            bool preferRasterOutput = false,
             CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(root);
             if (renderResolution.Width <= 0 || renderResolution.Height <= 0) throw new ArgumentOutOfRangeException(nameof(renderResolution), "Render resolution must be positive");
             if (projectResolution.Width <= 0 || projectResolution.Height <= 0) throw new ArgumentOutOfRangeException(nameof(projectResolution), "Project resolution must be positive");
 
+            var factory = surfaceFactory ?? new NullRenderSurfaceFactory();
             cancellationToken.ThrowIfCancellationRequested();
 
             var info = new SKImageInfo((int)renderResolution.Width, (int)renderResolution.Height, SKColorType.Rgba8888, SKAlphaType.Premul);
-            using var surface = SKSurface.Create(info);
+            using var surface = factory.CreateSurface(info);
             var canvas = surface.Canvas;
 
             try
             {
-                //下地は黒で塗りつぶす
                 canvas.Clear(SKColors.Black);
 
                 cancellationToken.ThrowIfCancellationRequested();
 
-                var context = new RenderContext(frame, projectResolution, renderResolution, imageFileAccessor, videoFileAccessor, projectInfo, projectPath, imageCache);
+                var context = new RenderContext(frame, projectResolution, renderResolution, imageFileAccessor, videoFileAccessor, projectInfo, projectPath, imageCache, factory, preferRasterOutput: true);
                 var rootNode = await root.RenderAsync(context, cancellationToken);
 
                 cancellationToken.ThrowIfCancellationRequested();
@@ -62,7 +64,7 @@ namespace Metasia.Core.Render
                 throw;
             }
 
-            return surface.Snapshot();
+            return factory.Snapshot(surface, preferRasterOutput);
         }
 
         public async Task ProcessNodeAsync(SKCanvas canvas, IRenderNode node, SKSize projectResolution, SKSize renderResolution, CancellationToken cancellationToken = default)

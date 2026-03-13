@@ -42,12 +42,10 @@ namespace Metasia.Core.Objects.VisualEffects
                 }
             }
 
-            // 角度をラジアンに変換してX/Y方向のブラー量を計算
             float radians = angle * MathF.PI / 180f;
             float sigmaX = MathF.Abs(MathF.Cos(radians)) * strength;
             float sigmaY = MathF.Abs(MathF.Sin(radians)) * strength;
 
-            // 最低限のブラー量を確保
             sigmaX = MathF.Max(sigmaX, 0.1f);
             sigmaY = MathF.Max(sigmaY, 0.1f);
 
@@ -55,17 +53,28 @@ namespace Metasia.Core.Objects.VisualEffects
             int height = input.Height;
 
             var info = new SKImageInfo(width, height, SKColorType.Rgba8888, SKAlphaType.Premul);
-            using var surface = SKSurface.Create(info);
+            using var surface = context.SurfaceFactory.CreateSurface(info);
             var canvas = surface.Canvas;
             canvas.Clear(SKColors.Transparent);
 
-            using var blurFilter = SKImageFilter.CreateBlur(sigmaX, sigmaY);
-            using var paint = new SKPaint();
-            paint.ImageFilter = blurFilter;
+            var drawImage = context.SurfaceFactory.GetDrawImage(input);
+            try
+            {
+                using var blurFilter = SKImageFilter.CreateBlur(sigmaX, sigmaY);
+                using var paint = new SKPaint();
+                paint.ImageFilter = blurFilter;
 
-            canvas.DrawImage(input, 0, 0, paint);
+                canvas.DrawImage(drawImage, 0, 0, paint);
+            }
+            finally
+            {
+                if (!ReferenceEquals(drawImage, input))
+                {
+                    drawImage.Dispose();
+                }
+            }
 
-            var result = surface.Snapshot();
+            var result = context.SurfaceFactory.Snapshot(surface, context.PreferRasterOutput);
             if (context.TargetImageCacheKey != IRenderImageCache.NO_CACHE_KEY)
             {
                 long cacheKey = GetImageHashCode(context);
