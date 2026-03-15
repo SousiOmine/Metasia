@@ -109,14 +109,7 @@ namespace Metasia.Editor
             services.AddSingleton<IEncodeService, EncodeService>();
             services.AddSingleton<INotificationService, NotificationService>();
 
-            if (OperatingSystem.IsWindows())
-            {
-                services.AddSingleton<IRenderSurfaceFactory, D3D12RenderSurfaceFactory>();
-            }
-            else
-            {
-                services.AddSingleton<IRenderSurfaceFactory, NullRenderSurfaceFactory>();
-            }
+            services.AddSingleton<IRenderSurfaceFactory>(_ => CreateRenderSurfaceFactory());
 
             services.AddSingleton<IDropHandlerRegistry, DropHandlerRegistry>();
             services.AddSingleton<IDropHandler, ClipsMoveDropHandler>();
@@ -222,6 +215,32 @@ namespace Metasia.Editor
             {
                 disposable.Dispose();
             }
+        }
+
+        private static IRenderSurfaceFactory CreateRenderSurfaceFactory()
+        {
+            if (OperatingSystem.IsLinux())
+            {
+                return new FallbackRenderSurfaceFactory(
+                    new VulkanRenderSurfaceFactory(),
+                    new NullRenderSurfaceFactory());
+            }
+
+            if (OperatingSystem.IsWindows())
+            {
+                // IRenderSurfaceFactory d3d12Factory = new D3D12RenderSurfaceFactory();
+                // if (d3d12Factory.IsGpuAvailable)
+                // {
+                //     return d3d12Factory;
+                // }
+
+                // d3d12Factory.Dispose();
+                return new FallbackRenderSurfaceFactory(
+                    new VulkanRenderSurfaceFactory(),
+                    new NullRenderSurfaceFactory());
+            }
+
+            return new NullRenderSurfaceFactory();
         }
     }
 }

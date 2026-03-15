@@ -28,7 +28,9 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.9" />
     <PackageReference Include="Avalonia.Xaml.Interactivity" Version="11.3.0.6" />
     <PackageReference Include="Miniaudio.Net" Version="0.1.0" />
-    <PackageReference Include="SkiaSharp.Direct3D.Vortice" Version="3.119.1" />
+    <PackageReference Include="SharpVk" Version="0.4.2" />
+    <PackageReference Include="SkiaSharp.Direct3D.Vortice" Version="3.119.2" />
+    <PackageReference Include="SkiaSharp.Vulkan.SharpVk" Version="3.119.2" />
     <PackageReference Include="Svg.Controls.Skia.Avalonia" Version="11.3.6.2" />
   </ItemGroup>
 
