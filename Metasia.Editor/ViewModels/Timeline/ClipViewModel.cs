@@ -9,6 +9,7 @@ using Metasia.Editor.Models.Interactor;
 using Metasia.Editor.Models.States;
 using Metasia.Editor.Services;
 using ReactiveUI;
+using System.Reflection;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -107,6 +108,8 @@ namespace Metasia.Editor.ViewModels.Timeline
         public ICommand PasteCommand { get; }
 
         public IBrush ClipColor => _clipColorProvider.GetBrush(TargetObject);
+
+        public string DisplayName => DisplayTextResolver.ResolveClipDisplayName(TargetObject.GetType());
 
         public ClipViewModel(ClipObject targetObject, TimelineViewModel parentTimeline, IEditCommandManager editCommandManager, ITimelineViewState timelineViewState, IClipColorProvider clipColorProvider, ISelectionState selectionState, IProjectState projectState, IFileDialogService fileDialogService)
         {

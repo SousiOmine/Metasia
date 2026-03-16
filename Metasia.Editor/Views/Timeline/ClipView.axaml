@@ -60,7 +60,7 @@
 			</ItemsControl>
 			<Border Grid.Column="0" x:Name="StartHandle" Width="10" Background="Transparent" Cursor="SizeWestEast" VerticalAlignment="Stretch" HorizontalAlignment="Left"/>
 			<RelativePanel Grid.Column="1">
-				<TextBlock Text="オブジェクト" Padding="5" RelativePanel.AlignVerticalCenterWithPanel="True"/>
+				<TextBlock Text="{Binding DisplayName}" Padding="5" RelativePanel.AlignVerticalCenterWithPanel="True"/>
 			</RelativePanel>
 			<Border Grid.Column="2" x:Name="EndHandle" Width="10" Background="Transparent" Cursor="SizeWestEast" VerticalAlignment="Stretch" HorizontalAlignment="Right"/>
 		</Grid>
