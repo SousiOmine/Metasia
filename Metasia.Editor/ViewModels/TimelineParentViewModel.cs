@@ -31,11 +31,11 @@ namespace Metasia.Editor.ViewModels
         public TimelineParentViewModel(ITimelineViewModelFactory timelineViewModelFactory, IProjectState projectState)
         {
             ArgumentNullException.ThrowIfNull(timelineViewModelFactory);
-            
+
             CopyCommand = ReactiveCommand.Create(Copy);
             PasteCommand = ReactiveCommand.Create(Paste);
             CutCommand = ReactiveCommand.Create(Cut);
-            
+
             _projectState = projectState;
             _projectState.ProjectLoaded += () =>
             {

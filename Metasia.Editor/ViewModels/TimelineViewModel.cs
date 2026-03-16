@@ -267,7 +267,7 @@ namespace Metasia.Editor.ViewModels
             int targetFrame = Frame;
 
             var clipsWithLayers = ClipTemplateSerializer.InstantiateClips(template, targetFrame, 0, Timeline);
-            
+
             var validClips = clipsWithLayers
                 .Where(item => item.layerIndex >= 0)
                 .Select(item => (item.clip, item.layerIndex))

@@ -96,7 +96,7 @@ namespace Metasia.Core.Tests.Xml
                 Assert.That(clips[0].clip.EndFrame, Is.EqualTo(200));
                 Assert.That(clips[0].layerIndex, Is.EqualTo(0));
             });
-            
+
             Assert.Multiple(() =>
             {
                 Assert.That(clips[1].clip.StartFrame, Is.EqualTo(150));

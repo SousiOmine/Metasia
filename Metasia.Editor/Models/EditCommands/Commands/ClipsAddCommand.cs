@@ -14,10 +14,10 @@ namespace Metasia.Editor.Models.EditCommands.Commands
         public ClipsAddCommand(IEnumerable<(ClipObject clip, LayerObject layer)> clipsToAdd)
         {
             ArgumentNullException.ThrowIfNull(clipsToAdd);
-            
+
             _clipsToAdd = new List<(ClipObject clip, LayerObject layer)>();
             _addedClips = new List<(ClipObject clip, LayerObject layer)>();
-            
+
             foreach (var (clip, layer) in clipsToAdd)
             {
                 ArgumentNullException.ThrowIfNull(clip, nameof(clipsToAdd));
@@ -29,7 +29,7 @@ namespace Metasia.Editor.Models.EditCommands.Commands
         public void Execute()
         {
             _addedClips.Clear();
-            
+
             foreach (var (clip, layer) in _clipsToAdd)
             {
                 layer.Objects.Add(clip);
