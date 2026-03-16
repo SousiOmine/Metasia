@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -26,6 +27,12 @@ namespace Metasia.Editor.ViewModels.Settings
             new SettingOption("auto", "Auto"),
             new SettingOption("dark", "Dark"),
             new SettingOption("light", "Light")
+        ];
+
+        public IReadOnlyList<SettingOption> MediaPathStyleOptions { get; } =
+        [
+            new SettingOption("Relative", "Relative (from project)"),
+            new SettingOption("Absolute", "Absolute")
         ];
 
         public SettingOption SelectedLanguage
@@ -60,6 +67,25 @@ namespace Metasia.Editor.ViewModels.Settings
                 {
                     Theme = value.Value;
                     this.RaisePropertyChanged(nameof(SelectedTheme));
+                }
+            }
+        }
+
+        public SettingOption SelectedMediaPathStyle
+        {
+            get => MediaPathStyleOptions.FirstOrDefault(option => option.Value == _settings.General.MediaPathStyle.ToString()) ?? MediaPathStyleOptions[0];
+            set
+            {
+                if (value is null)
+                {
+                    return;
+                }
+
+                if (_settings.General.MediaPathStyle.ToString() != value.Value)
+                {
+                    _settings.General.MediaPathStyle = Enum.Parse<MediaPathStyle>(value.Value);
+                    this.RaisePropertyChanged(nameof(SelectedMediaPathStyle));
+                    NotifySettingsEdited();
                 }
             }
         }
@@ -221,6 +247,7 @@ namespace Metasia.Editor.ViewModels.Settings
             this.RaisePropertyChanged(nameof(AutoBackupMaxCount));
             this.RaisePropertyChanged(nameof(SelectedLanguage));
             this.RaisePropertyChanged(nameof(SelectedTheme));
+            this.RaisePropertyChanged(nameof(SelectedMediaPathStyle));
         }
 
         public sealed record SettingOption(string Value, string Display);

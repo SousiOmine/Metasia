@@ -7,7 +7,9 @@ using Metasia.Core.Media;
 using Metasia.Core.Objects;
 using Metasia.Editor.Models.EditCommands;
 using Metasia.Editor.Models.EditCommands.Commands;
+using Metasia.Editor.Models.Settings;
 using Metasia.Editor.Models.States;
+using Metasia.Editor.Services;
 
 namespace Metasia.Editor.Models.DragDrop.Handlers;
 
@@ -23,12 +25,14 @@ public class ExternalFileDropHandler : IDropHandler
     private static readonly string[] ImageExtensions = { ".png", ".jpg", ".jpeg", ".bmp", ".gif", ".webp", ".tiff", ".svg" };
 
     private readonly IProjectState _projectState;
+    private readonly ISettingsService _settingsService;
 
     public int Priority => 50;
 
-    public ExternalFileDropHandler(IProjectState projectState)
+    public ExternalFileDropHandler(IProjectState projectState, ISettingsService settingsService)
     {
         _projectState = projectState;
+        _settingsService = settingsService;
     }
 
     public bool CanHandle(IDataObject data, DropTargetContext context)
@@ -84,15 +88,7 @@ public class ExternalFileDropHandler : IDropHandler
         if (item is not IStorageFile file) return null;
 
         var ext = Path.GetExtension(file.Name)?.ToLowerInvariant();
-        string filePath;
-        try
-        {
-            filePath = file.Path.LocalPath;
-        }
-        catch (InvalidOperationException)
-        {
-            filePath = file.Path?.ToString() ?? string.Empty;
-        }
+        string filePath = file.Path.LocalPath;
         var fileName = file.Name;
 
         ClipObject? clip = null;
@@ -148,18 +144,7 @@ public class ExternalFileDropHandler : IDropHandler
     private MediaPath CreateMediaPath(string filePath, string fileName, string projectDir, MediaType mediaType)
     {
         var directory = Path.GetDirectoryName(filePath) ?? string.Empty;
-        try
-        {
-            var relativeDir = Path.GetRelativePath(projectDir, directory);
-            return MediaPath.CreateFromPath(relativeDir, fileName);
-        }
-        catch (Exception)
-        {
-            return new MediaPath(new[] { mediaType })
-            {
-                FileName = fileName,
-                Directory = directory
-            };
-        }
+        bool saveAsRelative = _settingsService.CurrentSettings.General.MediaPathStyle == MediaPathStyle.Relative;
+        return MediaPath.CreateFromPath(directory, fileName, projectDir, saveAsRelative);
     }
 }

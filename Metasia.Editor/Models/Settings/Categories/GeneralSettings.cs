@@ -2,6 +2,12 @@ using System.Text.Json.Serialization;
 
 namespace Metasia.Editor.Models.Settings
 {
+    public enum MediaPathStyle
+    {
+        Relative,
+        Absolute
+    }
+
     public class GeneralSettings
     {
         /// <summary>
@@ -33,5 +39,8 @@ namespace Metasia.Editor.Models.Settings
 
         [JsonPropertyName("autoBackupMaxCount")]
         public int AutoBackupMaxCount { get; set; } = 10;
+
+        [JsonPropertyName("mediaPathStyle")]
+        public MediaPathStyle MediaPathStyle { get; set; } = MediaPathStyle.Relative;
     }
 }

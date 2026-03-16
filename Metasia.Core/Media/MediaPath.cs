@@ -27,27 +27,46 @@ namespace Metasia.Core.Media
         /// <summary>
         /// MediaPathを作成する
         /// </summary>
-        /// <param name="directory">ディレクトリパス</param>
+        /// <param name="directory">ディレクトリパス（絶対パス）</param>
         /// <param name="fileName">ファイル名</param>
+        /// <param name="projectDir">プロジェクトファイルのあるディレクトリ（相対パス化に使用）。nullの場合は絶対パスとして保存</param>
+        /// <param name="saveAsRelative">trueの場合は相対パスとして保存、falseの場合は絶対パスとして保存</param>
         /// <returns>MediaPath</returns>
-        public static MediaPath CreateFromPath(string directory, string fileName)
+        public static MediaPath CreateFromPath(string directory, string fileName, string? projectDir = null, bool saveAsRelative = true)
         {
-            // Validate inputs
             ArgumentNullException.ThrowIfNull(directory);
             ArgumentNullException.ThrowIfNull(fileName);
 
             if (directory.Length == 0) throw new ArgumentException("directory cannot be empty", nameof(directory));
             if (fileName.Length == 0) throw new ArgumentException("fileName cannot be empty", nameof(fileName));
 
-            // fileName must not contain directory separator characters
             if (fileName.IndexOfAny(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }) >= 0)
                 throw new ArgumentException("fileName must not contain directory separator characters", nameof(fileName));
 
-            // Ensure directory does not end with fileName (segment‑safe check)
             if (string.Equals(Path.GetFileName(directory), fileName, StringComparison.OrdinalIgnoreCase))
                 throw new ArgumentException("directory must not contain fileName as its last segment", nameof(directory));
 
-            string pathToSave = directory.Replace(Path.DirectorySeparatorChar, '/');
+            string normalizedDirectory = Path.GetFullPath(directory);
+
+            string pathToSave;
+
+            if (saveAsRelative && !string.IsNullOrEmpty(projectDir))
+            {
+                try
+                {
+                    string normalizedProjectDir = Path.GetFullPath(projectDir);
+                    string relativeDir = Path.GetRelativePath(normalizedProjectDir, normalizedDirectory);
+                    pathToSave = relativeDir.Replace(Path.DirectorySeparatorChar, '/');
+                }
+                catch
+                {
+                    pathToSave = normalizedDirectory.Replace(Path.DirectorySeparatorChar, '/');
+                }
+            }
+            else
+            {
+                pathToSave = normalizedDirectory.Replace(Path.DirectorySeparatorChar, '/');
+            }
 
             return new MediaPath
             {

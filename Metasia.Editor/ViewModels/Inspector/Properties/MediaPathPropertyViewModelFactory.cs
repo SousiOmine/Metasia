@@ -11,22 +11,27 @@ public class MediaPathPropertyViewModelFactory : IMediaPathPropertyViewModelFact
     private readonly IEditCommandManager _editCommandManager;
     private readonly IFileDialogService _fileDialogService;
     private readonly IProjectState _projectState;
+    private readonly ISettingsService _settingsService;
+
     public MediaPathPropertyViewModelFactory(
         IEditCommandManager editCommandManager,
         IFileDialogService fileDialogService,
-        IProjectState projectState)
+        IProjectState projectState,
+        ISettingsService settingsService)
     {
         ArgumentNullException.ThrowIfNull(editCommandManager);
         ArgumentNullException.ThrowIfNull(fileDialogService);
         ArgumentNullException.ThrowIfNull(projectState);
+        ArgumentNullException.ThrowIfNull(settingsService);
         _editCommandManager = editCommandManager;
         _fileDialogService = fileDialogService;
         _projectState = projectState;
+        _settingsService = settingsService;
     }
 
     public MediaPathPropertyViewModel Create(string propertyIdentifier, MediaPath target)
     {
         ArgumentNullException.ThrowIfNull(target);
-        return new MediaPathPropertyViewModel(propertyIdentifier, target, _editCommandManager, _fileDialogService, _projectState);
+        return new MediaPathPropertyViewModel(propertyIdentifier, target, _editCommandManager, _fileDialogService, _projectState, _settingsService);
     }
 }

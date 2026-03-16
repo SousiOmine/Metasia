@@ -6,6 +6,7 @@ using Metasia.Core.Attributes;
 using Metasia.Core.Media;
 using Metasia.Editor.Models.EditCommands;
 using Metasia.Editor.Models.EditCommands.Commands;
+using Metasia.Editor.Models.Settings;
 using Metasia.Editor.Models.States;
 using Metasia.Editor.Services;
 using ReactiveUI;
@@ -35,25 +36,29 @@ public class MediaPathPropertyViewModel : ViewModelBase
     private readonly IEditCommandManager _editCommandManager;
     private readonly IFileDialogService _fileDialogService;
     private readonly IProjectState _projectState;
+    private readonly ISettingsService _settingsService;
 
     public MediaPathPropertyViewModel(
         string propertyIdentifier,
         MediaPath target,
         IEditCommandManager editCommandManager,
         IFileDialogService fileDialogService,
-        IProjectState projectState
+        IProjectState projectState,
+        ISettingsService settingsService
     )
     {
         ArgumentNullException.ThrowIfNull(target);
         ArgumentNullException.ThrowIfNull(editCommandManager);
         ArgumentNullException.ThrowIfNull(fileDialogService);
         ArgumentNullException.ThrowIfNull(projectState);
+        ArgumentNullException.ThrowIfNull(settingsService);
 
         _propertyDisplayName = propertyIdentifier;
         _target = target;
         _editCommandManager = editCommandManager;
         _fileDialogService = fileDialogService;
         _projectState = projectState;
+        _settingsService = settingsService;
         _fileName = target?.FileName ?? "";
         OpenFileCommand = ReactiveCommand.Create(OpenFileCommandExecute);
 
@@ -74,8 +79,10 @@ public class MediaPathPropertyViewModel : ViewModelBase
 
         var directory = Path.GetDirectoryName(file.Path?.LocalPath ?? "") ?? "";
         var fileName = Path.GetFileName(file.Path?.LocalPath ?? "");
+        var projectDir = _projectState.CurrentProject?.ProjectPath.Path;
+        bool saveAsRelative = _settingsService.CurrentSettings.General.MediaPathStyle == MediaPathStyle.Relative;
 
-        var mediaPath = MediaPath.CreateFromPath(directory, fileName);
+        var mediaPath = MediaPath.CreateFromPath(directory, fileName, projectDir, saveAsRelative);
 
         _editCommandManager.Execute(new MediaPathChangeCommand(_target, mediaPath));
 
