@@ -14,6 +14,7 @@ using Metasia.Editor.ViewModels.Dialogs;
 using Metasia.Editor.Services;
 using Metasia.Editor.Models.EditCommands.Commands;
 using Metasia.Editor.Models.EditCommands;
+using Metasia.Editor.Services.PluginService;
 using Metasia.Core.Objects;
 
 namespace Metasia.Editor.ViewModels
@@ -36,10 +37,12 @@ namespace Metasia.Editor.ViewModels
         public ICommand SetTimelineSelectionEnd { get; }
         public ICommand ClearTimelineSelection { get; }
         public ICommand OpenOutput { get; }
+        public ICommand OpenPluginList { get; }
 
         public Interaction<NewProjectViewModel, (bool Result, string ProjectPath, Metasia.Core.Project.ProjectInfo ProjectInfo, Metasia.Core.Project.MetasiaProject? SelectedTemplate)> NewProjectInteraction { get; } = new();
         public Interaction<OutputViewModel, object> OutputInteraction { get; } = new();
         public Interaction<Unit, Unit> OpenSettingsInteraction { get; } = new();
+        public Interaction<PluginListViewModel, Unit> PluginListInteraction { get; } = new();
 
         private readonly IFileDialogService _fileDialogService;
         private readonly IProjectState _projectState;
@@ -49,6 +52,7 @@ namespace Metasia.Editor.ViewModels
         private readonly IOutputViewModelFactory _outputViewModelFactory;
         private readonly PlayerParentViewModel _playerParentViewModel;
         private readonly TimelineParentViewModel _timelineParentViewModel;
+        private readonly IPluginService _pluginService;
 
         public MenuViewModel(
             PlayerParentViewModel playerParentViewModel,
@@ -59,7 +63,8 @@ namespace Metasia.Editor.ViewModels
             IProjectState projectState,
             IEditCommandManager editCommandManager,
             INewProjectViewModelFactory newProjectViewModelFactory,
-            IOutputViewModelFactory outputViewModelFactory)
+            IOutputViewModelFactory outputViewModelFactory,
+            IPluginService pluginService)
         {
             _playerParentViewModel = playerParentViewModel;
             _timelineParentViewModel = timelineParentViewModel;
@@ -69,6 +74,7 @@ namespace Metasia.Editor.ViewModels
             _newProjectViewModelFactory = newProjectViewModelFactory;
             _outputViewModelFactory = outputViewModelFactory;
             _editCommandManager = editCommandManager;
+            _pluginService = pluginService;
 
             LoadEditingProject = ReactiveCommand.CreateFromTask(LoadEditingProjectExecuteAsync);
             CreateNewProject = ReactiveCommand.CreateFromTask(CreateNewProjectExecuteAsync);
@@ -78,6 +84,7 @@ namespace Metasia.Editor.ViewModels
             SetTimelineSelectionEnd = ReactiveCommand.Create(SetTimelineSelectionEndMethod);
             ClearTimelineSelection = ReactiveCommand.Create(ClearTimelineSelectionMethod);
             OpenOutput = ReactiveCommand.CreateFromTask(OpenOutputExecuteAsync);
+            OpenPluginList = ReactiveCommand.CreateFromTask(OpenPluginListExecuteAsync);
 
             Undo = ReactiveCommand.Create(UndoExecute);
             Redo = ReactiveCommand.Create(RedoExecute);
@@ -234,6 +241,19 @@ namespace Metasia.Editor.ViewModels
             catch (Exception ex)
             {
                 Debug.WriteLine($"出力ウィンドウオープンエラー: {ex.Message}");
+            }
+        }
+
+        private async Task OpenPluginListExecuteAsync()
+        {
+            try
+            {
+                var vm = new PluginListViewModel(_pluginService);
+                await PluginListInteraction.Handle(vm).FirstAsync();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"プラグイン一覧ウィンドウオープンエラー: {ex.Message}");
             }
         }
     }
