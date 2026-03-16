@@ -17,6 +17,11 @@ namespace Metasia.Editor.Models.Interactor
     /// </summary>
     public static class TimelineInteractor
     {
+        public record EditableMetaNumberParamInfo(
+            IMetasiaObject Owner,
+            string PropertyIdentifier,
+            MetaNumberParam<double> PropertyValue);
+
         private static IEnumerable<IMetasiaObject> EnumeratePropertyOwners(ClipObject clip)
         {
             yield return clip;
@@ -60,6 +65,23 @@ namespace Metasia.Editor.Models.Interactor
             owner = null!;
             propertyValue = default!;
             return false;
+        }
+
+        public static IEnumerable<EditableMetaNumberParamInfo> EnumerateEditableMetaNumberParams(ClipObject clip)
+        {
+            ArgumentNullException.ThrowIfNull(clip);
+
+            foreach (var owner in EnumeratePropertyOwners(clip))
+            {
+                foreach (var property in ObjectPropertyFinder.FindEditableProperties(owner))
+                {
+                    if (property.PropertyValue is MetaNumberParam<double> metaNumberParam &&
+                        metaNumberParam.IsMovable)
+                    {
+                        yield return new EditableMetaNumberParamInfo(owner, property.Identifier, metaNumberParam);
+                    }
+                }
+            }
         }
 
         public static IEditCommand? CreateCoordPointsValueChangeCommand(string propertyIdentifier, CoordPoint targetCoordPoint, double beforeValue, double afterValue, IEnumerable<ClipObject> selectedClips)
