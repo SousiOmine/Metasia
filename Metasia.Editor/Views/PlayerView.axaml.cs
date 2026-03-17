@@ -177,6 +177,7 @@ public partial class PlayerView : UserControl, IDisposable
                         mediaAccessorRouter,
                         projectInfo,
                         VM.ProjectPath,
+                        availableTimelines: VM.AvailableTimelines,
                         imageCache: _currentPlaybackState?.ImageCache);
 
                     // 「最新完了フレーム」を表示する

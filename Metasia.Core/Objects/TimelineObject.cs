@@ -125,7 +125,7 @@ namespace Metasia.Core.Objects
                         {
                             // グループ制御の長さを計算（制御オブジェクトの期間）
                             double controlDuration = (control.EndFrame - control.StartFrame) / framerate;
-                            var controlContext = new GetAudioContext(context.Format, context.StartSamplePosition, context.RequiredLength, context.ProjectFrameRate, controlDuration, context.AudioFileAccessor, context.ProjectPath);
+                            var controlContext = context.CreateChildContext(context.StartSamplePosition, context.RequiredLength, controlDuration);
                             AudioEffectContext effectContext = new AudioEffectContext(control, controlContext);
 
                             foreach (var effect in control.AudioEffects)
@@ -153,7 +153,7 @@ namespace Metasia.Core.Objects
             int lastFrame = GetLastFrameOfClips();
             double timelineDuration = Math.Max(1, lastFrame) / framerate;
 
-            var timelineContext = new GetAudioContext(context.Format, context.StartSamplePosition, context.RequiredLength, context.ProjectFrameRate, timelineDuration, context.AudioFileAccessor, context.ProjectPath);
+            var timelineContext = context.CreateChildContext(context.StartSamplePosition, context.RequiredLength, timelineDuration);
             AudioEffectContext timelineEffectContext = new AudioEffectContext(this, timelineContext);
 
             foreach (var effect in AudioEffects)

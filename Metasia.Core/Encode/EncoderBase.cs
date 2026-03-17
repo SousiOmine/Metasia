@@ -7,6 +7,7 @@ using Metasia.Core.Project;
 using Metasia.Core.Render;
 using Metasia.Core.Sounds;
 using SkiaSharp;
+using System.Collections.Generic;
 
 namespace Metasia.Core.Encode;
 
@@ -107,6 +108,7 @@ public abstract class EncoderBase : IEncoder, IDisposable
                 _videoFileAccessor,
                 _project.Info,
                 _projectPath,
+                availableTimelines: CreateTimelineLookup(_project.Timelines),
                 cancellationToken: ct);
 
             yield return skBitmap;
@@ -121,8 +123,34 @@ public abstract class EncoderBase : IEncoder, IDisposable
         }
         long startPosition = (long)((double)sampleRate / _project.Info.Framerate * _startFrame) + startSample;
         double lengthInSecond = (_endFrame - _startFrame) / _project.Info.Framerate;
-        var chunk = await _targetTimeline.GetAudioChunkAsync(new GetAudioContext(new AudioFormat(sampleRate, channelCount), startPosition, sampleCount, _project.Info.Framerate, lengthInSecond, _audioFileAccessor, _projectPath));
+        var chunk = await _targetTimeline.GetAudioChunkAsync(new GetAudioContext(
+            new AudioFormat(sampleRate, channelCount),
+            startPosition,
+            sampleCount,
+            _project.Info.Framerate,
+            lengthInSecond,
+            _audioFileAccessor,
+            _projectPath,
+            CreateTimelineLookup(_project.Timelines),
+            string.IsNullOrWhiteSpace(_targetTimeline.Id) ? Array.Empty<string>() : [_targetTimeline.Id]));
         return chunk;
+    }
+
+    private static IReadOnlyDictionary<string, TimelineObject> CreateTimelineLookup(IEnumerable<TimelineObject> timelines)
+    {
+        Dictionary<string, TimelineObject> result = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var timeline in timelines)
+        {
+            if (timeline is null || string.IsNullOrWhiteSpace(timeline.Id))
+            {
+                continue;
+            }
+
+            result[timeline.Id] = timeline;
+        }
+
+        return result;
     }
 
     public void Dispose()

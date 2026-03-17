@@ -196,5 +196,42 @@ namespace Metasia.Editor.Tests.Models.Projects
             Assert.That(loadedLayer.Id, Is.Not.Null.And.Not.Empty);
             Assert.That(loadedClip.Id, Is.Not.Null.And.Not.Empty);
         }
+
+        [Test]
+        public void Save_Load_PreservesTimelineReferenceObject()
+        {
+            var projectFile = new MetasiaProjectFile();
+            var editorProject = new MetasiaEditorProject(
+                new DirectoryEntity(_testDirectory),
+                projectFile);
+
+            var referencedTimeline = new TimelineObject("ReferencedTimeline");
+            referencedTimeline.Layers.Add(new LayerObject("layer-ref", "Layer Ref"));
+
+            var rootTimeline = new TimelineObject("RootTimeline");
+            var rootLayer = new LayerObject("layer1", "Layer 1");
+            rootLayer.Objects.Add(new TimelineReferenceObject("timeline-ref")
+            {
+                StartFrame = 10,
+                EndFrame = 90,
+                TargetTimelineId = referencedTimeline.Id,
+                SourceStartFrame = new(24)
+            });
+            rootTimeline.Layers.Add(rootLayer);
+
+            editorProject.Timelines.Add(rootTimeline);
+            editorProject.Timelines.Add(referencedTimeline);
+
+            ProjectSaveLoadManager.Save(editorProject, _projectFilePath);
+            var loadedProject = ProjectSaveLoadManager.Load(_projectFilePath);
+
+            var loadedRoot = loadedProject.Timelines.Single(t => t.Id == "RootTimeline");
+            var loadedClip = loadedRoot.Layers.Single().Objects.Single();
+
+            Assert.That(loadedClip, Is.InstanceOf<TimelineReferenceObject>());
+            var loadedReference = (TimelineReferenceObject)loadedClip;
+            Assert.That(loadedReference.TargetTimelineId, Is.EqualTo(referencedTimeline.Id));
+            Assert.That(loadedReference.SourceStartFrame.Value, Is.EqualTo(24).Within(0.001));
+        }
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Collections.Generic;
 using Avalonia.Threading;
 using Metasia.Core.Objects;
 using Metasia.Core.Render.Cache;
@@ -94,7 +95,7 @@ public class PlaybackState : IPlaybackState
             PlaybackStarted?.Invoke();
 
             long startSample = (long)(CurrentFrame / (double)_projectState.CurrentProjectInfo.Framerate * SamplingRate);
-            _audioPlaybackService.Play(_projectState.CurrentTimeline, _projectState.CurrentProjectInfo, startSample, 1.0, SamplingRate, AudioChannels, _mediaAccessorRouter, ResolveProjectPath());
+            _audioPlaybackService.Play(_projectState.CurrentTimeline, _projectState.CurrentProjectInfo, startSample, 1.0, SamplingRate, AudioChannels, _mediaAccessorRouter, ResolveProjectPath(), CreateTimelineLookup());
         }
         catch (Exception ex)
         {
@@ -172,5 +173,27 @@ public class PlaybackState : IPlaybackState
         }
 
         return Directory.GetCurrentDirectory();
+    }
+
+    private IReadOnlyDictionary<string, TimelineObject> CreateTimelineLookup()
+    {
+        Dictionary<string, TimelineObject> result = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var timeline in _projectState.CurrentProject?.Timelines ?? [])
+        {
+            if (timeline is null || string.IsNullOrWhiteSpace(timeline.Id))
+            {
+                continue;
+            }
+
+            result[timeline.Id] = timeline;
+        }
+
+        if (_projectState.CurrentTimeline is not null && !string.IsNullOrWhiteSpace(_projectState.CurrentTimeline.Id))
+        {
+            result[_projectState.CurrentTimeline.Id] = _projectState.CurrentTimeline;
+        }
+
+        return result;
     }
 }

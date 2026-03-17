@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
@@ -125,6 +126,31 @@ namespace Metasia.Editor.ViewModels
         private readonly ISelectionState selectionState;
 
         public string ProjectPath => projectState.CurrentProject?.ProjectPath?.Path ?? string.Empty;
+
+        public IReadOnlyDictionary<string, TimelineObject> AvailableTimelines
+        {
+            get
+            {
+                Dictionary<string, TimelineObject> result = new(StringComparer.OrdinalIgnoreCase);
+
+                foreach (var timeline in projectState.CurrentProject?.Timelines ?? [])
+                {
+                    if (timeline is null || string.IsNullOrWhiteSpace(timeline.Id))
+                    {
+                        continue;
+                    }
+
+                    result[timeline.Id] = timeline;
+                }
+
+                if (!string.IsNullOrWhiteSpace(TargetTimeline.Id))
+                {
+                    result[TargetTimeline.Id] = TargetTimeline;
+                }
+
+                return result;
+            }
+        }
 
         public PlayerViewModel(
             TimelineObject targetTimeline,

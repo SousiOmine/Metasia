@@ -1,5 +1,6 @@
 using Metasia.Core.Objects;
 using Metasia.Core.Media;
+using System.Collections.Generic;
 
 namespace Metasia.Core.Sounds
 {
@@ -34,6 +35,10 @@ namespace Metasia.Core.Sounds
 
         public string? ProjectPath { get; }
 
+        public IReadOnlyDictionary<string, TimelineObject> AvailableTimelines { get; }
+
+        public IReadOnlyList<string> TimelineReferenceStack { get; }
+
         /// <summary>
         /// コンストラクタ
         /// </summary>
@@ -51,6 +56,8 @@ namespace Metasia.Core.Sounds
             ProjectFrameRate = getAudioContext.ProjectFrameRate;
             AudioFileAccessor = getAudioContext.AudioFileAccessor;
             ProjectPath = getAudioContext.ProjectPath;
+            AvailableTimelines = getAudioContext.AvailableTimelines;
+            TimelineReferenceStack = getAudioContext.TimelineReferenceStack;
         }
 
         /// <summary>
@@ -70,7 +77,16 @@ namespace Metasia.Core.Sounds
                 throw new ArgumentException("endPosition must be greater than or equal to startPosition");
             }
 
-            var audioContext = new GetAudioContext(Format, startPosition, endPosition - startPosition, ProjectFrameRate, ObjectDurationInSeconds, AudioFileAccessor, ProjectPath);
+            var audioContext = new GetAudioContext(
+                Format,
+                startPosition,
+                endPosition - startPosition,
+                ProjectFrameRate,
+                ObjectDurationInSeconds,
+                AudioFileAccessor,
+                ProjectPath,
+                AvailableTimelines,
+                TimelineReferenceStack);
             var chunk = await Source.GetAudioChunkAsync(audioContext);
             return chunk;
         }

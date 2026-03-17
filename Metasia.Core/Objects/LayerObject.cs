@@ -163,7 +163,7 @@ namespace Metasia.Core.Objects
 
                 // 子オブジェクトの長さを計算
                 double childDuration = (clipObject.EndFrame - clipObject.StartFrame) / framerate;
-                var chunk = await obj.GetAudioChunkAsync(new GetAudioContext(context.Format, childStartPosition, overlapLength, context.ProjectFrameRate, childDuration, context.AudioFileAccessor, context.ProjectPath));
+                var chunk = await obj.GetAudioChunkAsync(context.CreateChildContext(childStartPosition, overlapLength, childDuration));
                 double layerGain = obj.Volume?.Value / 100 ?? 1.0;
                 for (int i = 0; i < overlapLength; i++)
                 {
@@ -182,7 +182,7 @@ namespace Metasia.Core.Objects
             int layerEndFrame = Objects.Count > 0 ? Objects.Max(o => o.EndFrame) : 0;
             double layerDuration = (layerEndFrame - layerStartFrame) / framerate;
 
-            GetAudioContext layerContext = new(context.Format, context.StartSamplePosition, context.RequiredLength, context.ProjectFrameRate, layerDuration);
+            GetAudioContext layerContext = context.CreateChildContext(context.StartSamplePosition, context.RequiredLength, layerDuration);
             AudioEffectContext effectContext = new(this, layerContext);
 
             foreach (var effect in AudioEffects)

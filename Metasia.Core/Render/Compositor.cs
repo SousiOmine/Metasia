@@ -31,6 +31,7 @@ namespace Metasia.Core.Render
             ProjectInfo projectInfo,
             string projectPath,
             IRenderImageCache? imageCache = null,
+            IReadOnlyDictionary<string, TimelineObject>? availableTimelines = null,
             CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(root);
@@ -50,7 +51,21 @@ namespace Metasia.Core.Render
 
                 cancellationToken.ThrowIfCancellationRequested();
 
-                var context = new RenderContext(frame, projectResolution, renderResolution, imageFileAccessor, videoFileAccessor, projectInfo, projectPath, imageCache);
+                IReadOnlyList<string> referenceStack =
+                    root is TimelineObject timelineRoot && !string.IsNullOrWhiteSpace(timelineRoot.Id)
+                        ? [timelineRoot.Id]
+                        : Array.Empty<string>();
+                var context = new RenderContext(
+                    frame,
+                    projectResolution,
+                    renderResolution,
+                    imageFileAccessor,
+                    videoFileAccessor,
+                    projectInfo,
+                    projectPath,
+                    imageCache,
+                    availableTimelines,
+                    referenceStack);
                 var rootNode = await root.RenderAsync(context, cancellationToken);
 
                 cancellationToken.ThrowIfCancellationRequested();
