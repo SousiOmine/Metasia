@@ -113,11 +113,13 @@ namespace Metasia.Editor.Views
                     var serviceProvider = App.Current?.Services;
                     if (serviceProvider is not null && VisualRoot is Window window)
                     {
+                        var settingsViewModel = serviceProvider.GetRequiredService<SettingsWindowViewModel>();
                         var settingsWindow = new SettingsWindow()
                         {
-                            DataContext = serviceProvider.GetRequiredService<SettingsWindowViewModel>()
+                            DataContext = settingsViewModel
                         };
                         await settingsWindow.ShowDialog(window);
+                        settingsViewModel.NotifySettingsChangedIfNeeded();
                     }
                     interaction.SetOutput(Unit.Default);
                 }

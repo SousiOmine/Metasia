@@ -111,5 +111,34 @@ namespace Metasia.Editor.Services
         {
             await Task.Run(() => UpdateSettings(settings));
         }
+
+        public void UpdateSettingsSilent(EditorSettings settings)
+        {
+            lock (_lock)
+            {
+                try
+                {
+                    Directory.CreateDirectory(_settingsDirectory);
+                    var json = JsonSerializer.Serialize(settings, new JsonSerializerOptions
+                    {
+                        WriteIndented = true
+                    });
+                    var tempFilePath = _settingsFilePath + ".tmp";
+                    File.WriteAllText(tempFilePath, json);
+                    File.Move(tempFilePath, _settingsFilePath, true);
+                    CurrentSettings = settings;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"設定ファイルの保存エラー: {ex.Message}");
+                    return;
+                }
+            }
+        }
+
+        public void NotifySettingsChanged()
+        {
+            SettingsChanged?.Invoke();
+        }
     }
 }
