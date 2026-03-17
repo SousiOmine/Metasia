@@ -29,7 +29,7 @@ namespace Metasia.Editor.Models.EditCommands.Commands
             _createdLayers.Clear();
 
             _placedClips = ResolvePlacements();
-            
+
             foreach (var (clip, layer) in _placedClips)
             {
                 if (!layer.Objects.Contains(clip))

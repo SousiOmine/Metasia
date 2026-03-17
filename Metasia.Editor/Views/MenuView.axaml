@@ -44,8 +44,8 @@
                 <MenuItem Header="選択範囲を解除" Command="{Binding ClearTimelineSelection}"/>
             </MenuItem>
         </MenuItem>
-        <MenuItem Header="表示" IsEnabled="False">
-
+        <MenuItem Header="表示">
+            <MenuItem Header="プラグイン一覧" Command="{Binding OpenPluginList}"/>
         </MenuItem>
         <MenuItem Header="その他" IsEnabled="False">
 

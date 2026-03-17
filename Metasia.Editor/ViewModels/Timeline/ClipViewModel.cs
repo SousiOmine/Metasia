@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Media;
 using Metasia.Core.Objects;
+using Metasia.Core.Objects.Parameters;
 using Metasia.Editor.Models;
 using Metasia.Editor.Models.EditCommands;
 using Metasia.Editor.Models.EditCommands.Commands;
@@ -8,8 +9,10 @@ using Metasia.Editor.Models.Interactor;
 using Metasia.Editor.Models.States;
 using Metasia.Editor.Services;
 using ReactiveUI;
+using System.Reflection;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -20,6 +23,13 @@ namespace Metasia.Editor.ViewModels.Timeline
 {
     public class ClipViewModel : ViewModelBase
     {
+        public sealed record MidpointDragTarget(
+            MetaNumberParam<double> TargetParam,
+            Metasia.Core.Coordinate.CoordPoint TargetCoordPoint,
+            int BeforeFrame);
+
+        public ObservableCollection<ClipMidpointMarkerViewModel> MidpointMarkers { get; } = new();
+
         public ClipObject TargetObject
         {
             get;
@@ -99,6 +109,8 @@ namespace Metasia.Editor.ViewModels.Timeline
 
         public IBrush ClipColor => _clipColorProvider.GetBrush(TargetObject);
 
+        public string DisplayName => DisplayTextResolver.ResolveClipDisplayName(TargetObject.GetType());
+
         public ClipViewModel(ClipObject targetObject, TimelineViewModel parentTimeline, IEditCommandManager editCommandManager, ITimelineViewState timelineViewState, IClipColorProvider clipColorProvider, ISelectionState selectionState, IProjectState projectState, IFileDialogService fileDialogService)
         {
             TargetObject = targetObject;
@@ -120,11 +132,14 @@ namespace Metasia.Editor.ViewModels.Timeline
             CutCommand = ReactiveCommand.Create(() => parentTimeline.CutSelectedClips());
             PasteCommand = ReactiveCommand.Create(() => parentTimeline.PasteClips());
 
-            _timelineViewState.Frame_Per_DIP_Changed += () =>
-            {
-                Frame_Per_DIP = _timelineViewState.Frame_Per_DIP;
-            };
+            _timelineViewState.Frame_Per_DIP_Changed += OnFramePerDipChanged;
             Frame_Per_DIP = _timelineViewState.Frame_Per_DIP;
+
+            editCommandManager.CommandExecuted += OnTimelineStructureOrPreviewChanged;
+            editCommandManager.CommandPreviewExecuted += OnTimelineStructureOrPreviewChanged;
+            editCommandManager.CommandUndone += OnTimelineStructureOrPreviewChanged;
+            editCommandManager.CommandRedone += OnTimelineStructureOrPreviewChanged;
+            _projectState.TimelineChanged += RefreshMidpointMarkers;
         }
 
         private async Task ExportTemplateAsync()
@@ -174,6 +189,7 @@ namespace Metasia.Editor.ViewModels.Timeline
         {
             Width = (TargetObject.EndFrame - TargetObject.StartFrame + 1) * _timelineViewState.Frame_Per_DIP;
             StartFrame = TargetObject.StartFrame * _timelineViewState.Frame_Per_DIP;
+            RefreshMidpointMarkers();
         }
 
         public void ClipClick(bool isMultiSelect, int targetFrame = -1)
@@ -186,6 +202,67 @@ namespace Metasia.Editor.ViewModels.Timeline
                 // 次にプレビュー位置を移動
                 parentTimeline.SeekFrame(targetFrame);
             }
+        }
+
+        public void SelectOnly()
+        {
+            parentTimeline.ClipSelect(TargetObject, false);
+        }
+
+        public void RefreshMidpointMarkers()
+        {
+            var desiredMarkers = TimelineInteractor
+                .EnumerateEditableMetaNumberParams(TargetObject)
+                .SelectMany(info => info.PropertyValue.Params.Select(coordPoint => new
+                {
+                    MarkerId = $"{info.Owner.GetType().FullName}:{info.PropertyIdentifier}:{coordPoint.Id}",
+                    TargetParam = info.PropertyValue,
+                    TargetCoordPoint = coordPoint
+                }))
+                .OrderBy(x => x.MarkerId, StringComparer.Ordinal)
+                .ToList();
+
+            var existingMarkers = MidpointMarkers.ToDictionary(x => x.MarkerId, StringComparer.Ordinal);
+
+            for (int i = MidpointMarkers.Count - 1; i >= 0; i--)
+            {
+                if (!desiredMarkers.Any(x => string.Equals(x.MarkerId, MidpointMarkers[i].MarkerId, StringComparison.Ordinal)))
+                {
+                    MidpointMarkers.RemoveAt(i);
+                }
+            }
+
+            for (int i = 0; i < desiredMarkers.Count; i++)
+            {
+                var desiredMarker = desiredMarkers[i];
+                if (existingMarkers.TryGetValue(desiredMarker.MarkerId, out var existingMarker))
+                {
+                    existingMarker.Refresh(desiredMarker.TargetParam, desiredMarker.TargetCoordPoint, _timelineViewState.Frame_Per_DIP);
+                    int currentIndex = MidpointMarkers.IndexOf(existingMarker);
+                    if (currentIndex != i)
+                    {
+                        MidpointMarkers.Move(currentIndex, i);
+                    }
+                }
+                else
+                {
+                    MidpointMarkers.Insert(i, new ClipMidpointMarkerViewModel(
+                        desiredMarker.MarkerId,
+                        this,
+                        desiredMarker.TargetParam,
+                        desiredMarker.TargetCoordPoint,
+                        editCommandManager,
+                        _timelineViewState.Frame_Per_DIP));
+                }
+            }
+        }
+
+        public List<MidpointDragTarget> CaptureMidpointGroupAtFrame(int frame)
+        {
+            return MidpointMarkers
+                .Where(x => x.CurrentFrame == frame)
+                .Select(x => new MidpointDragTarget(x.TargetParam, x.TargetCoordPoint, x.CurrentFrame))
+                .ToList();
         }
 
         /// <summary>
@@ -373,6 +450,31 @@ namespace Metasia.Editor.ViewModels.Timeline
             _isDragging = false;
             _dragHandleName = string.Empty;
             _adjacentClip = null;
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                editCommandManager.CommandExecuted -= OnTimelineStructureOrPreviewChanged;
+                editCommandManager.CommandPreviewExecuted -= OnTimelineStructureOrPreviewChanged;
+                editCommandManager.CommandUndone -= OnTimelineStructureOrPreviewChanged;
+                editCommandManager.CommandRedone -= OnTimelineStructureOrPreviewChanged;
+                _projectState.TimelineChanged -= RefreshMidpointMarkers;
+                _timelineViewState.Frame_Per_DIP_Changed -= OnFramePerDipChanged;
+            }
+
+            base.Dispose(disposing);
+        }
+
+        private void OnFramePerDipChanged()
+        {
+            Frame_Per_DIP = _timelineViewState.Frame_Per_DIP;
+        }
+
+        private void OnTimelineStructureOrPreviewChanged(object? sender, IEditCommand e)
+        {
+            RefreshMidpointMarkers();
         }
     }
 }
