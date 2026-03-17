@@ -8,7 +8,7 @@
               mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="30"
              x:Class="Metasia.Editor.Views.Timeline.LayerCanvasView"
 			 x:DataType="vm:LayerCanvasViewModel"
-             xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
+             xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Xaml.Behaviors.Interactivity"
              xmlns:behaviors="clr-namespace:Metasia.Editor.Views.Behaviors"
 			 Background="Transparent"
              Width="{Binding Width}"
