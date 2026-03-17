@@ -66,10 +66,11 @@ namespace Metasia.Editor.Models.EditCommands.Commands
                     continue;
 
                 LayerObject? targetLayer = null;
-                int startSearchIndex = Math.Min(originalLayerIndex, _timeline.Layers.Count - 1);
-                if (startSearchIndex < 0) startSearchIndex = 0;
+                int searchStartIndex = Math.Min(originalLayerIndex, _timeline.Layers.Count - 1);
+                if (searchStartIndex < 0)
+                    searchStartIndex = 0;
 
-                for (int i = startSearchIndex; i < _timeline.Layers.Count; i++)
+                for (int i = searchStartIndex; i < _timeline.Layers.Count; i++)
                 {
                     var layer = _timeline.Layers[i];
                     if (layer.CanPlaceObjectAt(clip, clip.StartFrame, clip.EndFrame))

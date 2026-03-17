@@ -32,6 +32,21 @@ namespace Metasia.Editor.ViewModels.Timeline
             set => this.RaiseAndSetIfChanged(ref width, value);
         }
 
+        public bool IsSelected
+        {
+            get => _isSelected;
+            private set => this.RaiseAndSetIfChanged(ref _isSelected, value);
+        }
+
+        private bool _isSelected = false;
+
+        public bool IsActive
+        {
+            get => _isActive;
+            private set => this.RaiseAndSetIfChanged(ref _isActive, value);
+        }
+        private bool _isActive = true;
+
         public ICommand HandleDropCommand { get; }
         public ICommand HandleDragOverCommand { get; }
         public ICommand HandleDragLeaveCommand { get; }
@@ -104,6 +119,10 @@ namespace Metasia.Editor.ViewModels.Timeline
             _projectState.TimelineChanged += OnTimelineChanged;
 
             selectionState.SelectionChanged += OnSelectionChangedWithClipSelection;
+            selectionState.LayerSelectionChanged += OnLayerSelectionChanged;
+
+            UpdateIsSelected();
+            IsActive = TargetLayer.IsActive;
 
             editCommandManager.CommandExecuted += OnCommandExecuted;
             editCommandManager.CommandPreviewExecuted += OnCommandPreviewExecuted;
@@ -130,6 +149,7 @@ namespace Metasia.Editor.ViewModels.Timeline
         public void EmptyAreaClicked(int frame)
         {
             parentTimeline.SeekFrame(frame);
+            parentTimeline.SelectLayer(TargetLayer);
         }
 
         private void AddNewClip(ClipObject clipObject)
@@ -269,6 +289,7 @@ namespace Metasia.Editor.ViewModels.Timeline
                     if (selectionState != null)
                     {
                         selectionState.SelectionChanged -= OnSelectionChangedWithClipSelection;
+                        selectionState.LayerSelectionChanged -= OnLayerSelectionChanged;
                     }
                 }
                 _disposed = true;
@@ -292,7 +313,11 @@ namespace Metasia.Editor.ViewModels.Timeline
         }
 
         private void OnProjectLoaded() => RelocateClips();
-        private void OnTimelineChanged() => RelocateClips();
+        private void OnTimelineChanged()
+        {
+            RelocateClips();
+            IsActive = TargetLayer.IsActive;
+        }
         private void OnSelectionChangedWithClipSelection()
         {
             ResetSelectedClip();
@@ -306,5 +331,15 @@ namespace Metasia.Editor.ViewModels.Timeline
             }
         }
         private void OnSelectionChanged() => ResetSelectedClip();
+
+        private void OnLayerSelectionChanged()
+        {
+            UpdateIsSelected();
+        }
+
+        private void UpdateIsSelected()
+        {
+            IsSelected = selectionState.SelectedLayer?.Id == TargetLayer.Id;
+        }
     }
 }

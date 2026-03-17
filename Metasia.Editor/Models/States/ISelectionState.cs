@@ -50,4 +50,25 @@ public interface ISelectionState
     /// 選択されているクリップが変更された時に発生するイベント
     /// </summary>
     event Action? SelectionChanged;
+
+    /// <summary>
+    /// 選択されているレイヤー
+    /// </summary>
+    LayerObject? SelectedLayer { get; }
+
+    /// <summary>
+    /// 指定したレイヤーを選択する
+    /// </summary>
+    /// <param name="layer">選択するレイヤー</param>
+    void SelectLayer(LayerObject layer);
+
+    /// <summary>
+    /// レイヤーの選択を解除する
+    /// </summary>
+    void ClearSelectedLayer();
+
+    /// <summary>
+    /// レイヤーの選択が変更された時に発生するイベント
+    /// </summary>
+    event Action? LayerSelectionChanged;
 }

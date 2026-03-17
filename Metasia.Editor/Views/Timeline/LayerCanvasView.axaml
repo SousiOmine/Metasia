@@ -6,14 +6,19 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
               mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="30"
-             x:Class="Metasia.Editor.Views.Timeline.LayerCanvasView"
+              x:Class="Metasia.Editor.Views.Timeline.LayerCanvasView"
 			 x:DataType="vm:LayerCanvasViewModel"
-             xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Xaml.Behaviors.Interactivity"
-             xmlns:behaviors="clr-namespace:Metasia.Editor.Views.Behaviors"
-			 Background="Transparent"
-             Width="{Binding Width}"
-			 Height="30"
-			 >
+              xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Xaml.Behaviors.Interactivity"
+              xmlns:behaviors="clr-namespace:Metasia.Editor.Views.Behaviors"
+               Width="{Binding Width}"
+ 			 Height="30"
+ 			 >
+	<UserControl.Background>
+		<MultiBinding Converter="{StaticResource LayerStateBackgroundConverter}">
+			<Binding Path="IsSelected"/>
+			<Binding Path="IsActive"/>
+		</MultiBinding>
+	</UserControl.Background>
 	<i:Interaction.Behaviors>
 		<behaviors:LayerClipDropBehavior 
 			DropCommand="{Binding HandleDropCommand}" 

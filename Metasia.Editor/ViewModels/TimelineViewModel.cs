@@ -266,7 +266,14 @@ namespace Metasia.Editor.ViewModels
             var template = ClipTemplateSerializer.Deserialize(xml);
             int targetFrame = Frame;
 
-            var clipsWithLayers = ClipTemplateSerializer.InstantiateClips(template, targetFrame, 0, Timeline);
+            int startLayerIndex = 0;
+            if (selectionState.SelectedLayer != null)
+            {
+                startLayerIndex = Timeline.Layers.IndexOf(selectionState.SelectedLayer);
+                if (startLayerIndex < 0) startLayerIndex = 0;
+            }
+
+            var clipsWithLayers = ClipTemplateSerializer.InstantiateClips(template, targetFrame, startLayerIndex, Timeline);
 
             var validClips = clipsWithLayers
                 .Where(item => item.layerIndex >= 0)
@@ -284,6 +291,13 @@ namespace Metasia.Editor.ViewModels
             {
                 selectionState.SelectClip(clip);
             }
+        }
+
+        public void SelectLayer(LayerObject layer)
+        {
+            if (selectionState.SelectedLayer?.Id == layer.Id)
+                return;
+            selectionState.SelectLayer(layer);
         }
 
 

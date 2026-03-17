@@ -11,7 +11,10 @@ public class SelectionState : ISelectionState, IDisposable
 
     public ClipObject? CurrentSelectedClip { get; private set; }
 
+    public LayerObject? SelectedLayer { get; private set; }
+
     public event Action? SelectionChanged;
+    public event Action? LayerSelectionChanged;
 
     private List<ClipObject> _selectedClips = new();
 
@@ -75,7 +78,19 @@ public class SelectionState : ISelectionState, IDisposable
 
     public void Dispose()
     {
-        // イベントハンドラーをクリアしてメモリリークを防ぐ
         SelectionChanged = null;
+        LayerSelectionChanged = null;
+    }
+
+    public void SelectLayer(LayerObject layer)
+    {
+        SelectedLayer = layer;
+        LayerSelectionChanged?.Invoke();
+    }
+
+    public void ClearSelectedLayer()
+    {
+        SelectedLayer = null;
+        LayerSelectionChanged?.Invoke();
     }
 }
