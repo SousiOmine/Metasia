@@ -7,14 +7,41 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Metasia.Editor.Views.Tools.ProjectTool"
              x:DataType="vmTools:ProjectToolViewModel">
-    <TreeView ItemsSource="{Binding Nodes}" SelectedItem="{Binding SelectedNode, Mode=TwoWay}"
-              ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-        <TreeView.ItemTemplate>
-            <TreeDataTemplate x:DataType="models:ProjectObjectTreeNode" ItemsSource="{Binding SubNodes}">
-				<StackPanel Orientation="Horizontal">
-					<TextBlock Text="{Binding Title}" Padding="0" Margin="0,1" />
-				</StackPanel>
-            </TreeDataTemplate>
-        </TreeView.ItemTemplate>
-    </TreeView>
+    <DockPanel IsVisible="{Binding IsProjectLoaded}">
+        <Grid DockPanel.Dock="Top" Margin="0,0,0,8" ColumnDefinitions="Auto,*">
+            <Button Grid.Column="0"
+                    Content="+"
+                    Width="24"
+                    Height="24"
+                    Padding="0"
+                    HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center"
+                    Margin="2">
+                <Button.Flyout>
+                    <MenuFlyout Placement="BottomEdgeAlignedLeft">
+                        <MenuItem Header="タイムラインを新規作成" Command="{Binding CreateTimelineCommand}"/>
+                    </MenuFlyout>
+                </Button.Flyout>
+            </Button>
+        </Grid>
+        <TreeView ItemsSource="{Binding Nodes}" SelectedItem="{Binding SelectedNode, Mode=TwoWay}"
+                  ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+            <TreeView.ItemTemplate>
+                <TreeDataTemplate x:DataType="models:ProjectObjectTreeNode" ItemsSource="{Binding SubNodes}">
+					<StackPanel Orientation="Horizontal">
+						<TextBlock Text="{Binding Title}" Padding="0" Margin="0,1" />
+					</StackPanel>
+                </TreeDataTemplate>
+            </TreeView.ItemTemplate>
+            <TreeView.Styles>
+                <Style Selector="TreeViewItem">
+                    <Setter Property="ContextFlyout">
+                        <MenuFlyout>
+                            <MenuItem Header="削除" Command="{Binding $parent[TreeView].DataContext.DeleteTimelineCommand}" />
+                        </MenuFlyout>
+                    </Setter>
+                </Style>
+            </TreeView.Styles>
+        </TreeView>
+    </DockPanel>
 </UserControl>

@@ -141,28 +141,12 @@ namespace Metasia.Editor.ViewModels
             this.projectState = projectState;
             _editCommandManager = editCommandManager;
 
-            selectionState.SelectionChanged += () =>
-            {
-                SelectingObjects.Clear();
-                SelectingObjects.AddRange(selectionState.SelectedClips);
-            };
+            selectionState.SelectionChanged += OnSelectionChanged;
 
-            _editCommandManager.CommandExecuted += (_, _) =>
-            {
-                playbackState.RequestReRendering();
-                projectState.NotifyTimelineChanged();
-            };
-            _editCommandManager.CommandPreviewExecuted += (_, _) => playbackState.RequestReRendering();
-            _editCommandManager.CommandUndone += (_, _) =>
-            {
-                playbackState.RequestReRendering();
-                projectState.NotifyTimelineChanged();
-            };
-            _editCommandManager.CommandRedone += (_, _) =>
-            {
-                playbackState.RequestReRendering();
-                projectState.NotifyTimelineChanged();
-            };
+            _editCommandManager.CommandExecuted += OnCommandExecuted;
+            _editCommandManager.CommandPreviewExecuted += OnCommandPreviewExecuted;
+            _editCommandManager.CommandUndone += OnCommandUndone;
+            _editCommandManager.CommandRedone += OnCommandRedone;
 
             NextFrame = ReactiveCommand.Create(() => playbackState.Seek(Frame + 1));
             PreviousFrame = ReactiveCommand.Create(() => playbackState.Seek(Frame - 1));
@@ -183,8 +167,8 @@ namespace Metasia.Editor.ViewModels
             });
 
             playbackState.PlaybackFrameChanged += OnPlaybackFrameChanged;
-            playbackState.PlaybackStarted += () => IsPlaying = true;
-            playbackState.PlaybackPaused += () => IsPlaying = false;
+            playbackState.PlaybackStarted += OnPlaybackStarted;
+            playbackState.PlaybackPaused += OnPlaybackPaused;
             playbackState.PlaybackSeeked += OnPlaybackFrameChanged;
             projectState.TimelineChanged += UpdateSlider;
 
@@ -212,6 +196,12 @@ namespace Metasia.Editor.ViewModels
             playbackState.Pause();
         }
 
+        public void PauseAndSeekToFrame(int frame)
+        {
+            playbackState.Pause();
+            playbackState.Seek(frame);
+        }
+
         private void SetSelectionStartMethod()
         {
             var command = new TimelineSelectionRangeChangeCommand(TargetTimeline, Frame, TargetTimeline.SelectionEnd);
@@ -236,6 +226,64 @@ namespace Metasia.Editor.ViewModels
             _isUpdatingFrameFromPlayback = true;
             Frame = playbackState.CurrentFrame;
             _isUpdatingFrameFromPlayback = false;
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                selectionState.SelectionChanged -= OnSelectionChanged;
+                playbackState.PlaybackFrameChanged -= OnPlaybackFrameChanged;
+                playbackState.PlaybackStarted -= OnPlaybackStarted;
+                playbackState.PlaybackPaused -= OnPlaybackPaused;
+                playbackState.PlaybackSeeked -= OnPlaybackFrameChanged;
+                projectState.TimelineChanged -= UpdateSlider;
+                _editCommandManager.CommandExecuted -= OnCommandExecuted;
+                _editCommandManager.CommandPreviewExecuted -= OnCommandPreviewExecuted;
+                _editCommandManager.CommandUndone -= OnCommandUndone;
+                _editCommandManager.CommandRedone -= OnCommandRedone;
+            }
+
+            base.Dispose(disposing);
+        }
+
+        private void OnSelectionChanged()
+        {
+            SelectingObjects.Clear();
+            SelectingObjects.AddRange(selectionState.SelectedClips);
+        }
+
+        private void OnCommandExecuted(object? sender, IEditCommand e)
+        {
+            playbackState.RequestReRendering();
+            projectState.NotifyTimelineChanged();
+        }
+
+        private void OnCommandPreviewExecuted(object? sender, IEditCommand e)
+        {
+            playbackState.RequestReRendering();
+        }
+
+        private void OnCommandUndone(object? sender, IEditCommand e)
+        {
+            playbackState.RequestReRendering();
+            projectState.NotifyTimelineChanged();
+        }
+
+        private void OnCommandRedone(object? sender, IEditCommand e)
+        {
+            playbackState.RequestReRendering();
+            projectState.NotifyTimelineChanged();
+        }
+
+        private void OnPlaybackStarted()
+        {
+            IsPlaying = true;
+        }
+
+        private void OnPlaybackPaused()
+        {
+            IsPlaying = false;
         }
     }
 }

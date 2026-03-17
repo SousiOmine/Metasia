@@ -202,6 +202,7 @@ public class OutputViewModelTests
         public event Action? ProjectLoaded;
         public event Action? ProjectClosed;
         public event Action? TimelineChanged;
+        public event Action? CurrentTimelineChanged;
 
         public Task LoadProjectAsync(MetasiaEditorProject project) => Task.CompletedTask;
         public void CloseProject()
@@ -210,6 +211,7 @@ public class OutputViewModelTests
 
         public void SetCurrentTimeline(TimelineObject timeline)
         {
+            CurrentTimelineChanged?.Invoke();
         }
 
         public void NotifyTimelineChanged()
@@ -239,6 +241,16 @@ public class OutputViewModelTests
         {
             UpdateSettings(settings);
             return Task.CompletedTask;
+        }
+
+        public void UpdateSettingsSilent(EditorSettings settings)
+        {
+            CurrentSettings = settings;
+        }
+
+        public void NotifySettingsChanged()
+        {
+            SettingsChanged?.Invoke();
         }
     }
 }

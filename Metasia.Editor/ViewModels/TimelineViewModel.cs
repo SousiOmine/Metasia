@@ -96,6 +96,7 @@ namespace Metasia.Editor.ViewModels
         private bool _isUpdatingFramePerDIP = false;
 
         public TimelineViewModel(
+            TimelineObject timeline,
             ILayerButtonViewModelFactory layerButtonViewModelFactory,
             ILayerCanvasViewModelFactory layerCanvasViewModelFactory,
             ISelectionState selectionState,
@@ -110,7 +111,7 @@ namespace Metasia.Editor.ViewModels
             ArgumentNullException.ThrowIfNull(selectionState);
             ArgumentNullException.ThrowIfNull(projectState);
             ArgumentNullException.ThrowIfNull(editCommandManager);
-            ArgumentNullException.ThrowIfNull(projectState.CurrentTimeline);
+            ArgumentNullException.ThrowIfNull(timeline);
             ArgumentNullException.ThrowIfNull(clipboardService);
             this.selectionState = selectionState;
             this.playbackState = playbackState;
@@ -121,7 +122,7 @@ namespace Metasia.Editor.ViewModels
 
             _timelineViewState.Frame_Per_DIP_Changed += OnFramePerDIPChanged;
             Frame_Per_DIP = _timelineViewState.Frame_Per_DIP;
-            _timeline = _projectState.CurrentTimeline;
+            _timeline = timeline;
             if (_projectState.CurrentProjectInfo != null)
             {
                 FrameRate = _projectState.CurrentProjectInfo.Framerate;

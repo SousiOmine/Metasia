@@ -174,6 +174,7 @@ public class ClipMidpointMarkerViewModelTests
         editCommandManager = new EditCommandManager();
 
         var timelineViewModel = new TimelineViewModel(
+            timeline,
             layerButtonFactoryMock.Object,
             layerCanvasFactoryMock.Object,
             selectionStateMock.Object,
