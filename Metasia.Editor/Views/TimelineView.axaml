@@ -29,6 +29,12 @@
 												   MinTextInterval="50"
 						                           FramePerDIP="{Binding Frame_Per_DIP}"
 						                           FrameRate="{Binding FrameRate}"/>
+						<Rectangle Canvas.Left="0" Width="{Binding InvalidStartWidth}" Height="500"
+								   Fill="#50808080" IsHitTestVisible="False"
+								   IsVisible="{Binding HasInvalidStart}"/>
+						<Rectangle Canvas.Left="{Binding InvalidEndLeft}" Width="50000" Height="500"
+								   Fill="#50808080" IsHitTestVisible="False"
+								   IsVisible="{Binding HasInvalidEnd}"/>
 						<Rectangle Canvas.Left="{Binding CursorLeft}" Fill="Red" Width="2" Height="500" IsHitTestVisible="False"/>
 					</Canvas>
 					
@@ -44,6 +50,12 @@
 							PointerPressed="TimelineCanvas_PointerPressed"
 							PointerMoved="TimelineCanvas_PointerMoved"
 							PointerReleased="TimelineCanvas_PointerReleased">
+						<Rectangle Canvas.Left="0" Width="{Binding InvalidStartWidth}" Height="5000"
+								   Fill="#50808080" IsHitTestVisible="False" ZIndex="2"
+								   IsVisible="{Binding HasInvalidStart}"/>
+						<Rectangle Canvas.Left="{Binding InvalidEndLeft}" Width="50000" Height="5000"
+								   Fill="#50808080" IsHitTestVisible="False" ZIndex="2"
+								   IsVisible="{Binding HasInvalidEnd}"/>
 						<Rectangle Canvas.Left="{Binding CursorLeft}" Fill="Red" Width="2" Height="5000" ZIndex="1" IsHitTestVisible="False"/>
 						<ItemsControl x:Name="TimelineScroll" ItemsSource="{Binding LayerCanvas}" />
 					</Canvas>
