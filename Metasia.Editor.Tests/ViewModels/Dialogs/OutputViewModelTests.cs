@@ -88,6 +88,17 @@ public class OutputViewModelTests
         {
             return Task.FromResult<IEnumerable<IEditorPlugin>>(EditorPlugins);
         }
+
+        public IEnumerable<IPluginSettingsProvider> GetSettingsProviders()
+        {
+            foreach (var plugin in EditorPlugins)
+            {
+                if (plugin is IPluginSettingsProvider settingsProvider)
+                {
+                    yield return settingsProvider;
+                }
+            }
+        }
     }
 
     private sealed class FakeMediaOutputPlugin : IMediaOutputPlugin

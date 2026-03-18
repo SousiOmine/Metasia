@@ -69,5 +69,16 @@ namespace Metasia.Editor.Services.PluginService
         {
 
         }
+
+        public IEnumerable<IPluginSettingsProvider> GetSettingsProviders()
+        {
+            foreach (var plugin in EditorPlugins)
+            {
+                if (plugin is IPluginSettingsProvider settingsProvider)
+                {
+                    yield return settingsProvider;
+                }
+            }
+        }
     }
 }

@@ -8,6 +8,7 @@ using Metasia.Editor.ViewModels;
 using Metasia.Editor.ViewModels.Dialogs;
 using Metasia.Editor.Views.Dialogs;
 using Metasia.Editor.Views.Settings;
+using Metasia.Editor.Plugin;
 
 namespace Metasia.Editor.Views
 {
@@ -19,6 +20,7 @@ namespace Metasia.Editor.Views
         private OutputWindow? _outputWindow;
         private IDisposable? _openSettingsHandlerDisposable;
         private IDisposable? _pluginListHandlerDisposable;
+        private IDisposable? _openPluginSettingsHandlerDisposable;
 
         public MenuView()
         {
@@ -32,12 +34,14 @@ namespace Metasia.Editor.Views
             _openSettingsHandlerDisposable?.Dispose();
             _outputHandlerDisposable?.Dispose();
             _pluginListHandlerDisposable?.Dispose();
+            _openPluginSettingsHandlerDisposable?.Dispose();
             _newProjectHandlerDisposable = null;
             _outputHandlerDisposable = null;
             _outputWindow?.Close();
             _outputWindow = null;
             _openSettingsHandlerDisposable = null;
             _pluginListHandlerDisposable = null;
+            _openPluginSettingsHandlerDisposable = null;
 
             if (_viewModel is not { } viewModel)
             {
@@ -150,6 +154,24 @@ namespace Metasia.Editor.Views
                     interaction.SetOutput(Unit.Default);
                 }
             });
+
+            _openPluginSettingsHandlerDisposable = viewModel.OpenPluginSettingsInteraction.RegisterHandler(async interaction =>
+            {
+                try
+                {
+                    if (VisualRoot is Window window)
+                    {
+                        var settingsWindow = interaction.Input.CreateSettingsWindow();
+                        await settingsWindow.ShowDialog(window);
+                    }
+                    interaction.SetOutput(Unit.Default);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Error in OpenPluginSettingsInteraction handler: {ex.Message}");
+                    interaction.SetOutput(Unit.Default);
+                }
+            });
         }
 
         protected override void OnUnloaded(Avalonia.Interactivity.RoutedEventArgs e)
@@ -158,12 +180,14 @@ namespace Metasia.Editor.Views
             _openSettingsHandlerDisposable?.Dispose();
             _outputHandlerDisposable?.Dispose();
             _pluginListHandlerDisposable?.Dispose();
+            _openPluginSettingsHandlerDisposable?.Dispose();
             _newProjectHandlerDisposable = null;
             _outputHandlerDisposable = null;
             _outputWindow?.Close();
             _outputWindow = null;
             _openSettingsHandlerDisposable = null;
             _pluginListHandlerDisposable = null;
+            _openPluginSettingsHandlerDisposable = null;
 
             DataContextChanged -= OnDataContextChanged;
 

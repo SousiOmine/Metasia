@@ -1,5 +1,7 @@
 using System;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Windows.Input;
 using ReactiveUI;
 using System.Reactive;
@@ -16,6 +18,8 @@ using Metasia.Editor.Models.EditCommands.Commands;
 using Metasia.Editor.Models.EditCommands;
 using Metasia.Editor.Services.PluginService;
 using Metasia.Core.Objects;
+using Metasia.Editor.Plugin;
+using Avalonia.Controls;
 
 namespace Metasia.Editor.ViewModels
 {
@@ -39,10 +43,13 @@ namespace Metasia.Editor.ViewModels
         public ICommand OpenOutput { get; }
         public ICommand OpenPluginList { get; }
 
+        public ObservableCollection<object> SettingsMenuItems { get; }
+
         public Interaction<NewProjectViewModel, (bool Result, string ProjectPath, Metasia.Core.Project.ProjectInfo ProjectInfo, Metasia.Core.Project.MetasiaProject? SelectedTemplate)> NewProjectInteraction { get; } = new();
         public Interaction<OutputViewModel, object> OutputInteraction { get; } = new();
         public Interaction<Unit, Unit> OpenSettingsInteraction { get; } = new();
         public Interaction<PluginListViewModel, Unit> PluginListInteraction { get; } = new();
+        public Interaction<IPluginSettingsProvider, Unit> OpenPluginSettingsInteraction { get; } = new();
 
         private readonly IFileDialogService _fileDialogService;
         private readonly IProjectState _projectState;
@@ -93,7 +100,43 @@ namespace Metasia.Editor.ViewModels
             Paste = ReactiveCommand.Create(() => _timelineParentViewModel.Paste());
             Cut = ReactiveCommand.Create(() => _timelineParentViewModel.Cut());
 
+            SettingsMenuItems = new ObservableCollection<object>();
+            LoadSettingsMenuItems();
+
             RegisterCommands(keyBindingService);
+        }
+
+        private void LoadSettingsMenuItems()
+        {
+            SettingsMenuItems.Add(new MenuItem
+            {
+                Header = "環境設定",
+                Command = OpenSettings,
+            });
+
+            var settingsProviders = _pluginService.GetSettingsProviders().ToList();
+            if (settingsProviders.Count == 0)
+            {
+                return;
+            }
+
+            SettingsMenuItems.Add(new Separator());
+
+            foreach (var settingsProvider in settingsProviders)
+            {
+                var openPluginSettingsCommand = ReactiveCommand.CreateFromTask(() =>
+                    OpenPluginSettingsAsync(settingsProvider));
+                SettingsMenuItems.Add(new MenuItem
+                {
+                    Header = settingsProvider.SettingsDisplayName,
+                    Command = openPluginSettingsCommand,
+                });
+            }
+        }
+
+        private async Task OpenPluginSettingsAsync(IPluginSettingsProvider settingsProvider)
+        {
+            await OpenPluginSettingsInteraction.Handle(settingsProvider);
         }
 
         private void RegisterCommands(IKeyBindingService keyBindingService)
