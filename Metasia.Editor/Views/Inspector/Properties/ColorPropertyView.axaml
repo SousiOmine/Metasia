@@ -7,11 +7,14 @@
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="120"
              x:Class="Metasia.Editor.Views.Inspector.Properties.ColorPropertyView"
              x:DataType="vm:ColorPropertyViewModel">
-    <StackPanel Orientation="Vertical" Margin="2">
+    <Grid ColumnDefinitions="68,*" Margin="1">
         <TextBlock Text="{Binding PropertyDisplayName}" 
                    VerticalAlignment="Center" 
                    HorizontalAlignment="Left"
-                   Margin="2"/>
-        <colorPicker:ColorPicker Color="{Binding SelectedColor, Mode=TwoWay}" IsAlphaEnabled="False" />
-    </StackPanel>
+                   Margin="1"/>
+        <colorPicker:ColorPicker Grid.Column="1"
+                                 Color="{Binding SelectedColor, Mode=TwoWay}"
+                                 IsAlphaEnabled="False"
+                                 HorizontalAlignment="Left"/>
+    </Grid>
 </UserControl>
