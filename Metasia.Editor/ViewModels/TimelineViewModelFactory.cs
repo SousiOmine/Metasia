@@ -1,4 +1,5 @@
 using System;
+using Metasia.Core.Objects;
 using Metasia.Editor.ViewModels.Timeline;
 using Metasia.Editor.Models.States;
 using Metasia.Editor.Models.EditCommands;
@@ -39,8 +40,9 @@ public class TimelineViewModelFactory : ITimelineViewModelFactory
         _timelineViewState = timelineViewState;
         _clipboardService = clipboardService;
     }
-    public TimelineViewModel Create()
+    public TimelineViewModel Create(TimelineObject timeline)
     {
-        return new TimelineViewModel(_layerButtonViewModelFactory, _layerCanvasViewModelFactory, selectionState, playbackState, _projectState, editCommandManager, _timelineViewState, _clipboardService);
+        ArgumentNullException.ThrowIfNull(timeline);
+        return new TimelineViewModel(timeline, _layerButtonViewModelFactory, _layerCanvasViewModelFactory, selectionState, playbackState, _projectState, editCommandManager, _timelineViewState, _clipboardService);
     }
 }

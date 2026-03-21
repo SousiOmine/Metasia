@@ -1,15 +1,10 @@
 using System;
-using System.Collections.Generic;
-using Metasia.Core.Project;
-using Metasia.Editor.Models.Projects;
 using ReactiveUI;
-using SkiaSharp;
 using System.Linq;
-using Microsoft.Extensions.DependencyInjection;
 using Metasia.Editor.Services;
-using System.Windows.Input;
 using Metasia.Editor.Models.States;
 using Metasia.Editor.Models.EditCommands;
+using Metasia.Core.Objects;
 
 namespace Metasia.Editor.ViewModels;
 
@@ -21,15 +16,27 @@ public class PlayerParentViewModel : ViewModelBase, IDisposable
         get => _targetPlayerViewModel;
         set
         {
+            if (ReferenceEquals(_targetPlayerViewModel, value))
+            {
+                return;
+            }
+
             // 以前のコマンド登録を解除
             UnregisterPlayerCommands();
+            var oldPlayerViewModel = _targetPlayerViewModel;
 
             this.RaiseAndSetIfChanged(ref _targetPlayerViewModel, value);
+            oldPlayerViewModel?.Dispose();
+
             if (value is not null)
             {
                 TargetTimelineName = value.TargetTimeline.Id;
                 // 新しいPlayerViewModelのコマンドを登録
                 RegisterPlayerCommands(value);
+            }
+            else
+            {
+                TargetTimelineName = string.Empty;
             }
         }
     }
@@ -49,15 +56,19 @@ public class PlayerParentViewModel : ViewModelBase, IDisposable
     private PlayerViewModel? _targetPlayerViewModel;
     private string _targetTimelineName = string.Empty;
 
-    private List<PlayerViewModel> _playerViewModels = new();
-
     private bool _isPlayerShow = false;
 
     private readonly IKeyBindingService? _keyBindingService;
     private readonly IPlayerViewModelFactory _playerViewModelFactory;
     private readonly IProjectState _projectState;
     private readonly IEditCommandManager _editCommandManager;
-    public PlayerParentViewModel(IKeyBindingService keyBindingService, IPlayerViewModelFactory playerViewModelFactory, IProjectState projectState, IEditCommandManager editCommandManager)
+    private readonly ISelectionState _selectionState;
+    public PlayerParentViewModel(
+        IKeyBindingService keyBindingService,
+        IPlayerViewModelFactory playerViewModelFactory,
+        IProjectState projectState,
+        IEditCommandManager editCommandManager,
+        ISelectionState selectionState)
     {
         // キーバインディングサービスを設定
         if (keyBindingService is not null)
@@ -68,7 +79,12 @@ public class PlayerParentViewModel : ViewModelBase, IDisposable
         _playerViewModelFactory = playerViewModelFactory;
         _projectState = projectState;
         _editCommandManager = editCommandManager;
+        _selectionState = selectionState;
         _projectState.ProjectLoaded += OnProjectLoaded;
+        _projectState.ProjectClosed += OnProjectClosed;
+        _editCommandManager.CommandExecuted += ValidateCurrentTimeline;
+        _editCommandManager.CommandUndone += ValidateCurrentTimeline;
+        _editCommandManager.CommandRedone += ValidateCurrentTimeline;
     }
 
     /// <summary>
@@ -127,57 +143,103 @@ public class PlayerParentViewModel : ViewModelBase, IDisposable
     {
         IsPlayerShow = false;
 
-        // 既存のPlayerViewModelリストをクリア
-        _playerViewModels.Clear();
         _editCommandManager.Clear();
+        TargetPlayerViewModel = null;
 
         if (_projectState.CurrentProjectInfo is null || _projectState.CurrentProject is null)
         {
             return;
         }
 
-        ProjectInfo projectInfo = new ProjectInfo(_projectState.CurrentProjectInfo.Framerate, new SKSize(_projectState.CurrentProjectInfo.Size.Width, _projectState.CurrentProjectInfo.Size.Height), _projectState.CurrentProjectInfo.AudioSamplingRate, _projectState.CurrentProjectInfo.AudioChannels);
-
-        // タイムラインごとに新しいPlayerViewModelを作成
-        foreach (var timeline in _projectState.CurrentProject.Timelines)
+        var initialTimeline = _projectState.CurrentTimeline ?? _projectState.CurrentProject.Timelines.FirstOrDefault();
+        if (initialTimeline is null)
         {
-            _playerViewModels.Add(_playerViewModelFactory.Create(timeline, projectInfo));
+            return;
         }
 
+        _projectState.SetCurrentTimeline(initialTimeline);
+        TargetPlayerViewModel = CreatePlayerViewModel(initialTimeline);
         IsPlayerShow = true;
+    }
 
-        if (_projectState.CurrentProject is not null)
+    public void SwitchToTimeline(TimelineObject timeline)
+    {
+        ArgumentNullException.ThrowIfNull(timeline);
+
+        if (_projectState.CurrentProjectInfo is null || _projectState.CurrentProject is null)
         {
-            // 新しいProjectがセットされたら、メインタイムラインのPlayerViewModelを作成
-            var mainTimeline = _projectState.CurrentProject.Timelines.FirstOrDefault();
-            if (mainTimeline != null)
-            {
-                // 既存のPlayerViewModelsを確認
-                var existingVM = _playerViewModels.FirstOrDefault(vm => vm.TargetTimeline.Id == mainTimeline.Id);
+            return;
+        }
 
-                if (existingVM != null)
-                {
-                    // 既存のVMがあればそれを使用
-                    TargetPlayerViewModel = existingVM;
-                }
-                else
-                {
-                    // なければ新しく作成
-                    var newVM = _playerViewModelFactory.Create(mainTimeline, _projectState.CurrentProjectInfo);
-                    _playerViewModels.Add(newVM);
-                    TargetPlayerViewModel = newVM;
-                }
-            }
+        if (_projectState.CurrentTimeline?.Id == timeline.Id && TargetPlayerViewModel?.TargetTimeline.Id == timeline.Id)
+        {
+            return;
+        }
+
+        TargetPlayerViewModel?.PauseAndSeekToFrame(0);
+        _selectionState.ClearSelectedClips();
+        _selectionState.ClearSelectedLayer();
+        _projectState.SetCurrentTimeline(timeline);
+
+        TargetPlayerViewModel = CreatePlayerViewModel(timeline);
+        IsPlayerShow = true;
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            _projectState.ProjectLoaded -= OnProjectLoaded;
+            _projectState.ProjectClosed -= OnProjectClosed;
+            _editCommandManager.CommandExecuted -= ValidateCurrentTimeline;
+            _editCommandManager.CommandUndone -= ValidateCurrentTimeline;
+            _editCommandManager.CommandRedone -= ValidateCurrentTimeline;
+            UnregisterPlayerCommands();
+            TargetPlayerViewModel = null;
+        }
+
+        base.Dispose(disposing);
+    }
+
+    private void OnProjectClosed()
+    {
+        TargetPlayerViewModel = null;
+        IsPlayerShow = false;
+        TargetTimelineName = string.Empty;
+    }
+
+    private PlayerViewModel CreatePlayerViewModel(TimelineObject timeline)
+    {
+        return _playerViewModelFactory.Create(timeline, _projectState.CurrentProjectInfo!);
+    }
+
+    private void ValidateCurrentTimeline(object? sender, IEditCommand e)
+    {
+        if (_projectState.CurrentProject is null) return;
+        if (TargetPlayerViewModel is null) return;
+
+        var timelineExists = _projectState.CurrentProject.Timelines
+            .Any(t => t.Id == TargetPlayerViewModel.TargetTimeline.Id);
+
+        if (!timelineExists)
+        {
+            SwitchToRootTimeline();
         }
     }
 
-    /// <summary>
-    /// リソースを解放します
-    /// </summary>
-    public new void Dispose()
+    private void SwitchToRootTimeline()
     {
-        _projectState.ProjectLoaded -= OnProjectLoaded;
-        UnregisterPlayerCommands();
-        base.Dispose();
+        if (_projectState.CurrentProject is null) return;
+
+        var rootTimelineId = _projectState.CurrentProject.ProjectFile.RootTimelineId;
+        var rootTimeline = _projectState.CurrentProject.Timelines
+            .FirstOrDefault(t => t.Id == rootTimelineId)
+            ?? _projectState.CurrentProject.Timelines.FirstOrDefault();
+
+        if (rootTimeline is not null &&
+            rootTimeline.Id != TargetPlayerViewModel?.TargetTimeline.Id)
+        {
+            SwitchToTimeline(rootTimeline);
+        }
     }
 }

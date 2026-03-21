@@ -13,5 +13,7 @@ namespace Metasia.Editor.Services.PluginService
         List<IMediaOutputPlugin> MediaOutputPlugins { get; }
 
         Task<IEnumerable<IEditorPlugin>> LoadPluginsAsync();
+
+        IEnumerable<IPluginSettingsProvider> GetSettingsProviders();
     }
 }

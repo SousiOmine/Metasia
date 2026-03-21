@@ -15,7 +15,7 @@ namespace Metasia.Editor.Controls;
 /// </summary>
 public class InspectorSlider : Slider
 {
-    protected override System.Type StyleKeyOverride => typeof(Slider);
+    protected override System.Type StyleKeyOverride => typeof(InspectorSlider);
 
     private bool _interactionActive;
     private IPointer? _interactionPointer;

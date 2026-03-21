@@ -1,7 +1,7 @@
 using ReactiveUI;
 using System;
-using Metasia.Editor.Models.States;
 using System.Windows.Input;
+using Metasia.Editor.Models.States;
 
 namespace Metasia.Editor.ViewModels
 {
@@ -26,7 +26,8 @@ namespace Metasia.Editor.ViewModels
         private TimelineViewModel? _timelineViewModel;
 
         private bool _isTimelineShow = false;
-        private IProjectState _projectState;
+        private readonly IProjectState _projectState;
+        private readonly ITimelineViewModelFactory _timelineViewModelFactory;
 
         public TimelineParentViewModel(ITimelineViewModelFactory timelineViewModelFactory, IProjectState projectState)
         {
@@ -36,24 +37,15 @@ namespace Metasia.Editor.ViewModels
             PasteCommand = ReactiveCommand.Create(Paste);
             CutCommand = ReactiveCommand.Create(Cut);
 
+            _timelineViewModelFactory = timelineViewModelFactory;
             _projectState = projectState;
-            _projectState.ProjectLoaded += () =>
-            {
-                if (_projectState.CurrentProject is not null)
-                {
-                    CurrentTimelineViewModel = timelineViewModelFactory.Create();
-                    IsTimelineShow = true;
-                }
-                else
-                {
-                    IsTimelineShow = false;
-                }
-            };
+            _projectState.ProjectLoaded += OnProjectLoaded;
+            _projectState.ProjectClosed += OnProjectClosed;
+            _projectState.CurrentTimelineChanged += OnCurrentTimelineChanged;
 
-            if (_projectState.CurrentProject is not null)
+            if (_projectState.CurrentProject is not null && _projectState.CurrentTimeline is not null)
             {
-                CurrentTimelineViewModel = timelineViewModelFactory.Create();
-                IsTimelineShow = true;
+                SetCurrentTimeline(_projectState.CurrentTimeline);
             }
         }
 
@@ -70,6 +62,56 @@ namespace Metasia.Editor.ViewModels
         public void Cut()
         {
             CurrentTimelineViewModel?.CutSelectedClips();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _projectState.ProjectLoaded -= OnProjectLoaded;
+                _projectState.ProjectClosed -= OnProjectClosed;
+                _projectState.CurrentTimelineChanged -= OnCurrentTimelineChanged;
+                CurrentTimelineViewModel?.Dispose();
+                CurrentTimelineViewModel = null;
+            }
+
+            base.Dispose(disposing);
+        }
+
+        private void OnProjectLoaded()
+        {
+            if (_projectState.CurrentTimeline is not null)
+            {
+                SetCurrentTimeline(_projectState.CurrentTimeline);
+            }
+            else
+            {
+                OnProjectClosed();
+            }
+        }
+
+        private void OnCurrentTimelineChanged()
+        {
+            if (_projectState.CurrentTimeline is null)
+            {
+                return;
+            }
+
+            SetCurrentTimeline(_projectState.CurrentTimeline);
+        }
+
+        private void OnProjectClosed()
+        {
+            CurrentTimelineViewModel?.Dispose();
+            CurrentTimelineViewModel = null;
+            IsTimelineShow = false;
+        }
+
+        private void SetCurrentTimeline(Metasia.Core.Objects.TimelineObject timeline)
+        {
+            CurrentTimelineViewModel?.Dispose();
+            CurrentTimelineViewModel = _timelineViewModelFactory.Create(timeline);
+            IsTimelineShow = true;
         }
     }
 }

@@ -72,6 +72,12 @@ namespace Metasia.Core.Objects
         [EditableProperty("Color", DisplayKey = "property.common.color", FallbackText = "色")]
         public ColorRgb8 Color { get; set; } = new ColorRgb8(255, 255, 255);
 
+        [EditableProperty("TextEffectType", DisplayKey = "property.text.effect_type", FallbackText = "テキスト効果")]
+        public MetaEnumParam EffectType { get; set; } = new MetaEnumParam("None", "Stroke", "StrokeThin", "Shadow");
+
+        [EditableProperty("EffectColor", DisplayKey = "property.text.effect_color", FallbackText = "効果色")]
+        public ColorRgb8 EffectColor { get; set; } = new ColorRgb8(0, 0, 0);
+
         public List<VisualEffectBase> VisualEffects { get; set; } = new();
 
         private SKTypeface? _typeface;
@@ -113,6 +119,32 @@ namespace Metasia.Core.Objects
             var lines = Contents.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None);
             float lineSpacing = skFont.Spacing;
 
+            // 効果に応じたマージンを計算
+            float effectMarginX = 0;
+            float effectMarginY = 0;
+            float effectOffsetX = 0;
+            float effectOffsetY = 0;
+            string effectType = EffectType.SelectedValue;
+            float fontSize = (float)TextSize.Get(relativeFrame, clipLength);
+
+            switch (effectType)
+            {
+                case "Stroke":
+                    effectMarginX = fontSize * 0.10f;
+                    effectMarginY = fontSize * 0.10f;
+                    break;
+                case "StrokeThin":
+                    effectMarginX = fontSize * 0.04f;
+                    effectMarginY = fontSize * 0.04f;
+                    break;
+                case "Shadow":
+                    effectMarginX = 15;
+                    effectMarginY = 15;
+                    effectOffsetX = 15;
+                    effectOffsetY = 15;
+                    break;
+            }
+
             // 各行のバウンディング情報を計算
             float totalWidth = 0;
             float totalHeight = 0;
@@ -131,6 +163,10 @@ namespace Metasia.Core.Objects
                 lineBounds[i] = bounds;
                 totalHeight += (i < lines.Length - 1) ? lineSpacing : bounds.Height;
             }
+
+            // 効果のマージンを考慮してサイズを拡張
+            totalWidth += effectMarginX * 2;
+            totalHeight += effectMarginY * 2;
 
             int bitmapWidth = (int)Math.Ceiling(totalWidth);
             int bitmapHeight = (int)Math.Ceiling(totalHeight);
@@ -164,7 +200,7 @@ namespace Metasia.Core.Objects
                     using var surface = context.SurfaceFactory.CreateSurface(info);
                     using var canvas = surface.Canvas;
                     canvas.Clear(SKColors.Transparent);
-                    DrawMultilineText(canvas, lines, lineBounds, skFont, skPaint, lineSpacing);
+                    DrawMultilineText(canvas, lines, lineBounds, skFont, skPaint, lineSpacing, effectType, EffectColor, effectMarginX, effectMarginY, effectOffsetX, effectOffsetY);
                     cancellationToken.ThrowIfCancellationRequested();
                     image = context.SurfaceFactory.Snapshot(surface, context.PreferRasterOutput);
                 }
@@ -175,7 +211,7 @@ namespace Metasia.Core.Objects
                     using var canvas = surface.Canvas;
                     canvas.Clear(SKColors.Transparent);
                     canvas.Scale(renderScaleWidth, renderScaleHeight);
-                    DrawMultilineText(canvas, lines, lineBounds, skFont, skPaint, lineSpacing);
+                    DrawMultilineText(canvas, lines, lineBounds, skFont, skPaint, lineSpacing, effectType, EffectColor, effectMarginX, effectMarginY, effectOffsetX, effectOffsetY);
                     cancellationToken.ThrowIfCancellationRequested();
                     image = context.SurfaceFactory.Snapshot(surface, context.PreferRasterOutput);
                 }
@@ -205,16 +241,80 @@ namespace Metasia.Core.Objects
             });
         }
 
-        private static void DrawMultilineText(SKCanvas canvas, string[] lines, SKRect[] lineBounds, SKFont skFont, SKPaint skPaint, float lineSpacing)
+        private static void DrawMultilineText(
+            SKCanvas canvas,
+            string[] lines,
+            SKRect[] lineBounds,
+            SKFont skFont,
+            SKPaint skPaint,
+            float lineSpacing,
+            string effectType,
+            ColorRgb8 effectColor,
+            float effectMarginX,
+            float effectMarginY,
+            float effectOffsetX,
+            float effectOffsetY)
         {
-            float y = 0;
+            SKColor effectSkColor = new SKColor(effectColor.R, effectColor.G, effectColor.B);
+            float fontSize = skFont.Size;
+
             for (int i = 0; i < lines.Length; i++)
             {
                 if (!string.IsNullOrEmpty(lines[i]))
                 {
-                    canvas.DrawText(lines[i], new SKPoint(-lineBounds[i].Left, y - lineBounds[i].Top), skFont, skPaint);
+                    var position = new SKPoint(-lineBounds[i].Left + effectMarginX, -lineBounds[i].Top + effectMarginY);
+                    float y = i * lineSpacing;
+
+                    switch (effectType)
+                    {
+                        case "Stroke":
+                            {
+                                float strokeWidth = fontSize * 0.10f;
+                                using var strokePaint = new SKPaint()
+                                {
+                                    IsAntialias = true,
+                                    Color = effectSkColor,
+                                    Style = SKPaintStyle.Stroke,
+                                    StrokeWidth = strokeWidth,
+                                    StrokeCap = SKStrokeCap.Round,
+                                    StrokeJoin = SKStrokeJoin.Round,
+                                };
+                                canvas.DrawText(lines[i], new SKPoint(position.X, y + position.Y), skFont, strokePaint);
+                                canvas.DrawText(lines[i], new SKPoint(position.X, y + position.Y), skFont, skPaint);
+                            }
+                            break;
+                        case "StrokeThin":
+                            {
+                                float strokeWidth = fontSize * 0.04f;
+                                using var strokePaint = new SKPaint()
+                                {
+                                    IsAntialias = true,
+                                    Color = effectSkColor,
+                                    Style = SKPaintStyle.Stroke,
+                                    StrokeWidth = strokeWidth,
+                                    StrokeCap = SKStrokeCap.Round,
+                                    StrokeJoin = SKStrokeJoin.Round,
+                                };
+                                canvas.DrawText(lines[i], new SKPoint(position.X, y + position.Y), skFont, strokePaint);
+                                canvas.DrawText(lines[i], new SKPoint(position.X, y + position.Y), skFont, skPaint);
+                            }
+                            break;
+                        case "Shadow":
+                            {
+                                using var shadowPaint = new SKPaint()
+                                {
+                                    IsAntialias = true,
+                                    Color = effectSkColor,
+                                };
+                                canvas.DrawText(lines[i], new SKPoint(position.X + effectOffsetX, y + position.Y + effectOffsetY), skFont, shadowPaint);
+                                canvas.DrawText(lines[i], new SKPoint(position.X, y + position.Y), skFont, skPaint);
+                            }
+                            break;
+                        default:
+                            canvas.DrawText(lines[i], new SKPoint(position.X, y + position.Y), skFont, skPaint);
+                            break;
+                    }
                 }
-                y += lineSpacing;
             }
         }
 
@@ -305,6 +405,13 @@ namespace Metasia.Core.Objects
             firstText.Color = Color.Clone();
             secondText.Color = Color.Clone();
 
+            var (firstEffectType, secondEffectType) = EffectType.Split(0);
+            firstText.EffectType = firstEffectType;
+            secondText.EffectType = secondEffectType;
+
+            firstText.EffectColor = EffectColor.Clone();
+            secondText.EffectColor = EffectColor.Clone();
+
             firstText.Font = Font.Clone();
             secondText.Font = Font.Clone();
 
@@ -337,6 +444,8 @@ namespace Metasia.Core.Objects
             hash.Add(Font.FamilyName);
             hash.Add(Font.IsBold);
             hash.Add(Font.IsItalic);
+            hash.Add(EffectType.SelectedIndex);
+            hash.Add(EffectColor);
             hash.Add(renderScaleWidth);
             hash.Add(renderScaleHeight);
             return hash.ToHashCode();

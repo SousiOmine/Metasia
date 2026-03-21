@@ -10,53 +10,80 @@ namespace Metasia.Editor.Models.Plugins
 {
     public static class PluginLoader
     {
-        private const string EDITOR_PLUGINS_FOLDER_NAME = "Plugins";
-
         private static List<IEditorPlugin> editorPlugins = [];
         private static List<PluginLoadContext> loadContexts = [];
+        private static readonly HashSet<string> loadedPluginPaths = new(StringComparer.OrdinalIgnoreCase);
 
         public static async Task<IEnumerable<IEditorPlugin>> LoadEditorPluginsAsync()
         {
-            if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, EDITOR_PLUGINS_FOLDER_NAME)))
+            MetasiaPaths.EnsureDirectoriesExist();
+
+            editorPlugins.Clear();
+            loadContexts.Clear();
+            loadedPluginPaths.Clear();
+
+            var pluginDirectories = new[]
             {
-                Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, EDITOR_PLUGINS_FOLDER_NAME));
+                MetasiaPaths.AppBundledPluginsDirectory,
+                MetasiaPaths.UserPluginsDirectory
+            };
+
+            foreach (var pluginDirectory in pluginDirectories)
+            {
+                await LoadPluginsFromDirectoryAsync(pluginDirectory);
             }
-            await LoadPluginsAsync();
+
             return editorPlugins;
         }
 
-        private static async Task LoadPluginsAsync()
+        private static async Task LoadPluginsFromDirectoryAsync(string directory)
         {
-            if (Directory.Exists(Path.Combine(AppContext.BaseDirectory, EDITOR_PLUGINS_FOLDER_NAME)))
+            if (!Directory.Exists(directory))
             {
-                var pluginFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, EDITOR_PLUGINS_FOLDER_NAME), "*.dll", SearchOption.AllDirectories);
-                foreach (var pluginFile in pluginFiles)
-                {
-                    try
-                    {
-                        var loadContext = new PluginLoadContext(pluginFile);
-                        loadContexts.Add(loadContext);
+                return;
+            }
 
-                        var assembly = loadContext.LoadFromAssemblyPath(pluginFile);
-                        foreach (var type in assembly.GetTypes())
-                        {
-                            if (typeof(IEditorPlugin).IsAssignableFrom(type) && !type.IsInterface && !type.IsAbstract)
-                            {
-                                if (Activator.CreateInstance(type) is IEditorPlugin pluginInstance)
-                                {
-                                    editorPlugins.Add(pluginInstance);
-                                }
-                            }
-                        }
-                    }
-                    catch (Exception e)
+            var pluginFiles = Directory.GetFiles(directory, "*.dll", SearchOption.AllDirectories);
+            foreach (var pluginFile in pluginFiles)
+            {
+                try
+                {
+                    var fileName = Path.GetFileName(pluginFile);
+                    if (!loadedPluginPaths.Contains(fileName))
                     {
-                        Debug.WriteLine(e.Message);
+                        loadedPluginPaths.Add(fileName);
+                        LoadPluginFromFile(pluginFile);
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"Plugin already loaded, skipping: {fileName}");
+                    }
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine($"Failed to load plugin {pluginFile}: {e.Message}");
+                }
+            }
+
+            await Task.CompletedTask;
+        }
+
+        private static void LoadPluginFromFile(string pluginFile)
+        {
+            var loadContext = new PluginLoadContext(pluginFile);
+            loadContexts.Add(loadContext);
+
+            var assembly = loadContext.LoadFromAssemblyPath(pluginFile);
+            foreach (var type in assembly.GetTypes())
+            {
+                if (typeof(IEditorPlugin).IsAssignableFrom(type) && !type.IsInterface && !type.IsAbstract)
+                {
+                    if (Activator.CreateInstance(type) is IEditorPlugin pluginInstance)
+                    {
+                        editorPlugins.Add(pluginInstance);
                     }
                 }
             }
-            // TODO: Coreプラグイン実装時にここでCoreプラグインを読み込む
-            await Task.CompletedTask;
         }
     }
 }

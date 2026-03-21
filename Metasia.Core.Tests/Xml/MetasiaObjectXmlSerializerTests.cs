@@ -103,6 +103,29 @@ public class MetasiaObjectXmlSerializerTests
         Assert.That(deserialized.Font.IsItalic, Is.EqualTo(original.Font.IsItalic));
     }
 
+    [Test]
+    public void SerializeDeserialize_TimelineReferenceObject_Success()
+    {
+        var original = new TimelineReferenceObject("timeline_ref_id")
+        {
+            StartFrame = 12,
+            EndFrame = 48,
+            IsActive = true,
+            TargetTimelineId = "TargetTimeline",
+            SourceStartFrame = new MetaDoubleParam(15),
+            Volume = new MetaDoubleParam(80)
+        };
+
+        string xml = MetasiaObjectXmlSerializer.Serialize(original);
+        var deserialized = MetasiaObjectXmlSerializer.Deserialize<TimelineReferenceObject>(xml);
+
+        Assert.That(deserialized, Is.Not.Null);
+        Assert.That(deserialized.Id, Is.EqualTo(original.Id));
+        Assert.That(deserialized.TargetTimelineId, Is.EqualTo(original.TargetTimelineId));
+        Assert.That(deserialized.SourceStartFrame.Value, Is.EqualTo(15).Within(0.001));
+        Assert.That(deserialized.Volume.Value, Is.EqualTo(80).Within(0.001));
+    }
+
     // nullオブジェクトをシリアライズしようとしたときの例外処理テスト
     // 意図: nullオブジェクトをシリアライズした場合にArgumentNullExceptionがスローされることを確認
     [Test]

@@ -11,6 +11,8 @@ namespace Metasia.Editor.Services
         Task SaveAsync();
         void UpdateSettings(EditorSettings settings);
         Task UpdateSettingsAsync(EditorSettings settings);
+        void UpdateSettingsSilent(EditorSettings settings);
+        void NotifySettingsChanged();
         event Action? SettingsChanged;
     }
 }

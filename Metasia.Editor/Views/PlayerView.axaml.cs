@@ -181,7 +181,8 @@ public partial class PlayerView : UserControl, IDisposable
                         VM.ProjectPath,
                         imageCache: _currentPlaybackState?.ImageCache,
                         surfaceFactory: _surfaceFactory,
-                        preferRasterOutput: true);
+                        preferRasterOutput: true,
+                        availableTimelines: VM.AvailableTimelines);
 
                     // 「最新完了フレーム」を表示する
                     Dispatcher.UIThread.Post(() =>

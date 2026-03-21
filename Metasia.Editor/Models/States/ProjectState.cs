@@ -45,6 +45,11 @@ public class ProjectState : IProjectState
     /// </summary>
     public event Action? TimelineChanged;
 
+    /// <summary>
+    /// 現在表示中のタイムラインが変更されたときに発生するイベント
+    /// </summary>
+    public event Action? CurrentTimelineChanged;
+
     private MetasiaEditorProject? _currentProject;
     private ProjectInfo? _currentProjectInfo;
 
@@ -96,9 +101,13 @@ public class ProjectState : IProjectState
             throw new InvalidOperationException("プロジェクトが読み込まれていないため、タイムラインを設定できません。");
         }
 
-        _currentTimeline = timeline;
+        if (ReferenceEquals(_currentTimeline, timeline))
+        {
+            return;
+        }
 
-        TimelineChanged?.Invoke();
+        _currentTimeline = timeline;
+        CurrentTimelineChanged?.Invoke();
     }
 
     public void Dispose()

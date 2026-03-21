@@ -53,6 +53,16 @@ namespace Metasia.Editor.Tests.Services.PluginService
                 UpdateSettings(settings);
                 return Task.CompletedTask;
             }
+
+            public void UpdateSettingsSilent(Metasia.Editor.Models.Settings.EditorSettings settings)
+            {
+                CurrentSettings = settings;
+            }
+
+            public void NotifySettingsChanged()
+            {
+                SettingsChanged?.Invoke();
+            }
         }
 
         private sealed class FakeMediaInputPlugin : IMediaInputPlugin

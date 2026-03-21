@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Metasia.Core.Media;
 using Metasia.Core.Objects;
 using Metasia.Core.Project;
@@ -28,14 +29,14 @@ namespace Metasia.Editor.Services.Audio
             this.audioService = audioService;
         }
 
-        public void Play(TimelineObject timeline, ProjectInfo projectInfo, long startSample, double speed, int samplingRate, int audioChannels, IAudioFileAccessor audioFileAccessor, string projectPath)
+        public void Play(TimelineObject timeline, ProjectInfo projectInfo, long startSample, double speed, int samplingRate, int audioChannels, IAudioFileAccessor audioFileAccessor, string projectPath, IReadOnlyDictionary<string, TimelineObject> availableTimelines)
         {
             if (IsPlaying) return;
 
             IsPlaying = true;
             audioService.ClearQueue();
             cancellationTokenSource = new CancellationTokenSource();
-            Task.Run(() => AudioGenerationLoopAsync(timeline, projectInfo, startSample, speed, samplingRate, audioChannels, audioFileAccessor, projectPath, cancellationTokenSource.Token));
+            Task.Run(() => AudioGenerationLoopAsync(timeline, projectInfo, startSample, speed, samplingRate, audioChannels, audioFileAccessor, projectPath, availableTimelines, cancellationTokenSource.Token));
         }
         public void Pause()
         {
@@ -49,7 +50,7 @@ namespace Metasia.Editor.Services.Audio
             audioService.ClearQueue();
         }
 
-        private async Task AudioGenerationLoopAsync(TimelineObject timeline, ProjectInfo projectInfo, long startSample, double speed, int samplingRate, int audioChannels, IAudioFileAccessor audioFileAccessor, string projectPath, CancellationToken cancelToken)
+        private async Task AudioGenerationLoopAsync(TimelineObject timeline, ProjectInfo projectInfo, long startSample, double speed, int samplingRate, int audioChannels, IAudioFileAccessor audioFileAccessor, string projectPath, IReadOnlyDictionary<string, TimelineObject> availableTimelines, CancellationToken cancelToken)
         {
             try
             {
@@ -68,7 +69,16 @@ namespace Metasia.Editor.Services.Audio
                 //再生開始直前にキューをある程度満たす
                 while (audioService.GetQueuedSamplesCount() < prefillBufferSize && !cancelToken.IsCancellationRequested)
                 {
-                    IAudioChunk chunk = await timeline.GetAudioChunkAsync(new GetAudioContext(audioFormat, currentSamplePosition, requestChunkSize, projectInfo.Framerate, timelineDuration, audioFileAccessor, projectPath));
+                    IAudioChunk chunk = await timeline.GetAudioChunkAsync(new GetAudioContext(
+                        audioFormat,
+                        currentSamplePosition,
+                        requestChunkSize,
+                        projectInfo.Framerate,
+                        timelineDuration,
+                        audioFileAccessor,
+                        projectPath,
+                        availableTimelines,
+                        string.IsNullOrWhiteSpace(timeline.Id) ? Array.Empty<string>() : [timeline.Id]));
                     audioService.InsertQueue(chunk);
                     currentSamplePosition += requestChunkSize;
                     CurrentSample = currentSamplePosition;
@@ -80,7 +90,16 @@ namespace Metasia.Editor.Services.Audio
                     {
                         while (audioService.GetQueuedSamplesCount() < prefillBufferSize && !cancelToken.IsCancellationRequested)
                         {
-                            var chunk = await timeline.GetAudioChunkAsync(new GetAudioContext(audioFormat, currentSamplePosition, requestChunkSize, projectInfo.Framerate, timelineDuration, audioFileAccessor, projectPath));
+                            var chunk = await timeline.GetAudioChunkAsync(new GetAudioContext(
+                                audioFormat,
+                                currentSamplePosition,
+                                requestChunkSize,
+                                projectInfo.Framerate,
+                                timelineDuration,
+                                audioFileAccessor,
+                                projectPath,
+                                availableTimelines,
+                                string.IsNullOrWhiteSpace(timeline.Id) ? Array.Empty<string>() : [timeline.Id]));
                             audioService.InsertQueue(chunk);
                             currentSamplePosition += requestChunkSize;
                             CurrentSample = currentSamplePosition;

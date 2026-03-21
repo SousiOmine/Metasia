@@ -55,6 +55,11 @@ public interface IProjectState : IDisposable
     event Action? TimelineChanged;
 
     /// <summary>
+    /// 現在表示中のタイムラインが切り替わった時に発生するイベント
+    /// </summary>
+    event Action? CurrentTimelineChanged;
+
+    /// <summary>
     /// タイムラインに変更が加えられたことを通知する
     /// </summary>
     void NotifyTimelineChanged();

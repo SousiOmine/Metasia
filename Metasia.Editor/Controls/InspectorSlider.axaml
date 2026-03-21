@@ -1,0 +1,79 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:Metasia.Editor.Controls">
+
+    <Style Selector="controls|InspectorSlider">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="BorderBrush" Value="#0078D7"/>
+        <Setter Property="Foreground" Value="#0078D7"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid Margin="{TemplateBinding Padding}"
+                      Background="{TemplateBinding Background}">
+                    <Track Name="PART_Track"
+                           Minimum="{TemplateBinding Minimum}"
+                           Maximum="{TemplateBinding Maximum}"
+                           Value="{TemplateBinding Value, Mode=TwoWay}"
+                           Orientation="{TemplateBinding Orientation}"
+                           HorizontalAlignment="Stretch"
+                           VerticalAlignment="Top">
+                        <Track.DecreaseButton>
+                            <RepeatButton Name="PART_DecreaseButton"
+                                          Background="Transparent"
+                                          HorizontalAlignment="Stretch"
+                                          VerticalAlignment="Stretch">
+                                <RepeatButton.Template>
+                                    <ControlTemplate>
+                                        <Border Background="#A8A8A8"
+                                                Height="6"
+                                                CornerRadius="3"
+                                                VerticalAlignment="Center"/>
+                                    </ControlTemplate>
+                                </RepeatButton.Template>
+                            </RepeatButton>
+                        </Track.DecreaseButton>
+                        <Track.IncreaseButton>
+                            <RepeatButton Name="PART_IncreaseButton"
+                                          Background="Transparent"
+                                          HorizontalAlignment="Stretch"
+                                          VerticalAlignment="Stretch">
+                                <RepeatButton.Template>
+                                    <ControlTemplate>
+                                        <Border Background="#A8A8A8"
+                                                Height="6"
+                                                CornerRadius="3"
+                                                VerticalAlignment="Center"/>
+                                    </ControlTemplate>
+                                </RepeatButton.Template>
+                            </RepeatButton>
+                        </Track.IncreaseButton>
+                        <Thumb Name="thumb"
+                               MinWidth="18"
+                               MinHeight="18">
+                            <Thumb.Template>
+                                <ControlTemplate>
+                                    <Ellipse Width="18"
+                                             Height="18"
+                                             Fill="{TemplateBinding Foreground}"/>
+                                </ControlTemplate>
+                            </Thumb.Template>
+                        </Thumb>
+                    </Track>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+
+    <Style Selector="controls|InspectorSlider:horizontal">
+        <Setter Property="Height" Value="22"/>
+        <Setter Property="MinWidth" Value="40"/>
+    </Style>
+
+    <Style Selector="controls|InspectorSlider:vertical">
+        <Setter Property="Width" Value="22"/>
+        <Setter Property="MinHeight" Value="40"/>
+    </Style>
+
+</Styles>

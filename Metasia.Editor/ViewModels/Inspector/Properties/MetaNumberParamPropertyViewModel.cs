@@ -103,7 +103,7 @@ public class MetaNumberParamPropertyViewModel : ViewModelBase
         var targetPoint = points.FirstOrDefault(x => x.Id == targetCoordPoint.Id);
         if (targetPoint is not null)
         {
-            var command = TimelineInteractor.CreateCoordPointsValueChangeCommand(_propertyDisplayName, targetCoordPoint, beforeValue, value, _selectionState.SelectedClips);
+            var command = TimelineInteractor.CreateCoordPointsValueChangeCommand(_propertyIdentifier, targetCoordPoint, beforeValue, value, _selectionState.SelectedClips);
             if (command is not null)
             {
                 _editCommandManager.Execute(command);
@@ -118,7 +118,7 @@ public class MetaNumberParamPropertyViewModel : ViewModelBase
         var targetPoint = points.FirstOrDefault(x => x.Id == targetCoordPoint.Id);
         if (targetPoint is not null)
         {
-            var command = TimelineInteractor.CreateCoordPointsValueChangeCommand(_propertyDisplayName, targetCoordPoint, beforeValue, value, _selectionState.SelectedClips);
+            var command = TimelineInteractor.CreateCoordPointsValueChangeCommand(_propertyIdentifier, targetCoordPoint, beforeValue, value, _selectionState.SelectedClips);
             if (command is not null)
             {
                 _editCommandManager.PreviewExecute(command);

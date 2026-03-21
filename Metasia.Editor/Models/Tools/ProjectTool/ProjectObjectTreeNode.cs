@@ -21,13 +21,21 @@ namespace Metasia.Editor.Models.Tools.ProjectTool
 
         public object? SourceObject { get; }
 
+        public TimelineObject? OwningTimeline { get; }
+
         public ObservableCollection<ProjectObjectTreeNode>? SubNodes { get; }
 
-        public ProjectObjectTreeNode(string title, ProjectObjectNodeType nodeType, object? sourceObject = null, ObservableCollection<ProjectObjectTreeNode>? subNodes = null)
+        public ProjectObjectTreeNode(
+            string title,
+            ProjectObjectNodeType nodeType,
+            object? sourceObject = null,
+            TimelineObject? owningTimeline = null,
+            ObservableCollection<ProjectObjectTreeNode>? subNodes = null)
         {
             Title = title;
             NodeType = nodeType;
             SourceObject = sourceObject;
+            OwningTimeline = owningTimeline;
             SubNodes = subNodes;
         }
 
@@ -51,28 +59,28 @@ namespace Metasia.Editor.Models.Tools.ProjectTool
 
             foreach (var layer in timeline.Layers)
             {
-                layerNodes.Add(BuildLayerNode(layer));
+                layerNodes.Add(BuildLayerNode(layer, timeline));
             }
 
             string title = $"Timeline: {timeline.Id}";
-            return new ProjectObjectTreeNode(title, ProjectObjectNodeType.Timeline, timeline, layerNodes);
+            return new ProjectObjectTreeNode(title, ProjectObjectNodeType.Timeline, timeline, timeline, layerNodes);
         }
 
-        private static ProjectObjectTreeNode BuildLayerNode(LayerObject layer)
+        private static ProjectObjectTreeNode BuildLayerNode(LayerObject layer, TimelineObject timeline)
         {
             var childNodes = new ObservableCollection<ProjectObjectTreeNode>();
 
             foreach (var clip in layer.Objects)
             {
-                childNodes.Add(BuildClipNode(clip));
+                childNodes.Add(BuildClipNode(clip, timeline));
             }
 
             string layerName = string.IsNullOrEmpty(layer.Name) ? layer.Id : layer.Name;
             string title = $"Layer: {layerName}";
-            return new ProjectObjectTreeNode(title, ProjectObjectNodeType.Layer, layer, childNodes);
+            return new ProjectObjectTreeNode(title, ProjectObjectNodeType.Layer, layer, timeline, childNodes);
         }
 
-        private static ProjectObjectTreeNode BuildClipNode(ClipObject clip)
+        private static ProjectObjectTreeNode BuildClipNode(ClipObject clip, TimelineObject timeline)
         {
             var effectNodes = new ObservableCollection<ProjectObjectTreeNode>();
 
@@ -85,7 +93,8 @@ namespace Metasia.Editor.Models.Tools.ProjectTool
                     effectNodes.Add(new ProjectObjectTreeNode(
                         $"[Visual] {effectName}",
                         ProjectObjectNodeType.VisualEffect,
-                        effect));
+                        effect,
+                        timeline));
                 }
             }
 
@@ -98,14 +107,15 @@ namespace Metasia.Editor.Models.Tools.ProjectTool
                     effectNodes.Add(new ProjectObjectTreeNode(
                         $"[Audio] {effectName}",
                         ProjectObjectNodeType.AudioEffect,
-                        effect));
+                        effect,
+                        timeline));
                 }
             }
 
             string clipTypeName = DisplayTextResolver.ResolveClipDisplayName(clip.GetType());
             string title = $"{clipTypeName} ({clip.Id})";
             var subNodes = effectNodes.Count > 0 ? effectNodes : null;
-            return new ProjectObjectTreeNode(title, ProjectObjectNodeType.Clip, clip, subNodes);
+            return new ProjectObjectTreeNode(title, ProjectObjectNodeType.Clip, clip, timeline, subNodes);
         }
     }
 }

@@ -86,7 +86,7 @@ public class NewObjectSelectViewModel : ViewModelBase
         // 検索テキストの変更を監視してフィルタリングを実行
         this.WhenAnyValue(x => x.SearchText)
             .Throttle(TimeSpan.FromMilliseconds(300))
-            .ObserveOn(RxApp.MainThreadScheduler)
+            .ObserveOn(RxSchedulers.MainThreadScheduler)
             .Subscribe(_ => FilterObjectTypes());
     }
 

@@ -17,6 +17,7 @@ namespace Metasia.Editor.ViewModels.Timeline
         private readonly LayerObject _targetLayerObject;
         private readonly IEditCommandManager _editCommandManager;
         private readonly IProjectState _projectState;
+        private readonly ISelectionState _selectionState;
         private bool _disposed;
 
         public ICommand ButtonClick { get; }
@@ -29,6 +30,14 @@ namespace Metasia.Editor.ViewModels.Timeline
 
         private bool _isActive = true;
 
+        public bool IsSelected
+        {
+            get => _isSelected;
+            private set => this.RaiseAndSetIfChanged(ref _isSelected, value);
+        }
+
+        private bool _isSelected = false;
+
         public string ButtonText
         {
             get => _buttonText;
@@ -37,27 +46,40 @@ namespace Metasia.Editor.ViewModels.Timeline
 
         private string _buttonText = "Layer";
 
-        public LayerButtonViewModel(LayerObject targetLayerObject, IEditCommandManager editCommandManager, IProjectState projectState)
+        public LayerButtonViewModel(LayerObject targetLayerObject, IEditCommandManager editCommandManager, IProjectState projectState, ISelectionState selectionState)
         {
             _targetLayerObject = targetLayerObject;
             _editCommandManager = editCommandManager;
             _projectState = projectState;
+            _selectionState = selectionState;
 
             ButtonClick = ReactiveCommand.Create(() =>
             {
-                var command = new LayerIsActiveChangeCommand(targetLayerObject, !targetLayerObject.IsActive);
-                editCommandManager.Execute(command);
+                var command = new LayerIsActiveChangeCommand(_targetLayerObject, !_targetLayerObject.IsActive);
+                _editCommandManager.Execute(command);
             });
 
             ButtonText = targetLayerObject.Name;
             IsActive = targetLayerObject.IsActive;
 
             _projectState.TimelineChanged += OnTimelineChanged;
+            _selectionState.LayerSelectionChanged += OnLayerSelectionChanged;
+            UpdateIsSelected();
         }
 
         private void OnTimelineChanged()
         {
             IsActive = _targetLayerObject.IsActive;
+        }
+
+        private void OnLayerSelectionChanged()
+        {
+            UpdateIsSelected();
+        }
+
+        private void UpdateIsSelected()
+        {
+            IsSelected = _selectionState.SelectedLayer?.Id == _targetLayerObject.Id;
         }
 
         protected override void Dispose(bool disposing)
@@ -67,6 +89,7 @@ namespace Metasia.Editor.ViewModels.Timeline
                 if (disposing)
                 {
                     _projectState.TimelineChanged -= OnTimelineChanged;
+                    _selectionState.LayerSelectionChanged -= OnLayerSelectionChanged;
                 }
                 _disposed = true;
             }

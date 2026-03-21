@@ -2,6 +2,7 @@ using NUnit.Framework;
 using Metasia.Core.Objects;
 using Metasia.Core.Coordinate;
 using Metasia.Core.Objects.Parameters;
+using Metasia.Core.Objects.Parameters.Color;
 
 namespace Metasia.Core.Tests.Objects
 {
@@ -193,6 +194,64 @@ namespace Metasia.Core.Tests.Objects
             Assert.That(secondText.Contents, Is.EqualTo("Original Text"));
             Assert.That(firstText.Font.FamilyName, Is.Not.EqualTo("New Font"));
             Assert.That(secondText.Font.FamilyName, Is.Not.EqualTo("New Font"));
+        }
+
+        /// <summary>
+        /// テキスト効果プロパティのデフォルト値を確認するテスト
+        /// 意図: 効果タイプがNone、効果色が黒であることを検証
+        /// 想定結果: EffectType.SelectedValue="None"、EffectColor=(0,0,0)
+        /// </summary>
+        [Test]
+        public void EffectProperties_HaveCorrectDefaultValues()
+        {
+            Assert.That(_textObject.EffectType.SelectedValue, Is.EqualTo("None"));
+            Assert.That(_textObject.EffectColor.R, Is.EqualTo(0));
+            Assert.That(_textObject.EffectColor.G, Is.EqualTo(0));
+            Assert.That(_textObject.EffectColor.B, Is.EqualTo(0));
+        }
+
+        /// <summary>
+        /// テキスト効果プロパティが設定できることを確認するテスト
+        /// 意図: 効果タイプと効果色が正しく設定・取得できることを検証
+        /// 想定結果: 設定した値がそのまま取得できる
+        /// </summary>
+        [Test]
+        public void EffectProperties_CanBeSetAndRetrieved()
+        {
+            _textObject.EffectType.SelectedValue = "Stroke";
+            _textObject.EffectColor = new ColorRgb8(255, 128, 0);
+
+            Assert.That(_textObject.EffectType.SelectedValue, Is.EqualTo("Stroke"));
+            Assert.That(_textObject.EffectColor.R, Is.EqualTo(255));
+            Assert.That(_textObject.EffectColor.G, Is.EqualTo(128));
+            Assert.That(_textObject.EffectColor.B, Is.EqualTo(0));
+        }
+
+        /// <summary>
+        /// 分割時に効果プロパティが正しくコピーされることを確認するテスト
+        /// 意図: SplitAtFrameでEffectTypeとEffectColorが正しくコピーされることを検証
+        /// 想定結果: 分割された両方のオブジェクトが元の効果プロパティを維持
+        /// </summary>
+        [Test]
+        public void SplitAtFrame_PreservesEffectProperties()
+        {
+            _textObject.StartFrame = 10;
+            _textObject.EndFrame = 100;
+            _textObject.EffectType.SelectedValue = "Shadow";
+            _textObject.EffectColor = new ColorRgb8(100, 150, 200);
+
+            var (firstClip, secondClip) = _textObject.SplitAtFrame(50);
+            var firstText = firstClip as Text;
+            var secondText = secondClip as Text;
+
+            Assert.That(firstText.EffectType.SelectedValue, Is.EqualTo("Shadow"));
+            Assert.That(firstText.EffectColor.R, Is.EqualTo(100));
+            Assert.That(firstText.EffectColor.G, Is.EqualTo(150));
+            Assert.That(firstText.EffectColor.B, Is.EqualTo(200));
+            Assert.That(secondText.EffectType.SelectedValue, Is.EqualTo("Shadow"));
+            Assert.That(secondText.EffectColor.R, Is.EqualTo(100));
+            Assert.That(secondText.EffectColor.G, Is.EqualTo(150));
+            Assert.That(secondText.EffectColor.B, Is.EqualTo(200));
         }
     }
 }

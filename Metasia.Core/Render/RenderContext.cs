@@ -3,11 +3,15 @@ using Metasia.Core.Objects;
 using Metasia.Core.Project;
 using Metasia.Core.Render.Cache;
 using SkiaSharp;
+using System.Collections.Generic;
 
 namespace Metasia.Core.Render
 {
     public class RenderContext
     {
+        private static readonly IReadOnlyDictionary<string, TimelineObject> EmptyTimelineLookup
+            = new Dictionary<string, TimelineObject>(StringComparer.OrdinalIgnoreCase);
+
         public int Frame { get; init; }
 
         public SKSize ProjectResolution { get; init; }
@@ -28,6 +32,10 @@ namespace Metasia.Core.Render
 
         public bool PreferRasterOutput { get; init; }
 
+        public IReadOnlyDictionary<string, TimelineObject> AvailableTimelines { get; init; }
+
+        public IReadOnlyList<string> TimelineReferenceStack { get; init; }
+
         public RenderContext(
             int frame,
             SKSize projectResolution,
@@ -38,7 +46,9 @@ namespace Metasia.Core.Render
             string projectPath,
             IRenderImageCache? imageCache = null,
             IRenderSurfaceFactory? surfaceFactory = null,
-            bool preferRasterOutput = false)
+            bool preferRasterOutput = false,
+            IReadOnlyDictionary<string, TimelineObject>? availableTimelines = null,
+            IReadOnlyList<string>? timelineReferenceStack = null)
         {
             Frame = frame;
 
@@ -63,6 +73,73 @@ namespace Metasia.Core.Render
             ImageCache = imageCache;
             SurfaceFactory = surfaceFactory ?? new NullRenderSurfaceFactory();
             PreferRasterOutput = preferRasterOutput;
+            AvailableTimelines = availableTimelines ?? EmptyTimelineLookup;
+            TimelineReferenceStack = timelineReferenceStack ?? Array.Empty<string>();
+        }
+
+        public bool TryResolveTimeline(string timelineId, out TimelineObject? timeline)
+        {
+            timeline = null;
+            if (string.IsNullOrWhiteSpace(timelineId))
+            {
+                return false;
+            }
+
+            return AvailableTimelines.TryGetValue(timelineId, out timeline);
+        }
+
+        public bool IsTimelineInReferenceStack(string timelineId)
+        {
+            if (string.IsNullOrWhiteSpace(timelineId))
+            {
+                return false;
+            }
+
+            foreach (var item in TimelineReferenceStack)
+            {
+                if (string.Equals(item, timelineId, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public RenderContext CreateReferencedTimelineContext(TimelineObject timeline, int frame)
+        {
+            ArgumentNullException.ThrowIfNull(timeline);
+
+            return new RenderContext(
+                frame,
+                ProjectResolution,
+                RenderResolution,
+                ImageFileAccessor,
+                VideoFileAccessor,
+                ProjectInfo,
+                ProjectPath,
+                imageCache: ImageCache,
+                surfaceFactory: SurfaceFactory,
+                preferRasterOutput: PreferRasterOutput,
+                availableTimelines: AvailableTimelines,
+                timelineReferenceStack: AppendTimelineId(timeline.Id));
+        }
+
+        private IReadOnlyList<string> AppendTimelineId(string timelineId)
+        {
+            if (string.IsNullOrWhiteSpace(timelineId))
+            {
+                return TimelineReferenceStack;
+            }
+
+            string[] result = new string[TimelineReferenceStack.Count + 1];
+            for (int i = 0; i < TimelineReferenceStack.Count; i++)
+            {
+                result[i] = TimelineReferenceStack[i];
+            }
+
+            result[^1] = timelineId;
+            return result;
         }
     }
 }

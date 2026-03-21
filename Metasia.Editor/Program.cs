@@ -1,5 +1,5 @@
 ﻿using Avalonia;
-using Avalonia.ReactiveUI;
+using ReactiveUI.Avalonia;
 using System;
 
 namespace Metasia.Editor
@@ -19,6 +19,6 @@ namespace Metasia.Editor
                 .UsePlatformDetect()
                 .WithInterFont()
                 .LogToTrace()
-                .UseReactiveUI();
+                .UseReactiveUI(rxui => { });
     }
 }

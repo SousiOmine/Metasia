@@ -7,13 +7,14 @@
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="50"
              x:Class="Metasia.Editor.Views.Inspector.Properties.Components.MetaNumberCoordPointView"
              x:DataType="vm:MetaNumberCoordPointViewModel">
-    <StackPanel Orientation="Horizontal" Margin="2">
-        <Panel Width="100">
+    <StackPanel Orientation="Horizontal" Margin="1">
+        <Panel Width="96">
             <StackPanel IsVisible="{Binding !IsSingle}"
-                Margin="0,0,10,0"
+                Margin="0,0,6,0"
                 VerticalAlignment="Center">
                 <Button Content="{Binding Label}"
-                        IsVisible="{Binding !IsMidpoint}">
+                        IsVisible="{Binding !IsMidpoint}"
+                        Padding="8,2">
                     <Button.Flyout>
                         <MenuFlyout>
                             <MenuItem Header="中間点を追加" Command="{Binding AddPointCommand}"/>
@@ -37,7 +38,8 @@
                     </controls:InspectorNumericUpDown.ContextMenu>
                 </controls:InspectorNumericUpDown>
             </StackPanel>
-            <TextBlock IsVisible="{Binding IsSingle}">移動なし</TextBlock>
+            <TextBlock IsVisible="{Binding IsSingle}"
+                       VerticalAlignment="Center">移動なし</TextBlock>
         </Panel>
         
         <controls:InspectorNumericUpDown Minimum="{Binding Min}"
@@ -56,8 +58,7 @@
                                  InteractionStartedCommand="{Binding InteractionStartedCommand}"
                                  InteractionCompletedCommand="{Binding InteractionCompletedCommand}"
                                  Width="100"
-                                 Height="40"
-                                 Margin="5,0,10,0"
+                                 Margin="4,0,6,0"
                                  VerticalAlignment="Center"/>
     </StackPanel>
 </UserControl>

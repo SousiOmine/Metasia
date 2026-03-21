@@ -3,12 +3,22 @@ using Metasia.Editor.Models.Media;
 using Metasia.Editor.Models.Settings;
 using Metasia.Editor.Services;
 using Metasia.Editor.ViewModels.Settings;
+using ReactiveUI;
+using ReactiveUI.Builder;
 
 namespace Metasia.Editor.Tests.ViewModels.Settings
 {
     [TestFixture]
     public class EditorSettingsViewModelTests
     {
+        [SetUp]
+        public void Setup()
+        {
+            RxAppBuilder.CreateReactiveUIBuilder()
+                .WithCoreServices()
+                .BuildApp();
+        }
+
         [Test]
         public void MovePriorityCommands_UpdateMediaAccessorPriorityOrder()
         {
@@ -104,17 +114,27 @@ namespace Metasia.Editor.Tests.ViewModels.Settings
             public Task LoadAsync() => Task.CompletedTask;
             public Task SaveAsync() => Task.CompletedTask;
 
-            public void UpdateSettings(EditorSettings settings)
-            {
-                CurrentSettings = settings;
-                SettingsChanged?.Invoke();
-            }
+        public void UpdateSettings(EditorSettings settings)
+        {
+            CurrentSettings = settings;
+            SettingsChanged?.Invoke();
+        }
 
-            public Task UpdateSettingsAsync(EditorSettings settings)
-            {
-                UpdateSettings(settings);
-                return Task.CompletedTask;
-            }
+        public Task UpdateSettingsAsync(EditorSettings settings)
+        {
+            UpdateSettings(settings);
+            return Task.CompletedTask;
+        }
+
+        public void UpdateSettingsSilent(EditorSettings settings)
+        {
+            CurrentSettings = settings;
+        }
+
+        public void NotifySettingsChanged()
+        {
+            SettingsChanged?.Invoke();
         }
     }
+}
 }

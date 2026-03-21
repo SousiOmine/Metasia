@@ -8,7 +8,7 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Metasia.Editor.Views.Inspector.PropertyRouterView"
              x:DataType="vm:PropertyRouterViewModel">
-    <StackPanel>
+    <StackPanel Spacing="2">
 
         <TextBlock Text="{Binding PlaceholderText}" IsVisible="{Binding UsePlaceholder}"/>
         <Border IsVisible="{Binding IsMetaNumberParamProperty}">

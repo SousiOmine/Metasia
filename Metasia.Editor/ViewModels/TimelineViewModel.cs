@@ -78,12 +78,42 @@ namespace Metasia.Editor.ViewModels
             private set => this.RaiseAndSetIfChanged(ref _frameRate, value);
         }
 
+        /// <summary>
+        /// 選択開始位置より前の無効領域の幅（DIP単位）
+        /// </summary>
+        public double InvalidStartWidth
+        {
+            get => _invalidStartWidth;
+            private set => this.RaiseAndSetIfChanged(ref _invalidStartWidth, value);
+        }
+
+        /// <summary>
+        /// 選択終了位置より後ろの無効領域の開始位置（DIP単位）
+        /// </summary>
+        public double InvalidEndLeft
+        {
+            get => _invalidEndLeft;
+            private set => this.RaiseAndSetIfChanged(ref _invalidEndLeft, value);
+        }
+
+        /// <summary>
+        /// 選択開始位置より前に無効領域が存在するか
+        /// </summary>
+        public bool HasInvalidStart => Timeline.SelectionStart > 0;
+
+        /// <summary>
+        /// 選択終了位置より後ろに無効領域が存在するか
+        /// </summary>
+        public bool HasInvalidEnd => Timeline.SelectionEnd < TimelineObject.MAX_LENGTH;
+
         private TimelineObject _timeline;
         private double _frame_per_DIP;
         private int _frameRate = 60;
 
         private int _frame;
         private double _cursorLeft;
+        private double _invalidStartWidth;
+        private double _invalidEndLeft;
 
         private readonly ISelectionState selectionState;
 
@@ -96,6 +126,7 @@ namespace Metasia.Editor.ViewModels
         private bool _isUpdatingFramePerDIP = false;
 
         public TimelineViewModel(
+            TimelineObject timeline,
             ILayerButtonViewModelFactory layerButtonViewModelFactory,
             ILayerCanvasViewModelFactory layerCanvasViewModelFactory,
             ISelectionState selectionState,
@@ -110,7 +141,7 @@ namespace Metasia.Editor.ViewModels
             ArgumentNullException.ThrowIfNull(selectionState);
             ArgumentNullException.ThrowIfNull(projectState);
             ArgumentNullException.ThrowIfNull(editCommandManager);
-            ArgumentNullException.ThrowIfNull(projectState.CurrentTimeline);
+            ArgumentNullException.ThrowIfNull(timeline);
             ArgumentNullException.ThrowIfNull(clipboardService);
             this.selectionState = selectionState;
             this.playbackState = playbackState;
@@ -119,9 +150,9 @@ namespace Metasia.Editor.ViewModels
             _timelineViewState = timelineViewState;
             _clipboardService = clipboardService;
 
+            _timeline = timeline;
             _timelineViewState.Frame_Per_DIP_Changed += OnFramePerDIPChanged;
             Frame_Per_DIP = _timelineViewState.Frame_Per_DIP;
-            _timeline = _projectState.CurrentTimeline;
             if (_projectState.CurrentProjectInfo != null)
             {
                 FrameRate = _projectState.CurrentProjectInfo.Framerate;
@@ -141,6 +172,7 @@ namespace Metasia.Editor.ViewModels
             _projectState.TimelineChanged += UpdateControlLayerHighlights;
 
             UpdateControlLayerHighlights();
+            UpdateInvalidAreas();
         }
 
 
@@ -266,7 +298,14 @@ namespace Metasia.Editor.ViewModels
             var template = ClipTemplateSerializer.Deserialize(xml);
             int targetFrame = Frame;
 
-            var clipsWithLayers = ClipTemplateSerializer.InstantiateClips(template, targetFrame, 0, Timeline);
+            int startLayerIndex = 0;
+            if (selectionState.SelectedLayer != null)
+            {
+                startLayerIndex = Timeline.Layers.IndexOf(selectionState.SelectedLayer);
+                if (startLayerIndex < 0) startLayerIndex = 0;
+            }
+
+            var clipsWithLayers = ClipTemplateSerializer.InstantiateClips(template, targetFrame, startLayerIndex, Timeline);
 
             var validClips = clipsWithLayers
                 .Where(item => item.layerIndex >= 0)
@@ -284,6 +323,13 @@ namespace Metasia.Editor.ViewModels
             {
                 selectionState.SelectClip(clip);
             }
+        }
+
+        public void SelectLayer(LayerObject layer)
+        {
+            if (selectionState.SelectedLayer?.Id == layer.Id)
+                return;
+            selectionState.SelectLayer(layer);
         }
 
 
@@ -353,6 +399,16 @@ namespace Metasia.Editor.ViewModels
         private void ChangeFramePerDIP()
         {
             CursorLeft = Frame * _frame_per_DIP;
+            UpdateInvalidAreas();
+        }
+
+        private void UpdateInvalidAreas()
+        {
+            if (_timeline == null) return;
+            InvalidStartWidth = Timeline.SelectionStart * _frame_per_DIP;
+            InvalidEndLeft = Timeline.SelectionEnd * _frame_per_DIP;
+            this.RaisePropertyChanged(nameof(HasInvalidStart));
+            this.RaisePropertyChanged(nameof(HasInvalidEnd));
         }
 
         private void OnCommandExecutedForControl(object? sender, IEditCommand e) => UpdateControlLayerHighlights();
@@ -405,6 +461,8 @@ namespace Metasia.Editor.ViewModels
                     }
                 }
             }
+
+            UpdateInvalidAreas();
         }
     }
 }

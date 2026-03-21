@@ -2,13 +2,16 @@
 		    xmlns:labs="using:Avalonia.Labs.Controls"
               xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
               x:Class="Metasia.Editor.App"
-              xmlns:local="using:Metasia.Editor">
+              xmlns:local="using:Metasia.Editor"
+              xmlns:converter="using:Metasia.Editor.Views.BindingConverter">
 
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <MergeResourceInclude Source="/Resources/Strings/DisplayTexts.axaml" />
             </ResourceDictionary.MergedDictionaries>
+            <converter:BoolToSelectionBackgroundConverter x:Key="SelectionBackgroundConverter"/>
+            <converter:LayerStateBackgroundConverter x:Key="LayerStateBackgroundConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 
@@ -21,6 +24,7 @@
         <StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
         <StyleInclude Source="avares://Metasia.Editor/Icons.axaml" />
         <StyleInclude Source="avares://Metasia.Editor/Controls/PlayerSlider.axaml" />
+        <StyleInclude Source="avares://Metasia.Editor/Controls/InspectorSlider.axaml" />
         <StyleInclude Source="avares://Metasia.Editor/Controls/InspectorNumericUpDown.axaml" />
         <labs:ControlThemes/>
     </Application.Styles>

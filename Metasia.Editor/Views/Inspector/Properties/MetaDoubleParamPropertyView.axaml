@@ -7,11 +7,11 @@
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="50"
              x:Class="Metasia.Editor.Views.Inspector.Properties.MetaDoubleParamPropertyView"
              x:DataType="vm:MetaDoubleParamPropertyViewModel">
-    <StackPanel Orientation="Horizontal" Margin="2">
+    <StackPanel Orientation="Horizontal" Margin="1" Spacing="4">
         <TextBlock Text="{Binding PropertyDisplayName}"
                    VerticalAlignment="Center"
-                   Width="70"
-                   Margin="2"/>
+                   Width="68"
+                   Margin="1"/>
         <controls:InspectorNumericUpDown Value="{Binding PropertyValue}"
                                          Minimum="{Binding Min}"
                                          Maximum="{Binding Max}"
@@ -28,8 +28,7 @@
                                  InteractionStartedCommand="{Binding InteractionStartedCommand}"
                                  InteractionCompletedCommand="{Binding InteractionCompletedCommand}"
                                  Width="100"
-                                 Height="40"
-                                 Margin="5,0,10,0"
+                                 Margin="4,0,6,0"
                                  VerticalAlignment="Center"/>
     </StackPanel>
 </UserControl>

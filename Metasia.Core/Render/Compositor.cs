@@ -33,6 +33,7 @@ namespace Metasia.Core.Render
             IRenderImageCache? imageCache = null,
             IRenderSurfaceFactory? surfaceFactory = null,
             bool preferRasterOutput = false,
+            IReadOnlyDictionary<string, TimelineObject>? availableTimelines = null,
             CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(root);
@@ -52,7 +53,23 @@ namespace Metasia.Core.Render
 
                 cancellationToken.ThrowIfCancellationRequested();
 
-                var context = new RenderContext(frame, projectResolution, renderResolution, imageFileAccessor, videoFileAccessor, projectInfo, projectPath, imageCache, factory, preferRasterOutput: true);
+                IReadOnlyList<string> referenceStack =
+                    root is TimelineObject timelineRoot && !string.IsNullOrWhiteSpace(timelineRoot.Id)
+                        ? [timelineRoot.Id]
+                        : Array.Empty<string>();
+                var context = new RenderContext(
+                    frame,
+                    projectResolution,
+                    renderResolution,
+                    imageFileAccessor,
+                    videoFileAccessor,
+                    projectInfo,
+                    projectPath,
+                    imageCache,
+                    factory,
+                    preferRasterOutput: true,
+                    availableTimelines,
+                    referenceStack);
                 var rootNode = await root.RenderAsync(context, cancellationToken);
 
                 cancellationToken.ThrowIfCancellationRequested();

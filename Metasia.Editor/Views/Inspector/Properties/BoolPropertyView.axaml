@@ -6,13 +6,13 @@
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="50"
              x:Class="Metasia.Editor.Views.Inspector.Properties.BoolPropertyView"
              x:DataType="vm:BoolPropertyViewModel">
-    <StackPanel Orientation="Horizontal" Margin="2">
+    <StackPanel Orientation="Horizontal" Margin="1" Spacing="2">
         <CheckBox IsChecked="{Binding PropertyValue, Mode=TwoWay}"
                   VerticalAlignment="Center"
-                  Margin="2"/>
+                  Margin="1"/>
         <TextBlock Text="{Binding PropertyDisplayName}" 
                    VerticalAlignment="Center" 
                    HorizontalAlignment="Left"
-                   Margin="2"/>
+                   Margin="1"/>
     </StackPanel>
 </UserControl>

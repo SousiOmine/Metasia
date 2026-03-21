@@ -15,6 +15,12 @@
 			Command="{Binding ButtonClick}"
 			Opacity="{Binding IsActive, Converter={StaticResource ActiveConverter}}"
 			HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
-		HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+			HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+		<Button.Background>
+			<MultiBinding Converter="{StaticResource LayerStateBackgroundConverter}">
+				<Binding Path="IsSelected"/>
+				<Binding Path="IsActive"/>
+			</MultiBinding>
+		</Button.Background>
 	</Button>
 </UserControl>

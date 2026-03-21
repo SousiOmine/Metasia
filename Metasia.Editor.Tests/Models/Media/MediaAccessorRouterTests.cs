@@ -244,6 +244,16 @@ namespace Metasia.Editor.Tests.Models.Media
                 return Task.CompletedTask;
             }
 
+            public void UpdateSettingsSilent(EditorSettings settings)
+            {
+                CurrentSettings = settings;
+            }
+
+            public void NotifySettingsChanged()
+            {
+                SettingsChanged?.Invoke();
+            }
+
             public void RaiseSettingsChanged()
             {
                 SettingsChanged?.Invoke();

@@ -7,11 +7,11 @@
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
              x:Class="Metasia.Editor.Views.Inspector.ClipSettingPaneView"
 			 x:DataType="vm:ClipSettingPaneViewModel"
-             Padding="10">
-    <Border Background="Transparent" VerticalAlignment="Center" HorizontalAlignment="Stretch" Padding="10">
+             Padding="6">
+    <Border Background="Transparent" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="4">
         <TabControl>
             <TabItem Header="プロパティ">
-                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Stretch">
+                <StackPanel VerticalAlignment="Top" HorizontalAlignment="Stretch" Spacing="2">
                     <CheckBox Content="IsActive" IsChecked="{Binding IsActiveCheck}" Command="{Binding IsActiveCheckCommand}"></CheckBox>
                     <ItemsControl ItemsSource="{Binding Properties}">
                         <ItemsControl.ItemTemplate>
