@@ -54,6 +54,15 @@ namespace Metasia.Editor.Views
             if (_menuView is not null && App.Current?.Services is not null)
             {
                 _menuView.DataContext = App.Current.Services.GetRequiredService<MenuViewModel>();
+                
+                if (_menuView.DataContext is MenuViewModel menuViewModel)
+                {
+                    menuViewModel.ExitInteraction.RegisterHandler(async interaction =>
+                    {
+                        this.Close();
+                        interaction.SetOutput(Unit.Default);
+                    });
+                }
             }
         }
 
