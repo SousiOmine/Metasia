@@ -195,7 +195,7 @@ public class OutputViewModel : ViewModelBase
 
         foreach (var item in _encodeService.Encoders)
         {
-            OutputHistory.Add(new EncoderQueueItemViewModel(item));
+            OutputHistory.Add(new EncoderQueueItemViewModel(item, _encodeService));
         }
     }
 
@@ -423,17 +423,29 @@ public class EncoderQueueItemViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _progress, value);
     }
 
+    public bool CanCancel
+    {
+        get => _canCancel;
+        private set => this.RaiseAndSetIfChanged(ref _canCancel, value);
+    }
+
+    public ICommand CancelCommand { get; }
+
     private string _queueText = string.Empty;
     private double _progress = 0;
+    private bool _canCancel = false;
 
     private readonly IEditorEncoder _encoder;
+    private readonly IEncodeService _encodeService;
     private readonly EventHandler<EventArgs> _onStatusChanged;
 
-    public EncoderQueueItemViewModel(IEditorEncoder encoder)
+    public EncoderQueueItemViewModel(IEditorEncoder encoder, IEncodeService encodeService)
     {
         _encoder = encoder;
+        _encodeService = encodeService;
         _onStatusChanged = (sender, e) => UpdateProgress();
         _encoder.StatusChanged += _onStatusChanged;
+        CancelCommand = ReactiveCommand.Create(CancelEncode);
         UpdateProgress();
     }
 
@@ -449,8 +461,14 @@ public class EncoderQueueItemViewModel : ViewModelBase
     private void UpdateProgress()
     {
         Progress = _encoder.ProgressRate;
+        CanCancel = _encoder.Status is IEncoder.EncoderState.Waiting or IEncoder.EncoderState.Encoding;
         var outputFilename = Path.GetFileName(_encoder.OutputPath);
         QueueText = _encoder.Name + " " + _encoder.Status.ToString() + " " + outputFilename;
+    }
+
+    private void CancelEncode()
+    {
+        _encodeService.Cancel(_encoder);
     }
 
 }
