@@ -88,6 +88,7 @@ public class AudioObject : ClipObject, IAudible
 
         foreach (var effect in AudioEffects)
         {
+            if (!effect.IsActive) continue;
             result = effect.Apply(result, effectContext);
         }
 

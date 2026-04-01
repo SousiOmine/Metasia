@@ -130,6 +130,7 @@ namespace Metasia.Core.Objects
 
                             foreach (var effect in control.AudioEffects)
                             {
+                                if (!effect.IsActive) continue;
                                 processedChunk = effect.Apply(processedChunk, effectContext);
                             }
                         }
@@ -158,6 +159,7 @@ namespace Metasia.Core.Objects
 
             foreach (var effect in AudioEffects)
             {
+                if (!effect.IsActive) continue;
                 resultChunk = effect.Apply(resultChunk, timelineEffectContext);
             }
 

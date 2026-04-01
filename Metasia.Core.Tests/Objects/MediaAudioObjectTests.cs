@@ -1,5 +1,6 @@
 using Metasia.Core.Media;
 using Metasia.Core.Objects;
+using Metasia.Core.Tests.Objects.AudioEffects;
 using Metasia.Core.Sounds;
 using NUnit.Framework;
 
@@ -79,6 +80,77 @@ public class MediaAudioObjectTests
         var obj = new AudioObject("audio");
 
         Assert.That(obj.AudioPath.Types, Is.EqualTo(new[] { MediaType.Audio }));
+    }
+
+    [Test]
+    public async Task AudioObject_GetAudioChunk_AppliesAudioEffectsInListOrder()
+    {
+        var obj = new AudioObject("audio");
+        obj.AudioEffects.Add(new TestSetSampleEffect { Value = 0.25 });
+        obj.AudioEffects.Add(new TestAddSampleEffect { Value = 0.5 });
+
+        var context = new GetAudioContext(
+            new AudioFormat(44100, 2),
+            0,
+            2,
+            60,
+            1,
+            audioFileAccessor: null,
+            projectPath: null);
+
+        var chunk = await obj.GetAudioChunkAsync(context);
+
+        Assert.That(chunk.Samples.All(x => Math.Abs(x - 0.75) < 0.0001), Is.True);
+    }
+
+    [Test]
+    public async Task AudioObject_GetAudioChunk_SkipsInactiveAudioEffect()
+    {
+        var obj = new AudioObject("audio");
+        var inactive = new TestSetSampleEffect { Value = 0.5, IsActive = false };
+        obj.AudioEffects.Add(inactive);
+
+        var context = new GetAudioContext(
+            new AudioFormat(44100, 2),
+            0,
+            2,
+            60,
+            1,
+            audioFileAccessor: null,
+            projectPath: null);
+
+        var chunk = await obj.GetAudioChunkAsync(context);
+
+        Assert.That(inactive.ApplyCallCount, Is.EqualTo(0));
+        Assert.That(chunk.Samples.All(x => Math.Abs(x) < 0.0001), Is.True);
+    }
+
+    [Test]
+    public async Task AudioObject_GetAudioChunk_AppliesOnlyActiveAudioEffects()
+    {
+        var obj = new AudioObject("audio");
+        var inactiveLeading = new TestSetSampleEffect { Value = 0.1, IsActive = false };
+        var active = new TestSetSampleEffect { Value = 0.6, IsActive = true };
+        var inactiveTrailing = new TestAddSampleEffect { Value = 0.2, IsActive = false };
+        obj.AudioEffects.Add(inactiveLeading);
+        obj.AudioEffects.Add(active);
+        obj.AudioEffects.Add(inactiveTrailing);
+
+        var context = new GetAudioContext(
+            new AudioFormat(44100, 2),
+            0,
+            2,
+            60,
+            1,
+            audioFileAccessor: null,
+            projectPath: null);
+
+        var chunk = await obj.GetAudioChunkAsync(context);
+
+        Assert.That(inactiveLeading.ApplyCallCount, Is.EqualTo(0));
+        Assert.That(active.ApplyCallCount, Is.EqualTo(1));
+        Assert.That(inactiveTrailing.ApplyCallCount, Is.EqualTo(0));
+        Assert.That(chunk.Samples.All(x => Math.Abs(x - 0.6) < 0.0001), Is.True);
     }
 
     private sealed class FakeAudioFileAccessor(AudioSampleResult result) : IAudioFileAccessor

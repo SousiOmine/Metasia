@@ -1,3 +1,4 @@
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
@@ -75,15 +76,21 @@ public class VisualEffectsViewModel : ViewModelBase
         var selectedId = SelectedVisualEffectItem is null ? string.Empty : SelectedVisualEffectItem.EffectId;
         VisualEffectItems.Clear();
 
-        foreach (VisualEffectBase effect in _target.VisualEffects)
+        for (int i = 0; i < _target.VisualEffects.Count; i++)
         {
-            VisualEffectItems.Add(new VisualEffectItemViewModel(effect));
+            var effect = _target.VisualEffects[i];
+            VisualEffectItems.Add(new VisualEffectItemViewModel(
+                effect,
+                canMoveUp: i > 0,
+                canMoveDown: i < _target.VisualEffects.Count - 1,
+                moveUp: () => TryMoveEffect(effect.Id, -1),
+                moveDown: () => TryMoveEffect(effect.Id, 1),
+                changeIsActive: isActive => TryChangeEffectIsActive(effect.Id, isActive)));
         }
 
         if (VisualEffectItems.Any(x => x.EffectId == selectedId))
         {
-            var selectedItem = VisualEffectItems.First(x => x.EffectId == selectedId);
-            SelectedVisualEffectItem = selectedItem;
+            SelectedVisualEffectItem = VisualEffectItems.First(x => x.EffectId == selectedId);
         }
         else
         {
@@ -96,9 +103,8 @@ public class VisualEffectsViewModel : ViewModelBase
         Properties.Clear();
         var selectedEffect = _target.VisualEffects.FirstOrDefault(x => x.Id == SelectedVisualEffectItem?.EffectId);
         if (selectedEffect is null) return;
+
         var editableProperties = ObjectPropertyFinder.FindEditableProperties(selectedEffect);
-
-
         foreach (var property in editableProperties)
         {
             Properties.Add(_propertyRouterViewModelFactory.Create(property));
@@ -115,12 +121,37 @@ public class VisualEffectsViewModel : ViewModelBase
         _editCommandManager.Execute(command);
     }
 
+    private void TryMoveEffect(string effectId, int delta)
+    {
+        var effect = _target.VisualEffects.FirstOrDefault(x => x.Id == effectId);
+        if (effect is null) return;
+
+        int currentIndex = _target.VisualEffects.IndexOf(effect);
+        if (currentIndex == -1) return;
+
+        int newIndex = currentIndex + delta;
+        if (newIndex < 0 || newIndex >= _target.VisualEffects.Count) return;
+
+        var command = new VisualEffectMoveCommand(_target, effect, newIndex);
+        _editCommandManager.Execute(command);
+    }
+
+    private void TryChangeEffectIsActive(string effectId, bool isActive)
+    {
+        var effect = _target.VisualEffects.FirstOrDefault(x => x.Id == effectId);
+        if (effect is null || effect.IsActive == isActive) return;
+
+        var command = new VisualEffectIsActiveChangeCommand(_target, effect, isActive);
+        _editCommandManager.Execute(command);
+    }
+
     protected override void Dispose(bool disposing)
     {
         if (disposing)
         {
             _projectState.TimelineChanged -= LoadEffects;
         }
+
         base.Dispose(disposing);
     }
 }
@@ -129,10 +160,40 @@ public sealed class VisualEffectItemViewModel : ViewModelBase
 {
     public string EffectId { get; init; } = string.Empty;
     public string EffectName { get; init; } = string.Empty;
+    public bool CanMoveUp { get; }
+    public bool CanMoveDown { get; }
+    public ICommand MoveUpCommand { get; }
+    public ICommand MoveDownCommand { get; }
 
-    public VisualEffectItemViewModel(IVisualEffect effect)
+    public bool IsActive
+    {
+        get => _isActive;
+        set
+        {
+            if (_isActive == value) return;
+            this.RaiseAndSetIfChanged(ref _isActive, value);
+            _changeIsActive(value);
+        }
+    }
+
+    private readonly Action<bool> _changeIsActive;
+    private bool _isActive;
+
+    public VisualEffectItemViewModel(
+        IVisualEffect effect,
+        bool canMoveUp,
+        bool canMoveDown,
+        Action moveUp,
+        Action moveDown,
+        Action<bool> changeIsActive)
     {
         EffectId = effect.Id;
         EffectName = DisplayTextResolver.ResolveVisualEffectDisplayName(effect.GetType());
+        CanMoveUp = canMoveUp;
+        CanMoveDown = canMoveDown;
+        _isActive = effect.IsActive;
+        _changeIsActive = changeIsActive ?? throw new ArgumentNullException(nameof(changeIsActive));
+        MoveUpCommand = ReactiveCommand.Create(() => moveUp());
+        MoveDownCommand = ReactiveCommand.Create(() => moveDown());
     }
 }

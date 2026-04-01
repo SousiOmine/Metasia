@@ -129,6 +129,7 @@ namespace Metasia.Core.Objects
 
             foreach (var effect in AudioEffects)
             {
+                if (!effect.IsActive) continue;
                 chunk = effect.Apply(chunk, effectContext);
             }
 

@@ -1,4 +1,4 @@
-﻿<UserControl xmlns="https://github.com/avaloniaui"
+<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -16,14 +16,30 @@
             ItemsSource="{Binding AudioEffectItems}"
             SelectedItem="{Binding SelectedAudioEffectItem}">
             <ListBox.ItemTemplate>
-                <DataTemplate DataType="vm:AudioEffectItemViewModel">
-                    <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
-                        <TextBlock Text="{Binding EffectName}" FontWeight="Bold"/>
-                    </StackPanel>
+                <DataTemplate DataType="vm:AudioEffectItemViewModel" x:DataType="vm:AudioEffectItemViewModel">
+                    <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="8" VerticalAlignment="Center">
+                        <CheckBox Grid.Column="0"
+                                  VerticalAlignment="Center"
+                                  IsChecked="{Binding IsActive}"/>
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding EffectName}"
+                                   FontWeight="Bold"
+                                   VerticalAlignment="Center"/>
+                        <Button Grid.Column="2"
+                                Padding="6,2"
+                                Content="▲"
+                                Command="{Binding MoveUpCommand}"
+                                IsEnabled="{Binding CanMoveUp}"/>
+                        <Button Grid.Column="3"
+                                Padding="6,2"
+                                Content="▼"
+                                Command="{Binding MoveDownCommand}"
+                                IsEnabled="{Binding CanMoveDown}"/>
+                    </Grid>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        
+
         <ItemsControl ItemsSource="{Binding Properties}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate DataType="vm:PropertyRouterViewModel">
