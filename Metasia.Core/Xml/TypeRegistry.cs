@@ -63,6 +63,12 @@ public class TypeRegistry
         return null;
     }
 
+    public Type? GetTypeByTypeName(string typeName)
+    {
+        var typeId = GetTypeIdByTypeName(typeName);
+        return typeId is null ? null : GetType(typeId);
+    }
+
     public Type[] GetAllRegisteredTypes()
     {
         return _types.Values.ToArray();
