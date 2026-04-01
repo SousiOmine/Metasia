@@ -48,19 +48,8 @@ namespace Metasia.Core.Objects
             }
         }
 
-        [Obsolete("Fontプロパティを使用してください。")]
-        public string TypefaceName
-        {
-            get => Font.FamilyName;
-            set
-            {
-                if (string.IsNullOrWhiteSpace(value))
-                {
-                    return;
-                }
-                Font = new MetaFontParam(value, Font.IsBold, Font.IsItalic);
-            }
-        }
+        [EditableProperty("TextAlign", DisplayKey = "property.text.align", FallbackText = "テキスト配置")]
+        public MetaEnumParam TextAlign { get; set; } = new MetaEnumParam("Left", "Center", "Right");
 
         [EditableProperty("TextContents", DisplayKey = "property.text.contents", FallbackText = "テキスト内容")]
         public string Contents { get; set; } = string.Empty;
@@ -77,6 +66,7 @@ namespace Metasia.Core.Objects
 
         [EditableProperty("EffectColor", DisplayKey = "property.text.effect_color", FallbackText = "効果色")]
         public ColorRgb8 EffectColor { get; set; } = new ColorRgb8(0, 0, 0);
+
 
         public List<VisualEffectBase> VisualEffects { get; set; } = new();
 
@@ -164,6 +154,8 @@ namespace Metasia.Core.Objects
                 totalHeight += (i < lines.Length - 1) ? lineSpacing : bounds.Height;
             }
 
+            float maxLineWidth = totalWidth;
+
             // 効果のマージンを考慮してサイズを拡張
             totalWidth += effectMarginX * 2;
             totalHeight += effectMarginY * 2;
@@ -201,7 +193,7 @@ namespace Metasia.Core.Objects
                     using var surface = SKSurface.Create(info);
                     using var canvas = surface.Canvas;
                     canvas.Clear(SKColors.Transparent);
-                    DrawMultilineText(canvas, lines, lineBounds, skFont, skPaint, lineSpacing, effectType, EffectColor, effectMarginX, effectMarginY, effectOffsetX, effectOffsetY);
+                    DrawMultilineText(canvas, lines, lineBounds, skFont, skPaint, lineSpacing, effectType, EffectColor, effectMarginX, effectMarginY, effectOffsetX, effectOffsetY, TextAlign.SelectedValue, maxLineWidth);
                     cancellationToken.ThrowIfCancellationRequested();
                     image = surface.Snapshot();
                 }
@@ -213,7 +205,7 @@ namespace Metasia.Core.Objects
                     using var canvas = surface.Canvas;
                     canvas.Clear(SKColors.Transparent);
                     canvas.Scale(renderScaleWidth, renderScaleHeight);
-                    DrawMultilineText(canvas, lines, lineBounds, skFont, skPaint, lineSpacing, effectType, EffectColor, effectMarginX, effectMarginY, effectOffsetX, effectOffsetY);
+                    DrawMultilineText(canvas, lines, lineBounds, skFont, skPaint, lineSpacing, effectType, EffectColor, effectMarginX, effectMarginY, effectOffsetX, effectOffsetY, TextAlign.SelectedValue, maxLineWidth);
                     cancellationToken.ThrowIfCancellationRequested();
                     image = surface.Snapshot();
                 }
@@ -255,7 +247,9 @@ namespace Metasia.Core.Objects
             float effectMarginX,
             float effectMarginY,
             float effectOffsetX,
-            float effectOffsetY)
+            float effectOffsetY,
+            string textAlign,
+            float maxLineWidth)
         {
             SKColor effectSkColor = new SKColor(effectColor.R, effectColor.G, effectColor.B);
             float fontSize = skFont.Size;
@@ -264,7 +258,13 @@ namespace Metasia.Core.Objects
             {
                 if (!string.IsNullOrEmpty(lines[i]))
                 {
-                    var position = new SKPoint(-lineBounds[i].Left + effectMarginX, -lineBounds[i].Top + effectMarginY);
+                    float alignOffset = textAlign switch
+                    {
+                        "Center" => (maxLineWidth - lineBounds[i].Width) / 2,
+                        "Right" => maxLineWidth - lineBounds[i].Width,
+                        _ => 0
+                    };
+                    var position = new SKPoint(-lineBounds[i].Left + effectMarginX + alignOffset, -lineBounds[i].Top + effectMarginY);
                     float y = i * lineSpacing;
 
                     switch (effectType)
@@ -414,6 +414,10 @@ namespace Metasia.Core.Objects
             firstText.EffectColor = EffectColor.Clone();
             secondText.EffectColor = EffectColor.Clone();
 
+            var (firstTextAlign, secondTextAlign) = TextAlign.Split(0);
+            firstText.TextAlign = firstTextAlign;
+            secondText.TextAlign = secondTextAlign;
+
             firstText.Font = Font.Clone();
             secondText.Font = Font.Clone();
 
@@ -448,6 +452,7 @@ namespace Metasia.Core.Objects
             hash.Add(Font.IsItalic);
             hash.Add(EffectType.SelectedIndex);
             hash.Add(EffectColor);
+            hash.Add(TextAlign.SelectedIndex);
             hash.Add(renderScaleWidth);
             hash.Add(renderScaleHeight);
             return hash.ToHashCode();
