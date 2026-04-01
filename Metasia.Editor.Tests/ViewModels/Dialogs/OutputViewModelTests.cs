@@ -6,10 +6,12 @@ using Metasia.Core.Objects;
 using Metasia.Core.Project;
 using Metasia.Editor.Models.Media;
 using Metasia.Editor.Models.Projects;
+using Metasia.Editor.Models.FileSystem;
 using Metasia.Editor.Models.Settings;
 using Metasia.Editor.Models.States;
 using Metasia.Editor.Plugin;
 using Metasia.Editor.Services;
+using Metasia.Editor.Services.Notification;
 using Metasia.Editor.Services.PluginService;
 using Metasia.Editor.ViewModels.Dialogs;
 
@@ -59,17 +61,70 @@ public class OutputViewModelTests
         Assert.That(session!.IsDisposed, Is.True);
     }
 
-    private static OutputViewModel CreateViewModel(FakeMediaOutputPlugin plugin)
+    [Test]
+    public void OutputExecute_WithoutProject_ShowsErrorNotification()
+    {
+        var plugin = new FakeMediaOutputPlugin("Plugin Encoder");
+        var notificationService = new FakeNotificationService();
+        using var viewModel = CreateViewModel(plugin, notificationService: notificationService);
+
+        viewModel.OutputCommand.Execute(null);
+
+        Assert.That(notificationService.Notifications, Has.Count.EqualTo(1));
+        Assert.That(notificationService.Notifications[0].Title, Is.EqualTo("出力失敗"));
+        Assert.That(notificationService.Notifications[0].Message, Does.Contain("プロジェクト"));
+    }
+
+    [Test]
+    public void OutputExecute_WithoutOutputPath_ShowsErrorNotification()
+    {
+        var plugin = new FakeMediaOutputPlugin("Plugin Encoder");
+        var notificationService = new FakeNotificationService();
+        var projectState = new FakeProjectState(CreateProject(new TimelineObject("RootTimeline")));
+        using var viewModel = CreateViewModel(plugin, projectState, notificationService);
+
+        viewModel.OutputCommand.Execute(null);
+
+        Assert.That(notificationService.Notifications, Has.Count.EqualTo(1));
+        Assert.That(notificationService.Notifications[0].Title, Is.EqualTo("出力失敗"));
+        Assert.That(notificationService.Notifications[0].Message, Does.Contain("出力先"));
+    }
+
+    private static OutputViewModel CreateViewModel(
+        FakeMediaOutputPlugin plugin,
+        FakeProjectState? projectState = null,
+        FakeNotificationService? notificationService = null)
     {
         var settingsService = new FakeSettingsService();
         var router = new MediaAccessorRouter(settingsService);
         var pluginService = new FakePluginService(plugin);
+        projectState ??= new FakeProjectState();
+        notificationService ??= new FakeNotificationService();
         return new OutputViewModel(
-            new FakeProjectState(),
+            projectState,
             router,
             new FakeFileDialogService(),
             pluginService,
-            new FakeEncodeService());
+            new FakeEncodeService(),
+            notificationService);
+    }
+
+    private static MetasiaEditorProject CreateProject(params TimelineObject[] timelines)
+    {
+        var project = new MetasiaEditorProject(
+            new DirectoryEntity(Path.GetTempPath()),
+            new MetasiaProjectFile
+            {
+                Framerate = 60,
+                Resolution = new VideoResolution { Width = 1920, Height = 1080 }
+            });
+
+        foreach (var timeline in timelines)
+        {
+            project.Timelines.Add(timeline);
+        }
+
+        return project;
     }
 
     private sealed class FakePluginService : IPluginService
@@ -211,16 +266,28 @@ public class OutputViewModelTests
 
     private sealed class FakeProjectState : IProjectState
     {
-        public MetasiaEditorProject? CurrentProject => null;
+        public MetasiaEditorProject? CurrentProject { get; private set; }
         public ProjectInfo? CurrentProjectInfo => null;
-        public TimelineObject? CurrentTimeline => null;
+        public TimelineObject? CurrentTimeline { get; private set; }
+
+        public FakeProjectState(MetasiaEditorProject? currentProject = null)
+        {
+            CurrentProject = currentProject;
+            CurrentTimeline = currentProject?.Timelines.FirstOrDefault();
+        }
 
         public event Action? ProjectLoaded;
         public event Action? ProjectClosed;
         public event Action? TimelineChanged;
         public event Action? CurrentTimelineChanged;
 
-        public Task LoadProjectAsync(MetasiaEditorProject project) => Task.CompletedTask;
+        public Task LoadProjectAsync(MetasiaEditorProject project)
+        {
+            CurrentProject = project;
+            CurrentTimeline = project.Timelines.FirstOrDefault();
+            ProjectLoaded?.Invoke();
+            return Task.CompletedTask;
+        }
         public void CloseProject()
         {
         }
@@ -236,6 +303,60 @@ public class OutputViewModelTests
 
         public void Dispose()
         {
+        }
+    }
+
+    private sealed class FakeNotificationService : INotificationService
+    {
+        public List<NotificationItem> Notifications { get; } = [];
+        IReadOnlyList<NotificationItem> INotificationService.Notifications => Notifications;
+
+        public event EventHandler<NotificationItem>? NewNotification;
+        public event EventHandler<NotificationItem>? NotificationRemoved;
+
+        public void Show(string title, string message, NotificationSeverity severity = NotificationSeverity.Info, Action? onClick = null)
+        {
+            var item = new NotificationItem(title, message, severity, onClick);
+            Notifications.Add(item);
+            NewNotification?.Invoke(this, item);
+        }
+
+        public void ShowInfo(string title, string message, Action? onClick = null)
+        {
+            Show(title, message, NotificationSeverity.Info, onClick);
+        }
+
+        public void ShowSuccess(string title, string message, Action? onClick = null)
+        {
+            Show(title, message, NotificationSeverity.Success, onClick);
+        }
+
+        public void ShowWarning(string title, string message, Action? onClick = null)
+        {
+            Show(title, message, NotificationSeverity.Warning, onClick);
+        }
+
+        public void ShowError(string title, string message, Action? onClick = null)
+        {
+            Show(title, message, NotificationSeverity.Error, onClick);
+        }
+
+        public void Remove(NotificationItem notification)
+        {
+            if (Notifications.Remove(notification))
+            {
+                NotificationRemoved?.Invoke(this, notification);
+            }
+        }
+
+        public void Clear()
+        {
+            foreach (var notification in Notifications.ToArray())
+            {
+                NotificationRemoved?.Invoke(this, notification);
+            }
+
+            Notifications.Clear();
         }
     }
 

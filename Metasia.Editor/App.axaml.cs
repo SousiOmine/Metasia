@@ -23,6 +23,7 @@ using Metasia.Editor.ViewModels;
 using Metasia.Editor.ViewModels.Dialogs;
 using Metasia.Editor.ViewModels.Inspector;
 using Metasia.Editor.ViewModels.Inspector.Properties;
+using Metasia.Editor.ViewModels.Notifications;
 using Metasia.Editor.ViewModels.Settings;
 using Metasia.Editor.ViewModels.Timeline;
 using Metasia.Editor.Views;
@@ -106,6 +107,7 @@ namespace Metasia.Editor
             services.AddSingleton<IAudioPlaybackService, AudioPlaybackService>();
             services.AddSingleton<IEncodeService, EncodeService>();
             services.AddSingleton<INotificationService, NotificationService>();
+            services.AddSingleton<NotificationCenterViewModel>();
 
             services.AddSingleton<IDropHandlerRegistry, DropHandlerRegistry>();
             services.AddSingleton<IDropHandler, ClipsMoveDropHandler>();

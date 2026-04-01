@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Metasia.Editor.Services;
 using Metasia.Editor.ViewModels;
 using Metasia.Editor.ViewModels.Dialogs;
+using Metasia.Editor.Services.Notification;
 using Metasia.Editor.Views.Dialogs;
 using Metasia.Editor.Views.Settings;
 using Metasia.Editor.Plugin;
@@ -18,9 +19,11 @@ namespace Metasia.Editor.Views
         private IDisposable? _newProjectHandlerDisposable;
         private IDisposable? _outputHandlerDisposable;
         private OutputWindow? _outputWindow;
+        private NotificationHistoryWindow? _notificationHistoryWindow;
         private IDisposable? _openSettingsHandlerDisposable;
         private IDisposable? _pluginListHandlerDisposable;
         private IDisposable? _openPluginSettingsHandlerDisposable;
+        private IDisposable? _openNotificationsHandlerDisposable;
 
         public MenuView()
         {
@@ -35,13 +38,17 @@ namespace Metasia.Editor.Views
             _outputHandlerDisposable?.Dispose();
             _pluginListHandlerDisposable?.Dispose();
             _openPluginSettingsHandlerDisposable?.Dispose();
+            _openNotificationsHandlerDisposable?.Dispose();
             _newProjectHandlerDisposable = null;
             _outputHandlerDisposable = null;
             _outputWindow?.Close();
             _outputWindow = null;
+            _notificationHistoryWindow?.Close();
+            _notificationHistoryWindow = null;
             _openSettingsHandlerDisposable = null;
             _pluginListHandlerDisposable = null;
             _openPluginSettingsHandlerDisposable = null;
+            _openNotificationsHandlerDisposable = null;
 
             if (_viewModel is not { } viewModel)
             {
@@ -69,6 +76,7 @@ namespace Metasia.Editor.Views
                 catch (Exception ex)
                 {
                     System.Diagnostics.Debug.WriteLine($"Error in NewProjectInteraction handler: {ex.Message}");
+                    NotifyError("新規プロジェクトダイアログ失敗", $"新規プロジェクトダイアログの表示に失敗しました。\n{ex.Message}");
                     interaction.SetOutput((false, ex.Message, null, null));
                 }
             });
@@ -106,6 +114,7 @@ namespace Metasia.Editor.Views
                 catch (Exception ex)
                 {
                     System.Diagnostics.Debug.WriteLine($"Error in OutputInteraction handler: {ex.Message}");
+                    NotifyError("出力ウィンドウ失敗", $"出力ウィンドウの表示に失敗しました。\n{ex.Message}");
                     interaction.SetOutput(null);
                 }
             });
@@ -130,6 +139,7 @@ namespace Metasia.Editor.Views
                 catch (Exception ex)
                 {
                     System.Diagnostics.Debug.WriteLine($"Error in OpenSettingsInteraction handler: {ex.Message}");
+                    NotifyError("設定ウィンドウ失敗", $"設定ウィンドウの表示に失敗しました。\n{ex.Message}");
                     interaction.SetOutput(Unit.Default);
                 }
             });
@@ -151,6 +161,7 @@ namespace Metasia.Editor.Views
                 catch (Exception ex)
                 {
                     System.Diagnostics.Debug.WriteLine($"Error in PluginListInteraction handler: {ex.Message}");
+                    NotifyError("プラグイン一覧失敗", $"プラグイン一覧の表示に失敗しました。\n{ex.Message}");
                     interaction.SetOutput(Unit.Default);
                 }
             });
@@ -169,9 +180,53 @@ namespace Metasia.Editor.Views
                 catch (Exception ex)
                 {
                     System.Diagnostics.Debug.WriteLine($"Error in OpenPluginSettingsInteraction handler: {ex.Message}");
+                    NotifyError("プラグイン設定失敗", $"プラグイン設定画面の表示に失敗しました。\n{ex.Message}");
                     interaction.SetOutput(Unit.Default);
                 }
             });
+
+            _openNotificationsHandlerDisposable = viewModel.OpenNotificationsInteraction.RegisterHandler(interaction =>
+            {
+                try
+                {
+                    if (_notificationHistoryWindow is null)
+                    {
+                        _notificationHistoryWindow = new NotificationHistoryWindow
+                        {
+                            DataContext = interaction.Input
+                        };
+
+                        if (VisualRoot is Window window)
+                        {
+                            _notificationHistoryWindow.Show(window);
+                            _notificationHistoryWindow.Closed += (_, _) => _notificationHistoryWindow = null;
+                        }
+                        else
+                        {
+                            _notificationHistoryWindow.Close();
+                            _notificationHistoryWindow = null;
+                        }
+                    }
+                    else
+                    {
+                        _notificationHistoryWindow.Activate();
+                    }
+
+                    interaction.SetOutput(Unit.Default);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Error in OpenNotificationsInteraction handler: {ex.Message}");
+                    NotifyError("通知履歴ウィンドウ失敗", $"通知履歴ウィンドウの表示に失敗しました。\n{ex.Message}");
+                    interaction.SetOutput(Unit.Default);
+                }
+            });
+        }
+
+        private static void NotifyError(string title, string message)
+        {
+            var notificationService = App.Current?.Services?.GetService(typeof(INotificationService)) as INotificationService;
+            notificationService?.ShowError(title, message);
         }
 
         protected override void OnUnloaded(Avalonia.Interactivity.RoutedEventArgs e)
@@ -181,13 +236,17 @@ namespace Metasia.Editor.Views
             _outputHandlerDisposable?.Dispose();
             _pluginListHandlerDisposable?.Dispose();
             _openPluginSettingsHandlerDisposable?.Dispose();
+            _openNotificationsHandlerDisposable?.Dispose();
             _newProjectHandlerDisposable = null;
             _outputHandlerDisposable = null;
             _outputWindow?.Close();
             _outputWindow = null;
+            _notificationHistoryWindow?.Close();
+            _notificationHistoryWindow = null;
             _openSettingsHandlerDisposable = null;
             _pluginListHandlerDisposable = null;
             _openPluginSettingsHandlerDisposable = null;
+            _openNotificationsHandlerDisposable = null;
 
             DataContextChanged -= OnDataContextChanged;
 

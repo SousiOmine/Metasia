@@ -1,6 +1,7 @@
 <Window	xmlns="https://github.com/avaloniaui"
 		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 		xmlns:vm="using:Metasia.Editor.ViewModels"
+		xmlns:nvm="using:Metasia.Editor.ViewModels.Notifications"
 		xmlns:views="clr-namespace:Metasia.Editor.Views"
 		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -46,6 +47,38 @@
 				<views:TimelineParentView DataContext="{Binding TimelineParentVM}" Grid.Row="2"/>
 			</Grid>
 		</DockPanel>
+
+		<ItemsControl HorizontalAlignment="Right"
+					  VerticalAlignment="Bottom"
+					  Margin="0,0,18,18"
+					  ItemsSource="{Binding NotificationCenterVM.ActiveToasts}">
+			<ItemsControl.ItemsPanel>
+				<ItemsPanelTemplate>
+					<StackPanel Spacing="6"/>
+				</ItemsPanelTemplate>
+			</ItemsControl.ItemsPanel>
+			<ItemsControl.ItemTemplate>
+				<DataTemplate DataType="nvm:NotificationEntryViewModel">
+					<Button Padding="0"
+							Background="Transparent"
+							BorderThickness="0"
+							Command="{Binding ActivateCommand}"
+							HorizontalContentAlignment="Stretch"
+							MinWidth="280"
+							MaxWidth="380">
+						<Border Background="{Binding BackgroundBrush}">
+							<StackPanel Margin="10,8" Spacing="2">
+								<TextBlock FontWeight="SemiBold"
+										   Text="{Binding Title}"/>
+								<TextBlock FontSize="12"
+										   Text="{Binding Message}"
+										   TextWrapping="Wrap"/>
+							</StackPanel>
+						</Border>
+					</Button>
+				</DataTemplate>
+			</ItemsControl.ItemTemplate>
+		</ItemsControl>
 	</Grid>
 
 </Window>
