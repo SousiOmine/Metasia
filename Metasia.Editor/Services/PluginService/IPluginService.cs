@@ -14,6 +14,8 @@ namespace Metasia.Editor.Services.PluginService
 
         Task<IEnumerable<IEditorPlugin>> LoadPluginsAsync();
 
+        IEnumerable<LeftPanePanelDefinition> GetLeftPanePanels();
+
         IEnumerable<IPluginSettingsProvider> GetSettingsProviders();
     }
 }

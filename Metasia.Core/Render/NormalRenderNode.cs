@@ -18,7 +18,7 @@ namespace Metasia.Core.Render
         /// <summary>
         /// Imageがプロジェクト解像度において持つべき論理的なサイズ
         /// </summary>
-        public SKSize LogicalSize { get; init; }
+        public SKSize LogicalSize { get; set; }
 
         /// <summary>
         /// 描画オブジェクトの位置や角度、スケール、不透明度など

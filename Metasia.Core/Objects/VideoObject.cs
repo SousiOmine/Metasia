@@ -82,7 +82,7 @@ public class VideoObject : ClipObject, IRenderable, IAudible
                     return new NormalRenderNode()
                     {
                         Image = finalResult.Image,
-                        LogicalSize = logicalSize,
+                        LogicalSize = finalResult.LogicalSize,
                         Transform = transform,
                         BlendMode = BlendMode.Value,
                         ImageCacheKey = finalResult.ImageCacheKey,
@@ -156,6 +156,7 @@ public class VideoObject : ClipObject, IRenderable, IAudible
 
         foreach (var effect in AudioEffects)
         {
+            if (!effect.IsActive) continue;
             result = effect.Apply(result, effectContext);
         }
 

@@ -1,4 +1,5 @@
 using System.Reflection;
+using Avalonia.Controls;
 using Metasia.Core.Media;
 using Metasia.Editor.Models.Media;
 using Metasia.Editor.Plugin;
@@ -23,6 +24,59 @@ namespace Metasia.Editor.Tests.Services.PluginService
             var infos = router.GetRegisteredAccessorInfos();
             Assert.That(infos.Count(x => x.Id == MediaAccessorRouter.StdInputAccessorId), Is.EqualTo(1));
             Assert.That(infos.Count(x => x.Id == "plugin.a"), Is.EqualTo(1));
+        }
+
+        [Test]
+        public void GetLeftPanePanels_IgnoresPluginsWithoutPanelProvider()
+        {
+            var settingsService = new FakeSettingsService();
+            var router = new MediaAccessorRouter(settingsService);
+            var service = new Metasia.Editor.Services.PluginService.PluginService(router);
+
+            service.EditorPlugins.Add(new FakeEditorPlugin("plugin.a", "Plugin A"));
+
+            var panels = service.GetLeftPanePanels().ToList();
+
+            Assert.That(panels, Is.Empty);
+        }
+
+        [Test]
+        public void GetLeftPanePanels_ReturnsNormalizedIdsInPluginOrder()
+        {
+            var settingsService = new FakeSettingsService();
+            var router = new MediaAccessorRouter(settingsService);
+            var service = new Metasia.Editor.Services.PluginService.PluginService(router);
+
+            service.EditorPlugins.Add(new FakePanelPlugin("plugin.a", "Plugin A", "alpha", "beta"));
+            service.EditorPlugins.Add(new FakePanelPlugin("plugin.b", "Plugin B", "main"));
+
+            var panels = service.GetLeftPanePanels().ToList();
+
+            Assert.That(panels.Select(x => x.Id), Is.EqualTo(new[]
+            {
+                "plugin.a:alpha",
+                "plugin.a:beta",
+                "plugin.b:main"
+            }));
+        }
+
+        [Test]
+        public void GetLeftPanePanels_IgnoresExceptionsThrownDuringLazyEnumeration()
+        {
+            var settingsService = new FakeSettingsService();
+            var router = new MediaAccessorRouter(settingsService);
+            var service = new Metasia.Editor.Services.PluginService.PluginService(router);
+
+            service.EditorPlugins.Add(new ThrowingPanelPlugin("plugin.a", "Plugin A"));
+            service.EditorPlugins.Add(new FakePanelPlugin("plugin.b", "Plugin B", "main"));
+
+            var panels = service.GetLeftPanePanels().ToList();
+
+            Assert.That(panels.Select(x => x.Id), Is.EqualTo(new[]
+            {
+                "plugin.a:first",
+                "plugin.b:main"
+            }));
         }
 
         private static void InvokePrivateRegisterMediaInputPlugins(Metasia.Editor.Services.PluginService.PluginService service)
@@ -62,6 +116,68 @@ namespace Metasia.Editor.Tests.Services.PluginService
             public void NotifySettingsChanged()
             {
                 SettingsChanged?.Invoke();
+            }
+        }
+
+        private class FakeEditorPlugin : IEditorPlugin
+        {
+            public string PluginIdentifier { get; }
+            public string PluginVersion { get; } = "1.0.0";
+            public string PluginName { get; }
+
+            public IEnumerable<IEditorPlugin.SupportEnvironment> SupportedEnvironments { get; } =
+            [
+                IEditorPlugin.SupportEnvironment.Windows_x64
+            ];
+
+            public FakeEditorPlugin(string id, string name)
+            {
+                PluginIdentifier = id;
+                PluginName = name;
+            }
+
+            public void Initialize()
+            {
+            }
+        }
+
+        private sealed class FakePanelPlugin : FakeEditorPlugin, ILeftPanePanelProvider
+        {
+            private readonly string[] _panelIds;
+
+            public FakePanelPlugin(string id, string name, params string[] panelIds)
+                : base(id, name)
+            {
+                _panelIds = panelIds;
+            }
+
+            public IEnumerable<LeftPanePanelDefinition> GetLeftPanePanels()
+            {
+                foreach (var panelId in _panelIds)
+                {
+                    yield return new LeftPanePanelDefinition(
+                        panelId,
+                        panelId,
+                        static () => new TextBlock());
+                }
+            }
+        }
+
+        private sealed class ThrowingPanelPlugin : FakeEditorPlugin, ILeftPanePanelProvider
+        {
+            public ThrowingPanelPlugin(string id, string name)
+                : base(id, name)
+            {
+            }
+
+            public IEnumerable<LeftPanePanelDefinition> GetLeftPanePanels()
+            {
+                yield return new LeftPanePanelDefinition(
+                    "first",
+                    "First",
+                    static () => new TextBlock());
+
+                throw new InvalidOperationException("boom");
             }
         }
 

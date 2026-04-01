@@ -16,14 +16,30 @@
             ItemsSource="{Binding VisualEffectItems}"
             SelectedItem="{Binding SelectedVisualEffectItem}">
             <ListBox.ItemTemplate>
-                <DataTemplate DataType="vm:VisualEffectItemViewModel">
-                    <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
-                        <TextBlock Text="{Binding EffectName}" FontWeight="Bold"/>
-                    </StackPanel>
+                <DataTemplate DataType="vm:VisualEffectItemViewModel" x:DataType="vm:VisualEffectItemViewModel">
+                    <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="8" VerticalAlignment="Center">
+                        <CheckBox Grid.Column="0"
+                                  VerticalAlignment="Center"
+                                  IsChecked="{Binding IsActive}"/>
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding EffectName}"
+                                   FontWeight="Bold"
+                                   VerticalAlignment="Center"/>
+                        <Button Grid.Column="2"
+                                Padding="6,2"
+                                Content="▲"
+                                Command="{Binding MoveUpCommand}"
+                                IsEnabled="{Binding CanMoveUp}"/>
+                        <Button Grid.Column="3"
+                                Padding="6,2"
+                                Content="▼"
+                                Command="{Binding MoveDownCommand}"
+                                IsEnabled="{Binding CanMoveDown}"/>
+                    </Grid>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        
+
         <ItemsControl ItemsSource="{Binding Properties}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate DataType="vm:PropertyRouterViewModel">

@@ -94,7 +94,7 @@ public class ImageObject : ClipObject, IRenderable
         return new NormalRenderNode()
         {
             Image = finalResult.Image,
-            LogicalSize = logicalSize,
+            LogicalSize = finalResult.LogicalSize,
             Transform = transform,
             BlendMode = BlendMode.Value,
             ImageCacheKey = finalResult.ImageCacheKey,

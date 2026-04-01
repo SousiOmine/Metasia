@@ -42,6 +42,7 @@ namespace Metasia.Editor.ViewModels
         public ICommand ClearTimelineSelection { get; }
         public ICommand OpenOutput { get; }
         public ICommand OpenPluginList { get; }
+        public ICommand Exit { get; }
 
         public ObservableCollection<object> SettingsMenuItems { get; }
 
@@ -50,6 +51,7 @@ namespace Metasia.Editor.ViewModels
         public Interaction<Unit, Unit> OpenSettingsInteraction { get; } = new();
         public Interaction<PluginListViewModel, Unit> PluginListInteraction { get; } = new();
         public Interaction<IPluginSettingsProvider, Unit> OpenPluginSettingsInteraction { get; } = new();
+        public Interaction<Unit, Unit> ExitInteraction { get; } = new();
 
         private readonly IFileDialogService _fileDialogService;
         private readonly IProjectState _projectState;
@@ -92,6 +94,7 @@ namespace Metasia.Editor.ViewModels
             ClearTimelineSelection = ReactiveCommand.Create(ClearTimelineSelectionMethod);
             OpenOutput = ReactiveCommand.CreateFromTask(OpenOutputExecuteAsync);
             OpenPluginList = ReactiveCommand.CreateFromTask(OpenPluginListExecuteAsync);
+            Exit = ReactiveCommand.CreateFromTask(ExitExecuteAsync);
 
             Undo = ReactiveCommand.Create(UndoExecute);
             Redo = ReactiveCommand.Create(RedoExecute);
@@ -298,6 +301,11 @@ namespace Metasia.Editor.ViewModels
             {
                 Debug.WriteLine($"プラグイン一覧ウィンドウオープンエラー: {ex.Message}");
             }
+        }
+
+        private async Task ExitExecuteAsync()
+        {
+            await ExitInteraction.Handle(Unit.Default);
         }
     }
 }

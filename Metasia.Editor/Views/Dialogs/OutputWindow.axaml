@@ -52,10 +52,23 @@
             <ListBox Grid.Row="1" ItemsSource="{Binding OutputHistory}">
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="vm:EncoderQueueItemViewModel">
-                        <StackPanel>
-                            <TextBlock Text="{Binding QueueText}"/>
-                            <ProgressBar Value="{Binding Progress}" Maximum="1.0"/>
-                        </StackPanel>
+                        <Grid ColumnDefinitions="*, Auto">
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="{Binding QueueText}"/>
+                                <ProgressBar Value="{Binding Progress}" Maximum="1.0"/>
+                            </StackPanel>
+                            <Button Grid.Column="1"
+                                    Content="⋯"
+                                    IsVisible="{Binding CanCancel}"
+                                    Margin="4,0,0,0"
+                                    Padding="8,4">
+                                <Button.Flyout>
+                                    <MenuFlyout>
+                                        <MenuItem Header="中止" Command="{Binding CancelCommand}"/>
+                                    </MenuFlyout>
+                                </Button.Flyout>
+                            </Button>
+                        </Grid>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>

@@ -56,6 +56,7 @@ namespace Metasia.Core.Render
 
             SKImage current = input;
             long currentCacheKey = context.TargetImageCacheKey;
+            SKSize currentLogicalSize = context.LogicalSize;
 
             foreach (var effect in effects)
             {
@@ -64,21 +65,22 @@ namespace Metasia.Core.Render
                     var result = effect.Apply(current, context);
                     current = result.Image;
                     currentCacheKey = result.ImageCacheKey;
+                    currentLogicalSize = result.LogicalSize;
                     context = new VisualEffectContext(
                         context.Frame,
                         context.RelativeFrame,
                         context.ClipLength,
-                    context.ProjectResolution,
-                    context.RenderResolution,
-                    context.LogicalSize,
-                    context.ImageCache,
-                    context.SurfaceFactory,
-                    context.PreferRasterOutput,
-                    currentCacheKey);
+                        context.ProjectResolution,
+                        context.RenderResolution,
+                        currentLogicalSize,
+                        context.ImageCache,
+                        context.SurfaceFactory,
+                        context.PreferRasterOutput,
+                        currentCacheKey);
                 }
             }
 
-            return new VisualEffectResult(current, currentCacheKey);
+            return new VisualEffectResult(current, currentCacheKey, currentLogicalSize);
         }
     }
 }
