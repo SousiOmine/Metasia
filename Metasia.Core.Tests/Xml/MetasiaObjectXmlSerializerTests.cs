@@ -148,14 +148,14 @@ public class MetasiaObjectXmlSerializerTests
     }
 
     // 不正なXMLをデシリアライズしようとしたときの例外処理テスト
-    // 意図: 不正なXMLをデシリアライズした場合にInvalidOperationExceptionがスローされることを確認
+    // 意図: 不正なXMLをデシリアライズした場合にXmlExceptionがスローされることを確認
     [Test]
-    public void Deserialize_InvalidXml_ThrowsInvalidOperationException()
+    public void Deserialize_InvalidXml_ThrowsXmlException()
     {
         // Arrange
         string invalidXml = "<InvalidXml>";
 
         // Act & Assert
-        Assert.Throws<InvalidOperationException>(() => MetasiaObjectXmlSerializer.Deserialize<ClipObject>(invalidXml));
+        Assert.Throws<XmlException>(() => MetasiaObjectXmlSerializer.Deserialize<ClipObject>(invalidXml));
     }
 }
