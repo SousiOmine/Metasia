@@ -171,7 +171,7 @@ public class TimelineReferenceObject : ClipObject, IRenderable, IAudible
             return new NormalRenderNode()
             {
                 Image = finalResult.Image,
-                LogicalSize = logicalSize,
+                LogicalSize = finalResult.LogicalSize,
                 Transform = transform,
                 BlendMode = BlendMode.Value,
                 ImageCacheKey = finalResult.ImageCacheKey,

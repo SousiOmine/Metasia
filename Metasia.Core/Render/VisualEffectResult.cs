@@ -15,10 +15,16 @@ namespace Metasia.Core.Render
 
         public long ImageCacheKey { get; set; } = IRenderImageCache.NO_CACHE_KEY;
 
-        public VisualEffectResult(SKImage image, long imageCacheKey)
+        /// <summary>
+        /// エフェクト適用後の論理サイズ
+        /// </summary>
+        public SKSize LogicalSize { get; }
+
+        public VisualEffectResult(SKImage image, long imageCacheKey, SKSize? logicalSize = null)
         {
             Image = image;
             ImageCacheKey = imageCacheKey;
+            LogicalSize = logicalSize ?? (image != null ? new SKSize(image.Width, image.Height) : SKSize.Empty);
         }
     }
 }

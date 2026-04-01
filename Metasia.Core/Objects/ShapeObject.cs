@@ -180,7 +180,7 @@ namespace Metasia.Core.Objects
             return Task.FromResult<IRenderNode>(new NormalRenderNode()
             {
                 Image = finalResult.Image,
-                LogicalSize = logicalSize,
+                LogicalSize = finalResult.LogicalSize,
                 Transform = transform,
                 BlendMode = BlendMode.Value,
                 ImageCacheKey = finalResult.ImageCacheKey

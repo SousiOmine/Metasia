@@ -296,10 +296,12 @@ namespace Metasia.Core.Objects
 
                         if (cameraNode.VisualEffectContext is not null && renderedNode is NormalRenderNode normalRenderNode && normalRenderNode.Image is not null)
                         {
-                            normalRenderNode.Image = VisualEffectPipeline.ApplyEffects(
+                            var effectResult = VisualEffectPipeline.ApplyEffects(
                                 normalRenderNode.Image,
                                 cameraNode.VisualEffects,
-                                cameraNode.VisualEffectContext).Image;
+                                cameraNode.VisualEffectContext);
+                            normalRenderNode.Image = effectResult.Image;
+                            normalRenderNode.LogicalSize = effectResult.LogicalSize;
                         }
 
 
@@ -330,11 +332,12 @@ namespace Metasia.Core.Objects
             if (node is NormalRenderNode normalNode && normalNode.Image is not null && groupNode.VisualEffectContext is not null)
             {
                 groupNode.VisualEffectContext.TargetImageCacheKey = normalNode.ImageCacheKey;
-                var newImage = VisualEffectPipeline.ApplyEffects(
+                var effectResult = VisualEffectPipeline.ApplyEffects(
                     normalNode.Image,
                     groupNode.VisualEffects,
                     groupNode.VisualEffectContext);
-                normalNode.Image = newImage.Image;
+                normalNode.Image = effectResult.Image;
+                normalNode.LogicalSize = effectResult.LogicalSize;
             }
 
             foreach (var child in node.Children)
@@ -344,11 +347,12 @@ namespace Metasia.Core.Objects
                 if (child is NormalRenderNode childNormalNode && childNormalNode.Image is not null && groupNode.VisualEffectContext is not null)
                 {
                     groupNode.VisualEffectContext.TargetImageCacheKey = childNormalNode.ImageCacheKey;
-                    var newImage = VisualEffectPipeline.ApplyEffects(
+                    var effectResult = VisualEffectPipeline.ApplyEffects(
                         childNormalNode.Image,
                         groupNode.VisualEffects,
                         groupNode.VisualEffectContext);
-                    childNormalNode.Image = newImage.Image;
+                    childNormalNode.Image = effectResult.Image;
+                    childNormalNode.LogicalSize = effectResult.LogicalSize;
                 }
             }
             return Task.FromResult(node);
