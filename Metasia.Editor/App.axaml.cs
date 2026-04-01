@@ -9,6 +9,9 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
 using Avalonia.Threading;
+using Metasia.Core.Coordinate.InterpolationLogic;
+using Metasia.Core.Objects;
+using Metasia.Core.Xml;
 using Metasia.Editor.Models;
 using Metasia.Editor.Models.DragDrop;
 using Metasia.Editor.Models.DragDrop.Handlers;
@@ -74,6 +77,15 @@ namespace Metasia.Editor
         {
             _mainWindow = new MainWindow();
             var services = new ServiceCollection();
+
+            // TypeRegistryを作成し、型を登録
+            var typeRegistry = new TypeRegistry();
+            typeRegistry.RegisterAssemblyTypes("metasia/core", typeof(IMetasiaObject).Assembly);
+            typeRegistry.RegisterAssemblyTypes("metasia/core", typeof(IInterpolationLogic).Assembly);
+            MetasiaObjectXmlSerializer.Initialize(typeRegistry);
+
+            services.AddSingleton<TypeRegistry>(typeRegistry);
+
             services.AddSingleton<IFileDialogService>(new FileDialogService(_mainWindow));
             services.AddSingleton<IKeyBindingService, KeyBindingService>();
             services.AddSingleton<ISettingsService, SettingsService>();
