@@ -1,22 +1,27 @@
 using System.Xml;
-using System.Xml.Schema;
 using System.Xml.Serialization;
 
 namespace Metasia.Core.Objects;
 
-public class UnknownClipObject : ClipObject, IUnknownMetasiaObject, IXmlSerializable
+public class UnknownClipObject : ClipObject, IUnknownMetasiaObject
 {
-    public string RawXml { get; set; } = string.Empty;
+    [XmlAnyElement]
+    public XmlElement[] RawElements { get; set; } = Array.Empty<XmlElement>();
 
-    public XmlSchema? GetSchema() => null;
-
-    public void ReadXml(XmlReader reader)
+    public string RawXml
     {
-        RawXml = reader.ReadOuterXml();
-    }
+        get => RawElements.Length > 0 ? RawElements[0].OuterXml : string.Empty;
+        set
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                RawElements = Array.Empty<XmlElement>();
+                return;
+            }
 
-    public void WriteXml(XmlWriter writer)
-    {
-        writer.WriteRaw(RawXml);
+            var document = new XmlDocument();
+            document.LoadXml(value);
+            RawElements = [document.DocumentElement!];
+        }
     }
 }

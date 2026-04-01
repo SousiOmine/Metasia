@@ -5,6 +5,7 @@ using Metasia.Core.Objects;
 using Metasia.Core.Coordinate;
 using System.Xml;
 using Metasia.Core.Objects.Parameters;
+using System.Xml.Linq;
 
 namespace Metasia.Core.Tests.Xml;
 
@@ -124,6 +125,75 @@ public class MetasiaObjectXmlSerializerTests
         Assert.That(deserialized.TargetTimelineId, Is.EqualTo(original.TargetTimelineId));
         Assert.That(deserialized.SourceStartFrame.Value, Is.EqualTo(15).Within(0.001));
         Assert.That(deserialized.Volume.Value, Is.EqualTo(80).Within(0.001));
+    }
+
+    [Test]
+    public void Serialize_TimelineWithDerivedClip_WritesDerivedTypeIdAndTypeKind()
+    {
+        var timeline = new TimelineObject("timeline_id");
+        var layer = new LayerObject("layer_id", "Layer");
+        layer.Objects.Add(new Text("text_id") { Contents = "hello" });
+        timeline.Layers.Add(layer);
+
+        string xml = MetasiaObjectXmlSerializer.Serialize(timeline);
+        var doc = XDocument.Parse(xml);
+        XNamespace xsi = "http://www.w3.org/2001/XMLSchema-instance";
+        var clipElement = doc.Descendants("ClipObject").Single();
+
+        Assert.That(clipElement.Attribute("typeId")?.Value, Is.EqualTo("metasia/core:Text"));
+        Assert.That(clipElement.Attribute("typeKind")?.Value, Is.EqualTo("Clip"));
+        Assert.That(clipElement.Attribute(xsi + "type")?.Value, Is.EqualTo("Text"));
+    }
+
+    [Test]
+    public void SerializeDeserialize_TimelineWithUnknownClip_PreservesOriginalXml()
+    {
+        const string xml = """
+            <TimelineObject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" typeId="metasia/core:TimelineObject">
+              <Id>timeline_id</Id>
+              <IsActive>true</IsActive>
+              <SelectionStart>0</SelectionStart>
+              <SelectionEnd>100</SelectionEnd>
+              <Layers>
+                <LayerObject typeId="metasia/core:LayerObject">
+                  <Id>layer_id</Id>
+                  <IsActive>true</IsActive>
+                  <Objects>
+                    <ClipObject xsi:type="PluginText" typeId="plugin:test:PluginText" typeKind="Clip">
+                      <StartFrame>10</StartFrame>
+                      <EndFrame>20</EndFrame>
+                      <Id>plugin_clip</Id>
+                      <IsActive>true</IsActive>
+                    </ClipObject>
+                  </Objects>
+                  <Volume Value="100" />
+                  <AudioEffects />
+                  <VisualEffects />
+                  <Name>Layer</Name>
+                </LayerObject>
+              </Layers>
+              <Volume Value="100" />
+              <AudioEffects />
+              <VisualEffects />
+            </TimelineObject>
+            """;
+
+        var deserialized = MetasiaObjectXmlSerializer.Deserialize<TimelineObject>(xml);
+
+        Assert.That(deserialized.Layers[0].Objects[0], Is.TypeOf<UnknownClipObject>());
+        var unknownClip = (UnknownClipObject)deserialized.Layers[0].Objects[0];
+        Assert.That(unknownClip.RawXml, Does.Contain("PluginText"));
+
+        string serialized = MetasiaObjectXmlSerializer.Serialize(deserialized);
+        var doc = XDocument.Parse(serialized);
+        XNamespace xsi = "http://www.w3.org/2001/XMLSchema-instance";
+
+        Assert.That(doc.Descendants(nameof(UnknownClipObject)), Is.Empty);
+
+        var clipElement = doc.Descendants("ClipObject").Single();
+        Assert.That(clipElement.Attribute("typeId")?.Value, Is.EqualTo("plugin:test:PluginText"));
+        Assert.That(clipElement.Attribute("typeKind")?.Value, Is.EqualTo("Clip"));
+        Assert.That(clipElement.Attribute(xsi + "type")?.Value, Is.EqualTo("PluginText"));
     }
 
     // nullオブジェクトをシリアライズしようとしたときの例外処理テスト
