@@ -11,5 +11,5 @@ public interface IUnknownMetasiaObject : IMetasiaObject
     /// <summary>
     /// オブジェクトの生のXMLデータ
     /// </summary>
-    string RawXml { get; set; }
+    string RawXml { get; }
 }

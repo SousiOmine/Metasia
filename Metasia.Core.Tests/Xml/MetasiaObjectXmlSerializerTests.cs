@@ -6,6 +6,7 @@ using Metasia.Core.Coordinate;
 using System.Xml;
 using Metasia.Core.Objects.Parameters;
 using System.Xml.Linq;
+using Metasia.Core.Objects.AudioEffects;
 
 namespace Metasia.Core.Tests.Xml;
 
@@ -182,6 +183,10 @@ public class MetasiaObjectXmlSerializerTests
 
         Assert.That(deserialized.Layers[0].Objects[0], Is.TypeOf<UnknownClipObject>());
         var unknownClip = (UnknownClipObject)deserialized.Layers[0].Objects[0];
+        Assert.That(unknownClip.StartFrame, Is.EqualTo(10));
+        Assert.That(unknownClip.EndFrame, Is.EqualTo(20));
+        Assert.That(unknownClip.Id, Is.EqualTo("plugin_clip"));
+        Assert.That(unknownClip.IsActive, Is.True);
         Assert.That(unknownClip.RawXml, Does.Contain("PluginText"));
 
         string serialized = MetasiaObjectXmlSerializer.Serialize(deserialized);
@@ -194,6 +199,109 @@ public class MetasiaObjectXmlSerializerTests
         Assert.That(clipElement.Attribute("typeId")?.Value, Is.EqualTo("plugin:test:PluginText"));
         Assert.That(clipElement.Attribute("typeKind")?.Value, Is.EqualTo("Clip"));
         Assert.That(clipElement.Attribute(xsi + "type")?.Value, Is.EqualTo("PluginText"));
+        Assert.That((int?)clipElement.Element(nameof(ClipObject.StartFrame)), Is.EqualTo(10));
+        Assert.That((int?)clipElement.Element(nameof(ClipObject.EndFrame)), Is.EqualTo(20));
+        Assert.That((string?)clipElement.Element(nameof(ClipObject.Id)), Is.EqualTo("plugin_clip"));
+    }
+
+    [Test]
+    public void Serialize_TimelineWithEditedUnknownClip_PersistsSharedPropertiesAndUnknownPayload()
+    {
+        const string xml = """
+            <TimelineObject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" typeId="metasia/core:TimelineObject">
+              <Id>timeline_id</Id>
+              <IsActive>true</IsActive>
+              <SelectionStart>0</SelectionStart>
+              <SelectionEnd>100</SelectionEnd>
+              <Layers>
+                <LayerObject typeId="metasia/core:LayerObject">
+                  <Id>layer_id</Id>
+                  <IsActive>true</IsActive>
+                  <Objects>
+                    <ClipObject xsi:type="PluginText" typeId="plugin:test:PluginText" typeKind="Clip">
+                      <StartFrame>10</StartFrame>
+                      <EndFrame>20</EndFrame>
+                      <Id>plugin_clip</Id>
+                      <IsActive>true</IsActive>
+                      <PluginTextColor>#00FF00</PluginTextColor>
+                    </ClipObject>
+                  </Objects>
+                  <Volume Value="100" />
+                  <AudioEffects />
+                  <VisualEffects />
+                  <Name>Layer</Name>
+                </LayerObject>
+              </Layers>
+              <Volume Value="100" />
+              <AudioEffects />
+              <VisualEffects />
+            </TimelineObject>
+            """;
+
+        var deserialized = MetasiaObjectXmlSerializer.Deserialize<TimelineObject>(xml);
+        var unknownClip = (UnknownClipObject)deserialized.Layers[0].Objects[0];
+        unknownClip.StartFrame = 30;
+        unknownClip.EndFrame = 45;
+        unknownClip.IsActive = false;
+
+        string serialized = MetasiaObjectXmlSerializer.Serialize(deserialized);
+        var clipElement = XDocument.Parse(serialized).Descendants(nameof(ClipObject)).Single();
+
+        Assert.That((int?)clipElement.Element(nameof(ClipObject.StartFrame)), Is.EqualTo(30));
+        Assert.That((int?)clipElement.Element(nameof(ClipObject.EndFrame)), Is.EqualTo(45));
+        Assert.That((bool?)clipElement.Element(nameof(ClipObject.IsActive)), Is.False);
+        Assert.That((string?)clipElement.Element("PluginTextColor"), Is.EqualTo("#00FF00"));
+    }
+
+    [Test]
+    public void Serialize_TimelineWithEditedUnknownAudioEffect_PersistsSharedPropertiesAndUnknownPayload()
+    {
+        const string xml = """
+            <TimelineObject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" typeId="metasia/core:TimelineObject">
+              <Id>timeline_id</Id>
+              <IsActive>true</IsActive>
+              <SelectionStart>0</SelectionStart>
+              <SelectionEnd>100</SelectionEnd>
+              <Layers>
+                <LayerObject typeId="metasia/core:LayerObject">
+                  <Id>layer_id</Id>
+                  <IsActive>true</IsActive>
+                  <Objects />
+                  <Volume Value="100" />
+                  <AudioEffects>
+                    <AudioEffectBase xsi:type="PluginVolume" typeId="plugin:test:PluginVolume" typeKind="AudioEffect">
+                      <Id>plugin_audio_effect</Id>
+                      <IsActive>true</IsActive>
+                      <PluginGain Value="6" />
+                    </AudioEffectBase>
+                  </AudioEffects>
+                  <VisualEffects />
+                  <Name>Layer</Name>
+                </LayerObject>
+              </Layers>
+              <Volume Value="100" />
+              <AudioEffects />
+              <VisualEffects />
+            </TimelineObject>
+            """;
+
+        var deserialized = MetasiaObjectXmlSerializer.Deserialize<TimelineObject>(xml);
+        Assert.That(deserialized.Layers[0].AudioEffects[0], Is.TypeOf<UnknownAudioEffect>());
+
+        var unknownEffect = (UnknownAudioEffect)deserialized.Layers[0].AudioEffects[0];
+        unknownEffect.IsActive = false;
+        unknownEffect.Id = "edited_audio_effect";
+
+        string serialized = MetasiaObjectXmlSerializer.Serialize(deserialized);
+        var effectElement = XDocument.Parse(serialized).Descendants(nameof(AudioEffectBase)).Single();
+        XNamespace xsi = "http://www.w3.org/2001/XMLSchema-instance";
+
+        Assert.That(effectElement.Attribute("typeId")?.Value, Is.EqualTo("plugin:test:PluginVolume"));
+        Assert.That(effectElement.Attribute("typeKind")?.Value, Is.EqualTo("AudioEffect"));
+        Assert.That(effectElement.Attribute(xsi + "type")?.Value, Is.EqualTo("PluginVolume"));
+        Assert.That((string?)effectElement.Element(nameof(AudioEffectBase.Id)), Is.EqualTo("edited_audio_effect"));
+        Assert.That((bool?)effectElement.Element(nameof(AudioEffectBase.IsActive)), Is.False);
+        Assert.That(effectElement.Element("PluginGain")?.Attribute("Value")?.Value, Is.EqualTo("6"));
     }
 
     // nullオブジェクトをシリアライズしようとしたときの例外処理テスト

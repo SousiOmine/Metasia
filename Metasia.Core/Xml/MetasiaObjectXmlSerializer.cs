@@ -13,6 +13,7 @@ namespace Metasia.Core.Xml
     public class MetasiaObjectXmlSerializer
     {
         private static readonly XNamespace XsiNamespace = "http://www.w3.org/2001/XMLSchema-instance";
+        private const string UnknownXsiTypeAttributeName = "unknownXsiType";
         private static readonly object SerializerCacheLock = new();
 
         internal static TypeRegistry Registry { get; private set; } = new();
@@ -122,7 +123,7 @@ namespace Metasia.Core.Xml
                         _ => throw new InvalidOperationException($"Unknown typeKind: {typeKind}")
                     };
 
-                    return new XElement(unknownElementName, new XElement(element));
+                    return RenameElementForUnknownWrapper(element, unknownElementName);
                 }
             }
 
@@ -145,35 +146,13 @@ namespace Metasia.Core.Xml
         private static bool TryRestoreUnknownElement(XElement element, out XElement restoredElement)
         {
             restoredElement = null!;
-            string? unknownWrapperTypeName = ResolveSerializedTypeName(element);
-            string? typeKind = unknownWrapperTypeName is null ? null : GetTypeKindFromUnknownWrapperName(unknownWrapperTypeName);
-            if (typeKind is null)
+            string? baseElementName = GetBaseElementNameFromUnknownWrapperName(element.Name.LocalName);
+            if (baseElementName is null)
             {
                 return false;
             }
 
-            Type? wrapperType = unknownWrapperTypeName switch
-            {
-                nameof(UnknownClipObject) => typeof(UnknownClipObject),
-                nameof(UnknownVisualEffect) => typeof(UnknownVisualEffect),
-                nameof(UnknownAudioEffect) => typeof(UnknownAudioEffect),
-                _ => null
-            };
-
-            if (wrapperType is null)
-            {
-                return false;
-            }
-
-            var serializer = GetSerializer(wrapperType);
-            using var reader = element.CreateReader();
-            if (serializer.Deserialize(reader) is not IUnknownMetasiaObject unknownObject || string.IsNullOrWhiteSpace(unknownObject.RawXml))
-            {
-                return false;
-            }
-
-            restoredElement = XElement.Parse(unknownObject.RawXml);
-            restoredElement.SetAttributeValue("typeKind", typeKind);
+            restoredElement = RestoreUnknownWrapperElement(element, baseElementName);
             return true;
         }
 
@@ -240,6 +219,62 @@ namespace Metasia.Core.Xml
                 nameof(UnknownAudioEffect) => "AudioEffect",
                 _ => null
             };
+        }
+
+        private static string? GetBaseElementNameFromUnknownWrapperName(string elementName)
+        {
+            return elementName switch
+            {
+                nameof(UnknownClipObject) => nameof(ClipObject),
+                nameof(UnknownVisualEffect) => nameof(VisualEffectBase),
+                nameof(UnknownAudioEffect) => nameof(AudioEffectBase),
+                _ => null
+            };
+        }
+
+        private static XElement RenameElement(XElement element, string newLocalName)
+        {
+            return new XElement(
+                element.Name.Namespace + newLocalName,
+                element.Attributes(),
+                element.Nodes().Select(CloneNodeForRename));
+        }
+
+        private static XElement RenameElementForUnknownWrapper(XElement element, string wrapperName)
+        {
+            return new XElement(
+                element.Name.Namespace + wrapperName,
+                element.Attributes().Select(PrepareAttributeForUnknownWrapper),
+                element.Nodes().Select(CloneNodeForRename));
+        }
+
+        private static XElement RestoreUnknownWrapperElement(XElement element, string baseElementName)
+        {
+            return new XElement(
+                element.Name.Namespace + baseElementName,
+                element.Attributes().Select(RestoreAttributeFromUnknownWrapper),
+                element.Nodes().Select(CloneNodeForRename));
+        }
+
+        private static object CloneNodeForRename(XNode node)
+        {
+            return node is XElement childElement
+                ? new XElement(childElement)
+                : CloneNode(node);
+        }
+
+        private static XAttribute PrepareAttributeForUnknownWrapper(XAttribute attribute)
+        {
+            return attribute.Name == XsiNamespace + "type"
+                ? new XAttribute(UnknownXsiTypeAttributeName, attribute.Value)
+                : new XAttribute(attribute);
+        }
+
+        private static XAttribute RestoreAttributeFromUnknownWrapper(XAttribute attribute)
+        {
+            return attribute.Name.LocalName == UnknownXsiTypeAttributeName && attribute.Name.Namespace == XNamespace.None
+                ? new XAttribute(XsiNamespace + "type", attribute.Value)
+                : new XAttribute(attribute);
         }
 
         private static object CloneNode(XNode node)
