@@ -41,22 +41,24 @@ public class AudioEffectsViewModel : ViewModelBase
     private readonly IProjectState _projectState;
     private readonly IEditCommandManager _editCommandManager;
     private readonly IPropertyRouterViewModelFactory _propertyRouterViewModelFactory;
+    private readonly INewObjectSelectViewModelFactory _newObjectSelectViewModelFactory;
 
     public AudioEffectsViewModel(
         IAudible target,
         IProjectState projectState,
         IEditCommandManager editCommandManager,
-        IPropertyRouterViewModelFactory propertyRouterViewModelFactory
-        )
+        IPropertyRouterViewModelFactory propertyRouterViewModelFactory,
+        INewObjectSelectViewModelFactory newObjectSelectViewModelFactory)
     {
         _target = target;
         _projectState = projectState;
         _editCommandManager = editCommandManager;
         _propertyRouterViewModelFactory = propertyRouterViewModelFactory;
+        _newObjectSelectViewModelFactory = newObjectSelectViewModelFactory;
 
         NewEffectCommand = ReactiveCommand.CreateFromTask(async () =>
         {
-            var selectVm = new NewObjectSelectViewModel(NewObjectSelectViewModel.TargetType.AudioEffect);
+            var selectVm = _newObjectSelectViewModelFactory.Create(NewObjectSelectViewModel.TargetType.AudioEffect);
             var result = await NewObjectSelectInteraction.Handle(selectVm);
             if (result is AudioEffectBase effect)
             {

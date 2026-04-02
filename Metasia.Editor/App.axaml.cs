@@ -77,11 +77,10 @@ namespace Metasia.Editor
             _mainWindow = new MainWindow();
             var services = new ServiceCollection();
 
-            // TypeRegistryを作成し、型を登録
+            // TypeRegistryを作成し、Coreの型を登録
             var typeRegistry = new TypeRegistry();
             typeRegistry.RegisterAssemblyTypes("metasia/core", typeof(IMetasiaObject).Assembly);
             typeRegistry.RegisterAssemblyTypes("metasia/core", typeof(IInterpolationLogic).Assembly);
-            MetasiaObjectXmlSerializer.Initialize(typeRegistry);
 
             services.AddSingleton<TypeRegistry>(typeRegistry);
 
@@ -146,6 +145,7 @@ namespace Metasia.Editor
             services.AddTransient<IBoolPropertyViewModelFactory, BoolPropertyViewModelFactory>();
             services.AddTransient<INewProjectViewModelFactory, NewProjectViewModelFactory>();
             services.AddTransient<IOutputViewModelFactory, OutputViewModelFactory>();
+            services.AddTransient<INewObjectSelectViewModelFactory, NewObjectSelectViewModelFactory>();
 
 
             services.AddTransient<MainWindowViewModel>();
@@ -180,8 +180,11 @@ namespace Metasia.Editor
             {
                 Debug.WriteLine($"自動保存の開始に失敗しました: {ex.Message}");
             }
-            // プラグインを読み込み
+            // プラグインを読み込み（PluginService内でTypeRegistryにプラグイン型を登録）
             await Services.GetRequiredService<IPluginService>().LoadPluginsAsync();
+
+            // プラグイン型を含めてSerializerを初期化
+            MetasiaObjectXmlSerializer.Initialize(typeRegistry);
 
             await Task.Delay(1000);
 

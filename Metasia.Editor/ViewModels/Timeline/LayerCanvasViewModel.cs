@@ -64,6 +64,7 @@ namespace Metasia.Editor.ViewModels.Timeline
         private readonly IEditCommandManager editCommandManager;
         private readonly ITimelineViewState _timelineViewState;
         private readonly IDropHandlerRegistry _dropHandlerRegistry;
+        private readonly INewObjectSelectViewModelFactory _newObjectSelectViewModelFactory;
         public ObservableCollection<ControlHighlightInfo> ControlHighlights { get; } = new();
 
         private double _frame_per_DIP;
@@ -78,7 +79,8 @@ namespace Metasia.Editor.ViewModels.Timeline
             ISelectionState selectionState,
             IEditCommandManager editCommandManager,
             ITimelineViewState timelineViewState,
-            IDropHandlerRegistry dropHandlerRegistry)
+            IDropHandlerRegistry dropHandlerRegistry,
+            INewObjectSelectViewModelFactory newObjectSelectViewModelFactory)
         {
             this.parentTimeline = parentTimeline;
             TargetLayer = targetLayer;
@@ -88,6 +90,7 @@ namespace Metasia.Editor.ViewModels.Timeline
             this.editCommandManager = editCommandManager;
             this._timelineViewState = timelineViewState;
             this._dropHandlerRegistry = dropHandlerRegistry;
+            this._newObjectSelectViewModelFactory = newObjectSelectViewModelFactory;
 
             HandleDropCommand = ReactiveCommand.Create<DropEventData>(
                 execute: ExecuteHandleDrop,
@@ -100,7 +103,7 @@ namespace Metasia.Editor.ViewModels.Timeline
             HandleDragLeaveCommand = ReactiveCommand.Create(ExecuteHandleDragLeave);
             NewClipCommand = ReactiveCommand.CreateFromTask(async () =>
             {
-                var vm = new NewObjectSelectViewModel(NewObjectSelectViewModel.TargetType.Clip);
+                var vm = _newObjectSelectViewModelFactory.Create(NewObjectSelectViewModel.TargetType.Clip);
                 var result = await NewObjectSelectInteraction.Handle(vm);
 
                 if (result is not null && result is ClipObject clipObject)
