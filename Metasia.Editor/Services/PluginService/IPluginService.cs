@@ -12,6 +12,12 @@ namespace Metasia.Editor.Services.PluginService
 
         List<IMediaOutputPlugin> MediaOutputPlugins { get; }
 
+        IReadOnlyList<PluginTypeInfo> PluginClipTypes { get; }
+
+        IReadOnlyList<PluginTypeInfo> PluginVisualEffectTypes { get; }
+
+        IReadOnlyList<PluginTypeInfo> PluginAudioEffectTypes { get; }
+
         Task<IEnumerable<IEditorPlugin>> LoadPluginsAsync();
 
         IEnumerable<LeftPanePanelDefinition> GetLeftPanePanels();

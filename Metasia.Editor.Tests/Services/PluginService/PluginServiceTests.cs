@@ -1,6 +1,9 @@
 using System.Reflection;
 using Avalonia.Controls;
+using Metasia.Core.Attributes;
 using Metasia.Core.Media;
+using Metasia.Core.Objects;
+using Metasia.Core.Xml;
 using Metasia.Editor.Models.Media;
 using Metasia.Editor.Plugin;
 using Metasia.Editor.Services.PluginService;
@@ -15,7 +18,7 @@ namespace Metasia.Editor.Tests.Services.PluginService
         {
             var settingsService = new FakeSettingsService();
             var router = new MediaAccessorRouter(settingsService);
-            var service = new Metasia.Editor.Services.PluginService.PluginService(router);
+            var service = new Metasia.Editor.Services.PluginService.PluginService(router, new TypeRegistry());
 
             service.MediaInputPlugins.Add(new FakeMediaInputPlugin("plugin.a", "Plugin A"));
 
@@ -31,7 +34,7 @@ namespace Metasia.Editor.Tests.Services.PluginService
         {
             var settingsService = new FakeSettingsService();
             var router = new MediaAccessorRouter(settingsService);
-            var service = new Metasia.Editor.Services.PluginService.PluginService(router);
+            var service = new Metasia.Editor.Services.PluginService.PluginService(router, new TypeRegistry());
 
             service.EditorPlugins.Add(new FakeEditorPlugin("plugin.a", "Plugin A"));
 
@@ -45,7 +48,7 @@ namespace Metasia.Editor.Tests.Services.PluginService
         {
             var settingsService = new FakeSettingsService();
             var router = new MediaAccessorRouter(settingsService);
-            var service = new Metasia.Editor.Services.PluginService.PluginService(router);
+            var service = new Metasia.Editor.Services.PluginService.PluginService(router, new TypeRegistry());
 
             service.EditorPlugins.Add(new FakePanelPlugin("plugin.a", "Plugin A", "alpha", "beta"));
             service.EditorPlugins.Add(new FakePanelPlugin("plugin.b", "Plugin B", "main"));
@@ -65,7 +68,7 @@ namespace Metasia.Editor.Tests.Services.PluginService
         {
             var settingsService = new FakeSettingsService();
             var router = new MediaAccessorRouter(settingsService);
-            var service = new Metasia.Editor.Services.PluginService.PluginService(router);
+            var service = new Metasia.Editor.Services.PluginService.PluginService(router, new TypeRegistry());
 
             service.EditorPlugins.Add(new ThrowingPanelPlugin("plugin.a", "Plugin A"));
             service.EditorPlugins.Add(new FakePanelPlugin("plugin.b", "Plugin B", "main"));
@@ -79,10 +82,51 @@ namespace Metasia.Editor.Tests.Services.PluginService
             }));
         }
 
+        [Test]
+        public void RegisterPluginTypes_SkipsClipTypesWhoseNameConflictsWithRegisteredType()
+        {
+            var settingsService = new FakeSettingsService();
+            var router = new MediaAccessorRouter(settingsService);
+            var registry = new TypeRegistry();
+            registry.Register("metasia/core", nameof(Metasia.Core.Objects.Text), typeof(Metasia.Core.Objects.Text));
+            var service = new Metasia.Editor.Services.PluginService.PluginService(router, registry);
+
+            service.EditorPlugins.Add(new ConflictingClipPlugin());
+
+            InvokePrivateRegisterPluginTypes(service);
+
+            Assert.That(service.PluginClipTypes, Is.Empty);
+            Assert.That(registry.GetTypeId(typeof(Metasia.Core.Objects.Text)), Is.EqualTo("metasia/core:Text"));
+            Assert.That(registry.GetTypeIdByTypeName(nameof(Metasia.Core.Objects.Text)), Is.EqualTo("metasia/core:Text"));
+        }
+
+        [Test]
+        public void RegisterPluginTypes_SkipsClipTypesWithoutPublicParameterlessConstructor()
+        {
+            var settingsService = new FakeSettingsService();
+            var router = new MediaAccessorRouter(settingsService);
+            var service = new Metasia.Editor.Services.PluginService.PluginService(router, new TypeRegistry());
+
+            service.EditorPlugins.Add(new NoDefaultConstructorClipPlugin());
+
+            InvokePrivateRegisterPluginTypes(service);
+
+            Assert.That(service.PluginClipTypes, Is.Empty);
+        }
+
         private static void InvokePrivateRegisterMediaInputPlugins(Metasia.Editor.Services.PluginService.PluginService service)
         {
             var method = typeof(Metasia.Editor.Services.PluginService.PluginService)
                 .GetMethod("RegisterMediaInputPlugins", BindingFlags.Instance | BindingFlags.NonPublic);
+
+            Assert.That(method, Is.Not.Null);
+            method!.Invoke(service, null);
+        }
+
+        private static void InvokePrivateRegisterPluginTypes(Metasia.Editor.Services.PluginService.PluginService service)
+        {
+            var method = typeof(Metasia.Editor.Services.PluginService.PluginService)
+                .GetMethod("RegisterPluginTypes", BindingFlags.Instance | BindingFlags.NonPublic);
 
             Assert.That(method, Is.Not.Null);
             method!.Invoke(service, null);
@@ -228,6 +272,54 @@ namespace Metasia.Editor.Tests.Services.PluginService
             public Task<AudioSampleResult> GetAudioBySampleAsync(string path, long startSample, long sampleCount, int sampleRate)
             {
                 return Task.FromResult(new AudioSampleResult { IsSuccessful = false, Chunk = null });
+            }
+        }
+
+        private sealed class ConflictingClipPlugin : FakeEditorPlugin, IClipTypeProvider
+        {
+            public ConflictingClipPlugin()
+                : base("plugin.conflict", "Conflict Plugin")
+            {
+            }
+
+            public IEnumerable<Type> GetClipTypes()
+            {
+                yield return typeof(Text);
+            }
+        }
+
+        private sealed class NoDefaultConstructorClipPlugin : FakeEditorPlugin, IClipTypeProvider
+        {
+            public NoDefaultConstructorClipPlugin()
+                : base("plugin.no-default", "No Default Plugin")
+            {
+            }
+
+            public IEnumerable<Type> GetClipTypes()
+            {
+                yield return typeof(ClipWithoutPublicParameterlessConstructor);
+            }
+        }
+
+        [ClipTypeIdentifier("PluginText")]
+        private sealed class Text : ClipObject
+        {
+            public Text()
+            {
+            }
+
+            public Text(string id)
+                : base(id)
+            {
+            }
+        }
+
+        [ClipTypeIdentifier("Ctorless")]
+        private sealed class ClipWithoutPublicParameterlessConstructor : ClipObject
+        {
+            public ClipWithoutPublicParameterlessConstructor(string id)
+                : base(id)
+            {
             }
         }
     }
