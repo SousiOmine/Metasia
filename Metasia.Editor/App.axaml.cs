@@ -9,6 +9,9 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
 using Avalonia.Threading;
+using Metasia.Core.Coordinate.InterpolationLogic;
+using Metasia.Core.Objects;
+using Metasia.Core.Xml;
 using Metasia.Editor.Models;
 using Metasia.Editor.Models.DragDrop;
 using Metasia.Editor.Models.DragDrop.Handlers;
@@ -25,6 +28,7 @@ using Metasia.Core.Render;
 using Metasia.Editor.ViewModels.Dialogs;
 using Metasia.Editor.ViewModels.Inspector;
 using Metasia.Editor.ViewModels.Inspector.Properties;
+using Metasia.Editor.ViewModels.Notifications;
 using Metasia.Editor.ViewModels.Settings;
 using Metasia.Editor.ViewModels.Timeline;
 using Metasia.Editor.Views;
@@ -75,6 +79,14 @@ namespace Metasia.Editor
         {
             _mainWindow = new MainWindow();
             var services = new ServiceCollection();
+
+            // TypeRegistryを作成し、Coreの型を登録
+            var typeRegistry = new TypeRegistry();
+            typeRegistry.RegisterAssemblyTypes("metasia/core", typeof(IMetasiaObject).Assembly);
+            typeRegistry.RegisterAssemblyTypes("metasia/core", typeof(IInterpolationLogic).Assembly);
+
+            services.AddSingleton<TypeRegistry>(typeRegistry);
+
             services.AddSingleton<IFileDialogService>(new FileDialogService(_mainWindow));
             services.AddSingleton<IKeyBindingService, KeyBindingService>();
             services.AddSingleton<ISettingsService, SettingsService>();
@@ -108,6 +120,7 @@ namespace Metasia.Editor
             services.AddSingleton<IAudioPlaybackService, AudioPlaybackService>();
             services.AddSingleton<IEncodeService, EncodeService>();
             services.AddSingleton<INotificationService, NotificationService>();
+            services.AddSingleton<NotificationCenterViewModel>();
 
             services.AddSingleton<IRenderSurfaceFactory>(_ => CreateRenderSurfaceFactory());
 
@@ -138,6 +151,7 @@ namespace Metasia.Editor
             services.AddTransient<IBoolPropertyViewModelFactory, BoolPropertyViewModelFactory>();
             services.AddTransient<INewProjectViewModelFactory, NewProjectViewModelFactory>();
             services.AddTransient<IOutputViewModelFactory, OutputViewModelFactory>();
+            services.AddTransient<INewObjectSelectViewModelFactory, NewObjectSelectViewModelFactory>();
 
 
             services.AddTransient<MainWindowViewModel>();
@@ -172,8 +186,11 @@ namespace Metasia.Editor
             {
                 Debug.WriteLine($"自動保存の開始に失敗しました: {ex.Message}");
             }
-            // プラグインを読み込み
+            // プラグインを読み込み（PluginService内でTypeRegistryにプラグイン型を登録）
             await Services.GetRequiredService<IPluginService>().LoadPluginsAsync();
+
+            // プラグイン型を含めてSerializerを初期化
+            MetasiaObjectXmlSerializer.Initialize(typeRegistry);
 
             await Task.Delay(1000);
 

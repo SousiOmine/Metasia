@@ -22,8 +22,7 @@ namespace Metasia.Core.Objects.AudioEffects
         public MetaDoubleParam Out { get; set; } = new MetaDoubleParam(0.5);
         public override IAudioChunk Apply(IAudioChunk input, AudioEffectContext context)
         {
-            // 入力チェック
-            if (input is null) return input;
+            ArgumentNullException.ThrowIfNull(input);
             if (input.Samples is null || input.Samples.Length == 0)
             {
                 return input;

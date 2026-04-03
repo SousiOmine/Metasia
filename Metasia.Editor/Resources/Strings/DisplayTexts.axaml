@@ -30,6 +30,7 @@
   <x:String x:Key="property.shape.aspect_ratio">縦横比</x:String>
   <x:String x:Key="property.shape.shape">図形タイプ</x:String>
   <x:String x:Key="property.shape.size">サイズ</x:String>
+  <x:String x:Key="property.text.align">テキスト配置</x:String>
   <x:String x:Key="property.text.contents">テキスト内容</x:String>
   <x:String x:Key="property.text.size">文字サイズ</x:String>
   <x:String x:Key="property.video.path">動画ファイル</x:String>

@@ -49,7 +49,6 @@ namespace Metasia.Core.Objects
 
         private SKImage? myImage;
         private bool disposed;
-        private int audio_offset = 0;
 
         public kariHelloObject()
         {

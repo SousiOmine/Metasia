@@ -1,0 +1,62 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:Metasia.Editor.ViewModels.Notifications"
+        x:Class="Metasia.Editor.Views.Dialogs.NotificationHistoryWindow"
+        x:DataType="vm:NotificationCenterViewModel"
+        Width="560"
+        Height="400"
+        MinWidth="360"
+        MinHeight="240"
+        Title="通知"
+        mc:Ignorable="d"
+        d:DesignWidth="560"
+        d:DesignHeight="400">
+    <Grid RowDefinitions="Auto,*" Margin="12">
+        <TextBlock Grid.Row="0"
+                   Margin="0,0,0,8"
+                   FontSize="16"
+                   FontWeight="SemiBold"
+                   Text="通知履歴" />
+
+        <Border Grid.Row="1"
+                Padding="8">
+            <Grid>
+                <ScrollViewer IsVisible="{Binding HasHistory}">
+                    <ItemsControl ItemsSource="{Binding History}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="vm:NotificationEntryViewModel">
+                                <Border Margin="0,0,0,6"
+                                        Background="{Binding BackgroundBrush}">
+                                    <Grid Margin="10,8" RowDefinitions="Auto,Auto">
+                                        <TextBlock Grid.Row="0"
+                                                   FontWeight="SemiBold"
+                                                   Text="{Binding Title}" />
+                                        <Grid Grid.Row="1" ColumnDefinitions="*,Auto">
+                                            <TextBlock Grid.Column="0"
+                                                       FontSize="12"
+                                                       Text="{Binding Message}"
+                                                       TextWrapping="Wrap" />
+                                            <TextBlock Grid.Column="1"
+                                                       VerticalAlignment="Bottom"
+                                                       Foreground="#6B7280"
+                                                       FontSize="11"
+                                                       Text="{Binding FullTimestampText}" />
+                                        </Grid>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+
+                <TextBlock HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           Foreground="#6B7280"
+                           IsVisible="{Binding IsHistoryEmpty}"
+                           Text="通知はまだありません。" />
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

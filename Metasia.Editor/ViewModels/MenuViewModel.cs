@@ -17,9 +17,11 @@ using Metasia.Editor.Services;
 using Metasia.Editor.Models.EditCommands.Commands;
 using Metasia.Editor.Models.EditCommands;
 using Metasia.Editor.Services.PluginService;
+using Metasia.Editor.Services.Notification;
 using Metasia.Core.Objects;
 using Metasia.Editor.Plugin;
 using Avalonia.Controls;
+using Metasia.Editor.ViewModels.Notifications;
 
 namespace Metasia.Editor.ViewModels
 {
@@ -42,6 +44,7 @@ namespace Metasia.Editor.ViewModels
         public ICommand ClearTimelineSelection { get; }
         public ICommand OpenOutput { get; }
         public ICommand OpenPluginList { get; }
+        public ICommand OpenNotifications { get; }
         public ICommand Exit { get; }
 
         public ObservableCollection<object> SettingsMenuItems { get; }
@@ -51,6 +54,7 @@ namespace Metasia.Editor.ViewModels
         public Interaction<Unit, Unit> OpenSettingsInteraction { get; } = new();
         public Interaction<PluginListViewModel, Unit> PluginListInteraction { get; } = new();
         public Interaction<IPluginSettingsProvider, Unit> OpenPluginSettingsInteraction { get; } = new();
+        public Interaction<NotificationCenterViewModel, Unit> OpenNotificationsInteraction { get; } = new();
         public Interaction<Unit, Unit> ExitInteraction { get; } = new();
 
         private readonly IFileDialogService _fileDialogService;
@@ -62,6 +66,8 @@ namespace Metasia.Editor.ViewModels
         private readonly PlayerParentViewModel _playerParentViewModel;
         private readonly TimelineParentViewModel _timelineParentViewModel;
         private readonly IPluginService _pluginService;
+        private readonly INotificationService _notificationService;
+        private readonly NotificationCenterViewModel _notificationCenterViewModel;
 
         public MenuViewModel(
             PlayerParentViewModel playerParentViewModel,
@@ -73,7 +79,9 @@ namespace Metasia.Editor.ViewModels
             IEditCommandManager editCommandManager,
             INewProjectViewModelFactory newProjectViewModelFactory,
             IOutputViewModelFactory outputViewModelFactory,
-            IPluginService pluginService)
+            IPluginService pluginService,
+            INotificationService notificationService,
+            NotificationCenterViewModel notificationCenterViewModel)
         {
             _playerParentViewModel = playerParentViewModel;
             _timelineParentViewModel = timelineParentViewModel;
@@ -84,6 +92,8 @@ namespace Metasia.Editor.ViewModels
             _outputViewModelFactory = outputViewModelFactory;
             _editCommandManager = editCommandManager;
             _pluginService = pluginService;
+            _notificationService = notificationService;
+            _notificationCenterViewModel = notificationCenterViewModel;
 
             LoadEditingProject = ReactiveCommand.CreateFromTask(LoadEditingProjectExecuteAsync);
             CreateNewProject = ReactiveCommand.CreateFromTask(CreateNewProjectExecuteAsync);
@@ -94,6 +104,7 @@ namespace Metasia.Editor.ViewModels
             ClearTimelineSelection = ReactiveCommand.Create(ClearTimelineSelectionMethod);
             OpenOutput = ReactiveCommand.CreateFromTask(OpenOutputExecuteAsync);
             OpenPluginList = ReactiveCommand.CreateFromTask(OpenPluginListExecuteAsync);
+            OpenNotifications = ReactiveCommand.CreateFromTask(OpenNotificationsExecuteAsync);
             Exit = ReactiveCommand.CreateFromTask(ExitExecuteAsync);
 
             Undo = ReactiveCommand.Create(UndoExecute);
@@ -174,6 +185,9 @@ namespace Metasia.Editor.ViewModels
             catch (Exception ex)
             {
                 Debug.WriteLine($"新規プロジェクト作成エラー: {ex.Message}");
+                _notificationService.ShowError(
+                    "新規プロジェクト作成失敗",
+                    $"新しいプロジェクトを作成できませんでした。\n{ex.Message}");
             }
         }
 
@@ -213,16 +227,19 @@ namespace Metasia.Editor.ViewModels
             catch (Exception ex)
             {
                 Debug.WriteLine($"プロジェクト上書き保存エラー: {ex.Message}");
+                _notificationService.ShowError(
+                    "プロジェクト保存失敗",
+                    $"プロジェクトの保存に失敗しました。\n{ex.Message}");
             }
         }
 
         private async Task LoadEditingProjectExecuteAsync()
         {
-            var file = await _fileDialogService.OpenFileDialogAsync("プロジェクトを開く", new[] { "*.mtpj" });
-            if (file is null) return;
-
             try
             {
+                var file = await _fileDialogService.OpenFileDialogAsync("プロジェクトを開く", new[] { "*.mtpj" });
+                if (file is null) return;
+
                 string filePath = file.Path.LocalPath;
                 MetasiaEditorProject editorProject = ProjectSaveLoadManager.Load(filePath);
                 editorProject.ProjectFilePath = filePath;
@@ -231,6 +248,9 @@ namespace Metasia.Editor.ViewModels
             catch (Exception ex)
             {
                 Debug.WriteLine($"プロジェクト読込エラー: {ex.Message}");
+                _notificationService.ShowError(
+                    "プロジェクト読込失敗",
+                    $"プロジェクトを開けませんでした。\n{ex.Message}");
             }
         }
 
@@ -287,6 +307,9 @@ namespace Metasia.Editor.ViewModels
             catch (Exception ex)
             {
                 Debug.WriteLine($"出力ウィンドウオープンエラー: {ex.Message}");
+                _notificationService.ShowError(
+                    "出力ウィンドウ表示失敗",
+                    $"出力ウィンドウを開けませんでした。\n{ex.Message}");
             }
         }
 
@@ -300,6 +323,24 @@ namespace Metasia.Editor.ViewModels
             catch (Exception ex)
             {
                 Debug.WriteLine($"プラグイン一覧ウィンドウオープンエラー: {ex.Message}");
+                _notificationService.ShowError(
+                    "プラグイン一覧表示失敗",
+                    $"プラグイン一覧を開けませんでした。\n{ex.Message}");
+            }
+        }
+
+        private async Task OpenNotificationsExecuteAsync()
+        {
+            try
+            {
+                await OpenNotificationsInteraction.Handle(_notificationCenterViewModel);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"通知履歴ウィンドウオープンエラー: {ex.Message}");
+                _notificationService.ShowError(
+                    "通知履歴表示失敗",
+                    $"通知履歴を開けませんでした。\n{ex.Message}");
             }
         }
 

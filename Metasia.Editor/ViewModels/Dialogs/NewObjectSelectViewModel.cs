@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
@@ -12,6 +12,7 @@ using Metasia.Core.Sounds;
 using Metasia.Core.Objects.VisualEffects;
 using Metasia.Core.Render;
 using Metasia.Editor.Models;
+using Metasia.Editor.Services.PluginService;
 
 namespace Metasia.Editor.ViewModels.Dialogs;
 
@@ -21,6 +22,7 @@ public class ObjectTypeInfo
     public string Description { get; set; } = string.Empty;
     public Type ObjectType { get; set; } = typeof(Text);
     public string Identifier { get; set; } = string.Empty;
+    public string? GroupName { get; set; }
 }
 
 public class NewObjectSelectViewModel : ViewModelBase
@@ -53,9 +55,16 @@ public class NewObjectSelectViewModel : ViewModelBase
     }
 
     private Collection<TargetType> _targetTypes = new();
+    private readonly IPluginService? _pluginService;
 
     public NewObjectSelectViewModel(params TargetType[] targetTypes)
+        : this(null, targetTypes)
     {
+    }
+
+    public NewObjectSelectViewModel(IPluginService? pluginService, params TargetType[] targetTypes)
+    {
+        _pluginService = pluginService;
         foreach (var type in targetTypes)
         {
             _targetTypes.Add(type);
@@ -73,7 +82,6 @@ public class NewObjectSelectViewModel : ViewModelBase
                 var instance = Activator.CreateInstance(SelectedObjectType.ObjectType) as IMetasiaObject;
                 if (instance is not null)
                 {
-                    // ランダムなUUIDを生成してIDに設定
                     instance.Id = Guid.NewGuid().ToString();
                 }
                 return instance;
@@ -83,7 +91,6 @@ public class NewObjectSelectViewModel : ViewModelBase
 
         CancelCommand = ReactiveCommand.Create(() => (IMetasiaObject?)null);
 
-        // 検索テキストの変更を監視してフィルタリングを実行
         this.WhenAnyValue(x => x.SearchText)
             .Throttle(TimeSpan.FromMilliseconds(300))
             .ObserveOn(RxSchedulers.MainThreadScheduler)
@@ -96,100 +103,171 @@ public class NewObjectSelectViewModel : ViewModelBase
 
         if (_targetTypes.Contains(TargetType.Clip))
         {
-            List<(Type type, Attribute attribute)> objectTypes = new();
-            objectTypes.AddRange(Assembly.GetAssembly(typeof(ClipObject))!
-                .GetTypes()
-                .Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(ClipObject)))
-                .Select(t => (
-                    Type: t,
-                    Attribute: t.GetCustomAttribute<ClipTypeIdentifierAttribute>()
-                ))
-                .Where(x => x.Attribute is not null)
-                .OrderBy(x => x.Attribute!.Identifier)
-                .Select(x => (type: x.Type, attribute: (Attribute)x.Attribute!)));
-
-            foreach (var objectType in objectTypes)
-            {
-                var identifier = ((ClipTypeIdentifierAttribute)objectType.attribute).Identifier;
-                var displayName = DisplayTextResolver.ResolveClipDisplayName(objectType.type);
-                var description = $"{displayName}オブジェクトを追加します";
-
-                AvailableObjectTypes.Add(new ObjectTypeInfo
-                {
-                    DisplayName = displayName,
-                    Description = description,
-                    ObjectType = objectType.type,
-                    Identifier = identifier
-                });
-            }
+            LoadCoreClipTypes();
+            LoadPluginClipTypes();
         }
 
         if (_targetTypes.Contains(TargetType.AudioEffect))
         {
-            List<(Type type, Attribute attribute)> objectTypes = new();
-            objectTypes.AddRange(Assembly.GetAssembly(typeof(IAudioEffect))!
-                .GetTypes()
-                .Where(t => t.IsClass && !t.IsAbstract && typeof(IAudioEffect).IsAssignableFrom(t))
-                .Select(t => (
-                    Type: t,
-                    Attribute: t.GetCustomAttribute<AudioEffectIdentifierAttribute>()
-                ))
-                .Where(x => x.Attribute is not null)
-                .OrderBy(x => x.Attribute!.Identifier)
-                .Select(x => (type: x.Type, attribute: (Attribute)x.Attribute!)));
-
-            foreach (var objectType in objectTypes)
-            {
-                var identifier = ((AudioEffectIdentifierAttribute)objectType.attribute).Identifier;
-                var displayName = DisplayTextResolver.ResolveAudioEffectDisplayName(objectType.type);
-                var description = $"{displayName}エフェクトを追加します";
-
-                AvailableObjectTypes.Add(new ObjectTypeInfo
-                {
-                    DisplayName = displayName,
-                    Description = description,
-                    ObjectType = objectType.type,
-                    Identifier = identifier
-                });
-            }
+            LoadCoreAudioEffectTypes();
+            LoadPluginAudioEffectTypes();
         }
 
         if (_targetTypes.Contains(TargetType.VisualEffect))
         {
-            List<(Type type, Attribute attribute)> objectTypes = new();
-            objectTypes.AddRange(Assembly.GetAssembly(typeof(IVisualEffect))!
-                .GetTypes()
-                .Where(t => t.IsClass && !t.IsAbstract && typeof(IVisualEffect).IsAssignableFrom(t))
-                .Select(t => (
-                    Type: t,
-                    Attribute: t.GetCustomAttribute<VisualEffectIdentifierAttribute>()
-                ))
-                .Where(x => x.Attribute is not null)
-                .OrderBy(x => x.Attribute!.Identifier)
-                .Select(x => (type: x.Type, attribute: (Attribute)x.Attribute!)));
-
-            foreach (var objectType in objectTypes)
-            {
-                var identifier = ((VisualEffectIdentifierAttribute)objectType.attribute).Identifier;
-                var displayName = DisplayTextResolver.ResolveVisualEffectDisplayName(objectType.type);
-                var description = $"{displayName}エフェクトを追加します";
-
-                AvailableObjectTypes.Add(new ObjectTypeInfo
-                {
-                    DisplayName = displayName,
-                    Description = description,
-                    ObjectType = objectType.type,
-                    Identifier = identifier
-                });
-            }
+            LoadCoreVisualEffectTypes();
+            LoadPluginVisualEffectTypes();
         }
 
-        // 初期状態ではすべてのオブジェクトを表示
         FilterObjectTypes();
 
         if (FilteredObjectTypes.Count > 0)
         {
             SelectedObjectType = FilteredObjectTypes[0];
+        }
+    }
+
+    private void LoadCoreClipTypes()
+    {
+        List<(Type type, Attribute attribute)> objectTypes = new();
+        objectTypes.AddRange(Assembly.GetAssembly(typeof(ClipObject))!
+            .GetTypes()
+            .Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(ClipObject)))
+            .Select(t => (
+                Type: t,
+                Attribute: t.GetCustomAttribute<ClipTypeIdentifierAttribute>()
+            ))
+            .Where(x => x.Attribute is not null)
+            .OrderBy(x => x.Attribute!.Identifier)
+            .Select(x => (type: x.Type, attribute: (Attribute)x.Attribute!)));
+
+        foreach (var objectType in objectTypes)
+        {
+            var identifier = ((ClipTypeIdentifierAttribute)objectType.attribute).Identifier;
+            var displayName = DisplayTextResolver.ResolveClipDisplayName(objectType.type);
+            var description = $"{displayName}オブジェクトを追加します";
+
+            AvailableObjectTypes.Add(new ObjectTypeInfo
+            {
+                DisplayName = displayName,
+                Description = description,
+                ObjectType = objectType.type,
+                Identifier = identifier
+            });
+        }
+    }
+
+    private void LoadCoreAudioEffectTypes()
+    {
+        List<(Type type, Attribute attribute)> objectTypes = new();
+        objectTypes.AddRange(Assembly.GetAssembly(typeof(IAudioEffect))!
+            .GetTypes()
+            .Where(t => t.IsClass && !t.IsAbstract && typeof(IAudioEffect).IsAssignableFrom(t))
+            .Select(t => (
+                Type: t,
+                Attribute: t.GetCustomAttribute<AudioEffectIdentifierAttribute>()
+            ))
+            .Where(x => x.Attribute is not null)
+            .OrderBy(x => x.Attribute!.Identifier)
+            .Select(x => (type: x.Type, attribute: (Attribute)x.Attribute!)));
+
+        foreach (var objectType in objectTypes)
+        {
+            var identifier = ((AudioEffectIdentifierAttribute)objectType.attribute).Identifier;
+            var displayName = DisplayTextResolver.ResolveAudioEffectDisplayName(objectType.type);
+            var description = $"{displayName}エフェクトを追加します";
+
+            AvailableObjectTypes.Add(new ObjectTypeInfo
+            {
+                DisplayName = displayName,
+                Description = description,
+                ObjectType = objectType.type,
+                Identifier = identifier
+            });
+        }
+    }
+
+    private void LoadCoreVisualEffectTypes()
+    {
+        List<(Type type, Attribute attribute)> objectTypes = new();
+        objectTypes.AddRange(Assembly.GetAssembly(typeof(IVisualEffect))!
+            .GetTypes()
+            .Where(t => t.IsClass && !t.IsAbstract && typeof(IVisualEffect).IsAssignableFrom(t))
+            .Select(t => (
+                Type: t,
+                Attribute: t.GetCustomAttribute<VisualEffectIdentifierAttribute>()
+            ))
+            .Where(x => x.Attribute is not null)
+            .OrderBy(x => x.Attribute!.Identifier)
+            .Select(x => (type: x.Type, attribute: (Attribute)x.Attribute!)));
+
+        foreach (var objectType in objectTypes)
+        {
+            var identifier = ((VisualEffectIdentifierAttribute)objectType.attribute).Identifier;
+            var displayName = DisplayTextResolver.ResolveVisualEffectDisplayName(objectType.type);
+            var description = $"{displayName}エフェクトを追加します";
+
+            AvailableObjectTypes.Add(new ObjectTypeInfo
+            {
+                DisplayName = displayName,
+                Description = description,
+                ObjectType = objectType.type,
+                Identifier = identifier
+            });
+        }
+    }
+
+    private void LoadPluginClipTypes()
+    {
+        if (_pluginService is null) return;
+
+        foreach (var pluginType in _pluginService.PluginClipTypes)
+        {
+            var description = $"{pluginType.DisplayName}オブジェクトを追加します";
+            AvailableObjectTypes.Add(new ObjectTypeInfo
+            {
+                DisplayName = pluginType.DisplayName,
+                Description = description,
+                ObjectType = pluginType.Type,
+                Identifier = pluginType.TypeId,
+                GroupName = pluginType.PluginName
+            });
+        }
+    }
+
+    private void LoadPluginAudioEffectTypes()
+    {
+        if (_pluginService is null) return;
+
+        foreach (var pluginType in _pluginService.PluginAudioEffectTypes)
+        {
+            var description = $"{pluginType.DisplayName}エフェクトを追加します";
+            AvailableObjectTypes.Add(new ObjectTypeInfo
+            {
+                DisplayName = pluginType.DisplayName,
+                Description = description,
+                ObjectType = pluginType.Type,
+                Identifier = pluginType.TypeId,
+                GroupName = pluginType.PluginName
+            });
+        }
+    }
+
+    private void LoadPluginVisualEffectTypes()
+    {
+        if (_pluginService is null) return;
+
+        foreach (var pluginType in _pluginService.PluginVisualEffectTypes)
+        {
+            var description = $"{pluginType.DisplayName}エフェクトを追加します";
+            AvailableObjectTypes.Add(new ObjectTypeInfo
+            {
+                DisplayName = pluginType.DisplayName,
+                Description = description,
+                ObjectType = pluginType.Type,
+                Identifier = pluginType.TypeId,
+                GroupName = pluginType.PluginName
+            });
         }
     }
 
@@ -199,7 +277,6 @@ public class NewObjectSelectViewModel : ViewModelBase
 
         if (string.IsNullOrWhiteSpace(SearchText))
         {
-            // 検索テキストが空の場合はすべて表示
             foreach (var item in AvailableObjectTypes)
             {
                 FilteredObjectTypes.Add(item);
@@ -207,7 +284,6 @@ public class NewObjectSelectViewModel : ViewModelBase
         }
         else
         {
-            // 検索テキストでフィルタリング
             var searchText = SearchText.ToLowerInvariant();
             var filteredItems = AvailableObjectTypes.Where(item =>
                 item.DisplayName.ToLowerInvariant().Contains(searchText) ||
@@ -220,7 +296,6 @@ public class NewObjectSelectViewModel : ViewModelBase
             }
         }
 
-        // 現在の選択がフィルタ結果に含まれていない場合は最初の項目を選択
         if (SelectedObjectType is null || !FilteredObjectTypes.Contains(SelectedObjectType))
         {
             SelectedObjectType = FilteredObjectTypes.FirstOrDefault();

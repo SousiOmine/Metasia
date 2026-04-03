@@ -22,11 +22,11 @@ namespace Metasia.Core.Tests.Objects.AudioEffects
         }
 
         /// <summary>
-        /// 入力がnullの場合、元の入力を返すことを確認するテスト
+        /// 入力がnullの場合、ArgumentNullExceptionがスローされることを確認するテスト
         /// 入力チェックの命令網羅テスト
         /// </summary>
         [Test]
-        public void Apply_InputIsNull_ReturnsOriginalInput()
+        public void Apply_InputIsNull_ThrowsArgumentNullException()
         {
             // Arrange
             IAudioChunk input = null;
@@ -34,11 +34,8 @@ namespace Metasia.Core.Tests.Objects.AudioEffects
                 new Mock<IAudible>().Object,
                 new GetAudioContext(_stereoFormat, 0, 100, 60.0, 1.0));
 
-            // Act
-            var result = _effect.Apply(input, mockContext.Object);
-
-            // Assert
-            Assert.That(result, Is.Null);
+            // Act & Assert
+            Assert.Throws<ArgumentNullException>(() => _effect.Apply(input, mockContext.Object));
         }
 
         /// <summary>

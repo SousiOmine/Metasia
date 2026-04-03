@@ -12,6 +12,7 @@ using Metasia.Editor.Models.Projects;
 using Metasia.Editor.Models.States;
 using Metasia.Editor.Plugin;
 using Metasia.Editor.Services;
+using Metasia.Editor.Services.Notification;
 using Metasia.Editor.Services.PluginService;
 using ReactiveUI;
 
@@ -69,6 +70,7 @@ public class OutputViewModel : ViewModelBase
     private readonly IFileDialogService _fileDialogService;
     private readonly IPluginService _pluginService;
     private readonly IEncodeService _encodeService;
+    private readonly INotificationService _notificationService;
     private IMediaOutputSession? _selectedOutputSession;
 
     public IMediaOutputSession? SelectedOutputSession
@@ -86,7 +88,8 @@ public class OutputViewModel : ViewModelBase
         MediaAccessorRouter mediaAccessorRouter,
         IFileDialogService fileDialogService,
         IPluginService pluginService,
-        IEncodeService encodeService
+        IEncodeService encodeService,
+        INotificationService notificationService
     )
     {
         _projectState = projectState;
@@ -94,6 +97,7 @@ public class OutputViewModel : ViewModelBase
         _fileDialogService = fileDialogService;
         _pluginService = pluginService;
         _encodeService = encodeService;
+        _notificationService = notificationService;
 
         CancelCommand = ReactiveCommand.Create(Cancel);
         SelectOutputPathCommand = ReactiveCommand.CreateFromTask(SelectOutputPathExecuteAsync);
@@ -204,44 +208,63 @@ public class OutputViewModel : ViewModelBase
         if (_encoders is null || _encoders.Count == 0)
         {
             Console.Error.WriteLine("Error: No encoders available");
+            _notificationService.ShowError("出力失敗", "利用可能なエンコーダーがありません。");
             return;
         }
 
         if (SelectedEncoderIndex < 0 || SelectedEncoderIndex >= _encoders.Count)
         {
             Console.Error.WriteLine($"Error: SelectedEncoderIndex {SelectedEncoderIndex} is out of bounds (0-{_encoders.Count - 1})");
+            _notificationService.ShowError("出力失敗", "出力方式の選択が不正です。");
             return;
         }
 
         if (_projectState.CurrentProject is null)
         {
             Console.Error.WriteLine("Error: No current project loaded");
+            _notificationService.ShowError("出力失敗", "出力するプロジェクトが開かれていません。");
             return;
         }
 
         var encoderInfo = _encoders[SelectedEncoderIndex];
-        var encoder = encoderInfo.CreateEncoder(SelectedOutputSession);
         var project = _projectState.CurrentProject.CreateMetasiaProject();
 
         if (project.Timelines is null || project.Timelines.Count == 0)
         {
             Console.Error.WriteLine("Error: Project has no timelines");
+            _notificationService.ShowError("出力失敗", "出力可能なタイムラインがありません。");
             return;
         }
 
         if (SelectedTimelineIndex < 0 || SelectedTimelineIndex >= project.Timelines.Count)
         {
             Console.Error.WriteLine($"Error: SelectedTimelineIndex {SelectedTimelineIndex} is out of bounds (0-{project.Timelines.Count - 1})");
+            _notificationService.ShowError("出力失敗", "タイムラインの選択が不正です。");
             return;
         }
 
-        var timeline = project.Timelines[SelectedTimelineIndex];
-        var imageFileAccessor = _mediaAccessorRouter;
-        var videoFileAccessor = _mediaAccessorRouter;
-        var projectPath = GetProjectPath();
-        encoder.Initialize(project, timeline, imageFileAccessor, videoFileAccessor, videoFileAccessor as IAudioFileAccessor, projectPath, OutputPath);
+        if (string.IsNullOrWhiteSpace(OutputPath))
+        {
+            Console.Error.WriteLine("Error: OutputPath is empty");
+            _notificationService.ShowError("出力失敗", "出力先を指定してください。");
+            return;
+        }
 
-        _encodeService.QueueEncode(encoder);
+        try
+        {
+            var encoder = encoderInfo.CreateEncoder(SelectedOutputSession);
+            var timeline = project.Timelines[SelectedTimelineIndex];
+            var imageFileAccessor = _mediaAccessorRouter;
+            var videoFileAccessor = _mediaAccessorRouter;
+            var projectPath = GetProjectPath();
+            encoder.Initialize(project, timeline, imageFileAccessor, videoFileAccessor, videoFileAccessor as IAudioFileAccessor, projectPath, OutputPath);
+            _encodeService.QueueEncode(encoder);
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error: Failed to queue encode. {ex}");
+            _notificationService.ShowError("出力失敗", $"出力処理を開始できませんでした。\n{ex.Message}");
+        }
     }
 
     private string GetProjectPath()

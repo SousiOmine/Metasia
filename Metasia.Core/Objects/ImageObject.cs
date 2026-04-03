@@ -49,7 +49,7 @@ public class ImageObject : ClipObject, IRenderable
     public async Task<IRenderNode> RenderAsync(RenderContext context, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-
+        ArgumentNullException.ThrowIfNull(context);
 
         int relativeFrame = context.Frame - StartFrame;
         int clipLength = EndFrame - StartFrame + 1;
@@ -59,7 +59,7 @@ public class ImageObject : ClipObject, IRenderable
         }
 
         long imageHashCode = GetImageHashCode();
-        SKImage? image = context?.ImageCache?.TryGet(imageHashCode);
+        SKImage? image = context.ImageCache?.TryGet(imageHashCode);
 
         if (image is null)
         {
@@ -89,8 +89,8 @@ public class ImageObject : ClipObject, IRenderable
             Rotation = (float)Rotation.Get(relativeFrame, clipLength),
             Alpha = (100.0f - (float)Alpha.Get(relativeFrame, clipLength)) / 100,
         };
-        var logicalSize = new SKSize(image.Width, image.Height);
-        var finalResult = VisualEffectPipeline.ApplyEffects(image, VisualEffects, context, StartFrame, EndFrame, logicalSize, imageCacheKey: imageHashCode);
+        var logicalSize = new SKSize(image!.Width, image!.Height);
+        var finalResult = VisualEffectPipeline.ApplyEffects(image!, VisualEffects, context!, StartFrame, EndFrame, logicalSize, imageCacheKey: imageHashCode);
         return new NormalRenderNode()
         {
             Image = finalResult.Image,

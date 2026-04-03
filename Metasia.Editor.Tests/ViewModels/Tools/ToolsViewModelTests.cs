@@ -104,6 +104,9 @@ public class ToolsViewModelTests
         public List<IEditorPlugin> EditorPlugins { get; } = [];
         public List<IMediaInputPlugin> MediaInputPlugins { get; } = [];
         public List<IMediaOutputPlugin> MediaOutputPlugins { get; } = [];
+        public IReadOnlyList<PluginTypeInfo> PluginClipTypes { get; } = [];
+        public IReadOnlyList<PluginTypeInfo> PluginVisualEffectTypes { get; } = [];
+        public IReadOnlyList<PluginTypeInfo> PluginAudioEffectTypes { get; } = [];
         public List<LeftPanePanelDefinition> Panels { get; } = [];
 
         public Task<IEnumerable<IEditorPlugin>> LoadPluginsAsync()

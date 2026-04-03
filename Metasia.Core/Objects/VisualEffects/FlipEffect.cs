@@ -17,9 +17,9 @@ public class FlipEffect : VisualEffectBase
     [EditableProperty("FlipVertical", DisplayKey = "property.effect.flip.vertical", FallbackText = "上下反転")]
     public bool FlipVertical { get; set; } = false;
 
-    public override VisualEffectResult Apply(SKImage input, VisualEffectContext context)
-    {
-        if (input is null) return new VisualEffectResult(input, context.TargetImageCacheKey);
+        public override VisualEffectResult Apply(SKImage input, VisualEffectContext context)
+        {
+            ArgumentNullException.ThrowIfNull(input);
 
         if (!FlipHorizontal && !FlipVertical)
         {

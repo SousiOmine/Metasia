@@ -14,6 +14,7 @@ public class LayerCanvasViewModelFactory : ILayerCanvasViewModelFactory
     private readonly IProjectState projectState;
     private readonly ITimelineViewState timelineViewState;
     private readonly IDropHandlerRegistry dropHandlerRegistry;
+    private readonly INewObjectSelectViewModelFactory _newObjectSelectViewModelFactory;
 
     public LayerCanvasViewModelFactory(
         IClipViewModelFactory clipViewModelFactory,
@@ -21,7 +22,8 @@ public class LayerCanvasViewModelFactory : ILayerCanvasViewModelFactory
         IEditCommandManager editCommandManager,
         IProjectState projectState,
         ITimelineViewState timelineViewState,
-        IDropHandlerRegistry dropHandlerRegistry)
+        IDropHandlerRegistry dropHandlerRegistry,
+        INewObjectSelectViewModelFactory newObjectSelectViewModelFactory)
     {
         ArgumentNullException.ThrowIfNull(clipViewModelFactory);
         ArgumentNullException.ThrowIfNull(selectionState);
@@ -29,12 +31,14 @@ public class LayerCanvasViewModelFactory : ILayerCanvasViewModelFactory
         ArgumentNullException.ThrowIfNull(projectState);
         ArgumentNullException.ThrowIfNull(timelineViewState);
         ArgumentNullException.ThrowIfNull(dropHandlerRegistry);
+        ArgumentNullException.ThrowIfNull(newObjectSelectViewModelFactory);
         _clipViewModelFactory = clipViewModelFactory;
         this.selectionState = selectionState;
         this.editCommandManager = editCommandManager;
         this.projectState = projectState;
         this.timelineViewState = timelineViewState;
         this.dropHandlerRegistry = dropHandlerRegistry;
+        _newObjectSelectViewModelFactory = newObjectSelectViewModelFactory;
     }
 
     public LayerCanvasViewModel Create(TimelineViewModel parentTimelineViewModel, LayerObject targetLayerObject)
@@ -49,7 +53,8 @@ public class LayerCanvasViewModelFactory : ILayerCanvasViewModelFactory
             selectionState,
             editCommandManager,
             timelineViewState,
-            dropHandlerRegistry);
+            dropHandlerRegistry,
+            _newObjectSelectViewModelFactory);
     }
 
 }

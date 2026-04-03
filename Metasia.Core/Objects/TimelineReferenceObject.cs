@@ -118,7 +118,7 @@ public class TimelineReferenceObject : ClipObject, IRenderable, IAudible
         int clipLength = EndFrame - StartFrame + 1;
         int sourceFrame = (int)Math.Floor(SourceStartFrame.Value);
         int targetFrame = relativeFrame + sourceFrame;
-        int lastFrame = targetTimeline.GetLastFrameOfClips();
+        int lastFrame = targetTimeline!.GetLastFrameOfClips();
         if (targetFrame < 0 || targetFrame > lastFrame)
         {
             return new NormalRenderNode();
@@ -215,7 +215,7 @@ public class TimelineReferenceObject : ClipObject, IRenderable, IAudible
                 return ApplyAudioEffects(result, context);
             }
 
-            double targetDuration = Math.Max(0, targetTimeline.GetLastFrameOfClips()) / context.ProjectFrameRate;
+            double targetDuration = Math.Max(0, targetTimeline!.GetLastFrameOfClips()) / context.ProjectFrameRate;
             var referencedContext = context.CreateReferencedTimelineContext(
                 targetTimeline,
                 referencedStartSample,
