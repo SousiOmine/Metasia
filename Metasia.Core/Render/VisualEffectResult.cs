@@ -22,9 +22,10 @@ namespace Metasia.Core.Render
 
         public VisualEffectResult(SKImage image, long imageCacheKey, SKSize? logicalSize = null)
         {
+            ArgumentNullException.ThrowIfNull(image);
             Image = image;
             ImageCacheKey = imageCacheKey;
-            LogicalSize = logicalSize ?? (image != null ? new SKSize(image.Width, image.Height) : SKSize.Empty);
+            LogicalSize = logicalSize ?? new SKSize(image.Width, image.Height);
         }
     }
 }

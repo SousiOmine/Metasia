@@ -23,7 +23,7 @@ namespace Metasia.Core.Objects.VisualEffects
 
         public override VisualEffectResult Apply(SKImage input, VisualEffectContext context)
         {
-            if (input is null) return new VisualEffectResult(input, context.TargetImageCacheKey);
+            ArgumentNullException.ThrowIfNull(input);
 
             int relativeFrame = context.RelativeFrame;
             int clipLength = context.ClipLength;

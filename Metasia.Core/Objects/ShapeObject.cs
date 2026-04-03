@@ -175,7 +175,7 @@ namespace Metasia.Core.Objects
                 Alpha = (100.0f - (float)Alpha.Get(relativeFrame, clipLength)) / 100,
             };
 
-            var finalResult = VisualEffectPipeline.ApplyEffects(image, VisualEffects, context, StartFrame, EndFrame, logicalSize, imageCacheKey: imageCacheKey);
+            var finalResult = VisualEffectPipeline.ApplyEffects(image!, VisualEffects, context!, StartFrame, EndFrame, logicalSize, imageCacheKey: imageCacheKey);
 
             return Task.FromResult<IRenderNode>(new NormalRenderNode()
             {
