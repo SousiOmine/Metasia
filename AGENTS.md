@@ -26,15 +26,19 @@ Metasiaは主にC# (.NET 9.0) とAvalonia UIによって構築されています
     * アーキテクチャとしてMVVMパターンを採用しています。
     * 依存関係の構築に`Microsoft.Extensions.DependencyInjection`を使用しています。
 
-3.  **`Metasia.Editor.Plugin`**
+3.  **`Metasia.Editor.Abstractions`**
+    * `Metasia.Editor`と`Metasia.Editor.Plugin`の間で共有されるインターフェースや共通の型定義を提供します。
+    * `Avalonia UI`に依存しません。
+
+4.  **`Metasia.Editor.Plugin`**
     * `Metasia.Editor`のプラグインを定義するプロジェクトです。
     * プラグインは、`Metasia.Editor`の機能を拡張するためのインターフェースを提供します。
 
-4.  **`Metasia.Core.Tests`**
+5.  **`Metasia.Core.Tests`**
     * `Metasia.Core`ライブラリの単体テストプロジェクトです。
     * NUnitフレームワークを使用しています。
 
-5.  **`Metasia.Editor.Tests`**
+6.  **`Metasia.Editor.Tests`**
     * `Metasia.Editor`アプリケーションの単体テストプロジェクトです。
     * NUnitとMoqフレームワークを使用しています。
 
