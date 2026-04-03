@@ -13,7 +13,7 @@ public class TypeRegistry
 
     private readonly Dictionary<Type, string> _typeIds = new();
 
-    private readonly Dictionary<string, string> _typeIdByTypeName= new();
+    private readonly Dictionary<string, string> _typeIdByTypeName = new();
 
     public void Register(string prefix, string typeName, Type type)
     {

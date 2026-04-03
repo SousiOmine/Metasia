@@ -1,4 +1,7 @@
 using Metasia.Editor.Services.Notification;
+using Metasia.Editor.Models.States;
+using Metasia.Editor.Models.EditCommands;
+using Metasia.Editor.Abstractions.Notification;
 using Metasia.Editor.ViewModels.Notifications;
 
 namespace Metasia.Editor.Tests.ViewModels.Notifications;

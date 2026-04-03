@@ -1,3 +1,5 @@
+using Metasia.Editor.Models.States;
+using Metasia.Editor.Models.EditCommands;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -5,9 +7,8 @@ using ReactiveUI;
 using Metasia.Editor.ViewModels.Inspector;
 using Metasia.Core.Objects;
 using Metasia.Editor.Models;
-using Metasia.Editor.Models.EditCommands;
-using Metasia.Editor.Models.States;
-using Metasia.Editor.ViewModels.Inspector;
+using Metasia.Editor.Abstractions.EditCommands;
+using Metasia.Editor.Abstractions.States;
 
 namespace Metasia.Editor.ViewModels
 {

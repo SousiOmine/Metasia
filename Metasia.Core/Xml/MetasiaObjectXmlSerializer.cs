@@ -59,7 +59,7 @@ namespace Metasia.Core.Xml
             {
                 throw new ArgumentException("XMLが空です。", nameof(xml));
             }
-        
+
             var doc = XDocument.Parse(xml);
             doc = new XDocument(PreProcessDeserialized(doc.Root!));
 
@@ -109,7 +109,7 @@ namespace Metasia.Core.Xml
         {
             string? typeId = element.Attribute("typeId")?.Value;
             string? typeKind = element.Attribute("typeKind")?.Value;
-            
+
             if (typeId is not null)
             {
                 var type = Registry.GetType(typeId);

@@ -1,3 +1,6 @@
+using Metasia.Editor.Services.Notification;
+using Metasia.Editor.Models.States;
+using Metasia.Editor.Models.EditCommands;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using Metasia.Core.Encode;
@@ -8,10 +11,11 @@ using Metasia.Editor.Models.Media;
 using Metasia.Editor.Models.Projects;
 using Metasia.Editor.Models.FileSystem;
 using Metasia.Editor.Models.Settings;
-using Metasia.Editor.Models.States;
+using Metasia.Editor.Abstractions.Hosting;
+using Metasia.Editor.Abstractions.States;
 using Metasia.Editor.Plugin;
 using Metasia.Editor.Services;
-using Metasia.Editor.Services.Notification;
+using Metasia.Editor.Abstractions.Notification;
 using Metasia.Editor.Services.PluginService;
 using Metasia.Editor.ViewModels.Dialogs;
 
@@ -191,7 +195,7 @@ public class OutputViewModelTests
             return LastSession;
         }
 
-        public void Initialize()
+        public void Initialize(IEditorHostContext hostContext)
         {
         }
     }

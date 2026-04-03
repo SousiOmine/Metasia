@@ -1,4 +1,8 @@
-﻿// Metasia.Editor/Models/EditCommands/Commands/ClipResizeCommand.cs
+using Metasia.Editor.Services.Notification;
+using Metasia.Editor.Models.States;
+using Metasia.Editor.Models.EditCommands;
+using Metasia.Editor.Abstractions.EditCommands;
+// Metasia.Editor/Models/EditCommands/Commands/ClipResizeCommand.cs
 using Metasia.Core.Objects;
 using System;
 

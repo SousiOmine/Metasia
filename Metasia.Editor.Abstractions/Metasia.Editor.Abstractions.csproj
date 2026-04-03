@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Version>0.2.0</Version>
+
+    <IsPackable>true</IsPackable>
+    <PackageId>Metasia.Editor.Abstractions</PackageId>
+    <Author>SousiOmine</Author>
+    <Description>Metasiaエディタで実装する機能のうち、プラグインでも参照する可能性のあるコンポーネントを定義しておくライブラリ</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/SousiOmine/Metasia</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/SousiOmine/Metasia.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Metasia.Core\Metasia.Core.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,3 +1,6 @@
+using Metasia.Editor.Services.Notification;
+using Metasia.Editor.Models.States;
+using Metasia.Editor.Models.EditCommands;
 
 
 using System;
@@ -15,12 +18,12 @@ using Metasia.Core.Xml;
 using Metasia.Editor.Models;
 using Metasia.Editor.Models.DragDrop;
 using Metasia.Editor.Models.DragDrop.Handlers;
-using Metasia.Editor.Models.EditCommands;
+using Metasia.Editor.Abstractions.EditCommands;
 using Metasia.Editor.Models.Media;
-using Metasia.Editor.Models.States;
+using Metasia.Editor.Abstractions.States;
 using Metasia.Editor.Services;
 using Metasia.Editor.Services.Audio;
-using Metasia.Editor.Services.Notification;
+using Metasia.Editor.Abstractions.Notification;
 using Metasia.Editor.Services.PluginService;
 using Metasia.Editor.ViewModels;
 using Metasia.Editor.ViewModels.Dialogs;

@@ -153,6 +153,7 @@ jobs:
               run: |
                 VERSION=${GITHUB_REF#refs/tags/v}
                 dotnet pack Metasia.Core/Metasia.Core.csproj -c Release -o artifacts/packages -p:Version=$VERSION
+                dotnet pack Metasia.Editor.Abstractions/Metasia.Editor.Abstractions.csproj -c Release -o artifacts/packages -p:Version=$VERSION
                 dotnet pack Metasia.Editor.Plugin/Metasia.Editor.Plugin.csproj -c Release -o artifacts/packages -p:Version=$VERSION
                 dotnet nuget push ./artifacts/packages/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate
 

@@ -1,3 +1,6 @@
+using Metasia.Editor.Services.Notification;
+using Metasia.Editor.Models.States;
+using Metasia.Editor.Models.EditCommands;
 using NUnit.Framework;
 using Metasia.Editor.Models.Projects;
 

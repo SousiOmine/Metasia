@@ -1,3 +1,6 @@
+using Metasia.Editor.Services.Notification;
+using Metasia.Editor.Models.States;
+using Metasia.Editor.Models.EditCommands;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -7,7 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Threading;
-using Metasia.Editor.Services.Notification;
+using Metasia.Editor.Abstractions.Notification;
 using ReactiveUI;
 
 namespace Metasia.Editor.ViewModels.Notifications;

@@ -1,8 +1,6 @@
-using System;
 using Metasia.Core.Render.Cache;
 
-
-namespace Metasia.Editor.Models.States;
+namespace Metasia.Editor.Abstractions.States;
 
 public interface IPlaybackState : IDisposable
 {
@@ -34,7 +32,6 @@ public interface IPlaybackState : IDisposable
     /// <summary>
     /// 再生を開始する
     /// </summary>
-
     void Play();
 
     /// <summary>

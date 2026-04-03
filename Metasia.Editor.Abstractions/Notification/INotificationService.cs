@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-
-namespace Metasia.Editor.Services.Notification;
+namespace Metasia.Editor.Abstractions.Notification;
 
 public interface INotificationService
 {

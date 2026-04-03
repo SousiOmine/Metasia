@@ -1,3 +1,6 @@
+using Metasia.Editor.Services.Notification;
+using Metasia.Editor.Models.States;
+using Metasia.Editor.Models.EditCommands;
 using System;
 using System.Reactive;
 using System.Reactive.Disposables;
@@ -54,7 +57,7 @@ namespace Metasia.Editor.Views
             if (_menuView is not null && App.Current?.Services is not null)
             {
                 _menuView.DataContext = App.Current.Services.GetRequiredService<MenuViewModel>();
-                
+
                 if (_menuView.DataContext is MenuViewModel menuViewModel)
                 {
                     menuViewModel.ExitInteraction.RegisterHandler(async interaction =>

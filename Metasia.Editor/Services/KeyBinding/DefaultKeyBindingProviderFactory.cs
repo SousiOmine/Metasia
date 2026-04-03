@@ -1,3 +1,6 @@
+using Metasia.Editor.Services.Notification;
+using Metasia.Editor.Models.States;
+using Metasia.Editor.Models.EditCommands;
 using System.Runtime.InteropServices;
 
 namespace Metasia.Editor.Services.KeyBinding

@@ -1,6 +1,4 @@
-using System;
-
-namespace Metasia.Editor.Services.Notification;
+namespace Metasia.Editor.Abstractions.Notification;
 
 public class NotificationItem
 {

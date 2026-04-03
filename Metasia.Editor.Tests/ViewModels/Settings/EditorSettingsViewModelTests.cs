@@ -1,3 +1,6 @@
+using Metasia.Editor.Services.Notification;
+using Metasia.Editor.Models.States;
+using Metasia.Editor.Models.EditCommands;
 using Metasia.Core.Media;
 using Metasia.Editor.Models.Media;
 using Metasia.Editor.Models.Settings;
@@ -114,27 +117,27 @@ namespace Metasia.Editor.Tests.ViewModels.Settings
             public Task LoadAsync() => Task.CompletedTask;
             public Task SaveAsync() => Task.CompletedTask;
 
-        public void UpdateSettings(EditorSettings settings)
-        {
-            CurrentSettings = settings;
-            SettingsChanged?.Invoke();
-        }
+            public void UpdateSettings(EditorSettings settings)
+            {
+                CurrentSettings = settings;
+                SettingsChanged?.Invoke();
+            }
 
-        public Task UpdateSettingsAsync(EditorSettings settings)
-        {
-            UpdateSettings(settings);
-            return Task.CompletedTask;
-        }
+            public Task UpdateSettingsAsync(EditorSettings settings)
+            {
+                UpdateSettings(settings);
+                return Task.CompletedTask;
+            }
 
-        public void UpdateSettingsSilent(EditorSettings settings)
-        {
-            CurrentSettings = settings;
-        }
+            public void UpdateSettingsSilent(EditorSettings settings)
+            {
+                CurrentSettings = settings;
+            }
 
-        public void NotifySettingsChanged()
-        {
-            SettingsChanged?.Invoke();
+            public void NotifySettingsChanged()
+            {
+                SettingsChanged?.Invoke();
+            }
         }
     }
-}
 }

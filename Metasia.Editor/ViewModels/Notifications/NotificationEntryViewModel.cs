@@ -1,7 +1,10 @@
+using Metasia.Editor.Services.Notification;
+using Metasia.Editor.Models.States;
+using Metasia.Editor.Models.EditCommands;
 using System;
 using System.Windows.Input;
 using Avalonia.Media;
-using Metasia.Editor.Services.Notification;
+using Metasia.Editor.Abstractions.Notification;
 using ReactiveUI;
 
 namespace Metasia.Editor.ViewModels.Notifications;

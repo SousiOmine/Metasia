@@ -1,3 +1,6 @@
+using Metasia.Editor.Services.Notification;
+using Metasia.Editor.Models.States;
+using Metasia.Editor.Models.EditCommands;
 using Metasia.Core.Objects;
 using ReactiveUI;
 using System;
@@ -7,8 +10,8 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Windows.Input;
 using Metasia.Editor.Models.Interactor;
-using Metasia.Editor.Models.States;
-using Metasia.Editor.Models.EditCommands;
+using Metasia.Editor.Abstractions.States;
+using Metasia.Editor.Abstractions.EditCommands;
 using Metasia.Editor.Models.EditCommands.Commands;
 using Metasia.Editor.ViewModels.Dialogs;
 using Metasia.Editor.Models.DragDrop;

@@ -1,10 +1,13 @@
+using Metasia.Editor.Services.Notification;
+using Metasia.Editor.Models.States;
+using Metasia.Editor.Models.EditCommands;
 using Metasia.Core.Objects;
 using Metasia.Editor.ViewModels.Inspector.Properties;
 using Metasia.Editor.Views.Inspector.Properties;
 using ReactiveUI;
 using Metasia.Core.Coordinate;
 using System;
-using Metasia.Editor.Models.States;
+using Metasia.Editor.Abstractions.States;
 using Metasia.Core.Media;
 using Metasia.Core.Objects.Parameters;
 using Metasia.Core.Objects.Parameters.Color;

@@ -1,9 +1,12 @@
+using Metasia.Editor.Services.Notification;
+using Metasia.Editor.Models.States;
+using Metasia.Editor.Models.EditCommands;
 using System;
 using ReactiveUI;
 using System.Linq;
 using Metasia.Editor.Services;
-using Metasia.Editor.Models.States;
-using Metasia.Editor.Models.EditCommands;
+using Metasia.Editor.Abstractions.States;
+using Metasia.Editor.Abstractions.EditCommands;
 using Metasia.Core.Objects;
 
 namespace Metasia.Editor.ViewModels;
