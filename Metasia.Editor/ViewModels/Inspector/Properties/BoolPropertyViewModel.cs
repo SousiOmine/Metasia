@@ -1,7 +1,10 @@
-using System;
-using Metasia.Editor.Models.EditCommands;
-using Metasia.Editor.Models.Interactor;
+using Metasia.Editor.Services.Notification;
 using Metasia.Editor.Models.States;
+using Metasia.Editor.Models.EditCommands;
+using System;
+using Metasia.Editor.Abstractions.EditCommands;
+using Metasia.Editor.Models.Interactor;
+using Metasia.Editor.Abstractions.States;
 using ReactiveUI;
 
 namespace Metasia.Editor.ViewModels.Inspector.Properties;

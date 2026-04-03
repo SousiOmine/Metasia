@@ -1,3 +1,6 @@
+using Metasia.Editor.Services.Notification;
+using Metasia.Editor.Models.States;
+using Metasia.Editor.Models.EditCommands;
 using Metasia.Core.Objects;
 using Metasia.Core.Xml;
 using Metasia.Editor.ViewModels.Timeline;
@@ -6,9 +9,9 @@ using System;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using System.Linq;
-using Metasia.Editor.Models.EditCommands;
+using Metasia.Editor.Abstractions.EditCommands;
 using Metasia.Editor.Models.EditCommands.Commands;
-using Metasia.Editor.Models.States;
+using Metasia.Editor.Abstractions.States;
 using Metasia.Editor.Services;
 
 namespace Metasia.Editor.ViewModels

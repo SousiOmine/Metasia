@@ -1,9 +1,6 @@
-using System;
-using System.Collections.Generic;
 using Metasia.Core.Objects;
 
-
-namespace Metasia.Editor.Models.States;
+namespace Metasia.Editor.Abstractions.States;
 
 public interface ISelectionState
 {

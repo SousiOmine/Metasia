@@ -1,3 +1,6 @@
+using Metasia.Editor.Services.Notification;
+using Metasia.Editor.Models.States;
+using Metasia.Editor.Models.EditCommands;
 using System;
 using System.ComponentModel;
 using Avalonia;
@@ -6,7 +9,7 @@ using Avalonia.Input;
 using Avalonia.Markup.Xaml;
 using System.Diagnostics;
 using Metasia.Editor.ViewModels;
-using Metasia.Editor.Models.States;
+using Metasia.Editor.Abstractions.States;
 using Microsoft.Extensions.DependencyInjection;
 using Metasia.Editor.Services;
 using Metasia.Editor.Models.KeyBinding;

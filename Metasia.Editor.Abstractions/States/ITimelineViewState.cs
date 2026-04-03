@@ -1,6 +1,4 @@
-using System;
-
-namespace Metasia.Editor.Models.States;
+namespace Metasia.Editor.Abstractions.States;
 
 public interface ITimelineViewState : IDisposable
 {

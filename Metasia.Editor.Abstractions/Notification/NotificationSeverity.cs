@@ -1,4 +1,4 @@
-namespace Metasia.Editor.Services.Notification;
+namespace Metasia.Editor.Abstractions.Notification;
 
 public enum NotificationSeverity
 {

@@ -1,3 +1,6 @@
+using Metasia.Editor.Services.Notification;
+using Metasia.Editor.Models.States;
+using Metasia.Editor.Models.EditCommands;
 using System;
 using System.Diagnostics;
 using System.Threading;
@@ -8,7 +11,7 @@ using Metasia.Core.Project;
 using Metasia.Core.Render;
 using Metasia.Core.Media;
 using Metasia.Editor.Models.Media;
-using Metasia.Editor.Models.States;
+using Metasia.Editor.Abstractions.States;
 using Metasia.Editor.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using SkiaSharp;

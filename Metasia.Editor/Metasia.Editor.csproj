@@ -39,6 +39,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Metasia.Core\Metasia.Core.csproj" />
+    <ProjectReference Include="..\Metasia.Editor.Abstractions\Metasia.Editor.Abstractions.csproj" />
     <ProjectReference Include="..\Metasia.Editor.Plugin\Metasia.Editor.Plugin.csproj" />
   </ItemGroup>
 

@@ -1,4 +1,6 @@
-﻿namespace Metasia.Editor.Plugin
+using Metasia.Editor.Abstractions.Hosting;
+
+namespace Metasia.Editor.Plugin
 {
     public interface IEditorPlugin
     {
@@ -26,12 +28,12 @@
             Linux_x64,
             Linux_arm64,
         }
+
         /// <summary>
         /// エディタプラグインがサポートする環境
         /// </summary>
         IEnumerable<SupportEnvironment> SupportedEnvironments { get; }
 
-        void Initialize();
-
+        void Initialize(IEditorHostContext hostContext);
     }
 }

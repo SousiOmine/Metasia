@@ -1,3 +1,6 @@
+using Metasia.Editor.Services.Notification;
+using Metasia.Editor.Models.States;
+using Metasia.Editor.Models.EditCommands;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -9,10 +12,10 @@ using Metasia.Core.Media;
 using Metasia.Editor.Models.Media;
 using Metasia.Editor.Models.Media.Output;
 using Metasia.Editor.Models.Projects;
-using Metasia.Editor.Models.States;
+using Metasia.Editor.Abstractions.States;
 using Metasia.Editor.Plugin;
 using Metasia.Editor.Services;
-using Metasia.Editor.Services.Notification;
+using Metasia.Editor.Abstractions.Notification;
 using Metasia.Editor.Services.PluginService;
 using ReactiveUI;
 

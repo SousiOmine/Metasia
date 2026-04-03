@@ -1,3 +1,6 @@
+using Metasia.Editor.Services.Notification;
+using Metasia.Editor.Models.States;
+using Metasia.Editor.Models.EditCommands;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -5,8 +8,8 @@ using System.Linq;
 using Avalonia.Threading;
 using Metasia.Editor.Models;
 using Metasia.Editor.Models.Projects;
-using Metasia.Editor.Models.States;
-using Metasia.Editor.Services.Notification;
+using Metasia.Editor.Abstractions.States;
+using Metasia.Editor.Abstractions.Notification;
 
 namespace Metasia.Editor.Services
 {

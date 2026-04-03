@@ -1,3 +1,6 @@
+using Metasia.Editor.Services.Notification;
+using Metasia.Editor.Models.States;
+using Metasia.Editor.Models.EditCommands;
 using System;
 using System.Reactive;
 using System.Reactive.Disposables;
@@ -6,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Metasia.Editor.Services;
 using Metasia.Editor.ViewModels;
 using Metasia.Editor.ViewModels.Dialogs;
-using Metasia.Editor.Services.Notification;
+using Metasia.Editor.Abstractions.Notification;
 using Metasia.Editor.Views.Dialogs;
 using Metasia.Editor.Views.Settings;
 using Metasia.Editor.Plugin;

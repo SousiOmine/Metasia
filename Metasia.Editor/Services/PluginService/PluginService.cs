@@ -1,3 +1,6 @@
+using Metasia.Editor.Services.Notification;
+using Metasia.Editor.Models.States;
+using Metasia.Editor.Models.EditCommands;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,6 +15,9 @@ using Metasia.Core.Objects.VisualEffects;
 using Metasia.Core.Render;
 using Metasia.Core.Sounds;
 using Metasia.Core.Xml;
+using Metasia.Editor.Abstractions.EditCommands;
+using Metasia.Editor.Abstractions.Notification;
+using Metasia.Editor.Abstractions.States;
 using Metasia.Editor.Models;
 using Metasia.Editor.Models.Media;
 using Metasia.Editor.Models.Plugins;
@@ -37,11 +43,23 @@ namespace Metasia.Editor.Services.PluginService
 
         private readonly MediaAccessorRouter _mediaAccessorRouter;
         private readonly TypeRegistry _typeRegistry;
+        private readonly EditorHostContext _hostContext;
+        private readonly Func<Task<IEnumerable<IEditorPlugin>>> _pluginLoader;
 
-        public PluginService(MediaAccessorRouter mediaAccessorRouter, TypeRegistry typeRegistry)
+        public PluginService(
+            MediaAccessorRouter mediaAccessorRouter,
+            TypeRegistry typeRegistry,
+            IEditCommandManager editCommandManager,
+            ISelectionState selectionState,
+            ITimelineViewState timelineViewState,
+            IPlaybackState playbackState,
+            INotificationService notificationService,
+            Func<Task<IEnumerable<IEditorPlugin>>>? pluginLoader = null)
         {
             _mediaAccessorRouter = mediaAccessorRouter;
             _typeRegistry = typeRegistry;
+            _hostContext = new EditorHostContext(editCommandManager, selectionState, timelineViewState, playbackState, notificationService);
+            _pluginLoader = pluginLoader ?? PluginLoader.LoadEditorPluginsAsync;
         }
 
         public async Task<IEnumerable<IEditorPlugin>> LoadPluginsAsync()
@@ -56,10 +74,10 @@ namespace Metasia.Editor.Services.PluginService
                 _pluginVisualEffectTypes.Clear();
                 _pluginAudioEffectTypes.Clear();
 
-                EditorPlugins = (await PluginLoader.LoadEditorPluginsAsync()).ToList();
+                EditorPlugins = (await _pluginLoader()).ToList();
                 foreach (var plugin in EditorPlugins)
                 {
-                    plugin.Initialize();
+                    plugin.Initialize(_hostContext);
                     if (plugin is IMediaInputPlugin mediaInputPlugin)
                     {
                         MediaInputPlugins.Add(mediaInputPlugin);

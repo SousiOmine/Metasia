@@ -1,3 +1,6 @@
+using Metasia.Editor.Services.Notification;
+using Metasia.Editor.Models.States;
+using Metasia.Editor.Models.EditCommands;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using Metasia.Editor.ViewModels.Inspector.Properties;
