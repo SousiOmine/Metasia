@@ -135,6 +135,9 @@ public class MenuViewModelTests
         public List<IEditorPlugin> EditorPlugins { get; } = [];
         public List<IMediaInputPlugin> MediaInputPlugins { get; } = [];
         public List<IMediaOutputPlugin> MediaOutputPlugins { get; } = [];
+        public IReadOnlyList<PluginTypeInfo> PluginClipTypes => [];
+        public IReadOnlyList<PluginTypeInfo> PluginVisualEffectTypes => [];
+        public IReadOnlyList<PluginTypeInfo> PluginAudioEffectTypes => [];
 
         public Task<IEnumerable<IEditorPlugin>> LoadPluginsAsync() => Task.FromResult<IEnumerable<IEditorPlugin>>(EditorPlugins);
         public IEnumerable<LeftPanePanelDefinition> GetLeftPanePanels() => [];
