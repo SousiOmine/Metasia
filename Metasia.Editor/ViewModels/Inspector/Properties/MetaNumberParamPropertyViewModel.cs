@@ -21,6 +21,7 @@ namespace Metasia.Editor.ViewModels.Inspector.Properties;
 
 public class MetaNumberParamPropertyViewModel : ViewModelBase
 {
+    private readonly IMetaNumberCoordPointViewModelFactory _coordPointViewModelFactory;
     public string PropertyDisplayName
     {
         get => _propertyDisplayName;
@@ -69,6 +70,7 @@ public class MetaNumberParamPropertyViewModel : ViewModelBase
     private IProjectState _projectState;
     private bool _isMovable;
     public MetaNumberParamPropertyViewModel(
+        IMetaNumberCoordPointViewModelFactory coordPointViewModelFactory,
         ISelectionState selectionState,
         string propertyIdentifier,
         IEditCommandManager editCommandManager,
@@ -79,6 +81,7 @@ public class MetaNumberParamPropertyViewModel : ViewModelBase
         double recommendedMin = double.MinValue,
         double recommendedMax = double.MaxValue)
     {
+        _coordPointViewModelFactory = coordPointViewModelFactory;
         _propertyDisplayName = propertyIdentifier;
         _propertyValueText = "100(仮)";
         _propertyIdentifier = propertyIdentifier;
@@ -264,7 +267,7 @@ public class MetaNumberParamPropertyViewModel : ViewModelBase
             else
             {
                 // 新しいポイントを追加
-                var newPoint = new MetaNumberCoordPointViewModel(this, point, type, _min, _max, _recommendedMin, _recommendedMax);
+                var newPoint = _coordPointViewModelFactory.Create(this, point, type, _min, _max, _recommendedMin, _recommendedMax);
                 CoordPoints.Insert(i, newPoint);
             }
         }

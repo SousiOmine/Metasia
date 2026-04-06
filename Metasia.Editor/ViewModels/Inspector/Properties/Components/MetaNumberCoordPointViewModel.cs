@@ -5,11 +5,14 @@ using System;
 using System.Windows.Input;
 using Metasia.Core.Coordinate;
 using ReactiveUI;
+using System.Collections.ObjectModel;
+using Metasia.Core.Coordinate.InterpolationLogic;
 
 namespace Metasia.Editor.ViewModels.Inspector.Properties.Components;
 
 public class MetaNumberCoordPointViewModel : ViewModelBase
 {
+    private readonly IInterpolationLogicMenuItemViewModelFactory _interpolationLogicMenuItemFactory;
     public enum PointType
     {
         Start,
@@ -64,6 +67,8 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
             }
         }
     }
+
+    public ObservableCollection<InterpolationLogicMenuItemViewModel> InterpolationMenuItems { get; } = [];
 
     public int PointFrame
     {
@@ -135,6 +140,7 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
     private CoordPoint _target;
 
     public MetaNumberCoordPointViewModel(
+        IInterpolationLogicMenuItemViewModelFactory interpolationLogicMenuItemFactory,
         MetaNumberParamPropertyViewModel parentViewModel,
         CoordPoint target,
         PointType pointType = PointType.Start,
@@ -143,6 +149,7 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
         double recommendedMin = double.MinValue,
         double recommendedMax = double.MaxValue)
     {
+        _interpolationLogicMenuItemFactory = interpolationLogicMenuItemFactory;
         _parentViewModel = parentViewModel;
         _target = target;
         RefreshFromTarget(target, pointType, min, max, recommendedMin, recommendedMax);
@@ -156,6 +163,10 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
         InteractionCompletedCommand = ReactiveCommand.Create(EndInteraction);
         FrameInteractionStartedCommand = ReactiveCommand.Create(StartFrameInteraction);
         FrameInteractionCompletedCommand = ReactiveCommand.Create(EndFrameInteraction);
+
+        InterpolationMenuItems.Add(_interpolationLogicMenuItemFactory.Create(target, typeof(LinearLogic)));
+        InterpolationMenuItems.Add(_interpolationLogicMenuItemFactory.Create(target, typeof(EaseInLogic)));
+        InterpolationMenuItems.Add(_interpolationLogicMenuItemFactory.Create(target, typeof(EaseOutLogic)));
     }
 
     public ICommand InteractionStartedCommand { get; }
