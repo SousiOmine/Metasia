@@ -167,6 +167,7 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
         InterpolationMenuItems.Add(_interpolationLogicMenuItemFactory.Create(target, typeof(LinearLogic)));
         InterpolationMenuItems.Add(_interpolationLogicMenuItemFactory.Create(target, typeof(EaseInLogic)));
         InterpolationMenuItems.Add(_interpolationLogicMenuItemFactory.Create(target, typeof(EaseOutLogic)));
+        InterpolationMenuItems.Add(_interpolationLogicMenuItemFactory.Create(target, typeof(EaseInOutLogic)));
     }
 
     public ICommand InteractionStartedCommand { get; }
