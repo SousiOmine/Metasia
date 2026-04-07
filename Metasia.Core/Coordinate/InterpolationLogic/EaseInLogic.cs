@@ -7,7 +7,9 @@ public class EaseInLogic : InterpolationLogicBase
     public override double Calculate(double startValue, double endValue, int nowFrame, int startFrame, int endFrame)
     {
         if (startValue == endValue) return startValue;
-        return startValue + (endValue - startValue) * Math.Pow((nowFrame - startFrame) / (endFrame - startFrame), 2);
+        double t = (double)(nowFrame - startFrame) / (endFrame - startFrame);
+        double c = endValue - startValue;
+        return c * Math.Pow(t, 2) + startValue;
     }
 
     /// <summary>
