@@ -31,6 +31,7 @@ using Metasia.Core.Render;
 using Metasia.Editor.ViewModels.Dialogs;
 using Metasia.Editor.ViewModels.Inspector;
 using Metasia.Editor.ViewModels.Inspector.Properties;
+using Metasia.Editor.ViewModels.Inspector.Properties.Components;
 using Metasia.Editor.ViewModels.Notifications;
 using Metasia.Editor.ViewModels.Settings;
 using Metasia.Editor.ViewModels.Timeline;
@@ -143,6 +144,8 @@ namespace Metasia.Editor
             services.AddTransient<IAudioEffectsViewModelFactory, AudioEffectsViewModelFactory>();
             services.AddTransient<IVisualEffectsViewModelFactory, VisualEffectsViewModelFactory>();
             services.AddTransient<IMetaNumberParamPropertyViewModelFactory, MetaNumberParamPropertyViewModelFactory>();
+            services.AddTransient<IInterpolationLogicMenuItemViewModelFactory, InterpolationLogicMenuItemViewModelFactory>();
+            services.AddTransient<IMetaNumberCoordPointViewModelFactory, MetaNumberCoordPointViewModelFactory>();
             services.AddTransient<IMediaPathPropertyViewModelFactory, MediaPathPropertyViewModelFactory>();
             services.AddTransient<IStringPropertyViewModelFactory, StringPropertyViewModelFactory>();
             services.AddTransient<IMetaDoubleParamPropertyViewModelFactory, MetaDoubleParamPropertyViewModelFactory>();

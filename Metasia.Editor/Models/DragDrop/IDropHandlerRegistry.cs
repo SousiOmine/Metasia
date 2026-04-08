@@ -22,5 +22,5 @@ public interface IDropHandlerRegistry
     /// <param name="data">ドロップデータ</param>
     /// <param name="context">ドロップ対象のコンテキスト</param>
     /// <returns>適切なハンドラ（見つからない場合はnull）</returns>
-    IDropHandler? FindHandler(IDataObject data, DropTargetContext context);
+    IDropHandler? FindHandler(IDataTransfer data, DropTargetContext context);
 }

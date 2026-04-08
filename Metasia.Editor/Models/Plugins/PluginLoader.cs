@@ -31,6 +31,8 @@ namespace Metasia.Editor.Models.Plugins
                 MetasiaPaths.UserPluginsDirectory
             };
 
+            Console.WriteLine($"Loading plugins from directories: {string.Join(", ", pluginDirectories)}");
+
             foreach (var pluginDirectory in pluginDirectories)
             {
                 await LoadPluginsFromDirectoryAsync(pluginDirectory);

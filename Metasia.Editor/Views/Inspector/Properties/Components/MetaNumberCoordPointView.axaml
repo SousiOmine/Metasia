@@ -18,6 +18,17 @@
                     <Button.Flyout>
                         <MenuFlyout>
                             <MenuItem Header="中間点を追加" Command="{Binding AddPointCommand}"/>
+                            <Separator/>
+                            <MenuItem Header="移動ロジック" ItemsSource="{Binding InterpolationMenuItems}">
+                                <MenuItem.ItemContainerTheme>
+                                    <ControlTheme TargetType="MenuItem"
+                                                  BasedOn="{StaticResource {x:Type MenuItem}}"
+                                                  x:DataType="vm:InterpolationLogicMenuItemViewModel">
+                                        <Setter Property="Header" Value="{Binding Header}"/>
+                                        <Setter Property="Command" Value="{Binding Command}"/>
+                                    </ControlTheme>
+                                </MenuItem.ItemContainerTheme>
+                            </MenuItem>
                         </MenuFlyout>
                     </Button.Flyout>
                 </Button>
@@ -34,6 +45,17 @@
                         <ContextMenu>
                             <MenuItem Header="中間点を追加" Command="{Binding AddPointCommand}"/>
                             <MenuItem Header="中間点を削除" Command="{Binding RemovePointCommand}"/>
+                            <Separator/>
+                            <MenuItem Header="移動ロジック" ItemsSource="{Binding InterpolationMenuItems}">
+                                <MenuItem.ItemContainerTheme>
+                                    <ControlTheme TargetType="MenuItem"
+                                                  BasedOn="{StaticResource {x:Type MenuItem}}"
+                                                  x:DataType="vm:InterpolationLogicMenuItemViewModel">
+                                        <Setter Property="Header" Value="{Binding Header}"/>
+                                        <Setter Property="Command" Value="{Binding Command}"/>
+                                    </ControlTheme>
+                                </MenuItem.ItemContainerTheme>
+                            </MenuItem>
                         </ContextMenu>
                     </controls:InspectorNumericUpDown.ContextMenu>
                 </controls:InspectorNumericUpDown>

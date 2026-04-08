@@ -21,7 +21,7 @@ public class DropHandlerRegistry : IDropHandlerRegistry
         _handlers = handlers.OrderBy(h => h.Priority).ToList();
     }
 
-    public IDropHandler? FindHandler(IDataObject data, DropTargetContext context)
+    public IDropHandler? FindHandler(IDataTransfer data, DropTargetContext context)
     {
         return _handlers.FirstOrDefault(h => h.CanHandle(data, context));
     }

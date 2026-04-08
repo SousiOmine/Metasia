@@ -11,10 +11,9 @@
         BorderBrush="Transparent"
         BorderThickness="0"
         CanResize="False"
-        ExtendClientAreaChromeHints="NoChrome"
+        WindowDecorations="None"
         ExtendClientAreaTitleBarHeightHint="-1"
         ExtendClientAreaToDecorationsHint="False"
-        SystemDecorations="None"
         WindowStartupLocation="CenterScreen"
         >
     <StackPanel>

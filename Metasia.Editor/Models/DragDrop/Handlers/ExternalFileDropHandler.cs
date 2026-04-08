@@ -38,27 +38,27 @@ public class ExternalFileDropHandler : IDropHandler
         _settingsService = settingsService;
     }
 
-    public bool CanHandle(IDataObject data, DropTargetContext context)
+    public bool CanHandle(IDataTransfer data, DropTargetContext context)
     {
-        if (!data.Contains(DataFormats.Files)) return false;
+        if (!data.Contains(DataFormat.File)) return false;
 
-        var files = data.GetFiles();
+        var files = data.TryGetFiles();
         return files != null && files.Any(IsSupportedFile);
     }
 
-    public DropPreviewResult HandleDragOver(IDataObject data, DropTargetContext context)
+    public DropPreviewResult HandleDragOver(IDataTransfer data, DropTargetContext context)
     {
         if (!CanHandle(data, context)) return DropPreviewResult.None;
 
-        var files = data.GetFiles();
+        var files = data.TryGetFiles();
         if (files == null || !files.Any(IsSupportedFile)) return DropPreviewResult.None;
 
         return DropPreviewResult.Copy();
     }
 
-    public IEditCommand? HandleDrop(IDataObject data, DropTargetContext context)
+    public IEditCommand? HandleDrop(IDataTransfer data, DropTargetContext context)
     {
-        var files = data.GetFiles();
+        var files = data.TryGetFiles();
         if (files == null) return null;
 
         var supportedFiles = files.Where(IsSupportedFile).ToList();

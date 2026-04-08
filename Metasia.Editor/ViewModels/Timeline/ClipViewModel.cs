@@ -2,6 +2,7 @@ using Metasia.Editor.Services.Notification;
 using Metasia.Editor.Models.States;
 using Metasia.Editor.Models.EditCommands;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Media;
 using Metasia.Core.Objects;
 using Metasia.Core.Objects.Parameters;
@@ -11,6 +12,8 @@ using Metasia.Editor.Models.EditCommands.Commands;
 using Metasia.Editor.Models.Interactor;
 using Metasia.Editor.Abstractions.States;
 using Metasia.Editor.Services;
+using Metasia.Editor.ViewModels.Dialogs;
+using Metasia.Editor.Views.Dialogs;
 using ReactiveUI;
 using System.Reflection;
 using System;
@@ -109,6 +112,7 @@ namespace Metasia.Editor.ViewModels.Timeline
         public ICommand CopyCommand { get; }
         public ICommand CutCommand { get; }
         public ICommand PasteCommand { get; }
+        public ICommand ChangeLengthCommand { get; }
 
         public IBrush ClipColor => _clipColorProvider.GetBrush(TargetObject);
 
@@ -134,6 +138,7 @@ namespace Metasia.Editor.ViewModels.Timeline
             CopyCommand = ReactiveCommand.Create(() => parentTimeline.CopySelectedClips());
             CutCommand = ReactiveCommand.Create(() => parentTimeline.CutSelectedClips());
             PasteCommand = ReactiveCommand.Create(() => parentTimeline.PasteClips());
+            ChangeLengthCommand = ReactiveCommand.CreateFromTask(ChangeLengthAsync);
 
             _timelineViewState.Frame_Per_DIP_Changed += OnFramePerDipChanged;
             Frame_Per_DIP = _timelineViewState.Frame_Per_DIP;
@@ -143,6 +148,58 @@ namespace Metasia.Editor.ViewModels.Timeline
             editCommandManager.CommandUndone += OnTimelineStructureOrPreviewChanged;
             editCommandManager.CommandRedone += OnTimelineStructureOrPreviewChanged;
             _projectState.TimelineChanged += RefreshMidpointMarkers;
+        }
+
+        private async Task ChangeLengthAsync()
+        {
+            int framerate = _projectState.CurrentProjectInfo?.Framerate ?? 60;
+            int currentLengthFrames = TargetObject.EndFrame - TargetObject.StartFrame + 1;
+
+            var dialogVm = new ChangeClipLengthViewModel(currentLengthFrames, framerate);
+            var dialog = new ChangeClipLengthDialog
+            {
+                DataContext = dialogVm,
+            };
+
+            var topLevel = TopLevel.GetTopLevel(
+                App.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop
+                    ? desktop.MainWindow
+                    : null);
+
+            if (topLevel is Window owner)
+            {
+                var result = await dialog.ShowDialog<bool>(owner);
+                if (result)
+                {
+                    int newLengthFrames = dialogVm.GetNewLengthFrames();
+                    int newEndFrame = TargetObject.StartFrame + newLengthFrames - 1;
+
+                    var ownerLayer = ClipInteractor.FindOwnerLayer(parentTimeline.Timeline, TargetObject);
+                    if (ownerLayer is not null)
+                    {
+                        int clampedEndFrame = newEndFrame;
+                        foreach (var other in ownerLayer.Objects)
+                        {
+                            if (other.Id == TargetObject.Id) continue;
+                            if (other.StartFrame > TargetObject.StartFrame && other.StartFrame <= newEndFrame)
+                            {
+                                clampedEndFrame = Math.Min(clampedEndFrame, other.StartFrame - 1);
+                            }
+                        }
+                        newEndFrame = clampedEndFrame;
+                    }
+
+                    if (newEndFrame > TargetObject.EndFrame || newEndFrame < TargetObject.EndFrame)
+                    {
+                        var command = new ClipResizeCommand(
+                            TargetObject,
+                            TargetObject.StartFrame, TargetObject.StartFrame,
+                            TargetObject.EndFrame, newEndFrame);
+                        editCommandManager.Execute(command);
+                        RecalculateSize();
+                    }
+                }
+            }
         }
 
         private async Task ExportTemplateAsync()

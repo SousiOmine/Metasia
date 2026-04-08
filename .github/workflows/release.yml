@@ -2,7 +2,7 @@ name: Release
 
 env:
     APP_NAME: MetasiaEditor
-    DOTNET_VERSION: 9.0.x
+    DOTNET_VERSION: 10.0.x
 
 on:
     push:

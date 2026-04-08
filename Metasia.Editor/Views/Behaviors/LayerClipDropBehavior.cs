@@ -149,7 +149,7 @@ namespace Metasia.Editor.Views.Behaviors
 
             var position = e.GetPosition(AssociatedObject);
             return new DropEventData(
-                e.Data,
+                e.DataTransfer,
                 TargetLayer,
                 CalculateTargetFrame(position.X),
                 Timeline,
@@ -167,7 +167,7 @@ namespace Metasia.Editor.Views.Behaviors
     /// ドロップイベントのデータ
     /// </summary>
     public record DropEventData(
-        IDataObject Data,
+        IDataTransfer Data,
         LayerObject TargetLayer,
         int TargetFrame,
         TimelineObject Timeline,

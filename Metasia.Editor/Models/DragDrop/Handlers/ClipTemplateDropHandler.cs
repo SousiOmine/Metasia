@@ -19,9 +19,9 @@ namespace Metasia.Editor.Models.DragDrop.Handlers
     {
         public int Priority => 5;
 
-        public bool CanHandle(IDataObject data, DropTargetContext context)
+        public bool CanHandle(IDataTransfer data, DropTargetContext context)
         {
-            var files = data.GetFiles();
+            var files = data.TryGetFiles();
             if (files == null || !files.Any()) return false;
 
             var file = files.First() as IStorageFile;
@@ -31,7 +31,7 @@ namespace Metasia.Editor.Models.DragDrop.Handlers
             return ext == ".mtmp";
         }
 
-        public DropPreviewResult HandleDragOver(IDataObject data, DropTargetContext context)
+        public DropPreviewResult HandleDragOver(IDataTransfer data, DropTargetContext context)
         {
             if (!CanHandle(data, context))
             {
@@ -41,9 +41,9 @@ namespace Metasia.Editor.Models.DragDrop.Handlers
             return DropPreviewResult.Copy(null);
         }
 
-        public IEditCommand? HandleDrop(IDataObject data, DropTargetContext context)
+        public IEditCommand? HandleDrop(IDataTransfer data, DropTargetContext context)
         {
-            var files = data.GetFiles();
+            var files = data.TryGetFiles();
             if (files == null || !files.Any()) return null;
 
             var file = files.First() as IStorageFile;
