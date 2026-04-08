@@ -109,6 +109,15 @@ namespace Metasia.Editor.ViewModels
         /// </summary>
         public bool HasInvalidEnd => Timeline.SelectionEnd < TimelineObject.MAX_LENGTH;
 
+        /// <summary>
+        /// タイムラインの全体幅（DIP単位）。全レイヤーで共有され、最も長いクリップに合わせる
+        /// </summary>
+        public double TimelineWidth
+        {
+            get => _timelineWidth;
+            private set => this.RaiseAndSetIfChanged(ref _timelineWidth, value);
+        }
+
         private TimelineObject _timeline;
         private double _frame_per_DIP;
         private int _frameRate = 60;
@@ -117,6 +126,7 @@ namespace Metasia.Editor.ViewModels
         private double _cursorLeft;
         private double _invalidStartWidth;
         private double _invalidEndLeft;
+        private double _timelineWidth;
 
         private readonly ISelectionState selectionState;
 
@@ -172,10 +182,11 @@ namespace Metasia.Editor.ViewModels
             editCommandManager.CommandExecuted += OnCommandExecutedForControl;
             editCommandManager.CommandUndone += OnCommandUndoneForControl;
             editCommandManager.CommandRedone += OnCommandRedoneForControl;
-            _projectState.TimelineChanged += UpdateControlLayerHighlights;
+            _projectState.TimelineChanged += OnTimelineChangedForWidth;
 
             UpdateControlLayerHighlights();
             UpdateInvalidAreas();
+            UpdateTimelineWidth();
         }
 
 
@@ -366,7 +377,7 @@ namespace Metasia.Editor.ViewModels
                 editCommandManager.CommandExecuted -= OnCommandExecutedForControl;
                 editCommandManager.CommandUndone -= OnCommandUndoneForControl;
                 editCommandManager.CommandRedone -= OnCommandRedoneForControl;
-                _projectState.TimelineChanged -= UpdateControlLayerHighlights;
+                _projectState.TimelineChanged -= OnTimelineChangedForWidth;
             }
 
             base.Dispose(disposing);
@@ -403,6 +414,7 @@ namespace Metasia.Editor.ViewModels
         {
             CursorLeft = Frame * _frame_per_DIP;
             UpdateInvalidAreas();
+            UpdateTimelineWidth();
         }
 
         private void UpdateInvalidAreas()
@@ -414,9 +426,27 @@ namespace Metasia.Editor.ViewModels
             this.RaisePropertyChanged(nameof(HasInvalidEnd));
         }
 
-        private void OnCommandExecutedForControl(object? sender, IEditCommand e) => UpdateControlLayerHighlights();
-        private void OnCommandUndoneForControl(object? sender, IEditCommand e) => UpdateControlLayerHighlights();
-        private void OnCommandRedoneForControl(object? sender, IEditCommand e) => UpdateControlLayerHighlights();
+        private void UpdateTimelineWidth()
+        {
+            if (_timeline == null) return;
+            var maxEndFrame = Timeline.GetLastFrameOfClips();
+            double calculatedWidth = maxEndFrame * _frame_per_DIP;
+            TimelineWidth = Math.Max(5000, calculatedWidth);
+            foreach (var layerCanvas in LayerCanvas)
+            {
+                layerCanvas.Width = TimelineWidth;
+            }
+        }
+
+        private void OnTimelineChangedForWidth()
+        {
+            UpdateControlLayerHighlights();
+            UpdateTimelineWidth();
+        }
+
+        private void OnCommandExecutedForControl(object? sender, IEditCommand e) { UpdateControlLayerHighlights(); UpdateTimelineWidth(); }
+        private void OnCommandUndoneForControl(object? sender, IEditCommand e) { UpdateControlLayerHighlights(); UpdateTimelineWidth(); }
+        private void OnCommandRedoneForControl(object? sender, IEditCommand e) { UpdateControlLayerHighlights(); UpdateTimelineWidth(); }
 
         /// <summary>
         /// 制御系オブジェクト(GroupControl/CameraControl)の影響範囲を計算し、

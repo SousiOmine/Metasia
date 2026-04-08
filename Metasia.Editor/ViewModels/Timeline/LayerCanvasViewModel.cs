@@ -257,9 +257,7 @@ namespace Metasia.Editor.ViewModels.Timeline
 
         private void ChangeFramePerDIP()
         {
-            var maxEndFrame = TargetLayer.Objects.Count > 0 ? TargetLayer.Objects.Max(o => o.EndFrame) : 0;
-            double calculatedWidth = maxEndFrame * _timelineViewState.Frame_Per_DIP;
-            Width = Math.Max(5000, calculatedWidth);
+            Width = parentTimeline.TimelineWidth;
         }
 
         private void OnCommandExecuted(object? sender, IEditCommand e) => RelocateClips();
