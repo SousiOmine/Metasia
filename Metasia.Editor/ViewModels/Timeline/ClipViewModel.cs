@@ -161,12 +161,8 @@ namespace Metasia.Editor.ViewModels.Timeline
                 DataContext = dialogVm,
             };
 
-            var topLevel = TopLevel.GetTopLevel(
-                App.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop
-                    ? desktop.MainWindow
-                    : null);
-
-            if (topLevel is Window owner)
+            if (App.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop
+                && desktop.MainWindow is Window owner)
             {
                 var result = await dialog.ShowDialog<bool>(owner);
                 if (result)
