@@ -17,8 +17,13 @@
         WindowStartupLocation="CenterScreen"
         >
     <StackPanel>
-        <Image Source="{SvgImage avares://Metasia.Editor/Assets/metasia-logo.svg}"></Image>
-        <TextBlock Text="Metasia Editor" FontSize="24" FontWeight="Bold" />
-        <TextBlock Text="Loading..." FontSize="16" />
+        <Image Source="/Assets/metasia-logo.png" />
+        <TextBlock Text="Metasia Editor" 
+                   FontSize="24" 
+                   FontWeight="Bold" 
+                   HorizontalAlignment="Center" />
+        <TextBlock Text="Loading..." 
+                   FontSize="16" 
+                   HorizontalAlignment="Center" />
     </StackPanel>
 </Window>
