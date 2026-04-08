@@ -34,14 +34,16 @@ public class ClipsMoveDropHandler : IDropHandler
         _timelineViewState = timelineViewState;
     }
 
-    public bool CanHandle(IDataObject data, DropTargetContext context)
+    public bool CanHandle(IDataTransfer data, DropTargetContext context)
     {
-        return data.Get(DragDropFormats.ClipsMove) is ClipsMoveDragData;
+        var id = data.TryGetValue(DragDropFormats.ClipsMove);
+        return id != null && DragDropFormats.PeekData<ClipsMoveDragData>(id) != null;
     }
 
-    public DropPreviewResult HandleDragOver(IDataObject data, DropTargetContext context)
+    public DropPreviewResult HandleDragOver(IDataTransfer data, DropTargetContext context)
     {
-        var dragData = data.Get(DragDropFormats.ClipsMove) as ClipsMoveDragData;
+        var id = data.TryGetValue(DragDropFormats.ClipsMove);
+        var dragData = DragDropFormats.PeekData<ClipsMoveDragData>(id);
         if (dragData is null || _selectionState.SelectedClips.Count() == 0)
         {
             return DropPreviewResult.None;
@@ -78,9 +80,10 @@ public class ClipsMoveDropHandler : IDropHandler
         return DropPreviewResult.Move(command);
     }
 
-    public IEditCommand? HandleDrop(IDataObject data, DropTargetContext context)
+    public IEditCommand? HandleDrop(IDataTransfer data, DropTargetContext context)
     {
-        var dragData = data.Get(DragDropFormats.ClipsMove) as ClipsMoveDragData;
+        var id = data.TryGetValue(DragDropFormats.ClipsMove);
+        var dragData = DragDropFormats.RetrieveData<ClipsMoveDragData>(id);
         if (dragData is null || _selectionState.SelectedClips.Count() == 0)
         {
             return null;

@@ -114,7 +114,7 @@ public partial class PlayerView : UserControl, IDisposable
                 return new SKSize(960, 540);
             }
 
-            var renderScaling = VisualRoot?.RenderScaling ?? 1.0;
+            var renderScaling = TopLevel.GetTopLevel(this)?.RenderScaling ?? 1.0;
             var controlWidthPx = skiaCanvas.Bounds.Width * renderScaling;
             var controlHeightPx = skiaCanvas.Bounds.Height * renderScaling;
 

@@ -6,19 +6,15 @@ using Avalonia.Input;
 using Metasia.Core.Media;
 using Metasia.Core.Objects;
 using Metasia.Editor.Abstractions.EditCommands;
+using Metasia.Editor.Models.DragDropData;
 using Metasia.Editor.Models.EditCommands.Commands;
 using Metasia.Editor.Abstractions.States;
 
 namespace Metasia.Editor.Models.DragDrop.Handlers;
 
-/// <summary>
-/// プロジェクト内ファイルのドラッグアンドドロップを処理するハンドラ
-/// </summary>
 public class ProjectFileDropHandler : IDropHandler
 {
     private const int DefaultClipLength = 150;
-
-    public const string ProjectFileFormat = "ProjectFile";
 
     private readonly IProjectState _projectState;
 
@@ -29,14 +25,16 @@ public class ProjectFileDropHandler : IDropHandler
         _projectState = projectState;
     }
 
-    public bool CanHandle(IDataObject data, DropTargetContext context)
+    public bool CanHandle(IDataTransfer data, DropTargetContext context)
     {
-        return data.Get(ProjectFileFormat) is ProjectFileDropData;
+        var id = data.TryGetValue(DragDropFormats.ProjectFile);
+        return id != null && DragDropFormats.PeekData<ProjectFileDropData>(id) != null;
     }
 
-    public DropPreviewResult HandleDragOver(IDataObject data, DropTargetContext context)
+    public DropPreviewResult HandleDragOver(IDataTransfer data, DropTargetContext context)
     {
-        var dropData = data.Get(ProjectFileFormat) as ProjectFileDropData;
+        var id = data.TryGetValue(DragDropFormats.ProjectFile);
+        var dropData = DragDropFormats.PeekData<ProjectFileDropData>(id);
         if (dropData == null) return DropPreviewResult.None;
 
         if (!IsMediaPathValid(dropData.MediaPath)) return DropPreviewResult.None;
@@ -44,9 +42,10 @@ public class ProjectFileDropHandler : IDropHandler
         return DropPreviewResult.Copy();
     }
 
-    public IEditCommand? HandleDrop(IDataObject data, DropTargetContext context)
+    public IEditCommand? HandleDrop(IDataTransfer data, DropTargetContext context)
     {
-        var dropData = data.Get(ProjectFileFormat) as ProjectFileDropData;
+        var id = data.TryGetValue(DragDropFormats.ProjectFile);
+        var dropData = DragDropFormats.RetrieveData<ProjectFileDropData>(id);
         if (dropData == null) return null;
 
         if (!IsMediaPathValid(dropData.MediaPath)) return null;
@@ -78,18 +77,5 @@ public class ProjectFileDropHandler : IDropHandler
             MediaType.Image => new ImageObject { ImagePath = mediaPath },
             _ => null
         };
-    }
-}
-
-/// <summary>
-/// プロジェクト内ファイルのドラッグデータ
-/// </summary>
-public class ProjectFileDropData
-{
-    public MediaPath MediaPath { get; }
-
-    public ProjectFileDropData(MediaPath mediaPath)
-    {
-        MediaPath = mediaPath;
     }
 }

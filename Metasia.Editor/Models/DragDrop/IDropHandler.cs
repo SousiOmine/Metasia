@@ -22,7 +22,7 @@ public interface IDropHandler
     /// <param name="data">ドロップデータ</param>
     /// <param name="context">ドロップ対象のコンテキスト</param>
     /// <returns>処理可能な場合true</returns>
-    bool CanHandle(IDataObject data, DropTargetContext context);
+    bool CanHandle(IDataTransfer data, DropTargetContext context);
 
     /// <summary>
     /// ドラッグオーバー時の処理（プレビュー用）
@@ -30,7 +30,7 @@ public interface IDropHandler
     /// <param name="data">ドロップデータ</param>
     /// <param name="context">ドロップ対象のコンテキスト</param>
     /// <returns>プレビュー結果</returns>
-    DropPreviewResult HandleDragOver(IDataObject data, DropTargetContext context);
+    DropPreviewResult HandleDragOver(IDataTransfer data, DropTargetContext context);
 
     /// <summary>
     /// ドロップ時の処理
@@ -38,5 +38,5 @@ public interface IDropHandler
     /// <param name="data">ドロップデータ</param>
     /// <param name="context">ドロップ対象のコンテキスト</param>
     /// <returns>実行するコマンド（nullの場合は何もしない）</returns>
-    IEditCommand? HandleDrop(IDataObject data, DropTargetContext context);
+    IEditCommand? HandleDrop(IDataTransfer data, DropTargetContext context);
 }
