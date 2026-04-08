@@ -58,6 +58,36 @@ namespace Metasia.Core.Tests.Render
         }
 
         [Test]
+        public void ApplyEffects_EmptyEffectsList_PreservesLogicalSize()
+        {
+            using var input = CreateTestImage(SKColors.Blue, 960, 540);
+            var effects = new List<VisualEffectBase>();
+
+            var result = VisualEffectPipeline.ApplyEffects(input, effects, _renderContext, 0, 100, new SKSize(1920, 1080));
+
+            Assert.That(result.LogicalSize.Width, Is.EqualTo(1920));
+            Assert.That(result.LogicalSize.Height, Is.EqualTo(1080));
+        }
+
+        [Test]
+        public void ApplyEffects_ContextOverloadWithEmptyEffects_PreservesLogicalSize()
+        {
+            using var input = CreateTestImage(SKColors.Blue, 960, 540);
+            var context = new VisualEffectContext(
+                frame: 10,
+                relativeFrame: 0,
+                clipLength: 100,
+                projectResolution: new SKSize(1920, 1080),
+                renderResolution: new SKSize(960, 540),
+                logicalSize: new SKSize(1920, 1080));
+
+            var result = VisualEffectPipeline.ApplyEffects(input, [], context);
+
+            Assert.That(result.LogicalSize.Width, Is.EqualTo(1920));
+            Assert.That(result.LogicalSize.Height, Is.EqualTo(1080));
+        }
+
+        [Test]
         public void ApplyEffects_SingleEffect_AppliesEffect()
         {
             // Arrange

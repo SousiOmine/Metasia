@@ -28,7 +28,7 @@ namespace Metasia.Core.Objects.VisualEffects
             int clipLength = context.ClipLength;
 
             float strength = (float)Strength.Get(relativeFrame, clipLength);
-            if (strength <= 0) return new VisualEffectResult(input, context.TargetImageCacheKey);
+            if (strength <= 0) return new VisualEffectResult(input, context.TargetImageCacheKey, context.LogicalSize);
 
             float angle = (float)Angle.Get(relativeFrame, clipLength);
 
@@ -38,7 +38,7 @@ namespace Metasia.Core.Objects.VisualEffects
                 var cachedImage = context.ImageCache?.TryGet(cacheKey);
                 if (cachedImage != null)
                 {
-                    return new VisualEffectResult(cachedImage, cacheKey);
+                    return new VisualEffectResult(cachedImage, cacheKey, context.LogicalSize);
                 }
             }
 
@@ -79,11 +79,11 @@ namespace Metasia.Core.Objects.VisualEffects
             {
                 long cacheKey = GetImageHashCode(context);
                 context.ImageCache?.Set(cacheKey, result);
-                return new VisualEffectResult(result, cacheKey);
+                return new VisualEffectResult(result, cacheKey, context.LogicalSize);
             }
             else
             {
-                return new VisualEffectResult(result, IRenderImageCache.NO_CACHE_KEY);
+                return new VisualEffectResult(result, IRenderImageCache.NO_CACHE_KEY, context.LogicalSize);
             }
         }
 

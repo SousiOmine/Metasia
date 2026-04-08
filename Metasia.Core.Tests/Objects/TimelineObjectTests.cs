@@ -1,5 +1,6 @@
 using Metasia.Core.Media;
 using Metasia.Core.Objects;
+using Metasia.Core.Objects.VisualEffects;
 using Metasia.Core.Project;
 using Metasia.Core.Render;
 using SkiaSharp;
@@ -252,6 +253,146 @@ namespace Metasia.Core.Tests.Objects
             var contentNode = (NormalRenderNode)layerNode.Children[0];
             Assert.That(contentNode.Transform.Position.X, Is.EqualTo(35).Within(0.001f));
             Assert.That(contentNode.Transform.Position.Y, Is.EqualTo(0).Within(0.001f));
+        }
+
+        [Test]
+        public async Task RenderAsync_CameraControlWithDefaultSettings_PreservesProjectLogicalSize()
+        {
+            var timeline = new TimelineObject("timeline");
+
+            var cameraLayer = new LayerObject("layer-1", "Camera");
+            cameraLayer.Objects.Add(new CameraControlObject("camera")
+            {
+                StartFrame = 0,
+                EndFrame = 10
+            });
+
+            var contentLayer = new LayerObject("layer-2", "Content");
+            contentLayer.Objects.Add(new kariHelloObject("content")
+            {
+                StartFrame = 0,
+                EndFrame = 10
+            });
+
+            timeline.Layers.Add(cameraLayer);
+            timeline.Layers.Add(contentLayer);
+
+            var context = new RenderContext(
+                frame: 0,
+                projectResolution: new SKSize(1920, 1080),
+                renderResolution: new SKSize(960, 540),
+                imageFileAccessor: new EmptyImageFileAccessor(),
+                videoFileAccessor: new EmptyVideoFileAccessor(),
+                projectInfo: new ProjectInfo(30, new SKSize(1920, 1080), 44100, 2),
+                projectPath: string.Empty);
+
+            var result = await timeline.RenderAsync(context);
+
+            Assert.That(result, Is.InstanceOf<NormalRenderNode>());
+            var root = (NormalRenderNode)result;
+            Assert.That(root.Children, Has.Count.EqualTo(1));
+            Assert.That(root.Children[0], Is.InstanceOf<NormalRenderNode>());
+
+            var cameraNode = (NormalRenderNode)root.Children[0];
+            Assert.That(cameraNode.LogicalSize.Width, Is.EqualTo(1920).Within(0.001f));
+            Assert.That(cameraNode.LogicalSize.Height, Is.EqualTo(1080).Within(0.001f));
+            Assert.That(cameraNode.Transform.Scale, Is.EqualTo(1.0f).Within(0.001f));
+        }
+
+        [Test]
+        public async Task RenderAsync_CameraControlWithVisualEffect_PreservesProjectLogicalSize()
+        {
+            var timeline = new TimelineObject("timeline");
+
+            var camera = new CameraControlObject("camera")
+            {
+                StartFrame = 0,
+                EndFrame = 10
+            };
+            camera.VisualEffects.Add(new FlipEffect { FlipHorizontal = true });
+
+            var cameraLayer = new LayerObject("layer-1", "Camera");
+            cameraLayer.Objects.Add(camera);
+
+            var contentLayer = new LayerObject("layer-2", "Content");
+            contentLayer.Objects.Add(new kariHelloObject("content")
+            {
+                StartFrame = 0,
+                EndFrame = 10
+            });
+
+            timeline.Layers.Add(cameraLayer);
+            timeline.Layers.Add(contentLayer);
+
+            var context = new RenderContext(
+                frame: 0,
+                projectResolution: new SKSize(1920, 1080),
+                renderResolution: new SKSize(960, 540),
+                imageFileAccessor: new EmptyImageFileAccessor(),
+                videoFileAccessor: new EmptyVideoFileAccessor(),
+                projectInfo: new ProjectInfo(30, new SKSize(1920, 1080), 44100, 2),
+                projectPath: string.Empty);
+
+            var result = await timeline.RenderAsync(context);
+
+            Assert.That(result, Is.InstanceOf<NormalRenderNode>());
+            var root = (NormalRenderNode)result;
+            Assert.That(root.Children, Has.Count.EqualTo(1));
+            Assert.That(root.Children[0], Is.InstanceOf<NormalRenderNode>());
+
+            var cameraNode = (NormalRenderNode)root.Children[0];
+            Assert.That(cameraNode.LogicalSize.Width, Is.EqualTo(1920).Within(0.001f));
+            Assert.That(cameraNode.LogicalSize.Height, Is.EqualTo(1080).Within(0.001f));
+            Assert.That(cameraNode.Transform.Scale, Is.EqualTo(1.0f).Within(0.001f));
+        }
+
+        [Test]
+        public async Task RenderAsync_CameraControlWithBorderEffect_ExpandsLogicalSizeFromProjectResolution()
+        {
+            var timeline = new TimelineObject("timeline");
+
+            var camera = new CameraControlObject("camera")
+            {
+                StartFrame = 0,
+                EndFrame = 10
+            };
+            camera.VisualEffects.Add(new BorderEffect
+            {
+                Size = new(5)
+            });
+
+            var cameraLayer = new LayerObject("layer-1", "Camera");
+            cameraLayer.Objects.Add(camera);
+
+            var contentLayer = new LayerObject("layer-2", "Content");
+            contentLayer.Objects.Add(new kariHelloObject("content")
+            {
+                StartFrame = 0,
+                EndFrame = 10
+            });
+
+            timeline.Layers.Add(cameraLayer);
+            timeline.Layers.Add(contentLayer);
+
+            var context = new RenderContext(
+                frame: 0,
+                projectResolution: new SKSize(1920, 1080),
+                renderResolution: new SKSize(960, 540),
+                imageFileAccessor: new EmptyImageFileAccessor(),
+                videoFileAccessor: new EmptyVideoFileAccessor(),
+                projectInfo: new ProjectInfo(30, new SKSize(1920, 1080), 44100, 2),
+                projectPath: string.Empty);
+
+            var result = await timeline.RenderAsync(context);
+
+            Assert.That(result, Is.InstanceOf<NormalRenderNode>());
+            var root = (NormalRenderNode)result;
+            Assert.That(root.Children, Has.Count.EqualTo(1));
+            Assert.That(root.Children[0], Is.InstanceOf<NormalRenderNode>());
+
+            var cameraNode = (NormalRenderNode)root.Children[0];
+            Assert.That(cameraNode.LogicalSize.Width, Is.EqualTo(1930).Within(0.001f));
+            Assert.That(cameraNode.LogicalSize.Height, Is.EqualTo(1090).Within(0.001f));
         }
     }
 }

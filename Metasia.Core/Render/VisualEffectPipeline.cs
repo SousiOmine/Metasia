@@ -30,7 +30,7 @@ namespace Metasia.Core.Render
         {
             if (effects is null || effects.Count == 0)
             {
-                return new VisualEffectResult(input, imageCacheKey);
+                return new VisualEffectResult(input, imageCacheKey, logicalSize);
             }
 
             var context = VisualEffectContext.FromRenderContext(renderContext, startFrame, endFrame, logicalSize, targetImageCacheKey: imageCacheKey);
@@ -51,7 +51,7 @@ namespace Metasia.Core.Render
         {
             if (effects is null || effects.Count == 0)
             {
-                return new VisualEffectResult(input, context.TargetImageCacheKey);
+                return new VisualEffectResult(input, context.TargetImageCacheKey, context.LogicalSize);
             }
 
             SKImage current = input;

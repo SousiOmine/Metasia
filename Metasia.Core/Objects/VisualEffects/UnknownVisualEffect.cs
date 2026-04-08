@@ -43,7 +43,7 @@ public class UnknownVisualEffect : VisualEffectBase, IUnknownMetasiaObject
 
     public override VisualEffectResult Apply(SKImage input, VisualEffectContext context)
     {
-        return new VisualEffectResult(input, context.TargetImageCacheKey);
+        return new VisualEffectResult(input, context.TargetImageCacheKey, context.LogicalSize);
     }
 
     private static void AppendElement(XmlDocument document, XmlElement parent, string name, string value)

@@ -46,9 +46,11 @@ namespace Metasia.Core.Tests.Objects.VisualEffects
             var result = effect.Apply(input, context);
 
             Assert.That(result, Is.Not.Null);
-            // 縁取りサイズ5の場合、両側で+10ピクセル拡張
-            Assert.That(result.Image.Width, Is.EqualTo(input.Width + 10));
-            Assert.That(result.Image.Height, Is.EqualTo(input.Height + 10));
+            // 論理サイズ100に対して入力画像50なので、描画側では約半分のピクセル拡張になる
+            Assert.That(result.Image.Width, Is.EqualTo(input.Width + 6));
+            Assert.That(result.Image.Height, Is.EqualTo(input.Height + 6));
+            Assert.That(result.LogicalSize.Width, Is.EqualTo(110));
+            Assert.That(result.LogicalSize.Height, Is.EqualTo(110));
         }
 
         [Test]
@@ -65,6 +67,26 @@ namespace Metasia.Core.Tests.Objects.VisualEffects
             using var bitmap = SKBitmap.FromImage(result.Image);
             // 中央はオリジナルの赤が保持されている
             Assert.That(bitmap.GetPixel(result.Image.Width / 2, result.Image.Height / 2), Is.EqualTo(SKColors.Red));
+        }
+
+        [Test]
+        public void Apply_WithScaledRenderSize_PreservesLogicalExpansion()
+        {
+            var effect = new BorderEffect();
+            effect.Size = new Metasia.Core.Objects.Parameters.MetaNumberParam<double>(5);
+            using var input = CreateTestImage(SKColors.Red, 960, 540);
+            var context = new VisualEffectContext(
+                frame: 0,
+                relativeFrame: 0,
+                clipLength: 100,
+                projectResolution: new SKSize(1920, 1080),
+                renderResolution: new SKSize(960, 540),
+                logicalSize: new SKSize(1920, 1080));
+
+            var result = effect.Apply(input, context);
+
+            Assert.That(result.LogicalSize.Width, Is.EqualTo(1930));
+            Assert.That(result.LogicalSize.Height, Is.EqualTo(1090));
         }
 
         [Test]

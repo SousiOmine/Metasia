@@ -26,7 +26,7 @@ namespace Metasia.Core.Tests.Objects.VisualEffects
         {
             ApplyCallCount++;
             LastContext = context;
-            return new VisualEffectResult(input, context.TargetImageCacheKey);
+            return new VisualEffectResult(input, context.TargetImageCacheKey, context.LogicalSize);
         }
     }
 
@@ -40,7 +40,7 @@ namespace Metasia.Core.Tests.Objects.VisualEffects
             var info = new SKImageInfo(input.Width, input.Height, SKColorType.Rgba8888, SKAlphaType.Premul);
             using var surface = SKSurface.Create(info);
             surface.Canvas.Clear(SKColors.Red);
-            return new VisualEffectResult(surface.Snapshot(), context.TargetImageCacheKey);
+            return new VisualEffectResult(surface.Snapshot(), context.TargetImageCacheKey, context.LogicalSize);
         }
     }
 
@@ -54,7 +54,7 @@ namespace Metasia.Core.Tests.Objects.VisualEffects
             var info = new SKImageInfo(input.Width, input.Height, SKColorType.Rgba8888, SKAlphaType.Premul);
             using var surface = SKSurface.Create(info);
             surface.Canvas.Clear(SKColors.Green);
-            return new VisualEffectResult(surface.Snapshot(), context.TargetImageCacheKey);
+            return new VisualEffectResult(surface.Snapshot(), context.TargetImageCacheKey, context.LogicalSize);
         }
     }
 
@@ -68,7 +68,7 @@ namespace Metasia.Core.Tests.Objects.VisualEffects
             var info = new SKImageInfo(input.Width, input.Height, SKColorType.Rgba8888, SKAlphaType.Premul);
             using var surface = SKSurface.Create(info);
             surface.Canvas.Clear(SKColors.Yellow);
-            return new VisualEffectResult(surface.Snapshot(), context.TargetImageCacheKey);
+            return new VisualEffectResult(surface.Snapshot(), context.TargetImageCacheKey, context.LogicalSize);
         }
     }
 
@@ -86,7 +86,7 @@ namespace Metasia.Core.Tests.Objects.VisualEffects
         public override VisualEffectResult Apply(SKImage input, VisualEffectContext context)
         {
             LastReceivedCacheKey = context.TargetImageCacheKey;
-            return new VisualEffectResult(input, ReturnedCacheKey);
+            return new VisualEffectResult(input, ReturnedCacheKey, context.LogicalSize);
         }
     }
 }

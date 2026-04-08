@@ -42,7 +42,7 @@ namespace Metasia.Core.Objects.VisualEffects
 
             if (top == 0 && bottom == 0 && left == 0 && right == 0)
             {
-                return new VisualEffectResult(input, context.TargetImageCacheKey);
+                return new VisualEffectResult(input, context.TargetImageCacheKey, context.LogicalSize);
             }
 
             if (context.TargetImageCacheKey != IRenderImageCache.NO_CACHE_KEY)
@@ -51,7 +51,7 @@ namespace Metasia.Core.Objects.VisualEffects
                 var cachedImage = context.ImageCache?.TryGet(cacheKey);
                 if (cachedImage is not null)
                 {
-                    return new VisualEffectResult(cachedImage, cacheKey);
+                    return new VisualEffectResult(cachedImage, cacheKey, context.LogicalSize);
                 }
             }
 
@@ -86,11 +86,11 @@ namespace Metasia.Core.Objects.VisualEffects
             {
                 long cacheKey = GetImageHashCode(context);
                 context.ImageCache?.Set(cacheKey, result);
-                return new VisualEffectResult(result, cacheKey);
+                return new VisualEffectResult(result, cacheKey, context.LogicalSize);
             }
             else
             {
-                return new VisualEffectResult(result, IRenderImageCache.NO_CACHE_KEY);
+                return new VisualEffectResult(result, IRenderImageCache.NO_CACHE_KEY, context.LogicalSize);
             }
         }
 

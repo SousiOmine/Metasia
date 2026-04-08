@@ -23,7 +23,7 @@ public class FlipEffect : VisualEffectBase
 
         if (!FlipHorizontal && !FlipVertical)
         {
-            return new VisualEffectResult(input, context.TargetImageCacheKey);
+            return new VisualEffectResult(input, context.TargetImageCacheKey, context.LogicalSize);
         }
 
         if (context.TargetImageCacheKey != IRenderImageCache.NO_CACHE_KEY)
@@ -32,7 +32,7 @@ public class FlipEffect : VisualEffectBase
             var cachedImage = context.ImageCache?.TryGet(cacheKey);
             if (cachedImage != null)
             {
-                return new VisualEffectResult(cachedImage, cacheKey);
+                return new VisualEffectResult(cachedImage, cacheKey, context.LogicalSize);
             }
         }
 
@@ -76,11 +76,11 @@ public class FlipEffect : VisualEffectBase
         {
             long cacheKey = GetImageHashCode(context);
             context.ImageCache?.Set(cacheKey, result);
-            return new VisualEffectResult(result, cacheKey);
+            return new VisualEffectResult(result, cacheKey, context.LogicalSize);
         }
         else
         {
-            return new VisualEffectResult(result, IRenderImageCache.NO_CACHE_KEY);
+            return new VisualEffectResult(result, IRenderImageCache.NO_CACHE_KEY, context.LogicalSize);
         }
     }
 

@@ -1,4 +1,3 @@
-using System.Reflection.Metadata;
 using Metasia.Core.Attributes;
 using Metasia.Core.Objects.Parameters;
 using Metasia.Core.Objects.Parameters.Color;
@@ -34,10 +33,15 @@ namespace Metasia.Core.Objects.VisualEffects
             int width = input.Width;
             int height = input.Height;
 
-            int expand = (int)Math.Ceiling(size);
-            int newWidth = width + expand * 2;
-            int newHeight = height + expand * 2;
-            var newLogicalSize = new SKSize(newWidth, newHeight);
+            float logicalScaleX = context.LogicalSize.Width > 0 ? width / context.LogicalSize.Width : 1f;
+            float logicalScaleY = context.LogicalSize.Height > 0 ? height / context.LogicalSize.Height : 1f;
+
+            int expandX = Math.Max(1, (int)Math.Ceiling(size * logicalScaleX));
+            int expandY = Math.Max(1, (int)Math.Ceiling(size * logicalScaleY));
+
+            int newWidth = width + expandX * 2;
+            int newHeight = height + expandY * 2;
+            var newLogicalSize = new SKSize(context.LogicalSize.Width + size * 2, context.LogicalSize.Height + size * 2);
 
             if (context.TargetImageCacheKey != IRenderImageCache.NO_CACHE_KEY)
             {
@@ -65,9 +69,9 @@ namespace Metasia.Core.Objects.VisualEffects
                 using var borderPaint = new SKPaint();
                 borderPaint.ImageFilter = dilateFilter;
                 borderPaint.ColorFilter = colorFilter;
-                canvas.DrawImage(drawImage, expand, expand, borderPaint);
+                canvas.DrawImage(drawImage, expandX, expandY, borderPaint);
 
-                canvas.DrawImage(drawImage, expand, expand);
+                canvas.DrawImage(drawImage, expandX, expandY);
             }
             finally
             {
