@@ -66,7 +66,7 @@ namespace Metasia.Editor.Views
                     {
                         DataContext = interaction.Input
                     };
-                    if (VisualRoot is Window window)
+                    if (TopLevel.GetTopLevel(this) is Window window)
                     {
                         var result = await dialog.ShowDialog<(bool, string, Metasia.Core.Project.ProjectInfo, Metasia.Core.Project.MetasiaProject?)>(window);
                         interaction.SetOutput(result);
@@ -94,7 +94,7 @@ namespace Metasia.Editor.Views
                         {
                             DataContext = interaction.Input
                         };
-                        if (VisualRoot is Window window)
+                        if (TopLevel.GetTopLevel(this) is Window window)
                         {
                             _outputWindow.Show(window);
                             _outputWindow.Closed += (s, e) =>
@@ -127,7 +127,7 @@ namespace Metasia.Editor.Views
                 try
                 {
                     var serviceProvider = App.Current?.Services;
-                    if (serviceProvider is not null && VisualRoot is Window window)
+                    if (serviceProvider is not null && TopLevel.GetTopLevel(this) is Window window)
                     {
                         var settingsViewModel = serviceProvider.GetRequiredService<SettingsWindowViewModel>();
                         var settingsWindow = new SettingsWindow()
@@ -151,7 +151,7 @@ namespace Metasia.Editor.Views
             {
                 try
                 {
-                    if (VisualRoot is Window window)
+                    if (TopLevel.GetTopLevel(this) is Window window)
                     {
                         var pluginListWindow = new PluginListWindow()
                         {
@@ -173,7 +173,7 @@ namespace Metasia.Editor.Views
             {
                 try
                 {
-                    if (VisualRoot is Window window)
+                    if (TopLevel.GetTopLevel(this) is Window window)
                     {
                         var settingsWindow = interaction.Input.CreateSettingsWindow();
                         await settingsWindow.ShowDialog(window);
@@ -199,7 +199,7 @@ namespace Metasia.Editor.Views
                             DataContext = interaction.Input
                         };
 
-                        if (VisualRoot is Window window)
+                        if (TopLevel.GetTopLevel(this) is Window window)
                         {
                             _notificationHistoryWindow.Show(window);
                             _notificationHistoryWindow.Closed += (_, _) => _notificationHistoryWindow = null;
