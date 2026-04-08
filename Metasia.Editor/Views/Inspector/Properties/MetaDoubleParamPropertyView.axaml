@@ -10,7 +10,8 @@
     <StackPanel Orientation="Horizontal" Margin="1" Spacing="4">
         <TextBlock Text="{Binding PropertyDisplayName}"
                    VerticalAlignment="Center"
-                   Width="68"
+                   HorizontalAlignment="Center"
+                   Width="100"
                    Margin="1"/>
         <controls:InspectorNumericUpDown Value="{Binding PropertyValue}"
                                          Minimum="{Binding Min}"

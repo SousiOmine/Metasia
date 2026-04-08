@@ -9,13 +9,16 @@
     <StackPanel Orientation="Horizontal" Margin="1" Spacing="4">
         <TextBlock Text="{Binding PropertyDisplayName}"
                    VerticalAlignment="Center"
-                   Width="68"
+                   HorizontalAlignment="Center"
+                   Width="100"
                    Margin="1"/>
         <ComboBox ItemsSource="{Binding AvailableFonts}"
                   SelectedItem="{Binding SelectedFont, Mode=TwoWay}"
+                  ToolTip.Tip="フォントを選択"
                   Width="220"
                   MinWidth="180"
-                  HorizontalAlignment="Stretch"/>
+                  HorizontalAlignment="Center"
+                  Margin="2,8,0,0"/>
         <CheckBox Content="B"
                   ToolTip.Tip="Bold"
                   IsChecked="{Binding IsBold, Mode=TwoWay}"

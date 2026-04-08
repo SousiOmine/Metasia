@@ -7,7 +7,10 @@
              x:Class="Metasia.Editor.Views.Inspector.Properties.BlendModeParamPropertyView"
              x:DataType="vm:BlendModeParamPropertyViewModel">
     <StackPanel Orientation="Horizontal" Margin="1" Spacing="4">
-        <TextBlock Text="{Binding PropertyDisplayName}" VerticalAlignment="Center" Width="80" Margin="1"/>
+        <TextBlock Text="{Binding PropertyDisplayName}"
+                   VerticalAlignment="Center"
+                   HorizontalAlignment="Center"
+                   Width="100" Margin="1"/>
         <ComboBox SelectedIndex="{Binding SelectedIndex}" ItemsSource="{Binding Options}" Width="150" Margin="1"/>
     </StackPanel>
 </UserControl>

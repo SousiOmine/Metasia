@@ -8,8 +8,10 @@
              x:DataType="vm:MediaPathPropertyViewModel">
     <StackPanel Orientation="Horizontal">
         <TextBlock
-            Text="{Binding PropertyDisplayName}"/>
-        <Button Content="Select File" Command="{Binding OpenFileCommand}"/>
+            Text="{Binding PropertyDisplayName}"
+            HorizontalAlignment="Center"
+            Width="100"/>
+        <Button Content="ファイルを選択" Command="{Binding OpenFileCommand}"/>
         <TextBlock Text="{Binding FileName}"/>
     </StackPanel>
 </UserControl>
