@@ -101,7 +101,6 @@ public class PlayerParentViewModel : ViewModelBase, IDisposable
     /// </summary>
     private void OnProjectLoaded()
     {
-        _timelineViewStateStore.Clear();
         LoadProject();
     }
 
@@ -215,7 +214,6 @@ public class PlayerParentViewModel : ViewModelBase, IDisposable
 
     private void OnProjectClosed()
     {
-        _timelineViewStateStore.Clear();
         TargetPlayerViewModel = null;
         IsPlayerShow = false;
         TargetTimelineName = string.Empty;

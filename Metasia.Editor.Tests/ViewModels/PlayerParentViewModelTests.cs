@@ -128,53 +128,124 @@ public class PlayerParentViewModelTests
     }
 
     [Test]
-    public void LoadProjectAsync_ClearsTimelineViewStateFromPreviousProject()
+    public void LoadProjectAsync_RestoresRootTimelineFrameAndKeepsOtherTimelineStateForLaterSwitch()
     {
-        var selectionState = new SelectionState();
-        var projectState = new ProjectState();
-        var editCommandManager = new EditCommandManager();
-        var playbackState = new CountingPlaybackState();
-        var timelineViewStateStore = new TimelineViewStateStore();
-        var playerFactory = new FakePlayerViewModelFactory(selectionState, playbackState, projectState, editCommandManager);
-
-        using var viewModel = new PlayerParentViewModel(
-            new FakeKeyBindingService(),
-            playerFactory,
-            projectState,
-            playbackState,
-            timelineViewStateStore,
-            editCommandManager,
-            selectionState);
-
-        var firstProject = CreateProject(new TimelineObject("RootTimeline"));
-        projectState.LoadProjectAsync(firstProject).GetAwaiter().GetResult();
-
-        var firstState = timelineViewStateStore.GetViewState("RootTimeline");
-        firstState.LastPreviewFrame = 42;
-        firstState.HorizontalScrollPosition = 12;
-
-        var secondProject = CreateProject(new TimelineObject("RootTimeline"));
-        projectState.LoadProjectAsync(secondProject).GetAwaiter().GetResult();
-
-        var secondState = timelineViewStateStore.GetViewState("RootTimeline");
-
-        Assert.Multiple(() =>
+        var tempDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+        Directory.CreateDirectory(tempDirectory);
+        try
         {
-            Assert.That(playbackState.CurrentFrame, Is.EqualTo(0));
-            Assert.That(secondState.LastPreviewFrame, Is.EqualTo(0));
-            Assert.That(secondState.HorizontalScrollPosition, Is.EqualTo(0));
-        });
+            var projectFilePath = Path.Combine(tempDirectory, "sample.mtpj");
+
+            var initialSelectionState = new SelectionState();
+            var initialProjectState = new ProjectState();
+            var initialEditCommandManager = new EditCommandManager();
+            var initialPlaybackState = new CountingPlaybackState();
+            var repository = new ProjectTimelineViewStateRepository(tempDirectory);
+            var initialTimelineViewStateStore = new PersistentTimelineViewStateStore(
+                new TimelineViewStateStore(),
+                repository,
+                initialProjectState,
+                TimeSpan.Zero);
+            var initialPlayerFactory = new FakePlayerViewModelFactory(
+                initialSelectionState,
+                initialPlaybackState,
+                initialProjectState,
+                initialEditCommandManager);
+
+            using (var initialViewModel = new PlayerParentViewModel(
+                new FakeKeyBindingService(),
+                initialPlayerFactory,
+                initialProjectState,
+                initialPlaybackState,
+                initialTimelineViewStateStore,
+                initialEditCommandManager,
+                initialSelectionState))
+            {
+                var initialRootTimeline = new TimelineObject("RootTimeline");
+                var initialSecondTimeline = new TimelineObject("Timeline2");
+                initialProjectState.LoadProjectAsync(CreateProject(projectFilePath, initialRootTimeline, initialSecondTimeline))
+                    .GetAwaiter()
+                    .GetResult();
+
+                initialTimelineViewStateStore.GetViewState(initialRootTimeline.Id).LastPreviewFrame = 42;
+                initialTimelineViewStateStore.GetViewState(initialRootTimeline.Id).Frame_Per_DIP = 5.0;
+                initialTimelineViewStateStore.GetViewState(initialRootTimeline.Id).HorizontalScrollPosition = 12;
+                initialTimelineViewStateStore.GetViewState(initialSecondTimeline.Id).LastPreviewFrame = 24;
+                initialTimelineViewStateStore.GetViewState(initialSecondTimeline.Id).Frame_Per_DIP = 2.0;
+                initialTimelineViewStateStore.GetViewState(initialSecondTimeline.Id).HorizontalScrollPosition = 7;
+            }
+
+            var selectionState = new SelectionState();
+            var projectState = new ProjectState();
+            var editCommandManager = new EditCommandManager();
+            var playbackState = new CountingPlaybackState();
+            var timelineViewStateStore = new PersistentTimelineViewStateStore(
+                new TimelineViewStateStore(),
+                repository,
+                projectState,
+                TimeSpan.Zero);
+            var playerFactory = new FakePlayerViewModelFactory(selectionState, playbackState, projectState, editCommandManager);
+
+            using var viewModel = new PlayerParentViewModel(
+                new FakeKeyBindingService(),
+                playerFactory,
+                projectState,
+                playbackState,
+                timelineViewStateStore,
+                editCommandManager,
+                selectionState);
+
+            var reloadedRootTimeline = new TimelineObject("RootTimeline");
+            var reloadedSecondTimeline = new TimelineObject("Timeline2");
+            projectState.LoadProjectAsync(CreateProject(projectFilePath, reloadedRootTimeline, reloadedSecondTimeline))
+                .GetAwaiter()
+                .GetResult();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(projectState.CurrentTimeline, Is.SameAs(reloadedRootTimeline));
+                Assert.That(viewModel.TargetPlayerViewModel?.TargetTimeline, Is.SameAs(reloadedRootTimeline));
+                Assert.That(playbackState.CurrentFrame, Is.EqualTo(42));
+                Assert.That(timelineViewStateStore.GetViewState(reloadedRootTimeline.Id).Frame_Per_DIP, Is.EqualTo(5.0));
+                Assert.That(timelineViewStateStore.GetViewState(reloadedRootTimeline.Id).HorizontalScrollPosition, Is.EqualTo(12));
+            });
+
+            viewModel.SwitchToTimeline(reloadedSecondTimeline);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(projectState.CurrentTimeline, Is.SameAs(reloadedSecondTimeline));
+                Assert.That(playbackState.CurrentFrame, Is.EqualTo(24));
+                Assert.That(timelineViewStateStore.GetViewState(reloadedSecondTimeline.Id).Frame_Per_DIP, Is.EqualTo(2.0));
+                Assert.That(timelineViewStateStore.GetViewState(reloadedSecondTimeline.Id).HorizontalScrollPosition, Is.EqualTo(7));
+            });
+        }
+        finally
+        {
+            Directory.Delete(tempDirectory, true);
+        }
     }
 
     private static MetasiaEditorProject CreateProject(params TimelineObject[] timelines)
     {
+        return CreateProject(Path.Combine(Path.GetTempPath(), Path.GetRandomFileName() + ".mtpj"), timelines);
+    }
+
+    private static MetasiaEditorProject CreateProject(string projectFilePath, params TimelineObject[] timelines)
+    {
+        var projectDirectory = Path.GetDirectoryName(projectFilePath)!;
+
         var project = new MetasiaEditorProject(
-            new DirectoryEntity(Path.GetTempPath()),
+            new DirectoryEntity(projectDirectory),
             new MetasiaProjectFile
             {
+                RootTimelineId = "RootTimeline",
                 Framerate = 60,
                 Resolution = new VideoResolution { Width = 1920, Height = 1080 }
-            });
+            })
+        {
+            ProjectFilePath = projectFilePath
+        };
 
         foreach (var timeline in timelines)
         {

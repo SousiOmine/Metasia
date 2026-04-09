@@ -184,6 +184,8 @@ namespace Metasia.Editor.ViewModels
             _timelineViewState.HorizontalScrollPosition_Changed += OnHorizontalScrollPositionChanged;
             Frame_Per_DIP = _timelineViewState.Frame_Per_DIP;
             _horizontalScrollPosition = _timelineViewState.HorizontalScrollPosition;
+            Frame = _timelineViewState.LastPreviewFrame;
+            CursorLeft = Frame * _timelineViewState.Frame_Per_DIP;
             if (_projectState.CurrentProjectInfo != null)
             {
                 FrameRate = _projectState.CurrentProjectInfo.Framerate;

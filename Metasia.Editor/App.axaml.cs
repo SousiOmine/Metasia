@@ -114,7 +114,9 @@ namespace Metasia.Editor
             services.AddSingleton<IProjectState, ProjectState>();
             services.AddSingleton<ISelectionState, SelectionState>();
             services.AddSingleton<IPlaybackState, PlaybackState>();
-            services.AddSingleton<ITimelineViewStateStore, TimelineViewStateStore>();
+            services.AddSingleton<TimelineViewStateStore>();
+            services.AddSingleton<IProjectTimelineViewStateRepository, ProjectTimelineViewStateRepository>();
+            services.AddSingleton<ITimelineViewStateStore, PersistentTimelineViewStateStore>();
             services.AddSingleton<IClipColorProvider, DefaultClipColorProvider>();
             services.AddSingleton<IClipboardService, ClipboardService>();
 

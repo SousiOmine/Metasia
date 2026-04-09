@@ -69,15 +69,7 @@ public class ProjectState : IProjectState
         // 重い処理の代わりに仮で100ms待つ
         await Task.Delay(100);
 
-        // デフォルトで最初のタイムラインを選択
-        if (project.Timelines.Count > 0)
-        {
-            _currentTimeline = project.Timelines[0];
-        }
-        else
-        {
-            _currentTimeline = null;
-        }
+        _currentTimeline = ResolveInitialTimeline(project);
 
         ProjectLoaded?.Invoke();
     }
@@ -121,5 +113,17 @@ public class ProjectState : IProjectState
     public void NotifyTimelineChanged()
     {
         TimelineChanged?.Invoke();
+    }
+
+    private static TimelineObject? ResolveInitialTimeline(MetasiaEditorProject project)
+    {
+        if (project.Timelines.Count == 0)
+        {
+            return null;
+        }
+
+        var rootTimelineId = project.ProjectFile.RootTimelineId;
+        return project.Timelines.Find(timeline => timeline.Id == rootTimelineId)
+            ?? project.Timelines[0];
     }
 }

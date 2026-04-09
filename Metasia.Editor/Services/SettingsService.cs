@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Metasia.Editor.Models;
 using Metasia.Editor.Models.Settings;
 
 namespace Metasia.Editor.Services
@@ -22,8 +23,7 @@ namespace Metasia.Editor.Services
 
         public SettingsService()
         {
-            var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            _settingsDirectory = Path.Combine(appData, "Metasia");
+            _settingsDirectory = MetasiaPaths.AppDataDirectory;
             Directory.CreateDirectory(_settingsDirectory);
             _settingsFilePath = Path.Combine(_settingsDirectory, SETTINGS_FILE_NAME);
         }

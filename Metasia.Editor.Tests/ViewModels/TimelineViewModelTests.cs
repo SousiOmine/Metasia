@@ -42,6 +42,37 @@ public class TimelineViewModelTests
         Assert.That(viewState.HorizontalScrollPosition, Is.EqualTo(24));
     }
 
+    [Test]
+    public void Constructor_RestoresFrameFromTimelineViewState()
+    {
+        var timeline = new TimelineObject("RootTimeline");
+        var projectState = new ProjectState();
+        projectState.LoadProjectAsync(CreateProject(timeline)).GetAwaiter().GetResult();
+
+        var viewState = new TimelineViewState
+        {
+            LastPreviewFrame = 42,
+            Frame_Per_DIP = 3.5
+        };
+
+        using var viewModel = new TimelineViewModel(
+            timeline,
+            new DummyLayerButtonViewModelFactory(),
+            new DummyLayerCanvasViewModelFactory(),
+            new SelectionState(),
+            new FakePlaybackState(),
+            projectState,
+            new EditCommandManager(),
+            viewState,
+            new FakeClipboardService());
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(viewModel.Frame, Is.EqualTo(42));
+            Assert.That(viewModel.CursorLeft, Is.EqualTo(147.0));
+        });
+    }
+
     private static MetasiaEditorProject CreateProject(params TimelineObject[] timelines)
     {
         var project = new MetasiaEditorProject(
