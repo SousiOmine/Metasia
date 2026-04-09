@@ -201,6 +201,7 @@ namespace Metasia.Editor.ViewModels
             playbackState.PlaybackSeeked += OnPlaybackFrameChanged;
             projectState.TimelineChanged += UpdateSlider;
 
+            OnPlaybackFrameChanged();
             NotifyProjectChanged();
         }
 

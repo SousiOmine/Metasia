@@ -64,12 +64,16 @@ public class PlayerParentViewModel : ViewModelBase, IDisposable
     private readonly IKeyBindingService? _keyBindingService;
     private readonly IPlayerViewModelFactory _playerViewModelFactory;
     private readonly IProjectState _projectState;
+    private readonly IPlaybackState _playbackState;
+    private readonly ITimelineViewStateStore _timelineViewStateStore;
     private readonly IEditCommandManager _editCommandManager;
     private readonly ISelectionState _selectionState;
     public PlayerParentViewModel(
         IKeyBindingService keyBindingService,
         IPlayerViewModelFactory playerViewModelFactory,
         IProjectState projectState,
+        IPlaybackState playbackState,
+        ITimelineViewStateStore timelineViewStateStore,
         IEditCommandManager editCommandManager,
         ISelectionState selectionState)
     {
@@ -81,6 +85,8 @@ public class PlayerParentViewModel : ViewModelBase, IDisposable
         }
         _playerViewModelFactory = playerViewModelFactory;
         _projectState = projectState;
+        _playbackState = playbackState;
+        _timelineViewStateStore = timelineViewStateStore;
         _editCommandManager = editCommandManager;
         _selectionState = selectionState;
         _projectState.ProjectLoaded += OnProjectLoaded;
@@ -95,6 +101,7 @@ public class PlayerParentViewModel : ViewModelBase, IDisposable
     /// </summary>
     private void OnProjectLoaded()
     {
+        _timelineViewStateStore.Clear();
         LoadProject();
     }
 
@@ -161,6 +168,7 @@ public class PlayerParentViewModel : ViewModelBase, IDisposable
         }
 
         _projectState.SetCurrentTimeline(initialTimeline);
+        RestorePlaybackFrame(initialTimeline);
         TargetPlayerViewModel = CreatePlayerViewModel(initialTimeline);
         IsPlayerShow = true;
     }
@@ -179,10 +187,11 @@ public class PlayerParentViewModel : ViewModelBase, IDisposable
             return;
         }
 
-        TargetPlayerViewModel?.PauseAndSeekToFrame(0);
+        _playbackState.Pause();
         _selectionState.ClearSelectedClips();
         _selectionState.ClearSelectedLayer();
         _projectState.SetCurrentTimeline(timeline);
+        RestorePlaybackFrame(timeline);
 
         TargetPlayerViewModel = CreatePlayerViewModel(timeline);
         IsPlayerShow = true;
@@ -206,6 +215,7 @@ public class PlayerParentViewModel : ViewModelBase, IDisposable
 
     private void OnProjectClosed()
     {
+        _timelineViewStateStore.Clear();
         TargetPlayerViewModel = null;
         IsPlayerShow = false;
         TargetTimelineName = string.Empty;
@@ -214,6 +224,12 @@ public class PlayerParentViewModel : ViewModelBase, IDisposable
     private PlayerViewModel CreatePlayerViewModel(TimelineObject timeline)
     {
         return _playerViewModelFactory.Create(timeline, _projectState.CurrentProjectInfo!);
+    }
+
+    private void RestorePlaybackFrame(TimelineObject timeline)
+    {
+        var targetFrame = _timelineViewStateStore.GetViewState(timeline.Id).CurrentFrame;
+        _playbackState.Seek(targetFrame);
     }
 
     private void ValidateCurrentTimeline(object? sender, IEditCommand e)

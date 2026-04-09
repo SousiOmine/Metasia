@@ -27,6 +27,8 @@ public partial class TimelineView : UserControl
     private KeyModifiers _timelineZoomModifier = KeyModifiers.Control;
     private bool _isDraggingTimeline = false;
     private TimelineViewModel? _subscribedVM;
+    private bool _isUpdatingScrollFromViewModel = false;
+    private bool _isUpdatingScrollFromView = false;
 
     public TimelineView()
     {
@@ -83,6 +85,20 @@ public partial class TimelineView : UserControl
             // マウスホイールのイベントを無効にする
             e.Handled = true;
         }, Avalonia.Interactivity.RoutingStrategies.Tunnel);
+
+        TimescaleScroll.ScrollChanged += OnScrollChanged;
+        LinesScroll.ScrollChanged += OnScrollChanged;
+    }
+
+    private void OnScrollChanged(object? sender, ScrollChangedEventArgs e)
+    {
+        if (_isUpdatingScrollFromViewModel) return;
+        if (VM is null) return;
+
+        _isUpdatingScrollFromView = true;
+        int scrollFrame = (int)(TimescaleScroll.Offset.X / VM.Frame_Per_DIP);
+        VM.HorizontalScrollPosition = scrollFrame;
+        _isUpdatingScrollFromView = false;
     }
 
     private void TimecodeCanvas_PointerPressed(object? sender, Avalonia.Input.PointerPressedEventArgs e)
@@ -166,13 +182,23 @@ public partial class TimelineView : UserControl
         {
             _subscribedVM = vm;
             _subscribedVM.PropertyChanged += OnViewModelPropertyChanged;
+
+            // スクロール位置を復元
+            RestoreScrollPosition();
         }
     }
 
     private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName != nameof(TimelineViewModel.CursorLeft)) return;
         if (_subscribedVM is null) return;
+
+        if (e.PropertyName == nameof(TimelineViewModel.HorizontalScrollPosition))
+        {
+            OnHorizontalScrollPositionChanged();
+            return;
+        }
+
+        if (e.PropertyName != nameof(TimelineViewModel.CursorLeft)) return;
 
         double cursorLeft = _subscribedVM.CursorLeft;
         double viewportWidth = TimescaleScroll.Viewport.Width;
@@ -184,6 +210,25 @@ public partial class TimelineView : UserControl
             TimescaleScroll.Offset = new Vector(newOffset, TimescaleScroll.Offset.Y);
             LinesScroll.Offset = new Vector(newOffset, LinesScroll.Offset.Y);
         }
+    }
+
+    private void OnHorizontalScrollPositionChanged()
+    {
+        if (_isUpdatingScrollFromView) return;
+        if (_subscribedVM is null) return;
+
+        RestoreScrollPosition();
+    }
+
+    private void RestoreScrollPosition()
+    {
+        if (_subscribedVM is null) return;
+
+        _isUpdatingScrollFromViewModel = true;
+        double scrollOffset = _subscribedVM.HorizontalScrollPosition * _subscribedVM.Frame_Per_DIP;
+        TimescaleScroll.Offset = new Vector(scrollOffset, 0);
+        LinesScroll.Offset = new Vector(scrollOffset, LinesScroll.Offset.Y);
+        _isUpdatingScrollFromViewModel = false;
     }
 
     private void HandleTimelineZoom(PointerWheelEventArgs e)
@@ -216,5 +261,9 @@ public partial class TimelineView : UserControl
         // スクロール位置を設定
         TimescaleScroll.Offset = new Vector(newScrollOffset, TimescaleScroll.Offset.Y);
         LinesScroll.Offset = new Vector(newScrollOffset, LinesScroll.Offset.Y);
+
+        // スクロール位置をViewModelに反映
+        int scrollFrame = (int)(newScrollOffset / newFramePerDIP);
+        VM.HorizontalScrollPosition = scrollFrame;
     }
 }

@@ -13,13 +13,13 @@ internal sealed class EditorHostContext : IEditorHostContext
     public EditorHostContext(
         IEditCommandManager editCommandManager,
         ISelectionState selectionState,
-        ITimelineViewState timelineViewState,
+        ITimelineViewStateStore timelineViewStateStore,
         IPlaybackState playbackState,
         INotificationService notificationService)
     {
         EditCommandManager = editCommandManager;
         SelectionState = selectionState;
-        TimelineViewState = timelineViewState;
+        TimelineViewStateStore = timelineViewStateStore;
         PlaybackState = playbackState;
         NotificationService = notificationService;
     }
@@ -28,7 +28,7 @@ internal sealed class EditorHostContext : IEditorHostContext
 
     public ISelectionState SelectionState { get; }
 
-    public ITimelineViewState TimelineViewState { get; }
+    public ITimelineViewStateStore TimelineViewStateStore { get; }
 
     public IPlaybackState PlaybackState { get; }
 

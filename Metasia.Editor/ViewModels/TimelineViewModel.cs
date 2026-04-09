@@ -73,6 +73,21 @@ namespace Metasia.Editor.ViewModels
         }
 
         /// <summary>
+        /// 水平スクロール位置（フレーム単位）
+        /// </summary>
+        public int HorizontalScrollPosition
+        {
+            get => _horizontalScrollPosition;
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _horizontalScrollPosition, value);
+                _timelineViewState.HorizontalScrollPosition = value;
+            }
+        }
+
+        private int _horizontalScrollPosition;
+
+        /// <summary>
         /// プロジェクトのフレームレート
         /// </summary>
         public int FrameRate
@@ -165,7 +180,10 @@ namespace Metasia.Editor.ViewModels
 
             _timeline = timeline;
             _timelineViewState.Frame_Per_DIP_Changed += OnFramePerDIPChanged;
+            _timelineViewState.CurrentFrame_Changed += OnCurrentFrameChanged;
+            _timelineViewState.HorizontalScrollPosition_Changed += OnHorizontalScrollPositionChanged;
             Frame_Per_DIP = _timelineViewState.Frame_Per_DIP;
+            _horizontalScrollPosition = _timelineViewState.HorizontalScrollPosition;
             if (_projectState.CurrentProjectInfo != null)
             {
                 FrameRate = _projectState.CurrentProjectInfo.Framerate;
@@ -222,6 +240,9 @@ namespace Metasia.Editor.ViewModels
 
             // プレビュー位置を移動
             playbackState.Seek(targetFrame);
+            
+            // タイムラインごとの状態として保存
+            _timelineViewState.CurrentFrame = targetFrame;
         }
 
         public void ClipRemove(ClipObject clipObject)
@@ -373,6 +394,8 @@ namespace Metasia.Editor.ViewModels
             {
                 // イベントハンドラーの購読解除
                 _timelineViewState.Frame_Per_DIP_Changed -= OnFramePerDIPChanged;
+                _timelineViewState.CurrentFrame_Changed -= OnCurrentFrameChanged;
+                _timelineViewState.HorizontalScrollPosition_Changed -= OnHorizontalScrollPositionChanged;
                 playbackState.PlaybackFrameChanged -= OnPlaybackFrameChanged;
                 editCommandManager.CommandExecuted -= OnCommandExecutedForControl;
                 editCommandManager.CommandUndone -= OnCommandUndoneForControl;
@@ -404,10 +427,24 @@ namespace Metasia.Editor.ViewModels
             _isUpdatingFramePerDIP = false;
         }
 
+        private void OnCurrentFrameChanged()
+        {
+            Frame = _timelineViewState.CurrentFrame;
+            CursorLeft = Frame * _timelineViewState.Frame_Per_DIP;
+        }
+
+        private void OnHorizontalScrollPositionChanged()
+        {
+            _horizontalScrollPosition = _timelineViewState.HorizontalScrollPosition;
+            this.RaisePropertyChanged(nameof(HorizontalScrollPosition));
+        }
+
         private void OnPlaybackFrameChanged()
         {
             Frame = playbackState.CurrentFrame;
             CursorLeft = Frame * _timelineViewState.Frame_Per_DIP;
+            // 再生中のフレーム位置を状態として保存
+            _timelineViewState.CurrentFrame = Frame;
         }
 
         private void ChangeFramePerDIP()

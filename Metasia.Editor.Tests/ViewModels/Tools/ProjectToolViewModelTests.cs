@@ -33,12 +33,15 @@ public class ProjectToolViewModelTests
         var projectState = new ProjectState();
         var editCommandManager = new EditCommandManager();
         var playbackState = new FakePlaybackState();
+        var timelineViewStateStore = new TimelineViewStateStore();
         var playerFactory = new FakePlayerViewModelFactory(selectionState, playbackState, projectState, editCommandManager);
 
         using var playerParent = new PlayerParentViewModel(
             new FakeKeyBindingService(),
             playerFactory,
             projectState,
+            playbackState,
+            timelineViewStateStore,
             editCommandManager,
             selectionState);
         using var viewModel = new ProjectToolViewModel(playerParent, projectState, selectionState, editCommandManager);
@@ -71,12 +74,15 @@ public class ProjectToolViewModelTests
         var projectState = new ProjectState();
         var editCommandManager = new EditCommandManager();
         var playbackState = new FakePlaybackState();
+        var timelineViewStateStore = new TimelineViewStateStore();
         var playerFactory = new FakePlayerViewModelFactory(selectionState, playbackState, projectState, editCommandManager);
 
         using var playerParent = new PlayerParentViewModel(
             new FakeKeyBindingService(),
             playerFactory,
             projectState,
+            playbackState,
+            timelineViewStateStore,
             editCommandManager,
             selectionState);
         using var viewModel = new ProjectToolViewModel(playerParent, projectState, selectionState, editCommandManager);

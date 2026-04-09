@@ -205,6 +205,7 @@ public class ClipMidpointMarkerViewModelTests
             get => _framePerDip;
             set
             {
+                if (_framePerDip == value) return;
                 _framePerDip = value;
                 Frame_Per_DIP_Changed?.Invoke();
             }
@@ -212,10 +213,38 @@ public class ClipMidpointMarkerViewModelTests
 
         public event Action? Frame_Per_DIP_Changed;
 
+        public int HorizontalScrollPosition
+        {
+            get => _horizontalScrollPosition;
+            set
+            {
+                if (_horizontalScrollPosition == value) return;
+                _horizontalScrollPosition = value;
+                HorizontalScrollPosition_Changed?.Invoke();
+            }
+        }
+
+        public event Action? HorizontalScrollPosition_Changed;
+
+        public int CurrentFrame
+        {
+            get => _currentFrame;
+            set
+            {
+                if (_currentFrame == value) return;
+                _currentFrame = value;
+                CurrentFrame_Changed?.Invoke();
+            }
+        }
+
+        public event Action? CurrentFrame_Changed;
+
         public void Dispose()
         {
         }
 
         private double _framePerDip;
+        private int _horizontalScrollPosition;
+        private int _currentFrame;
     }
 }

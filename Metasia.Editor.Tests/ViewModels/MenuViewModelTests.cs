@@ -74,6 +74,8 @@ public class MenuViewModelTests
             new FakeKeyBindingService(),
             new DummyPlayerViewModelFactory(),
             projectState,
+            new FakePlaybackState(),
+            new TimelineViewStateStore(),
             editCommandManager,
             selectionState);
 

@@ -137,7 +137,7 @@ public class PluginServiceTests
         Assert.That(plugin.HostContext, Is.Not.Null);
         Assert.That(plugin.HostContext!.EditCommandManager, Is.Not.Null);
         Assert.That(plugin.HostContext.SelectionState, Is.Not.Null);
-        Assert.That(plugin.HostContext.TimelineViewState, Is.Not.Null);
+        Assert.That(plugin.HostContext.TimelineViewStateStore, Is.Not.Null);
         Assert.That(plugin.HostContext.PlaybackState, Is.Not.Null);
         Assert.That(plugin.HostContext.NotificationService, Is.Not.Null);
 
@@ -156,7 +156,7 @@ public class PluginServiceTests
             registry,
             new EditCommandManager(),
             new SelectionState(),
-            new TimelineViewState(),
+            new TimelineViewStateStore(),
             new FakePlaybackState(),
             new NotificationService(),
             pluginLoader);

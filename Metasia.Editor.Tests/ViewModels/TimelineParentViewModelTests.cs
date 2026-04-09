@@ -72,7 +72,7 @@ public class TimelineParentViewModelTests
         private readonly ISelectionState _selectionState;
         private readonly IPlaybackState _playbackState;
         private readonly IEditCommandManager _editCommandManager;
-        private readonly ITimelineViewState _timelineViewState = new TimelineViewState();
+        private readonly ITimelineViewStateStore _timelineViewStateStore = new TimelineViewStateStore();
         private readonly IClipboardService _clipboardService = new FakeClipboardService();
         private readonly ILayerButtonViewModelFactory _layerButtonFactory = new DummyLayerButtonViewModelFactory();
         private readonly ILayerCanvasViewModelFactory _layerCanvasFactory = new DummyLayerCanvasViewModelFactory();
@@ -99,7 +99,7 @@ public class TimelineParentViewModelTests
                 _playbackState,
                 _projectState,
                 _editCommandManager,
-                _timelineViewState,
+                _timelineViewStateStore.GetViewState(timeline.Id),
                 _clipboardService);
         }
     }

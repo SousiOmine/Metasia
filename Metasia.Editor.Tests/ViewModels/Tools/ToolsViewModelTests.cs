@@ -69,12 +69,15 @@ public class ToolsViewModelTests
         var projectState = new ProjectState();
         var editCommandManager = new EditCommandManager();
         var playbackState = new FakePlaybackState();
+        var timelineViewStateStore = new TimelineViewStateStore();
         var playerFactory = new FakePlayerViewModelFactory(selectionState, playbackState, projectState, editCommandManager);
 
         var playerParent = new PlayerParentViewModel(
             new FakeKeyBindingService(),
             playerFactory,
             projectState,
+            playbackState,
+            timelineViewStateStore,
             editCommandManager,
             selectionState);
 

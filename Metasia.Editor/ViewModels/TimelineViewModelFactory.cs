@@ -18,7 +18,7 @@ public class TimelineViewModelFactory : ITimelineViewModelFactory
     private readonly IPlaybackState playbackState;
     private readonly IEditCommandManager editCommandManager;
     private readonly IProjectState _projectState;
-    private readonly ITimelineViewState _timelineViewState;
+    private readonly ITimelineViewStateStore _timelineViewStateStore;
     private readonly IClipboardService _clipboardService;
     public TimelineViewModelFactory(
         ILayerButtonViewModelFactory layerButtonViewModelFactory,
@@ -27,12 +27,12 @@ public class TimelineViewModelFactory : ITimelineViewModelFactory
         IPlaybackState playbackState,
         IEditCommandManager editCommandManager,
         IProjectState projectState,
-        ITimelineViewState timelineViewState,
+        ITimelineViewStateStore timelineViewStateStore,
         IClipboardService clipboardService)
     {
         ArgumentNullException.ThrowIfNull(layerButtonViewModelFactory);
         ArgumentNullException.ThrowIfNull(layerCanvasViewModelFactory);
-        ArgumentNullException.ThrowIfNull(timelineViewState);
+        ArgumentNullException.ThrowIfNull(timelineViewStateStore);
         ArgumentNullException.ThrowIfNull(clipboardService);
         _layerButtonViewModelFactory = layerButtonViewModelFactory;
         _layerCanvasViewModelFactory = layerCanvasViewModelFactory;
@@ -40,12 +40,13 @@ public class TimelineViewModelFactory : ITimelineViewModelFactory
         this.playbackState = playbackState;
         this.editCommandManager = editCommandManager;
         _projectState = projectState;
-        _timelineViewState = timelineViewState;
+        _timelineViewStateStore = timelineViewStateStore;
         _clipboardService = clipboardService;
     }
     public TimelineViewModel Create(TimelineObject timeline)
     {
         ArgumentNullException.ThrowIfNull(timeline);
-        return new TimelineViewModel(timeline, _layerButtonViewModelFactory, _layerCanvasViewModelFactory, selectionState, playbackState, _projectState, editCommandManager, _timelineViewState, _clipboardService);
+        var viewState = _timelineViewStateStore.GetViewState(timeline.Id);
+        return new TimelineViewModel(timeline, _layerButtonViewModelFactory, _layerCanvasViewModelFactory, selectionState, playbackState, _projectState, editCommandManager, viewState, _clipboardService);
     }
 }

@@ -29,12 +29,15 @@ public class PlayerParentViewModelTests
         var projectState = new ProjectState();
         var editCommandManager = new EditCommandManager();
         var playbackState = new CountingPlaybackState();
+        var timelineViewStateStore = new TimelineViewStateStore();
         var playerFactory = new FakePlayerViewModelFactory(selectionState, playbackState, projectState, editCommandManager);
 
         using var viewModel = new PlayerParentViewModel(
             new FakeKeyBindingService(),
             playerFactory,
             projectState,
+            playbackState,
+            timelineViewStateStore,
             editCommandManager,
             selectionState);
 
@@ -44,6 +47,7 @@ public class PlayerParentViewModelTests
 
         projectState.LoadProjectAsync(project).GetAwaiter().GetResult();
         var initialSubscriptionCount = playbackState.TotalSubscriptionCount;
+        var initialSeekCount = playbackState.SeekCallCount;
 
         viewModel.SwitchToTimeline(secondTimeline);
 
@@ -52,8 +56,47 @@ public class PlayerParentViewModelTests
             Assert.That(projectState.CurrentTimeline, Is.SameAs(secondTimeline));
             Assert.That(viewModel.TargetPlayerViewModel?.TargetTimeline, Is.SameAs(secondTimeline));
             Assert.That(playbackState.PauseCallCount, Is.EqualTo(1));
-            Assert.That(playbackState.SeekCallCount, Is.EqualTo(1));
+            Assert.That(playbackState.SeekCallCount, Is.EqualTo(initialSeekCount + 1));
             Assert.That(playbackState.TotalSubscriptionCount, Is.EqualTo(initialSubscriptionCount));
+        });
+    }
+
+    [Test]
+    public void SwitchToTimeline_RestoresSavedFrameWithoutOverwritingPreviousTimelineState()
+    {
+        var selectionState = new SelectionState();
+        var projectState = new ProjectState();
+        var editCommandManager = new EditCommandManager();
+        var playbackState = new CountingPlaybackState();
+        var timelineViewStateStore = new TimelineViewStateStore();
+        var playerFactory = new FakePlayerViewModelFactory(selectionState, playbackState, projectState, editCommandManager);
+
+        using var viewModel = new PlayerParentViewModel(
+            new FakeKeyBindingService(),
+            playerFactory,
+            projectState,
+            playbackState,
+            timelineViewStateStore,
+            editCommandManager,
+            selectionState);
+
+        var rootTimeline = new TimelineObject("RootTimeline");
+        var secondTimeline = new TimelineObject("Timeline2");
+        var project = CreateProject(rootTimeline, secondTimeline);
+
+        projectState.LoadProjectAsync(project).GetAwaiter().GetResult();
+
+        timelineViewStateStore.GetViewState(rootTimeline.Id).CurrentFrame = 42;
+        timelineViewStateStore.GetViewState(secondTimeline.Id).CurrentFrame = 24;
+
+        viewModel.SwitchToTimeline(secondTimeline);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(timelineViewStateStore.GetViewState(rootTimeline.Id).CurrentFrame, Is.EqualTo(42));
+            Assert.That(playbackState.CurrentFrame, Is.EqualTo(24));
+            Assert.That(viewModel.TargetPlayerViewModel?.Frame, Is.EqualTo(24));
+            Assert.That(viewModel.TargetPlayerViewModel?.TargetTimeline, Is.SameAs(secondTimeline));
         });
     }
 
@@ -64,12 +107,15 @@ public class PlayerParentViewModelTests
         var projectState = new ProjectState();
         var editCommandManager = new EditCommandManager();
         var playbackState = new CountingPlaybackState();
+        var timelineViewStateStore = new TimelineViewStateStore();
         var playerFactory = new FakePlayerViewModelFactory(selectionState, playbackState, projectState, editCommandManager);
 
         var viewModel = new PlayerParentViewModel(
             new FakeKeyBindingService(),
             playerFactory,
             projectState,
+            playbackState,
+            timelineViewStateStore,
             editCommandManager,
             selectionState);
 
@@ -79,6 +125,45 @@ public class PlayerParentViewModelTests
         viewModel.Dispose();
 
         Assert.That(playbackState.TotalSubscriptionCount, Is.EqualTo(0));
+    }
+
+    [Test]
+    public void LoadProjectAsync_ClearsTimelineViewStateFromPreviousProject()
+    {
+        var selectionState = new SelectionState();
+        var projectState = new ProjectState();
+        var editCommandManager = new EditCommandManager();
+        var playbackState = new CountingPlaybackState();
+        var timelineViewStateStore = new TimelineViewStateStore();
+        var playerFactory = new FakePlayerViewModelFactory(selectionState, playbackState, projectState, editCommandManager);
+
+        using var viewModel = new PlayerParentViewModel(
+            new FakeKeyBindingService(),
+            playerFactory,
+            projectState,
+            playbackState,
+            timelineViewStateStore,
+            editCommandManager,
+            selectionState);
+
+        var firstProject = CreateProject(new TimelineObject("RootTimeline"));
+        projectState.LoadProjectAsync(firstProject).GetAwaiter().GetResult();
+
+        var firstState = timelineViewStateStore.GetViewState("RootTimeline");
+        firstState.CurrentFrame = 42;
+        firstState.HorizontalScrollPosition = 12;
+
+        var secondProject = CreateProject(new TimelineObject("RootTimeline"));
+        projectState.LoadProjectAsync(secondProject).GetAwaiter().GetResult();
+
+        var secondState = timelineViewStateStore.GetViewState("RootTimeline");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(playbackState.CurrentFrame, Is.EqualTo(0));
+            Assert.That(secondState.CurrentFrame, Is.EqualTo(0));
+            Assert.That(secondState.HorizontalScrollPosition, Is.EqualTo(0));
+        });
     }
 
     private static MetasiaEditorProject CreateProject(params TimelineObject[] timelines)

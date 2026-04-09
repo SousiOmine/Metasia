@@ -125,7 +125,10 @@ public class PlaybackState : IPlaybackState
         PlaybackSeeked?.Invoke();
 
         // シーク時は強制的に再生停止
-        Pause();
+        if (IsPlaying)
+        {
+            Pause();
+        }
     }
 
     private void Timer_Tick(object? sender, EventArgs e)

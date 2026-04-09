@@ -10,7 +10,7 @@ public interface IEditorHostContext
 
     ISelectionState SelectionState { get; }
 
-    ITimelineViewState TimelineViewState { get; }
+    ITimelineViewStateStore TimelineViewStateStore { get; }
 
     IPlaybackState PlaybackState { get; }
 

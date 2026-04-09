@@ -13,7 +13,7 @@ namespace Metasia.Editor.ViewModels.Timeline;
 public class ClipViewModelFactory : IClipViewModelFactory
 {
     private readonly IEditCommandManager editCommandManager;
-    private readonly ITimelineViewState timelineViewState;
+    private readonly ITimelineViewStateStore timelineViewStateStore;
     private readonly IClipColorProvider clipColorProvider;
     private readonly ISelectionState selectionState;
     private readonly IProjectState projectState;
@@ -21,20 +21,20 @@ public class ClipViewModelFactory : IClipViewModelFactory
 
     public ClipViewModelFactory(
         IEditCommandManager editCommandManager,
-        ITimelineViewState timelineViewState,
+        ITimelineViewStateStore timelineViewStateStore,
         IClipColorProvider clipColorProvider,
         ISelectionState selectionState,
         IProjectState projectState,
         IFileDialogService fileDialogService)
     {
         ArgumentNullException.ThrowIfNull(editCommandManager);
-        ArgumentNullException.ThrowIfNull(timelineViewState);
+        ArgumentNullException.ThrowIfNull(timelineViewStateStore);
         ArgumentNullException.ThrowIfNull(clipColorProvider);
         ArgumentNullException.ThrowIfNull(selectionState);
         ArgumentNullException.ThrowIfNull(projectState);
         ArgumentNullException.ThrowIfNull(fileDialogService);
         this.editCommandManager = editCommandManager;
-        this.timelineViewState = timelineViewState;
+        this.timelineViewStateStore = timelineViewStateStore;
         this.clipColorProvider = clipColorProvider;
         this.selectionState = selectionState;
         this.projectState = projectState;
@@ -45,6 +45,7 @@ public class ClipViewModelFactory : IClipViewModelFactory
     {
         ArgumentNullException.ThrowIfNull(targetObject);
         ArgumentNullException.ThrowIfNull(parentTimeline);
-        return new ClipViewModel(targetObject, parentTimeline, editCommandManager, timelineViewState, clipColorProvider, selectionState, projectState, fileDialogService);
+        var viewState = timelineViewStateStore.GetViewState(parentTimeline.Timeline.Id);
+        return new ClipViewModel(targetObject, parentTimeline, editCommandManager, viewState, clipColorProvider, selectionState, projectState, fileDialogService);
     }
 }

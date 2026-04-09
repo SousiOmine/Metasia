@@ -15,7 +15,7 @@ public class LayerCanvasViewModelFactory : ILayerCanvasViewModelFactory
     private readonly ISelectionState selectionState;
     private readonly IEditCommandManager editCommandManager;
     private readonly IProjectState projectState;
-    private readonly ITimelineViewState timelineViewState;
+    private readonly ITimelineViewStateStore timelineViewStateStore;
     private readonly IDropHandlerRegistry dropHandlerRegistry;
     private readonly INewObjectSelectViewModelFactory _newObjectSelectViewModelFactory;
 
@@ -24,7 +24,7 @@ public class LayerCanvasViewModelFactory : ILayerCanvasViewModelFactory
         ISelectionState selectionState,
         IEditCommandManager editCommandManager,
         IProjectState projectState,
-        ITimelineViewState timelineViewState,
+        ITimelineViewStateStore timelineViewStateStore,
         IDropHandlerRegistry dropHandlerRegistry,
         INewObjectSelectViewModelFactory newObjectSelectViewModelFactory)
     {
@@ -32,14 +32,14 @@ public class LayerCanvasViewModelFactory : ILayerCanvasViewModelFactory
         ArgumentNullException.ThrowIfNull(selectionState);
         ArgumentNullException.ThrowIfNull(editCommandManager);
         ArgumentNullException.ThrowIfNull(projectState);
-        ArgumentNullException.ThrowIfNull(timelineViewState);
+        ArgumentNullException.ThrowIfNull(timelineViewStateStore);
         ArgumentNullException.ThrowIfNull(dropHandlerRegistry);
         ArgumentNullException.ThrowIfNull(newObjectSelectViewModelFactory);
         _clipViewModelFactory = clipViewModelFactory;
         this.selectionState = selectionState;
         this.editCommandManager = editCommandManager;
         this.projectState = projectState;
-        this.timelineViewState = timelineViewState;
+        this.timelineViewStateStore = timelineViewStateStore;
         this.dropHandlerRegistry = dropHandlerRegistry;
         _newObjectSelectViewModelFactory = newObjectSelectViewModelFactory;
     }
@@ -48,6 +48,7 @@ public class LayerCanvasViewModelFactory : ILayerCanvasViewModelFactory
     {
         ArgumentNullException.ThrowIfNull(parentTimelineViewModel);
         ArgumentNullException.ThrowIfNull(targetLayerObject);
+        var viewState = timelineViewStateStore.GetViewState(parentTimelineViewModel.Timeline.Id);
         return new LayerCanvasViewModel(
             parentTimelineViewModel,
             targetLayerObject,
@@ -55,7 +56,7 @@ public class LayerCanvasViewModelFactory : ILayerCanvasViewModelFactory
             projectState,
             selectionState,
             editCommandManager,
-            timelineViewState,
+            viewState,
             dropHandlerRegistry,
             _newObjectSelectViewModelFactory);
     }

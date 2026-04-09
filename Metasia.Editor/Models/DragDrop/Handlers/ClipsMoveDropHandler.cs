@@ -19,7 +19,7 @@ public class ClipsMoveDropHandler : IDropHandler
 {
     private readonly ISelectionState _selectionState;
     private readonly IEditCommandManager _editCommandManager;
-    private readonly ITimelineViewState _timelineViewState;
+    private readonly ITimelineViewStateStore _timelineViewStateStore;
     private IEditCommand? _lastPreviewCommand;
 
     public int Priority => 10;
@@ -27,11 +27,11 @@ public class ClipsMoveDropHandler : IDropHandler
     public ClipsMoveDropHandler(
         ISelectionState selectionState,
         IEditCommandManager editCommandManager,
-        ITimelineViewState timelineViewState)
+        ITimelineViewStateStore timelineViewStateStore)
     {
         _selectionState = selectionState;
         _editCommandManager = editCommandManager;
-        _timelineViewState = timelineViewState;
+        _timelineViewStateStore = timelineViewStateStore;
     }
 
     public bool CanHandle(IDataTransfer data, DropTargetContext context)
@@ -57,11 +57,13 @@ public class ClipsMoveDropHandler : IDropHandler
             return DropPreviewResult.None;
         }
 
+        var viewState = _timelineViewStateStore.GetViewState(context.Timeline.Id);
+
         ClipInteractor.ApplyMoveSnapping(
             dropInfo,
             _selectionState.SelectedClips,
             context.Timeline,
-            _timelineViewState.Frame_Per_DIP);
+            viewState.Frame_Per_DIP);
 
         var command = ClipInteractor.CreateMoveClipsCommand(
             dropInfo,
@@ -97,11 +99,13 @@ public class ClipsMoveDropHandler : IDropHandler
             return null;
         }
 
+        var viewState = _timelineViewStateStore.GetViewState(context.Timeline.Id);
+
         ClipInteractor.ApplyMoveSnapping(
             dropInfo,
             _selectionState.SelectedClips,
             context.Timeline,
-            _timelineViewState.Frame_Per_DIP);
+            viewState.Frame_Per_DIP);
 
         return ClipInteractor.CreateMoveClipsCommand(
             dropInfo,

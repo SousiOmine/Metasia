@@ -51,14 +51,14 @@ namespace Metasia.Editor.Services.PluginService
             TypeRegistry typeRegistry,
             IEditCommandManager editCommandManager,
             ISelectionState selectionState,
-            ITimelineViewState timelineViewState,
+            ITimelineViewStateStore timelineViewStateStore,
             IPlaybackState playbackState,
             INotificationService notificationService,
             Func<Task<IEnumerable<IEditorPlugin>>>? pluginLoader = null)
         {
             _mediaAccessorRouter = mediaAccessorRouter;
             _typeRegistry = typeRegistry;
-            _hostContext = new EditorHostContext(editCommandManager, selectionState, timelineViewState, playbackState, notificationService);
+            _hostContext = new EditorHostContext(editCommandManager, selectionState, timelineViewStateStore, playbackState, notificationService);
             _pluginLoader = pluginLoader ?? PluginLoader.LoadEditorPluginsAsync;
         }
 
