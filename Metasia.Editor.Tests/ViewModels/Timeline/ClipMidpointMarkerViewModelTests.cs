@@ -226,18 +226,18 @@ public class ClipMidpointMarkerViewModelTests
 
         public event Action? HorizontalScrollPosition_Changed;
 
-        public int CurrentFrame
+        public int LastPreviewFrame
         {
-            get => _currentFrame;
+            get => _lastPreviewFrame;
             set
             {
-                if (_currentFrame == value) return;
-                _currentFrame = value;
-                CurrentFrame_Changed?.Invoke();
+                if (_lastPreviewFrame == value) return;
+                _lastPreviewFrame = value;
+                LastPreviewFrame_Changed?.Invoke();
             }
         }
 
-        public event Action? CurrentFrame_Changed;
+        public event Action? LastPreviewFrame_Changed;
 
         public void Dispose()
         {
@@ -245,6 +245,6 @@ public class ClipMidpointMarkerViewModelTests
 
         private double _framePerDip;
         private int _horizontalScrollPosition;
-        private int _currentFrame;
+        private int _lastPreviewFrame;
     }
 }

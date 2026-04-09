@@ -86,14 +86,14 @@ public class PlayerParentViewModelTests
 
         projectState.LoadProjectAsync(project).GetAwaiter().GetResult();
 
-        timelineViewStateStore.GetViewState(rootTimeline.Id).CurrentFrame = 42;
-        timelineViewStateStore.GetViewState(secondTimeline.Id).CurrentFrame = 24;
+        timelineViewStateStore.GetViewState(rootTimeline.Id).LastPreviewFrame = 42;
+        timelineViewStateStore.GetViewState(secondTimeline.Id).LastPreviewFrame = 24;
 
         viewModel.SwitchToTimeline(secondTimeline);
 
         Assert.Multiple(() =>
         {
-            Assert.That(timelineViewStateStore.GetViewState(rootTimeline.Id).CurrentFrame, Is.EqualTo(42));
+            Assert.That(timelineViewStateStore.GetViewState(rootTimeline.Id).LastPreviewFrame, Is.EqualTo(42));
             Assert.That(playbackState.CurrentFrame, Is.EqualTo(24));
             Assert.That(viewModel.TargetPlayerViewModel?.Frame, Is.EqualTo(24));
             Assert.That(viewModel.TargetPlayerViewModel?.TargetTimeline, Is.SameAs(secondTimeline));
@@ -150,7 +150,7 @@ public class PlayerParentViewModelTests
         projectState.LoadProjectAsync(firstProject).GetAwaiter().GetResult();
 
         var firstState = timelineViewStateStore.GetViewState("RootTimeline");
-        firstState.CurrentFrame = 42;
+        firstState.LastPreviewFrame = 42;
         firstState.HorizontalScrollPosition = 12;
 
         var secondProject = CreateProject(new TimelineObject("RootTimeline"));
@@ -161,7 +161,7 @@ public class PlayerParentViewModelTests
         Assert.Multiple(() =>
         {
             Assert.That(playbackState.CurrentFrame, Is.EqualTo(0));
-            Assert.That(secondState.CurrentFrame, Is.EqualTo(0));
+            Assert.That(secondState.LastPreviewFrame, Is.EqualTo(0));
             Assert.That(secondState.HorizontalScrollPosition, Is.EqualTo(0));
         });
     }

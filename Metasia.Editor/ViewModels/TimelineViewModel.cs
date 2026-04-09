@@ -180,7 +180,7 @@ namespace Metasia.Editor.ViewModels
 
             _timeline = timeline;
             _timelineViewState.Frame_Per_DIP_Changed += OnFramePerDIPChanged;
-            _timelineViewState.CurrentFrame_Changed += OnCurrentFrameChanged;
+            _timelineViewState.LastPreviewFrame_Changed += OnCurrentFrameChanged;
             _timelineViewState.HorizontalScrollPosition_Changed += OnHorizontalScrollPositionChanged;
             Frame_Per_DIP = _timelineViewState.Frame_Per_DIP;
             _horizontalScrollPosition = _timelineViewState.HorizontalScrollPosition;
@@ -242,7 +242,7 @@ namespace Metasia.Editor.ViewModels
             playbackState.Seek(targetFrame);
             
             // タイムラインごとの状態として保存
-            _timelineViewState.CurrentFrame = targetFrame;
+            _timelineViewState.LastPreviewFrame = targetFrame;
         }
 
         public void ClipRemove(ClipObject clipObject)
@@ -394,7 +394,7 @@ namespace Metasia.Editor.ViewModels
             {
                 // イベントハンドラーの購読解除
                 _timelineViewState.Frame_Per_DIP_Changed -= OnFramePerDIPChanged;
-                _timelineViewState.CurrentFrame_Changed -= OnCurrentFrameChanged;
+                _timelineViewState.LastPreviewFrame_Changed -= OnCurrentFrameChanged;
                 _timelineViewState.HorizontalScrollPosition_Changed -= OnHorizontalScrollPositionChanged;
                 playbackState.PlaybackFrameChanged -= OnPlaybackFrameChanged;
                 editCommandManager.CommandExecuted -= OnCommandExecutedForControl;
@@ -429,7 +429,7 @@ namespace Metasia.Editor.ViewModels
 
         private void OnCurrentFrameChanged()
         {
-            Frame = _timelineViewState.CurrentFrame;
+            Frame = _timelineViewState.LastPreviewFrame;
             CursorLeft = Frame * _timelineViewState.Frame_Per_DIP;
         }
 
@@ -444,7 +444,7 @@ namespace Metasia.Editor.ViewModels
             Frame = playbackState.CurrentFrame;
             CursorLeft = Frame * _timelineViewState.Frame_Per_DIP;
             // 再生中のフレーム位置を状態として保存
-            _timelineViewState.CurrentFrame = Frame;
+            _timelineViewState.LastPreviewFrame = Frame;
         }
 
         private void ChangeFramePerDIP()

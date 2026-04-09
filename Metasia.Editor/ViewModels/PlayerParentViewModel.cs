@@ -228,7 +228,7 @@ public class PlayerParentViewModel : ViewModelBase, IDisposable
 
     private void RestorePlaybackFrame(TimelineObject timeline)
     {
-        var targetFrame = _timelineViewStateStore.GetViewState(timeline.Id).CurrentFrame;
+        var targetFrame = _timelineViewStateStore.GetViewState(timeline.Id).LastPreviewFrame;
         _playbackState.Seek(targetFrame);
     }
 

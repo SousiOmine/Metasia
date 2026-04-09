@@ -23,12 +23,12 @@ public interface ITimelineViewState : IDisposable
     event Action? HorizontalScrollPosition_Changed;
 
     /// <summary>
-    /// 現在の再生フレーム位置
+    /// 最後にプレビューしたフレーム位置
     /// </summary>
-    int CurrentFrame { get; set; }
+    int LastPreviewFrame { get; set; }
 
     /// <summary>
-    /// 現在の再生フレーム位置が変更された時に発生するイベント
+    /// 最後にプレビューしたフレーム位置が変更された時に発生するイベント
     /// </summary>
-    event Action? CurrentFrame_Changed;
+    event Action? LastPreviewFrame_Changed;
 }
