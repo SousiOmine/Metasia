@@ -18,7 +18,7 @@ namespace Metasia.Editor.ViewModels.Settings
     {
         private readonly MediaAccessorRouter _mediaAccessorRouter;
 
-        public override string Name => "Editor";
+        public override string Name => "エディタ";
 
         public ObservableCollection<MediaAccessorPriorityItemViewModel> MediaAccessorPriority { get; } = [];
 

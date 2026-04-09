@@ -8,11 +8,17 @@
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
         x:Class="Metasia.Editor.Views.SettingsWindow"
         x:DataType="vm:SettingsWindowViewModel"
-        Title="Settings"
-        Width="600" Height="400"
+        Icon="/Assets/metasia-icon.ico"
+        Title="環境設定"
+        Width="800" Height="600"
         CanResize="False">
     <Grid ColumnDefinitions="150,*" RowDefinitions="*,Auto">
         <ListBox Grid.Column="0" Grid.Row="0" ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedCategory}">
+            <ListBox.Styles>
+                <Style Selector="ListBoxItem">
+                    <Setter Property="Padding" Value="10, 5 , 10, 5"/>
+                </Style>
+            </ListBox.Styles>
             <ListBox.ItemTemplate>
                 <DataTemplate DataType="vm_settings:SettingsCategoryViewModel">
                     <TextBlock Text="{Binding Name}" Padding="10,8"/>

@@ -17,7 +17,7 @@ namespace Metasia.Editor.ViewModels.Settings
     {
         private readonly IFileDialogService? _fileDialogService;
 
-        public override string Name => "General";
+        public override string Name => "総合";
 
         public IReadOnlyList<SettingOption> LanguageOptions { get; } =
         [

@@ -9,7 +9,6 @@
 			x:Class="Metasia.Editor.Views.PlayerView"
 			x:DataType="vm:PlayerViewModel">
 	<DockPanel>
-		<TextBlock Text="100" DockPanel.Dock="Top"/>
 		
 		<StackPanel DockPanel.Dock="Bottom" Margin="4">
 			<Grid>

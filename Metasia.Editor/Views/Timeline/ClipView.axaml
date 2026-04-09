@@ -15,8 +15,8 @@
 		<converter:ClipSelectConverter x:Key="ClipConverter"/>
 	</UserControl.Resources>
 	<Border x:Name="Clip" 
-			BorderBrush="Transparent" Background="{Binding ClipColor}" BorderThickness="1" CornerRadius="10" ClipToBounds="True"
-	        Opacity="{Binding IsSelecting, Converter={StaticResource ClipConverter}}"
+			BorderBrush="Transparent" Background="{Binding ClipColor}" BorderThickness="1" CornerRadius="5" ClipToBounds="True"
+	        Opacity="{Binding IsSelecting, Converter={StaticResource ClipConverter}}" Padding="0" Margin="0, 5, 0, 0"
 			>
 		<i:Interaction.Behaviors>
 			<behaviors:ClipViewBehavior DragThreshold="5" FramePerDIP="{Binding Frame_Per_DIP}"/>
@@ -60,7 +60,10 @@
 			</ItemsControl>
 			<Border Grid.Column="0" x:Name="StartHandle" Width="10" Background="Transparent" Cursor="SizeWestEast" VerticalAlignment="Stretch" HorizontalAlignment="Left"/>
 			<RelativePanel Grid.Column="1">
-				<TextBlock Text="{Binding DisplayName}" Padding="5" RelativePanel.AlignVerticalCenterWithPanel="True"/>
+				<TextBlock Text="{Binding DisplayName}"
+				           FontWeight="Bold"
+				           Padding="5, 0, 5, 0"
+				           RelativePanel.AlignVerticalCenterWithPanel="True"/>
 			</RelativePanel>
 			<Border Grid.Column="2" x:Name="EndHandle" Width="10" Background="Transparent" Cursor="SizeWestEast" VerticalAlignment="Stretch" HorizontalAlignment="Right"/>
 		</Grid>

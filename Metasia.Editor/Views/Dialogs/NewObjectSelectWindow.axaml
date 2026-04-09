@@ -3,28 +3,32 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="using:Metasia.Editor.ViewModels.Dialogs"
-        mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="450"
+        mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="800"
         x:Class="Metasia.Editor.Views.Dialogs.NewObjectSelectWindow"
+        Icon="/Assets/metasia-icon.ico"
         Title="新規オブジェクトの追加"
-        Width="450" Height="450"
+        Width="450" Height="800"
         x:DataType="vm:NewObjectSelectViewModel">
-    <Grid RowDefinitions="Auto, Auto, *, Auto">
-        <TextBlock Grid.Row="0" Text="追加するオブジェクトタイプを選択してください" Margin="10" FontSize="16"/>
-
-        <TextBox Grid.Row="1"
+    <Grid RowDefinitions="Auto, *, Auto">
+        <TextBox Grid.Row="0"
                  Text="{Binding SearchText}"
                  Watermark="検索..."
-                 Margin="10,5,10,10"
+                 Margin="10,5,10,5"
                  Height="30"/>
 
-        <ListBox Grid.Row="2"
+        <ListBox Grid.Row="1"
                  ItemsSource="{Binding FilteredObjectTypes}"
                  SelectedItem="{Binding SelectedObjectType}"
-                 Margin="10">
+                 Margin="5,0,5,0">
+            <ListBox.Styles>
+                <Style Selector="ListBoxItem">
+                    <Setter Property="Padding" Value="10, 2 , 10, 2"/>
+                </Style>
+            </ListBox.Styles>
             <ListBox.ItemTemplate>
                 <DataTemplate x:DataType="vm:ObjectTypeInfo">
-                    <Grid ColumnDefinitions="Auto, *" Margin="5">
-                        <TextBlock Grid.Column="0" Text="{Binding DisplayName}" FontSize="14"/>
+                    <Grid ColumnDefinitions="Auto, *" Margin="0">
+                        <TextBlock Grid.Column="0" Text="{Binding DisplayName}" />
                         <TextBlock Grid.Column="1" Text="{Binding Description}"
                                    Foreground="Gray" FontSize="12" Margin="10,0,0,0"/>
                     </Grid>
@@ -32,9 +36,15 @@
             </ListBox.ItemTemplate>
         </ListBox>
 
-        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="10">
-            <Button Content="キャンセル" Command="{Binding CancelCommand}" Margin="0,0,10,0" Width="80"/>
-            <Button Content="追加" Command="{Binding OkCommand}" Width="80"/>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="10">
+            <Button Content="キャンセル"
+                    HorizontalContentAlignment="Center"
+                    Command="{Binding CancelCommand}"
+                    Margin="0,0,10,0"
+                    Width="80"/>
+            <Button Content="追加"
+                    HorizontalContentAlignment="Center"
+                    Command="{Binding OkCommand}" Width="80"/>
         </StackPanel>
     </Grid>
 </Window>

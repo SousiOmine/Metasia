@@ -8,7 +8,7 @@
              x:DataType="vm:EditorSettingsViewModel">
     <ScrollViewer>
         <StackPanel Spacing="10">
-        <CheckBox Content="Snap to Grid" IsChecked="{Binding SnapToGrid}"/>
+        <CheckBox Content="タイムライン操作でスナップを有効にする" IsChecked="{Binding SnapToGrid}"/>
 
         <TextBlock Text="入力メソッドの優先順位" Margin="0,10,0,0"/>
         <Grid ColumnDefinitions="*,Auto" RowDefinitions="*">

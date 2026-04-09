@@ -14,7 +14,10 @@
                             DataContext="{Binding TargetPlayerViewModel}"/>
         </DockPanel>
         <DockPanel IsVisible="{Binding !IsPlayerShow}">
-            <TextBlock Text="プロジェクトを読み込むか、新規に作成してください。" />
+            <TextBlock Text="プロジェクトを読み込むか、新規に作成してください。"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       />
         </DockPanel>
     </Panel>
 </UserControl>

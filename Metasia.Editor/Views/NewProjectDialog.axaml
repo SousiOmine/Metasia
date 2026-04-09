@@ -5,6 +5,7 @@
         xmlns:vm="using:Metasia.Editor.ViewModels.Dialogs"
         mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="400"
         x:Class="Metasia.Editor.Views.NewProjectDialog"
+        Icon="/Assets/metasia-icon.ico"
         Title="新規プロジェクト作成"
         Width="450" Height="400"
         WindowStartupLocation="CenterOwner"
