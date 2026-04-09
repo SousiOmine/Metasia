@@ -47,6 +47,7 @@ namespace Metasia.Editor.ViewModels
         public ICommand ClearTimelineSelection { get; }
         public ICommand OpenOutput { get; }
         public ICommand OpenPluginList { get; }
+        public ICommand OpenPluginFolder { get; }
         public ICommand OpenNotifications { get; }
         public ICommand Exit { get; }
 
@@ -107,6 +108,7 @@ namespace Metasia.Editor.ViewModels
             ClearTimelineSelection = ReactiveCommand.Create(ClearTimelineSelectionMethod);
             OpenOutput = ReactiveCommand.CreateFromTask(OpenOutputExecuteAsync);
             OpenPluginList = ReactiveCommand.CreateFromTask(OpenPluginListExecuteAsync);
+            OpenPluginFolder = ReactiveCommand.Create(OpenPluginFolderExecute);
             OpenNotifications = ReactiveCommand.CreateFromTask(OpenNotificationsExecuteAsync);
             Exit = ReactiveCommand.CreateFromTask(ExitExecuteAsync);
 
@@ -329,6 +331,26 @@ namespace Metasia.Editor.ViewModels
                 _notificationService.ShowError(
                     "プラグイン一覧表示失敗",
                     $"プラグイン一覧を開けませんでした。\n{ex.Message}");
+            }
+        }
+
+        private void OpenPluginFolderExecute()
+        {
+            try
+            {
+                MetasiaPaths.EnsureDirectoriesExist();
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = MetasiaPaths.UserPluginsDirectory,
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"プラグインフォルダオープンエラー: {ex.Message}");
+                _notificationService.ShowError(
+                    "プラグインフォルダ表示失敗",
+                    $"プラグインフォルダを開けませんでした。\n{ex.Message}");
             }
         }
 

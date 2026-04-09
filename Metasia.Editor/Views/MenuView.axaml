@@ -41,6 +41,7 @@
         </MenuItem>
         <MenuItem Header="表示">
             <MenuItem Header="プラグイン一覧" Command="{Binding OpenPluginList}"/>
+            <MenuItem Header="プラグインフォルダを開く" Command="{Binding OpenPluginFolder}"/>
             <MenuItem Header="通知" Command="{Binding OpenNotifications}"/>
         </MenuItem>
         <MenuItem Header="設定" ItemsSource="{Binding SettingsMenuItems}"/>
