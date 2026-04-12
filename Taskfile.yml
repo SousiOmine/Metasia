@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: '3'
+
+silent: true
+
+vars:
+  APP_NAME: dist/MetasiaEditor.app
+  PUBLISH_OUTPUT_DIRECTORY: output
+  INFO_PLIST: Metasia.Editor/Publish/osx-arm64/Info.plist
+  ICON_FILE: Metasia.Editor/Assets/metasia-icon.icns
+
+
+tasks:
+  default:
+    cmd: task -l
+
+  publish:
+    desc: dotnet publishを実行する
+    cmds:
+      #macOS
+      - dotnet publish Metasia.Editor -c Release -r osx-arm64 --self-contained true -o ./output
+
+  macos-packaging:
+    desc: macOS用に.appを構築する
+    cmds:
+      - task: publish
+      - rm -rf "{{.APP_NAME}}"
+      - mkdir -p "{{.APP_NAME}}"
+      - mkdir -p "{{.APP_NAME}}/Contents"
+      - mkdir -p "{{.APP_NAME}}/Contents/MacOS"
+      - mkdir -p "{{.APP_NAME}}/Contents/Resources"
+      - cp "{{.INFO_PLIST}}" "{{.APP_NAME}}/Contents/Info.plist"
+      - cp "{{.ICON_FILE}}" "{{.APP_NAME}}/Contents/Resources/metasia-icon.icns"
+      - cp -a "{{.PUBLISH_OUTPUT_DIRECTORY}}/." "{{.APP_NAME}}/Contents/MacOS/"
