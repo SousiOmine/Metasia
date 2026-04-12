@@ -7,8 +7,8 @@ silent: true
 vars:
   APP_NAME: dist/MetasiaEditor.app
   PUBLISH_OUTPUT_DIRECTORY: output
-  INFO_PLIST: Metasia.Editor/Publish/osx-arm64/Info.plist
-  ICON_FILE: Metasia.Editor/Assets/metasia-icon.icns
+  INFO_PLIST: Metasia.Editor/Assets/osx/Info.plist
+  ICON_FILE: Metasia.Editor/Assets/osx/metasia-icon.icns
 
 
 tasks:
