@@ -63,7 +63,10 @@ jobs:
                 dotnet-version: ${{ env.DOTNET_VERSION }}
 
             - name: Setup task
+              if: runner.os == 'macOS'
               uses: arduino/setup-task@v2
+              with:
+                repo-token: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Extract version from tag
               run: |
