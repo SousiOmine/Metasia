@@ -62,6 +62,9 @@ jobs:
               with:
                 dotnet-version: ${{ env.DOTNET_VERSION }}
 
+            - name: Setup task
+              uses: arduino/setup-task@v2
+
             - name: Extract version from tag
               run: |
                 VERSION=${GITHUB_REF#refs/tags/v}
@@ -72,7 +75,15 @@ jobs:
                 perl -i -pe "s|<FileVersion>.*</FileVersion>|<FileVersion>${VERSION}.0</FileVersion>|" Directory.Build.props
               shell: bash
 
+            - name: Update Info.plist (macOS)
+              if: runner.os == 'macOS'
+              run: |
+                perl -0777 -i -pe "s|<key>CFBundleVersion</key>\n\t<string>1\.0\.0</string>|<key>CFBundleVersion</key>\n\t<string>$VERSION</string>|" Metasia.Editor/Assets/osx/Info.plist
+                perl -0777 -i -pe "s|<key>CFBundleShortVersionString</key>\n\t<string>1\.0</string>|<key>CFBundleShortVersionString</key>\n\t<string>$VERSION</string>|" Metasia.Editor/Assets/osx/Info.plist
+              shell: bash
+
             - name: Build
+              if: runner.os != 'macOS'
               run: dotnet publish Metasia.Editor -c Release -r ${{ matrix.rid }} --self-contained -o ./output
 
             - name: Create release asset (Windows)
@@ -81,10 +92,17 @@ jobs:
                 powershell Compress-Archive -Path 'output/*' -DestinationPath '${{ env.APP_NAME }}-${{ matrix.preset }}.zip'
               shell: pwsh
 
-            - name: Create release asset (Unix)
-              if: runner.os != 'Windows'
+            - name: Create release asset (Linux)
+              if: runner.os == 'Linux'
               run: |
                   cd output && zip -r ../${{ env.APP_NAME }}-${{ matrix.preset }}.zip *
+              shell: bash
+
+            - name: Create release asset (macOS)
+              if: runner.os == 'macOS'
+              run: |
+                  task macos-packaging
+                  cd dist && zip -r ../${{ env.APP_NAME }}-${{ matrix.preset }}.zip *
               shell: bash
 
             - name: Upload artifact
