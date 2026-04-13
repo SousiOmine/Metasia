@@ -16,24 +16,24 @@
 
 
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="12.0.0" />
-    <PackageReference Include="Avalonia.Desktop" Version="12.0.0" />
-    <PackageReference Include="Avalonia.Controls.ColorPicker" Version="12.0.0" />
-    <PackageReference Include="Avalonia.Labs.Controls" Version="12.0.0-rc1" />
-    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.0.0" />
-    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.0.0" />
+    <PackageReference Include="Avalonia" Version="12.0.1" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.0.1" />
+    <PackageReference Include="Avalonia.Controls.ColorPicker" Version="12.0.1" />
+    <PackageReference Include="Avalonia.Labs.Controls" Version="12.0.0" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.0.1" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.0.1" />
     <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.0" />
     <PackageReference Include="ReactiveUI.Avalonia" Version="11.4.12" />
-    <PackageReference Include="ReactiveUI" Version="23.1.8" />
+    <PackageReference Include="ReactiveUI" Version="23.2.1" />
     <PackageReference Include="System.Reactive" Version="6.1.0" />
     <PackageReference Include="System.Reactive.Linq" Version="6.1.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.9" />
-    <PackageReference Include="Xaml.Behaviors.Interactivity" Version="12.0.0-preview.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.5" />
+    <PackageReference Include="Xaml.Behaviors.Interactivity" Version="12.0.0" />
     <PackageReference Include="Miniaudio.Net" Version="0.1.0" />
     <PackageReference Include="SharpVk" Version="0.4.2" />
     <PackageReference Include="SkiaSharp.Direct3D.Vortice" Version="3.119.2" />
     <PackageReference Include="SkiaSharp.Vulkan.SharpVk" Version="3.119.2" />
-    <PackageReference Include="Svg.Controls.Skia.Avalonia" Version="12.0.0-rc1" />
+    <PackageReference Include="Svg.Controls.Skia.Avalonia" Version="12.0.0.2" />
   </ItemGroup>
 
 
