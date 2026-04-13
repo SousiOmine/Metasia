@@ -81,8 +81,8 @@ jobs:
             - name: Update Info.plist (macOS)
               if: runner.os == 'macOS'
               run: |
-                perl -0777 -i -pe "s|<key>CFBundleVersion</key>\n\t<string>1\.0\.0</string>|<key>CFBundleVersion</key>\n\t<string>$VERSION</string>|" Metasia.Editor/Assets/osx/Info.plist
-                perl -0777 -i -pe "s|<key>CFBundleShortVersionString</key>\n\t<string>1\.0</string>|<key>CFBundleShortVersionString</key>\n\t<string>$VERSION</string>|" Metasia.Editor/Assets/osx/Info.plist
+                perl -0777 -i -pe "s|<key>CFBundleVersion</key>\n    <string>1\.0\.0</string>|<key>CFBundleVersion</key>\n    <string>$VERSION</string>|" Metasia.Editor/Assets/osx/Info.plist
+                perl -0777 -i -pe "s|<key>CFBundleShortVersionString</key>\n    <string>1\.0</string>|<key>CFBundleShortVersionString</key>\n    <string>$VERSION</string>|" Metasia.Editor/Assets/osx/Info.plist
               shell: bash
 
             - name: Build
