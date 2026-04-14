@@ -29,7 +29,7 @@
             <TreeView.ItemTemplate>
                 <TreeDataTemplate x:DataType="models:ProjectObjectTreeNode" ItemsSource="{Binding SubNodes}">
 					<StackPanel Orientation="Horizontal">
-						<TextBlock Text="{Binding Title}" Padding="0" Margin="0,1" />
+						<TextBlock Text="{Binding Title}" Padding="0" Margin="0" />
 					</StackPanel>
                 </TreeDataTemplate>
             </TreeView.ItemTemplate>
@@ -40,6 +40,7 @@
                             <MenuItem Header="削除" Command="{Binding $parent[TreeView].DataContext.DeleteTimelineCommand}" />
                         </MenuFlyout>
                     </Setter>
+                    <Setter Property="Padding" Value="1,0,1,0"/>
                 </Style>
             </TreeView.Styles>
         </TreeView>

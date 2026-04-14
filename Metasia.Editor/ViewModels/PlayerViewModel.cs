@@ -248,7 +248,7 @@ namespace Metasia.Editor.ViewModels
         {
             SliderSelectionStart = TargetTimeline.SelectionStart;
             SliderSelectionEnd = TargetTimeline.SelectionEnd;
-            SliderMaximum = TargetTimeline.GetLastFrameOfClips();
+            SliderMaximum = Math.Max(TargetTimeline.SelectionEnd, TargetTimeline.GetLastFrameOfClips());
         }
 
         private void OnPlaybackFrameChanged()

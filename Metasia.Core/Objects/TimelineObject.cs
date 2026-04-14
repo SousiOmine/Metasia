@@ -37,7 +37,7 @@ namespace Metasia.Core.Objects
         /// <summary>
         /// 選択範囲の終了フレーム
         /// </summary>
-        public int SelectionEnd { get; set; } = MAX_LENGTH;
+        public int SelectionEnd { get; set; } = 600;
 
         /// <summary>
         /// タイムラインに属するレイヤー 格納順に描画される
