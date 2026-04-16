@@ -229,6 +229,13 @@ namespace Metasia.Editor.ViewModels
                 // 単一選択モード：既存の選択をクリアして新しいクリップを選択
                 selectionState.ClearSelectedClips();
                 selectionState.SelectClip(obj);
+
+                var layer = FindOwnerLayer(obj);
+                if (layer is not null)
+                {
+                    // クリップが存在するレイヤーも選択
+                    SelectLayer(layer);
+                }
             }
         }
 
