@@ -19,10 +19,12 @@
     <StackPanel>
         <Image Source="/Assets/metasia-logo.png" />
         <TextBlock Text="Metasia Editor" 
+                   Foreground="Black"
                    FontSize="24" 
                    FontWeight="Bold" 
                    HorizontalAlignment="Center" />
         <TextBlock Text="Loading..." 
+                   Foreground="Black"
                    FontSize="16" 
                    HorizontalAlignment="Center" />
     </StackPanel>
