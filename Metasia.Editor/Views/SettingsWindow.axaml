@@ -36,9 +36,9 @@
             </ContentControl.DataTemplates>
         </ContentControl>
         <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,10,15,15">
-            <Button Content="既定に戻す" Command="{Binding ResetToDefaultsCommand}"/>
-            <Button Content="キャンセル" Command="{Binding CancelCommand}"/>
             <Button Content="適用" Command="{Binding ApplyCommand}"/>
+            <Button Content="キャンセル" Command="{Binding CancelCommand}"/>
+            <Button Content="既定に戻す" Command="{Binding ResetToDefaultsCommand}"/>
         </StackPanel>
     </Grid>
 </Window>
