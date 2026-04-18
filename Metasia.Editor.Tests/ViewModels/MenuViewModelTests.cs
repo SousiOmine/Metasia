@@ -68,7 +68,7 @@ public class MenuViewModelTests
     {
         var projectState = new ProjectState();
         var selectionState = new SelectionState();
-        var editCommandManager = new EditCommandManager();
+        var editCommandManager = new EditCommandManager(projectState);
 
         var playerParentViewModel = new PlayerParentViewModel(
             new FakeKeyBindingService(),

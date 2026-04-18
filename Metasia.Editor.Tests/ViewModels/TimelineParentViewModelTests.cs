@@ -24,7 +24,7 @@ public class TimelineParentViewModelTests
     {
         var projectState = new ProjectState();
         var selectionState = new SelectionState();
-        var editCommandManager = new EditCommandManager();
+        var editCommandManager = new EditCommandManager(projectState);
         var playbackState = new FakePlaybackState();
         var factory = new TrackingTimelineViewModelFactory(projectState, selectionState, playbackState, editCommandManager);
 

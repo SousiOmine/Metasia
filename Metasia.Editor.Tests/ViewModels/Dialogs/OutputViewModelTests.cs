@@ -276,6 +276,7 @@ public class OutputViewModelTests
         public MetasiaEditorProject? CurrentProject { get; private set; }
         public ProjectInfo? CurrentProjectInfo => null;
         public TimelineObject? CurrentTimeline { get; private set; }
+        public bool IsDirty { get; set; }
 
         public FakeProjectState(MetasiaEditorProject? currentProject = null)
         {
@@ -287,6 +288,7 @@ public class OutputViewModelTests
         public event Action? ProjectClosed;
         public event Action? TimelineChanged;
         public event Action? CurrentTimelineChanged;
+        public event Action? IsDirtyChanged;
 
         public Task LoadProjectAsync(MetasiaEditorProject project)
         {

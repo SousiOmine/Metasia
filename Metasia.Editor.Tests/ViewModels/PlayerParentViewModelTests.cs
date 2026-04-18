@@ -27,7 +27,7 @@ public class PlayerParentViewModelTests
     {
         var selectionState = new SelectionState();
         var projectState = new ProjectState();
-        var editCommandManager = new EditCommandManager();
+        var editCommandManager = new EditCommandManager(projectState);
         var playbackState = new CountingPlaybackState();
         var timelineViewStateStore = new TimelineViewStateStore();
         var playerFactory = new FakePlayerViewModelFactory(selectionState, playbackState, projectState, editCommandManager);
@@ -66,7 +66,7 @@ public class PlayerParentViewModelTests
     {
         var selectionState = new SelectionState();
         var projectState = new ProjectState();
-        var editCommandManager = new EditCommandManager();
+        var editCommandManager = new EditCommandManager(projectState);
         var playbackState = new CountingPlaybackState();
         var timelineViewStateStore = new TimelineViewStateStore();
         var playerFactory = new FakePlayerViewModelFactory(selectionState, playbackState, projectState, editCommandManager);
@@ -105,7 +105,7 @@ public class PlayerParentViewModelTests
     {
         var selectionState = new SelectionState();
         var projectState = new ProjectState();
-        var editCommandManager = new EditCommandManager();
+        var editCommandManager = new EditCommandManager(projectState);
         var playbackState = new CountingPlaybackState();
         var timelineViewStateStore = new TimelineViewStateStore();
         var playerFactory = new FakePlayerViewModelFactory(selectionState, playbackState, projectState, editCommandManager);
@@ -138,7 +138,7 @@ public class PlayerParentViewModelTests
 
             var initialSelectionState = new SelectionState();
             var initialProjectState = new ProjectState();
-            var initialEditCommandManager = new EditCommandManager();
+            var initialEditCommandManager = new EditCommandManager(initialProjectState);
             var initialPlaybackState = new CountingPlaybackState();
             var repository = new ProjectTimelineViewStateRepository(tempDirectory);
             var initialTimelineViewStateStore = new PersistentTimelineViewStateStore(
@@ -177,7 +177,7 @@ public class PlayerParentViewModelTests
 
             var selectionState = new SelectionState();
             var projectState = new ProjectState();
-            var editCommandManager = new EditCommandManager();
+            var editCommandManager = new EditCommandManager(projectState);
             var playbackState = new CountingPlaybackState();
             var timelineViewStateStore = new PersistentTimelineViewStateStore(
                 new TimelineViewStateStore(),

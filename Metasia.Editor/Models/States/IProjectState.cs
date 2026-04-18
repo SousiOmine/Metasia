@@ -66,4 +66,14 @@ public interface IProjectState : IDisposable
     /// タイムラインに変更が加えられたことを通知する
     /// </summary>
     void NotifyTimelineChanged();
+
+    /// <summary>
+    /// 最後の保存以降に変更が加えられたかどうか
+    /// </summary>
+    bool IsDirty { get; set; }
+
+    /// <summary>
+    /// IsDirtyが変更された時に発生するイベント
+    /// </summary>
+    event Action? IsDirtyChanged;
 }

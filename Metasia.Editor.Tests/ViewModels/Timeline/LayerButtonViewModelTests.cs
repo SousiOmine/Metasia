@@ -20,8 +20,8 @@ public class LayerButtonViewModelTests
         {
             IsActive = true
         };
-        var editCommandManager = new EditCommandManager();
         var projectStateMock = new Mock<IProjectState>();
+        var editCommandManager = new EditCommandManager(projectStateMock.Object);
         var selectionState = new SelectionState();
 
         using var viewModel = new LayerButtonViewModel(

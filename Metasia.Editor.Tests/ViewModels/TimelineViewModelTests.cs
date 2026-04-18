@@ -33,7 +33,7 @@ public class TimelineViewModelTests
             new SelectionState(),
             new FakePlaybackState(),
             projectState,
-            new EditCommandManager(),
+            new EditCommandManager(projectState),
             viewState,
             new FakeClipboardService());
 
@@ -62,7 +62,7 @@ public class TimelineViewModelTests
             new SelectionState(),
             new FakePlaybackState(),
             projectState,
-            new EditCommandManager(),
+            new EditCommandManager(projectState),
             viewState,
             new FakeClipboardService());
 

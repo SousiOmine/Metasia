@@ -12,13 +12,21 @@ namespace Metasia.Editor.Tests.Models.EditCommands
     {
         private EditCommandManager _manager;
         private Mock<IEditCommand> _mockCommand;
+        private ProjectState _projectState;
 
         [SetUp]
         public void Setup()
         {
-            _manager = new EditCommandManager();
+            _projectState = new ProjectState();
+            _manager = new EditCommandManager(_projectState);
             _mockCommand = new Mock<IEditCommand>();
             _mockCommand.Setup(c => c.Description).Returns("Test Command");
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            _projectState.Dispose();
         }
 
         [Test]
@@ -244,6 +252,56 @@ namespace Metasia.Editor.Tests.Models.EditCommands
             _manager.Execute(command4.Object);
             Assert.That(_manager.CanUndo, Is.True);
             Assert.That(_manager.CanRedo, Is.False);
+        }
+
+        [Test]
+        public void IsDirty_InitiallyFalse()
+        {
+            Assert.That(_projectState.IsDirty, Is.False);
+        }
+
+        [Test]
+        public void IsDirty_TrueAfterExecute()
+        {
+            _manager.Execute(_mockCommand.Object);
+            Assert.That(_projectState.IsDirty, Is.True);
+        }
+
+        [Test]
+        public void IsDirty_TrueAfterUndo()
+        {
+            _manager.Execute(_mockCommand.Object);
+            _projectState.IsDirty = false;
+            _manager.Undo();
+            Assert.That(_projectState.IsDirty, Is.True);
+        }
+
+        [Test]
+        public void IsDirty_TrueAfterRedo()
+        {
+            _manager.Execute(_mockCommand.Object);
+            _manager.Undo();
+            _projectState.IsDirty = false;
+            _manager.Redo();
+            Assert.That(_projectState.IsDirty, Is.True);
+        }
+
+        [Test]
+        public void IsDirty_FalseAfterClear()
+        {
+            _manager.Execute(_mockCommand.Object);
+            _manager.Clear();
+            Assert.That(_projectState.IsDirty, Is.False);
+        }
+
+        [Test]
+        public void IsDirtyChanged_FiredWhenIsDirtyChanges()
+        {
+            var fired = false;
+            _projectState.IsDirtyChanged += () => fired = true;
+
+            _manager.Execute(_mockCommand.Object);
+            Assert.That(fired, Is.True);
         }
     }
 }

@@ -151,10 +151,11 @@ public class PluginServiceTests
         TypeRegistry registry,
         Func<Task<IEnumerable<IEditorPlugin>>>? pluginLoader = null)
     {
+        var projectState = new ProjectState();
         return new EditorPluginService(
             router,
             registry,
-            new EditCommandManager(),
+            new EditCommandManager(projectState),
             new SelectionState(),
             new TimelineViewStateStore(),
             new FakePlaybackState(),

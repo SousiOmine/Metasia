@@ -15,10 +15,16 @@ namespace Metasia.Editor.Models.EditCommands
     /// </summary>
     public class EditCommandManager : IEditCommandManager
     {
+        private readonly IProjectState _projectState;
         private readonly Stack<IEditCommand> undoStack = new();
         private readonly Stack<IEditCommand> redoStack = new();
 
         private IEditCommand? lastPreviewCommand = null;
+
+        public EditCommandManager(IProjectState projectState)
+        {
+            _projectState = projectState;
+        }
 
         public bool CanUndo => undoStack.Count > 0;
         public bool CanRedo => redoStack.Count > 0;
@@ -36,6 +42,7 @@ namespace Metasia.Editor.Models.EditCommands
             undoStack.Push(command);
             redoStack.Clear();
 
+            _projectState.IsDirty = true;
             CommandExecuted?.Invoke(this, command);
 
             Console.WriteLine("Execute: " + command.Description);
@@ -60,9 +67,8 @@ namespace Metasia.Editor.Models.EditCommands
                 command.Undo();
                 redoStack.Push(command);
 
+                _projectState.IsDirty = true;
                 CommandUndone?.Invoke(this, command);
-
-
             }
             Console.WriteLine("Undo");
         }
@@ -76,9 +82,8 @@ namespace Metasia.Editor.Models.EditCommands
                 command.Execute();
                 undoStack.Push(command);
 
+                _projectState.IsDirty = true;
                 CommandRedone?.Invoke(this, command);
-
-
             }
             Console.WriteLine("Redo");
         }
@@ -88,6 +93,7 @@ namespace Metasia.Editor.Models.EditCommands
             undoStack.Clear();
             redoStack.Clear();
             lastPreviewCommand = null;
+            _projectState.IsDirty = false;
         }
 
         public void CancelPreview()

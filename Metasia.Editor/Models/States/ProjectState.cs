@@ -56,6 +56,29 @@ public class ProjectState : IProjectState
     private MetasiaEditorProject? _currentProject;
     private ProjectInfo? _currentProjectInfo;
 
+    private bool _isDirty;
+
+    /// <summary>
+    /// 最後の保存以降に変更が加えられたかどうか
+    /// </summary>
+    public bool IsDirty
+    {
+        get => _isDirty;
+        set
+        {
+            if (_isDirty != value)
+            {
+                _isDirty = value;
+                IsDirtyChanged?.Invoke();
+            }
+        }
+    }
+
+    /// <summary>
+    /// IsDirtyが変更されたときに発生するイベント
+    /// </summary>
+    public event Action? IsDirtyChanged;
+
     /// <summary>
     /// プロジェクトを非同期で読み込む
     /// </summary>
@@ -66,10 +89,10 @@ public class ProjectState : IProjectState
         _currentProject = project;
         _currentProjectInfo = new ProjectInfo(project.ProjectFile.Framerate, new SKSize(project.ProjectFile.Resolution.Width, project.ProjectFile.Resolution.Height), 44100, 2);
 
-        // 重い処理の代わりに仮で100ms待つ
         await Task.Delay(100);
 
         _currentTimeline = ResolveInitialTimeline(project);
+        _isDirty = false;
 
         ProjectLoaded?.Invoke();
     }
@@ -82,6 +105,7 @@ public class ProjectState : IProjectState
         _currentProject = null;
         _currentTimeline = null;
         _currentProjectInfo = null;
+        _isDirty = false;
         ProjectClosed?.Invoke();
     }
 

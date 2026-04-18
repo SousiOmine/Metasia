@@ -9,7 +9,7 @@
 		x:Class="Metasia.Editor.Views.MainWindow"
 		x:DataType="vm:MainWindowViewModel"
 		Icon="/Assets/metasia-icon.ico"
-		Title="Metasia.Editor"
+		Title="{Binding Title}"
 		Focusable="True">
 
     <Design.DataContext>

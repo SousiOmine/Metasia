@@ -130,6 +130,11 @@ namespace Metasia.Editor.Services
                 return;
             }
 
+            if (!_projectState.IsDirty)
+            {
+                return;
+            }
+
             var projectFilePath = currentProject.ProjectFilePath;
             if (string.IsNullOrEmpty(projectFilePath))
             {
@@ -139,6 +144,7 @@ namespace Metasia.Editor.Services
             try
             {
                 ProjectSaveLoadManager.Save(currentProject, projectFilePath);
+                _projectState.IsDirty = false;
             }
             catch (Exception ex)
             {
@@ -154,6 +160,11 @@ namespace Metasia.Editor.Services
         {
             var currentProject = _projectState.CurrentProject;
             if (currentProject == null)
+            {
+                return;
+            }
+
+            if (!_projectState.IsDirty)
             {
                 return;
             }

@@ -227,6 +227,8 @@ namespace Metasia.Editor.ViewModels
                     {
                         _projectState.CurrentProject.ProjectFilePath = targetFilePath;
                     }
+
+                    _projectState.IsDirty = false;
                 }
             }
             catch (Exception ex)

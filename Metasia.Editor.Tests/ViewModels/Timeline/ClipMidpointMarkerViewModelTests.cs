@@ -174,7 +174,7 @@ public class ClipMidpointMarkerViewModelTests
         clipColorProviderMock.Setup(x => x.GetBrush(It.IsAny<ClipObject>())).Returns(Brushes.Blue);
         var fileDialogServiceMock = new Mock<IFileDialogService>();
 
-        editCommandManager = new EditCommandManager();
+        editCommandManager = new EditCommandManager(projectStateMock.Object);
 
         var timelineViewModel = new TimelineViewModel(
             timeline,
