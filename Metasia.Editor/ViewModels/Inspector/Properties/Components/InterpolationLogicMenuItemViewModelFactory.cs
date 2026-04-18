@@ -9,7 +9,7 @@ public class InterpolationLogicMenuItemViewModelFactory : IInterpolationLogicMen
 {
     private readonly IProjectState _projectState;
     private readonly IEditCommandManager _editCommandManager;
-    
+
     public InterpolationLogicMenuItemViewModelFactory(
         IProjectState projectState,
         IEditCommandManager editCommandManager)
@@ -19,7 +19,7 @@ public class InterpolationLogicMenuItemViewModelFactory : IInterpolationLogicMen
         _projectState = projectState;
         _editCommandManager = editCommandManager;
     }
-    
+
     public InterpolationLogicMenuItemViewModel Create(CoordPoint coordPoint, Type interpolationLogicType)
     {
         ArgumentNullException.ThrowIfNull(coordPoint);

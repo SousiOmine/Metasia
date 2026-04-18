@@ -249,7 +249,7 @@ namespace Metasia.Editor.ViewModels
 
             // プレビュー位置を移動
             playbackState.Seek(targetFrame);
-            
+
             // タイムラインごとの状態として保存
             _timelineViewState.LastPreviewFrame = targetFrame;
         }

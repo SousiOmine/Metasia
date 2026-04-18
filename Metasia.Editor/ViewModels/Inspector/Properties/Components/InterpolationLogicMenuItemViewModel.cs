@@ -27,7 +27,7 @@ public class InterpolationLogicMenuItemViewModel : ViewModelBase
     private readonly IEditCommandManager _editCommandManager;
 
     public InterpolationLogicMenuItemViewModel(
-        CoordPoint coordPoint, 
+        CoordPoint coordPoint,
         Type interpolationLogicType,
         IProjectState projectState,
         IEditCommandManager editCommandManager
@@ -37,7 +37,7 @@ public class InterpolationLogicMenuItemViewModel : ViewModelBase
         {
             throw new ArgumentException("interpolationLogicType must implement InterpolationLogicBase");
         }
-        
+
         _targetCoordPoint = coordPoint;
         _interpolationLogicType = interpolationLogicType;
         _projectState = projectState;
@@ -46,7 +46,7 @@ public class InterpolationLogicMenuItemViewModel : ViewModelBase
         Header = interpolationLogicType.Name;
 
         Command = ReactiveCommand.Create(OnSelected);
-        
+
         _projectState.TimelineChanged += OnTimelineChanged;
 
         OnTimelineChanged();

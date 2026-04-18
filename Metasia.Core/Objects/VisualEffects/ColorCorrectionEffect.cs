@@ -108,10 +108,10 @@ public class ColorCorrectionEffect : VisualEffectBase
         float cOffset = midPoint * (1f - c) * b;
 
         float[] matrix = new float[20];
-        matrix[0] = c * b * (sR + s);  matrix[1] = c * b * sG;         matrix[2] = c * b * sB;         matrix[3] = 0;  matrix[4] = cOffset;
-        matrix[5] = c * b * sR;        matrix[6] = c * b * (sG + s);    matrix[7] = c * b * sB;         matrix[8] = 0;  matrix[9] = cOffset;
-        matrix[10] = c * b * sR;       matrix[11] = c * b * sG;         matrix[12] = c * b * (sB + s);   matrix[13] = 0; matrix[14] = cOffset;
-        matrix[15] = 0;                matrix[16] = 0;                  matrix[17] = 0;                  matrix[18] = 1; matrix[19] = 0;
+        matrix[0] = c * b * (sR + s); matrix[1] = c * b * sG; matrix[2] = c * b * sB; matrix[3] = 0; matrix[4] = cOffset;
+        matrix[5] = c * b * sR; matrix[6] = c * b * (sG + s); matrix[7] = c * b * sB; matrix[8] = 0; matrix[9] = cOffset;
+        matrix[10] = c * b * sR; matrix[11] = c * b * sG; matrix[12] = c * b * (sB + s); matrix[13] = 0; matrix[14] = cOffset;
+        matrix[15] = 0; matrix[16] = 0; matrix[17] = 0; matrix[18] = 1; matrix[19] = 0;
 
         SKColorFilter result = SKColorFilter.CreateColorMatrix(matrix);
 

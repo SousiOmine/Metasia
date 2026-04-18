@@ -57,10 +57,10 @@ public class MonochromeEffect : VisualEffectBase
         float identFactor = 1f - intensityF;
 
         float[] combinedMatrix = new float[20];
-        combinedMatrix[0] = grayR * luminR + identFactor; combinedMatrix[1] = grayR * luminG;               combinedMatrix[2] = grayR * luminB;               combinedMatrix[3] = 0; combinedMatrix[4] = 0;
-        combinedMatrix[5] = grayG * luminR;               combinedMatrix[6] = grayG * luminG + identFactor; combinedMatrix[7] = grayG * luminB;               combinedMatrix[8] = 0; combinedMatrix[9] = 0;
-        combinedMatrix[10] = grayB * luminR;              combinedMatrix[11] = grayB * luminG;              combinedMatrix[12] = grayB * luminB + identFactor; combinedMatrix[13] = 0; combinedMatrix[14] = 0;
-        combinedMatrix[15] = 0;  combinedMatrix[16] = 0;  combinedMatrix[17] = 0;  combinedMatrix[18] = 1;  combinedMatrix[19] = 0;
+        combinedMatrix[0] = grayR * luminR + identFactor; combinedMatrix[1] = grayR * luminG; combinedMatrix[2] = grayR * luminB; combinedMatrix[3] = 0; combinedMatrix[4] = 0;
+        combinedMatrix[5] = grayG * luminR; combinedMatrix[6] = grayG * luminG + identFactor; combinedMatrix[7] = grayG * luminB; combinedMatrix[8] = 0; combinedMatrix[9] = 0;
+        combinedMatrix[10] = grayB * luminR; combinedMatrix[11] = grayB * luminG; combinedMatrix[12] = grayB * luminB + identFactor; combinedMatrix[13] = 0; combinedMatrix[14] = 0;
+        combinedMatrix[15] = 0; combinedMatrix[16] = 0; combinedMatrix[17] = 0; combinedMatrix[18] = 1; combinedMatrix[19] = 0;
 
         using var colorFilter = SKColorFilter.CreateColorMatrix(combinedMatrix);
 

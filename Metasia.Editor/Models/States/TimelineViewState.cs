@@ -66,8 +66,8 @@ public class TimelineViewState : ITimelineViewState
     {
         if (_isDisposed) return;
         _isDisposed = true;
-            Frame_Per_DIP_Changed = null;
-            HorizontalScrollPosition_Changed = null;
-            LastPreviewFrame_Changed = null;
+        Frame_Per_DIP_Changed = null;
+        HorizontalScrollPosition_Changed = null;
+        LastPreviewFrame_Changed = null;
     }
 }
