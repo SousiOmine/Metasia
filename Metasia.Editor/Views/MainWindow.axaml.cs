@@ -5,13 +5,17 @@ using System;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using Metasia.Editor.Models.Settings;
+using Metasia.Editor.Models;
 using Metasia.Editor.Services;
+using Metasia.Editor.Abstractions.Notification;
 using Metasia.Editor.ViewModels;
+using Metasia.Editor.Views.Dialogs;
 
 namespace Metasia.Editor.Views
 {
@@ -22,6 +26,7 @@ namespace Metasia.Editor.Views
         private readonly Grid? _topPaneGrid;
         private bool _layoutRestored;
         private bool _isSavingLayout;
+        private bool _isCloseConfirmed;
         private Size? _lastNormalWindowSize;
         private MenuView? _menuView;
 
@@ -62,7 +67,7 @@ namespace Metasia.Editor.Views
                 {
                     menuViewModel.ExitInteraction.RegisterHandler(async interaction =>
                     {
-                        this.Close();
+                        await TryCloseWithConfirmAsync();
                         interaction.SetOutput(Unit.Default);
                     });
                 }
@@ -83,7 +88,103 @@ namespace Metasia.Editor.Views
 
         private void OnClosing(object? sender, WindowClosingEventArgs e)
         {
-            PersistLayout();
+            if (_isCloseConfirmed)
+            {
+                PersistLayout();
+                return;
+            }
+
+            var projectState = App.Current?.Services?.GetService<IProjectState>();
+            if (projectState is not null && projectState.IsDirty && projectState.CurrentProject is not null)
+            {
+                e.Cancel = true;
+                Dispatcher.UIThread.Post(async () => await TryCloseWithConfirmAsync());
+            }
+            else
+            {
+                PersistLayout();
+            }
+        }
+
+        private async Task TryCloseWithConfirmAsync()
+        {
+            if (_isCloseConfirmed) return;
+
+            var projectState = App.Current?.Services?.GetService<IProjectState>();
+            if (projectState is null || !projectState.IsDirty || projectState.CurrentProject is null)
+            {
+                _isCloseConfirmed = true;
+                Close();
+                return;
+            }
+
+            var dialog = new ConfirmDialog(
+                "Metasia",
+                "プロジェクトに未保存の変更があります。\n保存しますか？",
+                "保存",
+                "保存しない",
+                "キャンセル");
+
+            var result = await dialog.ShowDialog<ConfirmDialogResult>(this);
+
+            switch (result)
+            {
+                case ConfirmDialogResult.Save:
+                    var saved = await SaveProjectAsync(projectState);
+                    if (!saved) return;
+                    _isCloseConfirmed = true;
+                    Close();
+                    break;
+                case ConfirmDialogResult.DontSave:
+                    _isCloseConfirmed = true;
+                    Close();
+                    break;
+                case ConfirmDialogResult.Cancel:
+                default:
+                    break;
+            }
+        }
+
+        private async Task<bool> SaveProjectAsync(IProjectState projectState)
+        {
+            try
+            {
+                if (projectState.CurrentProject is null) return false;
+
+                string? targetFilePath = projectState.CurrentProject.ProjectFilePath;
+                if (string.IsNullOrEmpty(targetFilePath))
+                {
+                    var fileDialogService = App.Current?.Services?.GetService<IFileDialogService>();
+                    if (fileDialogService is null) return false;
+
+                    var file = await fileDialogService.SaveFileDialogAsync(
+                        "プロジェクトを保存",
+                        ["*.mtpj"],
+                        "mtpj");
+                    if (file is null) return false;
+                    targetFilePath = file.Path.LocalPath;
+                }
+
+                if (string.IsNullOrEmpty(targetFilePath)) return false;
+
+                ProjectSaveLoadManager.Save(projectState.CurrentProject, targetFilePath);
+
+                if (string.IsNullOrEmpty(projectState.CurrentProject.ProjectFilePath))
+                {
+                    projectState.CurrentProject.ProjectFilePath = targetFilePath;
+                }
+
+                projectState.IsDirty = false;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                var notificationService = App.Current?.Services?.GetService<INotificationService>();
+                notificationService?.ShowError(
+                    "プロジェクト保存失敗",
+                    $"プロジェクトの保存に失敗しました。\n{ex.Message}");
+                return false;
+            }
         }
 
         private void OnResized(object? sender, WindowResizedEventArgs e)

@@ -1,0 +1,19 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="160"
+        x:Class="Metasia.Editor.Views.Dialogs.ConfirmDialog"
+        Icon="/Assets/metasia-icon.ico"
+        Width="400" SizeToContent="Height"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False">
+    <StackPanel Margin="24" Spacing="20">
+        <TextBlock x:Name="MessageText" TextWrapping="Wrap" FontSize="14"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+            <Button x:Name="SaveButton" Width="100" Click="OnSaveClick"/>
+            <Button x:Name="DontSaveButton" Width="100" Click="OnDontSaveClick"/>
+            <Button x:Name="CancelButton" Width="100" Click="OnCancelClick"/>
+        </StackPanel>
+    </StackPanel>
+</Window>
