@@ -134,7 +134,7 @@ namespace Metasia.Core.Tests.Objects
             var timeline = new TimelineObject();
 
             Assert.That(timeline.SelectionStart, Is.EqualTo(0));
-            Assert.That(timeline.SelectionEnd, Is.EqualTo(int.MaxValue));
+            Assert.That(timeline.SelectionEnd, Is.EqualTo(600));
         }
 
         [Test]
