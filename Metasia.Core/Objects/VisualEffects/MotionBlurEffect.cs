@@ -42,15 +42,18 @@ namespace Metasia.Core.Objects.VisualEffects
                 }
             }
 
+            int width = input.Width;
+            int height = input.Height;
+
+            float logicalScaleX = context.LogicalSize.Width > 0 ? width / context.LogicalSize.Width : 1f;
+            float logicalScaleY = context.LogicalSize.Height > 0 ? height / context.LogicalSize.Height : 1f;
+
             float radians = angle * MathF.PI / 180f;
-            float sigmaX = MathF.Abs(MathF.Cos(radians)) * strength;
-            float sigmaY = MathF.Abs(MathF.Sin(radians)) * strength;
+            float sigmaX = MathF.Abs(MathF.Cos(radians)) * strength * logicalScaleX;
+            float sigmaY = MathF.Abs(MathF.Sin(radians)) * strength * logicalScaleY;
 
             sigmaX = MathF.Max(sigmaX, 0.1f);
             sigmaY = MathF.Max(sigmaY, 0.1f);
-
-            int width = input.Width;
-            int height = input.Height;
 
             var info = new SKImageInfo(width, height, SKColorType.Rgba8888, SKAlphaType.Premul);
             using var surface = context.SurfaceFactory.CreateSurface(info);

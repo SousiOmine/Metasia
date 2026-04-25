@@ -20,7 +20,11 @@ public class MosaicEffect : VisualEffectBase
         int relativeFrame = context.RelativeFrame;
         int clipLength = context.ClipLength;
 
-        int blockSize = Math.Max(2, (int)BlockSize.Get(relativeFrame, clipLength));
+        int width = input.Width;
+        int height = input.Height;
+
+        float logicalScale = context.LogicalSize.Width > 0 ? width / context.LogicalSize.Width : 1f;
+        int blockSize = Math.Max(2, (int)(BlockSize.Get(relativeFrame, clipLength) * logicalScale));
 
         if (context.TargetImageCacheKey != IRenderImageCache.NO_CACHE_KEY)
         {
@@ -31,9 +35,6 @@ public class MosaicEffect : VisualEffectBase
                 return new VisualEffectResult(cachedImage, cacheKey, context.LogicalSize);
             }
         }
-
-        int width = input.Width;
-        int height = input.Height;
 
         int smallWidth = Math.Max(1, width / blockSize);
         int smallHeight = Math.Max(1, height / blockSize);
