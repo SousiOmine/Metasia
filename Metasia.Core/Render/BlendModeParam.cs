@@ -93,9 +93,14 @@ namespace Metasia.Core.Render
             Value = value;
         }
 
-        public SKBlendMode ToSkBlendMode()
+        /// <summary>
+        /// BlendModeKind を SKBlendMode に変換する
+        /// </summary>
+        /// <param name="kind">変換元の BlendModeKind</param>
+        /// <returns>対応する SKBlendMode</returns>
+        public static SKBlendMode ToSkBlendMode(BlendModeKind kind)
         {
-            return Value switch
+            return kind switch
             {
                 BlendModeKind.Clear => SKBlendMode.Clear,
                 BlendModeKind.Src => SKBlendMode.Src,
@@ -129,6 +134,11 @@ namespace Metasia.Core.Render
                 _ => SKBlendMode.SrcOver
             };
         }
+
+        /// <summary>
+        /// 現在の Value に対応する SKBlendMode を返す
+        /// </summary>
+        public SKBlendMode ToSkBlendMode() => ToSkBlendMode(Value);
 
         public (BlendModeParam FirstHalf, BlendModeParam SecondHalf) Split()
         {
