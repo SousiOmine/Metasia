@@ -48,11 +48,11 @@ public class SKMatrix44Effect : VisualEffectBase
         var projectedPoints = new SKPoint[GridW + 1, GridH + 1];
         for (int gy = 0; gy <= GridH; gy++)
         {
-            float v = (float)gy / GridH; // 0..1
+            float v = (float)gy / GridH;
             float ySrc = v * height - height * 0.5f;
             for (int gx = 0; gx <= GridW; gx++)
             {
-                float u = (float)gx / GridW; // 0..1
+                float u = (float)gx / GridW;
                 float xSrc = u * width - width * 0.5f;
 
                 var srcPoint = new SKPoint3(xSrc, ySrc, 0);
@@ -61,25 +61,28 @@ public class SKMatrix44Effect : VisualEffectBase
             }
         }
 
-        float minX = float.MaxValue;
-        float minY = float.MaxValue;
-        float maxX = float.MinValue;
-        float maxY = float.MinValue;
+        // 元画像の中心(0,0)が投影後にどこに来るか計算
+        SKPoint3 centerTransformed = m.MapPoint(new SKPoint3(0, 0, 0));
+        SKPoint centerProj = ProjectPoint(centerTransformed, width * 0.5f, height * 0.5f, (float)cameraZ, (float)focalLength);
 
+        // centerProjからの最大距離を計算し、それを元にキャンバスサイズを決める
+        float maxDistX = 0f, maxDistY = 0f;
         for (int gy = 0; gy <= GridH; gy++)
         {
             for (int gx = 0; gx <= GridW; gx++)
             {
                 SKPoint p = projectedPoints[gx, gy];
-                if (p.X < minX) minX = p.X;
-                if (p.Y < minY) minY = p.Y;
-                if (p.X > maxX) maxX = p.X;
-                if (p.Y > maxY) maxY = p.Y;
+                maxDistX = Math.Max(maxDistX, MathF.Abs(p.X - centerProj.X));
+                maxDistY = Math.Max(maxDistY, MathF.Abs(p.Y - centerProj.Y));
             }
         }
 
-        int newWidth = Math.Max(1, (int)Math.Ceiling(maxX - minX));
-        int newHeight = Math.Max(1, (int)Math.Ceiling(maxY - minY));
+        int newWidth = Math.Max(1, (int)Math.Ceiling(maxDistX * 2));
+        int newHeight = Math.Max(1, (int)Math.Ceiling(maxDistY * 2));
+
+        // 投影中心が出力キャンバスの中心に来るようオフセット
+        float offsetX = newWidth * 0.5f - centerProj.X;
+        float offsetY = newHeight * 0.5f - centerProj.Y;
 
         // 頂点バッファ構築
         int vertCount = (GridW + 1) * (GridH + 1);
@@ -92,8 +95,8 @@ public class SKMatrix44Effect : VisualEffectBase
             {
                 int idx = gy * (GridW + 1) + gx;
                 positions[idx] = new SKPoint(
-                    projectedPoints[gx, gy].X - minX,
-                    projectedPoints[gx, gy].Y - minY
+                    projectedPoints[gx, gy].X + offsetX,
+                    projectedPoints[gx, gy].Y + offsetY
                 );
                 texs[idx] = new SKPoint(
                     (float)gx / GridW * width,
