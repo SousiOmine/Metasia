@@ -31,14 +31,14 @@ public class SKMatrix44Effect : VisualEffectBase
     
     public override VisualEffectResult Apply(SKImage input, VisualEffectContext context)
     {
-        double cameraZ = Z.Get(context.Frame, context.ClipLength);
+        double cameraZ = Z.Get(context.RelativeFrame, context.ClipLength);
         double focalLength = 1000.0;
 
         int width = input.Width;
         int height = input.Height;
 
-        double angleX = X.Get(context.Frame, context.ClipLength);
-        double angleY = Y.Get(context.Frame, context.ClipLength);
+        double angleX = X.Get(context.RelativeFrame, context.ClipLength);
+        double angleY = Y.Get(context.RelativeFrame, context.ClipLength);
 
         var m = SKMatrix44.CreateIdentity();
         m = m.PreConcat(SKMatrix44.CreateRotationDegrees(1, 0, 0, (float)angleX));
