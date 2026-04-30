@@ -35,12 +35,12 @@ namespace Metasia.Core.Objects.VisualEffects
             int relativeFrame = context.RelativeFrame;
             int clipLength = context.ClipLength;
 
-            int top = (int)Top.Get(relativeFrame, clipLength);
-            int bottom = (int)Bottom.Get(relativeFrame, clipLength);
-            int left = (int)Left.Get(relativeFrame, clipLength);
-            int right = (int)Right.Get(relativeFrame, clipLength);
+            int topValue = (int)Top.Get(relativeFrame, clipLength);
+            int bottomValue = (int)Bottom.Get(relativeFrame, clipLength);
+            int leftValue = (int)Left.Get(relativeFrame, clipLength);
+            int rightValue = (int)Right.Get(relativeFrame, clipLength);
 
-            if (top == 0 && bottom == 0 && left == 0 && right == 0)
+            if (topValue == 0 && bottomValue == 0 && leftValue == 0 && rightValue == 0)
             {
                 return new VisualEffectResult(input, context.TargetImageCacheKey, context.LogicalSize);
             }
@@ -58,8 +58,13 @@ namespace Metasia.Core.Objects.VisualEffects
             int srcWidth = input.Width;
             int srcHeight = input.Height;
 
-            int newWidth = Math.Max(1, srcWidth - left - right);
-            int newHeight = Math.Max(1, srcHeight - top - bottom);
+            float logicalScaleX = context.LogicalSize.Width > 0 ? srcWidth / context.LogicalSize.Width : 1f;
+            float logicalScaleY = context.LogicalSize.Height > 0 ? srcHeight / context.LogicalSize.Height : 1f;
+
+            int top = (int)(topValue * logicalScaleY);
+            int bottom = (int)(bottomValue * logicalScaleY);
+            int left = (int)(leftValue * logicalScaleX);
+            int right = (int)(rightValue * logicalScaleX);
 
             var info = new SKImageInfo(srcWidth, srcHeight, SKColorType.Rgba8888, SKAlphaType.Premul);
             using var surface = context.SurfaceFactory.CreateSurface(info);

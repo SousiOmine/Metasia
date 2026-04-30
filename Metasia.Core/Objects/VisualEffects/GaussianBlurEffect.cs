@@ -29,6 +29,9 @@ public class GaussianBlurEffect : VisualEffectBase
         float logicalScaleX = context.LogicalSize.Width > 0 ? width / context.LogicalSize.Width : 1f;
         float logicalScaleY = context.LogicalSize.Height > 0 ? height / context.LogicalSize.Height : 1f;
 
+        float scaledStrengthX = strength * logicalScaleX;
+        float scaledStrengthY = strength * logicalScaleY;
+
         float expandLogical = strength * 3;
         int expandX = Math.Max(1, (int)Math.Ceiling(expandLogical * logicalScaleX));
         int expandY = Math.Max(1, (int)Math.Ceiling(expandLogical * logicalScaleY));
@@ -55,7 +58,7 @@ public class GaussianBlurEffect : VisualEffectBase
         var drawImage = context.SurfaceFactory.GetDrawImage(input);
         try
         {
-            using var blurFilter = SKImageFilter.CreateBlur(strength, strength);
+            using var blurFilter = SKImageFilter.CreateBlur(scaledStrengthX, scaledStrengthY);
             using var paint = new SKPaint();
             paint.ImageFilter = blurFilter;
 

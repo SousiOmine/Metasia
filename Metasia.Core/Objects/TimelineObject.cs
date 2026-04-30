@@ -329,33 +329,64 @@ namespace Metasia.Core.Objects
         {
             node.Transform = node.Transform.Add(groupNode.Transform);
 
-            if (node is NormalRenderNode normalNode && normalNode.Image is not null && groupNode.VisualEffectContext is not null)
+            if (node is NormalRenderNode normalNode && normalNode.Image is not null)
             {
-                groupNode.VisualEffectContext.TargetImageCacheKey = normalNode.ImageCacheKey;
-                var effectResult = VisualEffectPipeline.ApplyEffects(
-                    normalNode.Image,
-                    groupNode.VisualEffects,
-                    groupNode.VisualEffectContext);
-                normalNode.Image = effectResult.Image;
-                normalNode.LogicalSize = effectResult.LogicalSize;
+                VisualEffectContext? effectContext = CreateGroupVisualEffectContext(groupNode, normalNode);
+                if (effectContext is not null)
+                {
+                    var effectResult = VisualEffectPipeline.ApplyEffects(
+                        normalNode.Image,
+                        groupNode.VisualEffects,
+                        effectContext);
+                    normalNode.Image = effectResult.Image;
+                    normalNode.LogicalSize = effectResult.LogicalSize;
+                    normalNode.ImageCacheKey = effectResult.ImageCacheKey;
+                }
             }
 
             foreach (var child in node.Children)
             {
                 child.Transform = child.Transform.Add(groupNode.Transform);
 
-                if (child is NormalRenderNode childNormalNode && childNormalNode.Image is not null && groupNode.VisualEffectContext is not null)
+                if (child is NormalRenderNode childNormalNode && childNormalNode.Image is not null)
                 {
-                    groupNode.VisualEffectContext.TargetImageCacheKey = childNormalNode.ImageCacheKey;
-                    var effectResult = VisualEffectPipeline.ApplyEffects(
-                        childNormalNode.Image,
-                        groupNode.VisualEffects,
-                        groupNode.VisualEffectContext);
-                    childNormalNode.Image = effectResult.Image;
-                    childNormalNode.LogicalSize = effectResult.LogicalSize;
+                    VisualEffectContext? effectContext = CreateGroupVisualEffectContext(groupNode, childNormalNode);
+                    if (effectContext is not null)
+                    {
+                        var effectResult = VisualEffectPipeline.ApplyEffects(
+                            childNormalNode.Image,
+                            groupNode.VisualEffects,
+                            effectContext);
+                        childNormalNode.Image = effectResult.Image;
+                        childNormalNode.LogicalSize = effectResult.LogicalSize;
+                        childNormalNode.ImageCacheKey = effectResult.ImageCacheKey;
+                    }
                 }
             }
             return Task.FromResult(node);
+        }
+
+        private static VisualEffectContext? CreateGroupVisualEffectContext(
+            GroupControlRenderNode groupNode,
+            NormalRenderNode targetNode)
+        {
+            VisualEffectContext? baseContext = groupNode.VisualEffectContext;
+            if (baseContext is null)
+            {
+                return null;
+            }
+
+            return new VisualEffectContext(
+                baseContext.Frame,
+                baseContext.RelativeFrame,
+                baseContext.ClipLength,
+                baseContext.ProjectResolution,
+                baseContext.RenderResolution,
+                targetNode.LogicalSize,
+                baseContext.ImageCache,
+                baseContext.SurfaceFactory,
+                baseContext.PreferRasterOutput,
+                targetNode.ImageCacheKey);
         }
 
         /// <summary>

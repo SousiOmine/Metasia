@@ -21,7 +21,6 @@ namespace Metasia.Editor.ViewModels
         private readonly IFileDialogService _fileDialogService;
         private EditorSettings _workingSettings;
         private EditorSettings _lastAppliedSettings;
-        private bool _hasPendingThemeChange;
 
         public ObservableCollection<SettingsCategoryViewModel> Categories { get; } = new();
 
@@ -74,13 +73,8 @@ namespace Metasia.Editor.ViewModels
 
         private async Task ApplyAsync()
         {
-            var previousTheme = _settingsService.CurrentSettings.General.Theme;
             _settingsService.UpdateSettingsSilent(CloneSettings(_workingSettings));
             _lastAppliedSettings = CloneSettings(_workingSettings);
-            if (previousTheme != _workingSettings.General.Theme)
-            {
-                _hasPendingThemeChange = true;
-            }
             HasChanges = false;
             await Task.CompletedTask;
         }
@@ -114,11 +108,7 @@ namespace Metasia.Editor.ViewModels
 
         public void NotifySettingsChangedIfNeeded()
         {
-            if (_hasPendingThemeChange)
-            {
-                _settingsService.NotifySettingsChanged();
-                _hasPendingThemeChange = false;
-            }
+            _settingsService.NotifySettingsChanged();
         }
     }
 }
