@@ -12,16 +12,16 @@ namespace Metasia.Core.Objects.VisualEffects;
 [VisualEffectIdentifier("SKMatrix44Effect", DisplayKey = "effect.visual.skmatrix44.name", FallbackText = "SKMatrix44")]
 public class SKMatrix44Effect : VisualEffectBase
 {
-    [EditableProperty("X", DisplayKey = "property.effect.skmatrix44.x", FallbackText = "X")]
+    [EditableProperty("SKMatrix44 X", DisplayKey = "property.effect.skmatrix44.x", FallbackText = "X")]
     [ValueRange(-99999, 99999, -360, 360)]
     public MetaNumberParam<double> X { get; set; } = new MetaNumberParam<double>(0);
     
-    [EditableProperty("Y", DisplayKey = "property.effect.skmatrix44.y", FallbackText = "Y")]
+    [EditableProperty("SKMatrix44 Y", DisplayKey = "property.effect.skmatrix44.y", FallbackText = "Y")]
     [ValueRange(-99999, 99999, -360, 360)]
     public MetaNumberParam<double> Y { get; set; } = new MetaNumberParam<double>(0);
     
-    [EditableProperty("Z", DisplayKey = "property.effect.skmatrix44.z", FallbackText = "Z")]
-    [ValueRange(0, 99999, 0, 2000)]
+    [EditableProperty("SKMatrix44 Z", DisplayKey = "property.effect.skmatrix44.z", FallbackText = "Z")]
+    [ValueRange(1, 99999, 1, 2000)]
     public MetaNumberParam<double> Z { get; set; } = new MetaNumberParam<double>(1000);
     
     public override VisualEffectResult Apply(SKImage input, VisualEffectContext context)
@@ -56,6 +56,20 @@ public class SKMatrix44Effect : VisualEffectBase
             positions[i] = ProjectPoint(p3, width * 0.5f, height * 0.5f, (float)cameraZ, (float)focalLength);
         }
 
+        float minX = positions.Min(p => p.X);
+        float minY = positions.Min(p => p.Y);
+        float maxX = positions.Max(p => p.X);
+        float maxY = positions.Max(p => p.Y);
+
+        int newWidth = Math.Max(1, (int)Math.Ceiling(maxX - minX));
+        int newHeight = Math.Max(1, (int)Math.Ceiling(maxY - minY));
+
+        var offsetPositions = new SKPoint[4];
+        for (int i = 0; i < 4; i++)
+        {
+            offsetPositions[i] = new SKPoint(positions[i].X - minX, positions[i].Y - minY);
+        }
+
         var texs = new[]
         {
             new SKPoint(0, 0),
@@ -68,7 +82,7 @@ public class SKMatrix44Effect : VisualEffectBase
 
         using var vertices = SKVertices.CreateCopy(
             SKVertexMode.Triangles,
-            positions,
+            offsetPositions,
             texs,
             null,
             indices
@@ -81,7 +95,7 @@ public class SKMatrix44Effect : VisualEffectBase
 
         using var paint = new SKPaint { IsAntialias = true, Shader = shader };
 
-        var info = new SKImageInfo(width, height, SKColorType.Rgba8888, SKAlphaType.Premul);
+        var info = new SKImageInfo(newWidth, newHeight, SKColorType.Rgba8888, SKAlphaType.Premul);
         using var surface = context.SurfaceFactory.CreateSurface(info);
         var drawImage = context.SurfaceFactory.GetDrawImage(input);
 
@@ -90,8 +104,13 @@ public class SKMatrix44Effect : VisualEffectBase
         canvas.DrawVertices(vertices, SKBlendMode.Modulate, paint);
 
         var result = context.SurfaceFactory.Snapshot(surface, context.PreferRasterOutput);
-        
-        return new VisualEffectResult(result, IRenderImageCache.NO_CACHE_KEY, context.LogicalSize);
+
+        float logicalScaleX = context.LogicalSize.Width / width;
+        float logicalScaleY = context.LogicalSize.Height / height;
+
+        var newLogicalSize = new SKSize(newWidth / logicalScaleX, newHeight / logicalScaleY);
+
+        return new VisualEffectResult(result, IRenderImageCache.NO_CACHE_KEY, newLogicalSize);
     }
 
     static SKPoint ProjectPoint(SKPoint3 p, float cx, float cy, float cameraZ, float focalLength)
