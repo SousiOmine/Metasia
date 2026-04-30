@@ -20,6 +20,11 @@ namespace Metasia.Core.Render
         /// </summary>
         public SKSize LogicalSize { get; }
 
+        /// <summary>
+        /// エフェクトがクリップのTransformに適用するオフセット（加算/乗算）。nullの場合は変更なし。
+        /// </summary>
+        public Transform? TransformOffset { get; set; }
+
         public VisualEffectResult(SKImage image, long imageCacheKey, SKSize? logicalSize = null)
         {
             ArgumentNullException.ThrowIfNull(image);

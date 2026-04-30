@@ -91,11 +91,14 @@ public class ImageObject : ClipObject, IRenderable
         };
         var logicalSize = new SKSize(image!.Width, image!.Height);
         var finalResult = VisualEffectPipeline.ApplyEffects(image!, VisualEffects, context!, StartFrame, EndFrame, logicalSize, imageCacheKey: imageHashCode);
+        var finalTransform = finalResult.TransformOffset is not null
+            ? transform.Add(finalResult.TransformOffset)
+            : transform;
         return new NormalRenderNode()
         {
             Image = finalResult.Image,
             LogicalSize = finalResult.LogicalSize,
-            Transform = transform,
+            Transform = finalTransform,
             BlendMode = BlendMode.Value,
             ImageCacheKey = finalResult.ImageCacheKey,
         };

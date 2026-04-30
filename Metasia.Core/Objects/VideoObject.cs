@@ -79,11 +79,14 @@ public class VideoObject : ClipObject, IRenderable, IAudible
                     };
                     var logicalSize = new SKSize(imageFileAccessorResult.Image.Width, imageFileAccessorResult.Image.Height);
                     var finalResult = VisualEffectPipeline.ApplyEffects(imageFileAccessorResult.Image, VisualEffects, context, StartFrame, EndFrame, logicalSize);
+                    var finalTransform = finalResult.TransformOffset is not null
+                        ? transform.Add(finalResult.TransformOffset)
+                        : transform;
                     return new NormalRenderNode()
                     {
                         Image = finalResult.Image,
                         LogicalSize = finalResult.LogicalSize,
-                        Transform = transform,
+                        Transform = finalTransform,
                         BlendMode = BlendMode.Value,
                         ImageCacheKey = finalResult.ImageCacheKey,
                     };

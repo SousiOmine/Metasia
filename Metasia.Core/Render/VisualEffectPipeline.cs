@@ -57,12 +57,21 @@ namespace Metasia.Core.Render
             SKImage current = input;
             long currentCacheKey = context.TargetImageCacheKey;
             SKSize currentLogicalSize = context.LogicalSize;
+            Transform? accumulatedTransformOffset = null;
 
             foreach (var effect in effects)
             {
                 if (effect.IsActive)
                 {
                     var result = effect.Apply(current, context);
+
+                    if (result.TransformOffset is not null)
+                    {
+                        accumulatedTransformOffset = accumulatedTransformOffset is null
+                            ? result.TransformOffset
+                            : accumulatedTransformOffset.Add(result.TransformOffset);
+                    }
+
                     current = result.Image;
                     currentCacheKey = result.ImageCacheKey;
                     currentLogicalSize = result.LogicalSize;
@@ -80,7 +89,10 @@ namespace Metasia.Core.Render
                 }
             }
 
-            return new VisualEffectResult(current, currentCacheKey, currentLogicalSize);
+            return new VisualEffectResult(current, currentCacheKey, currentLogicalSize)
+            {
+                TransformOffset = accumulatedTransformOffset
+            };
         }
     }
 }
