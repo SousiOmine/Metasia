@@ -8,6 +8,7 @@ using System.Linq;
 using System.Windows.Input;
 using Avalonia.Threading;
 using Metasia.Core.Coordinate;
+using Metasia.Core.Objects;
 using Metasia.Core.Objects.Parameters;
 using Metasia.Editor.Models;
 using Metasia.Editor.Abstractions.EditCommands;
@@ -69,6 +70,8 @@ public class MetaNumberParamPropertyViewModel : ViewModelBase
     private IEditCommandManager _editCommandManager;
     private IProjectState _projectState;
     private bool _isMovable;
+    private bool _allowMultiClipApply;
+    private IMetasiaObject? _owner;
     public MetaNumberParamPropertyViewModel(
         IMetaNumberCoordPointViewModelFactory coordPointViewModelFactory,
         ISelectionState selectionState,
@@ -79,7 +82,9 @@ public class MetaNumberParamPropertyViewModel : ViewModelBase
         double min = double.MinValue,
         double max = double.MaxValue,
         double recommendedMin = double.MinValue,
-        double recommendedMax = double.MaxValue)
+        double recommendedMax = double.MaxValue,
+        bool allowMultiClipApply = true,
+        IMetasiaObject? owner = null)
     {
         _coordPointViewModelFactory = coordPointViewModelFactory;
         _propertyDisplayName = propertyIdentifier;
@@ -93,6 +98,8 @@ public class MetaNumberParamPropertyViewModel : ViewModelBase
         _selectionState = selectionState;
         _editCommandManager = editCommandManager;
         _projectState = projectState;
+        _allowMultiClipApply = allowMultiClipApply;
+        _owner = owner;
         _projectState.TimelineChanged += OnTimelineChanged;
 
         AddMoveCommand = ReactiveCommand.Create(AddMove);
@@ -109,7 +116,16 @@ public class MetaNumberParamPropertyViewModel : ViewModelBase
         var targetPoint = points.FirstOrDefault(x => x.Id == targetCoordPoint.Id);
         if (targetPoint is not null)
         {
-            var command = TimelineInteractor.CreateCoordPointsValueChangeCommand(_propertyIdentifier, targetCoordPoint, beforeValue, value, _selectionState.SelectedClips);
+            var valueDifference = value - beforeValue;
+            IEditCommand? command;
+            if (_allowMultiClipApply)
+            {
+                command = TimelineInteractor.CreateCoordPointsValueChangeCommand(_propertyIdentifier, targetCoordPoint, beforeValue, value, _selectionState.SelectedClips);
+            }
+            else
+            {
+                command = new CoordPointsValueChangeCommand([new CoordPointsValueChangeCommand.CoordPointValueChangeInfo(_propertyValue, targetCoordPoint, valueDifference)]);
+            }
             if (command is not null)
             {
                 _editCommandManager.Execute(command);
@@ -124,7 +140,16 @@ public class MetaNumberParamPropertyViewModel : ViewModelBase
         var targetPoint = points.FirstOrDefault(x => x.Id == targetCoordPoint.Id);
         if (targetPoint is not null)
         {
-            var command = TimelineInteractor.CreateCoordPointsValueChangeCommand(_propertyIdentifier, targetCoordPoint, beforeValue, value, _selectionState.SelectedClips);
+            var valueDifference = value - beforeValue;
+            IEditCommand? command;
+            if (_allowMultiClipApply)
+            {
+                command = TimelineInteractor.CreateCoordPointsValueChangeCommand(_propertyIdentifier, targetCoordPoint, beforeValue, value, _selectionState.SelectedClips);
+            }
+            else
+            {
+                command = new CoordPointsValueChangeCommand([new CoordPointsValueChangeCommand.CoordPointValueChangeInfo(_propertyValue, targetCoordPoint, valueDifference)]);
+            }
             if (command is not null)
             {
                 _editCommandManager.PreviewExecute(command);

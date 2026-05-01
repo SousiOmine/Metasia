@@ -4,6 +4,7 @@ using Metasia.Editor.Models.EditCommands;
 using Metasia.Editor.Models;
 using Metasia.Editor.Abstractions.EditCommands;
 using Metasia.Editor.Abstractions.States;
+using Metasia.Core.Objects;
 using Metasia.Core.Objects.Parameters;
 
 namespace Metasia.Editor.ViewModels.Inspector.Properties;
@@ -24,13 +25,15 @@ public class MetaEnumParamPropertyViewModelFactory : IMetaEnumParamPropertyViewM
         _projectState = projectState;
     }
 
-    public MetaEnumParamPropertyViewModel Create(string propertyIdentifier, MetaEnumParam target)
+    public MetaEnumParamPropertyViewModel Create(string propertyIdentifier, MetaEnumParam target, bool allowMultiClipApply = true, IMetasiaObject? owner = null)
     {
         return new MetaEnumParamPropertyViewModel(
             _selectionState,
             propertyIdentifier,
             _editCommandManager,
             _projectState,
-            target);
+            target,
+            allowMultiClipApply,
+            owner);
     }
 }

@@ -2,7 +2,10 @@ using Metasia.Editor.Services.Notification;
 using Metasia.Editor.Models.States;
 using Metasia.Editor.Models.EditCommands;
 using System;
+using System.Linq;
+using Metasia.Core.Objects;
 using Metasia.Editor.Abstractions.EditCommands;
+using Metasia.Editor.Models.EditCommands.Commands;
 using Metasia.Editor.Models.Interactor;
 using Metasia.Editor.Abstractions.States;
 using ReactiveUI;
@@ -46,18 +49,24 @@ public class BoolPropertyViewModel : ViewModelBase
     private string _propertyIdentifier = string.Empty;
     private ISelectionState _selectionState;
     private IEditCommandManager _editCommandManager;
+    private bool _allowMultiClipApply;
+    private IMetasiaObject? _owner;
 
     public BoolPropertyViewModel(
         ISelectionState selectionState,
         string propertyIdentifier,
         IEditCommandManager editCommandManager,
-        bool target)
+        bool target,
+        bool allowMultiClipApply = true,
+        IMetasiaObject? owner = null)
     {
         _propertyDisplayName = propertyIdentifier;
         _propertyValue = target;
         _propertyIdentifier = propertyIdentifier;
         _selectionState = selectionState;
         _editCommandManager = editCommandManager;
+        _allowMultiClipApply = allowMultiClipApply;
+        _owner = owner;
     }
 
     private void UpdateBoolValue(bool beforeValue, bool afterValue)
@@ -71,10 +80,18 @@ public class BoolPropertyViewModel : ViewModelBase
 
     private IEditCommand? CreateBoolValueChangeCommand(bool beforeValue, bool afterValue)
     {
-        return TimelineInteractor.CreateBoolValueChangeCommand(
-            _propertyIdentifier,
-            beforeValue,
-            afterValue,
-            _selectionState.SelectedClips);
+        if (_allowMultiClipApply)
+        {
+            return TimelineInteractor.CreateBoolValueChangeCommand(
+                _propertyIdentifier,
+                beforeValue,
+                afterValue,
+                _selectionState.SelectedClips);
+        }
+
+        var owner = _owner ?? _selectionState.CurrentSelectedClip ?? _selectionState.SelectedClips.FirstOrDefault();
+        if (owner is null) return null;
+
+        return new BoolValueChangeCommand([new BoolValueChangeCommand.BoolValueChangeInfo(owner, _propertyIdentifier, beforeValue, afterValue)]);
     }
 }

@@ -111,7 +111,7 @@ public class AudioEffectsViewModel : ViewModelBase
         var editableProperties = ObjectPropertyFinder.FindEditableProperties(selectedEffect);
         foreach (var property in editableProperties)
         {
-            Properties.Add(_propertyRouterViewModelFactory.Create(property));
+            Properties.Add(_propertyRouterViewModelFactory.Create(property, allowMultiClipApply: false));
         }
     }
 

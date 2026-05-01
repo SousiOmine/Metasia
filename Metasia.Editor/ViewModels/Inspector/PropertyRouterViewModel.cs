@@ -153,6 +153,7 @@ public class PropertyRouterViewModel : ViewModelBase
     private bool _isBoolProperty = false;
     private bool _usePlaceholder;
     private ObjectPropertyFinder.EditablePropertyInfo _propertyInfo;
+    private readonly bool _allowMultiClipApply;
     private readonly IMetaNumberParamPropertyViewModelFactory _metaNumberParamPropertyViewModelFactory;
     private readonly IMediaPathPropertyViewModelFactory _mediaPathPropertyViewModelFactory;
     private readonly IStringPropertyViewModelFactory _stringPropertyViewModelFactory;
@@ -166,6 +167,7 @@ public class PropertyRouterViewModel : ViewModelBase
     private readonly IProjectState _projectState;
     public PropertyRouterViewModel(
         ObjectPropertyFinder.EditablePropertyInfo propertyInfo,
+        bool allowMultiClipApply,
         IMetaNumberParamPropertyViewModelFactory metaNumberParamPropertyViewModelFactory,
         IMediaPathPropertyViewModelFactory mediaPathPropertyViewModelFactory,
         IStringPropertyViewModelFactory stringPropertyViewModelFactory,
@@ -202,6 +204,7 @@ public class PropertyRouterViewModel : ViewModelBase
         _boolPropertyViewModelFactory = boolPropertyViewModelFactory;
         _projectState = projectState;
         _propertyInfo = propertyInfo;
+        _allowMultiClipApply = allowMultiClipApply;
         _projectState.TimelineChanged += OnTimelineChanged;
 
 
@@ -212,6 +215,7 @@ public class PropertyRouterViewModel : ViewModelBase
     private void RestructureProperty()
     {
         var displayName = DisplayTextResolver.ResolvePropertyDisplayName(_propertyInfo);
+        var owner = _propertyInfo.OwnerObject;
 
         if (_propertyInfo.Type == typeof(MetaNumberParam<double>))
         {
@@ -219,11 +223,11 @@ public class PropertyRouterViewModel : ViewModelBase
             {
                 if (_propertyInfo.Min is null || _propertyInfo.Max is null || _propertyInfo.RecommendedMin is null || _propertyInfo.RecommendedMax is null)
                 {
-                    MetaNumberParamPropertyVm = _metaNumberParamPropertyViewModelFactory.Create(_propertyInfo.Identifier, (MetaNumberParam<double>)_propertyInfo.PropertyValue!);
+                    MetaNumberParamPropertyVm = _metaNumberParamPropertyViewModelFactory.Create(_propertyInfo.Identifier, (MetaNumberParam<double>)_propertyInfo.PropertyValue!, allowMultiClipApply: _allowMultiClipApply, owner: owner);
                 }
                 else
                 {
-                    MetaNumberParamPropertyVm = _metaNumberParamPropertyViewModelFactory.Create(_propertyInfo.Identifier, (MetaNumberParam<double>)_propertyInfo.PropertyValue!, _propertyInfo.Min.Value, _propertyInfo.Max.Value, _propertyInfo.RecommendedMin.Value, _propertyInfo.RecommendedMax.Value);
+                    MetaNumberParamPropertyVm = _metaNumberParamPropertyViewModelFactory.Create(_propertyInfo.Identifier, (MetaNumberParam<double>)_propertyInfo.PropertyValue!, _propertyInfo.Min.Value, _propertyInfo.Max.Value, _propertyInfo.RecommendedMin.Value, _propertyInfo.RecommendedMax.Value, _allowMultiClipApply, owner);
                 }
                 MetaNumberParamPropertyVm.PropertyDisplayName = displayName;
                 IsMetaNumberParamProperty = true;
@@ -234,7 +238,7 @@ public class PropertyRouterViewModel : ViewModelBase
         {
             if (MediaPathPropertyVm is null)
             {
-                MediaPathPropertyVm = _mediaPathPropertyViewModelFactory.Create(_propertyInfo.Identifier, (MediaPath)_propertyInfo.PropertyValue!);
+                MediaPathPropertyVm = _mediaPathPropertyViewModelFactory.Create(_propertyInfo.Identifier, (MediaPath)_propertyInfo.PropertyValue!, allowMultiClipApply: _allowMultiClipApply, owner: owner);
                 MediaPathPropertyVm.PropertyDisplayName = displayName;
                 IsMediaPathProperty = true;
                 UsePlaceholder = false;
@@ -244,7 +248,7 @@ public class PropertyRouterViewModel : ViewModelBase
         {
             if (StringPropertyVm is null)
             {
-                StringPropertyVm = _stringPropertyViewModelFactory.Create(_propertyInfo.Identifier, (string)_propertyInfo.PropertyValue!);
+                StringPropertyVm = _stringPropertyViewModelFactory.Create(_propertyInfo.Identifier, (string)_propertyInfo.PropertyValue!, _allowMultiClipApply, owner);
                 StringPropertyVm.PropertyDisplayName = displayName;
                 IsStringProperty = true;
                 UsePlaceholder = false;
@@ -254,7 +258,7 @@ public class PropertyRouterViewModel : ViewModelBase
         {
             if (FontPropertyVm is null)
             {
-                FontPropertyVm = _metaFontParamPropertyViewModelFactory.Create(_propertyInfo.Identifier, (MetaFontParam)_propertyInfo.PropertyValue!);
+                FontPropertyVm = _metaFontParamPropertyViewModelFactory.Create(_propertyInfo.Identifier, (MetaFontParam)_propertyInfo.PropertyValue!, _allowMultiClipApply, owner);
                 FontPropertyVm.PropertyDisplayName = displayName;
                 IsFontProperty = true;
                 UsePlaceholder = false;
@@ -269,7 +273,7 @@ public class PropertyRouterViewModel : ViewModelBase
                 var recommendMin = _propertyInfo.RecommendedMin ?? min;
                 var recommendMax = _propertyInfo.RecommendedMax ?? max;
                 var metaDoubleParam = (MetaDoubleParam)_propertyInfo.PropertyValue!;
-                MetaDoubleParamPropertyVm = _metaDoubleParamPropertyViewModelFactory.Create(_propertyInfo.Identifier, metaDoubleParam, min, max, recommendMin, recommendMax);
+                MetaDoubleParamPropertyVm = _metaDoubleParamPropertyViewModelFactory.Create(_propertyInfo.Identifier, metaDoubleParam, min, max, recommendMin, recommendMax, _allowMultiClipApply, owner);
                 MetaDoubleParamPropertyVm.PropertyDisplayName = displayName;
                 IsMetaDoubleParamProperty = true;
                 UsePlaceholder = false;
@@ -279,7 +283,7 @@ public class PropertyRouterViewModel : ViewModelBase
         {
             if (MetaEnumParamPropertyVm is null)
             {
-                MetaEnumParamPropertyVm = _metaEnumParamPropertyViewModelFactory.Create(_propertyInfo.Identifier, (MetaEnumParam)_propertyInfo.PropertyValue!);
+                MetaEnumParamPropertyVm = _metaEnumParamPropertyViewModelFactory.Create(_propertyInfo.Identifier, (MetaEnumParam)_propertyInfo.PropertyValue!, _allowMultiClipApply, owner);
                 MetaEnumParamPropertyVm.PropertyDisplayName = displayName;
                 IsMetaEnumParamProperty = true;
                 UsePlaceholder = false;
@@ -289,7 +293,7 @@ public class PropertyRouterViewModel : ViewModelBase
         {
             if (ColorPropertyVm is null)
             {
-                ColorPropertyVm = _colorPropertyViewModelFactory.Create(_propertyInfo.Identifier, (ColorRgb8)_propertyInfo.PropertyValue!);
+                ColorPropertyVm = _colorPropertyViewModelFactory.Create(_propertyInfo.Identifier, (ColorRgb8)_propertyInfo.PropertyValue!, _allowMultiClipApply, owner);
                 ColorPropertyVm.PropertyDisplayName = displayName;
                 IsColorProperty = true;
                 UsePlaceholder = false;
@@ -299,7 +303,7 @@ public class PropertyRouterViewModel : ViewModelBase
         {
             if (LayerTargetPropertyVm is null)
             {
-                LayerTargetPropertyVm = _layerTargetPropertyViewModelFactory.Create(_propertyInfo.Identifier, (LayerTarget)_propertyInfo.PropertyValue!);
+                LayerTargetPropertyVm = _layerTargetPropertyViewModelFactory.Create(_propertyInfo.Identifier, (LayerTarget)_propertyInfo.PropertyValue!, _allowMultiClipApply, owner);
                 LayerTargetPropertyVm.PropertyDisplayName = displayName;
                 IsLayerTargetProperty = true;
                 UsePlaceholder = false;
@@ -309,7 +313,7 @@ public class PropertyRouterViewModel : ViewModelBase
         {
             if (BlendModeParamPropertyVm is null)
             {
-                BlendModeParamPropertyVm = _blendModeParamPropertyViewModelFactory.Create(_propertyInfo.Identifier, (BlendModeParam)_propertyInfo.PropertyValue!);
+                BlendModeParamPropertyVm = _blendModeParamPropertyViewModelFactory.Create(_propertyInfo.Identifier, (BlendModeParam)_propertyInfo.PropertyValue!, _allowMultiClipApply, owner);
                 BlendModeParamPropertyVm.PropertyDisplayName = displayName;
                 IsBlendModeParamProperty = true;
                 UsePlaceholder = false;
@@ -319,7 +323,7 @@ public class PropertyRouterViewModel : ViewModelBase
         {
             if (BoolPropertyVm is null)
             {
-                BoolPropertyVm = _boolPropertyViewModelFactory.Create(_propertyInfo.Identifier, (bool)_propertyInfo.PropertyValue!);
+                BoolPropertyVm = _boolPropertyViewModelFactory.Create(_propertyInfo.Identifier, (bool)_propertyInfo.PropertyValue!, _allowMultiClipApply, owner);
                 BoolPropertyVm.PropertyDisplayName = displayName;
                 IsBoolProperty = true;
                 UsePlaceholder = false;

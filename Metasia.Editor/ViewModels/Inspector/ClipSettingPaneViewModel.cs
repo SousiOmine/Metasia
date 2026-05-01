@@ -97,7 +97,7 @@ public class ClipSettingPaneViewModel : ViewModelBase
         Properties.Clear();
         foreach (var property in editableProperties)
         {
-            Properties.Add(_propertyRouterViewModelFactory.Create(property));
+            Properties.Add(_propertyRouterViewModelFactory.Create(property, allowMultiClipApply: true));
         }
 
         if (TargetObject is IAudible audible)

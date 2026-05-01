@@ -9,6 +9,7 @@ using Metasia.Core.Objects;
 using Metasia.Core.Objects.Parameters;
 using Metasia.Editor.Models;
 using Metasia.Editor.Abstractions.EditCommands;
+using Metasia.Editor.Models.EditCommands.Commands;
 using Metasia.Editor.Models.Interactor;
 using Metasia.Editor.Abstractions.States;
 using ReactiveUI;
@@ -86,6 +87,8 @@ public class MetaFontParamPropertyViewModel : ViewModelBase
     private readonly ISelectionState _selectionState;
     private readonly IEditCommandManager _editCommandManager;
     private readonly IProjectState _projectState;
+    private readonly bool _allowMultiClipApply;
+    private readonly IMetasiaObject? _owner;
 
     public MetaFontParamPropertyViewModel(
         ISelectionState selectionState,
@@ -93,7 +96,9 @@ public class MetaFontParamPropertyViewModel : ViewModelBase
         IProjectState projectState,
         string propertyIdentifier,
         MetaFontParam target,
-        IEnumerable<string> installedFonts)
+        IEnumerable<string> installedFonts,
+        bool allowMultiClipApply = true,
+        IMetasiaObject? owner = null)
     {
         ArgumentNullException.ThrowIfNull(selectionState);
         ArgumentNullException.ThrowIfNull(editCommandManager);
@@ -105,6 +110,8 @@ public class MetaFontParamPropertyViewModel : ViewModelBase
         _selectionState = selectionState;
         _editCommandManager = editCommandManager;
         _projectState = projectState;
+        _allowMultiClipApply = allowMultiClipApply;
+        _owner = owner;
         _propertyIdentifier = propertyIdentifier;
         _propertyDisplayName = propertyIdentifier;
         _propertyValue = target.Clone();
@@ -139,9 +146,19 @@ public class MetaFontParamPropertyViewModel : ViewModelBase
 
         var before = _propertyValue.Clone();
         var after = nextValue.Clone();
-        var command = TimelineInteractor.CreateFontParamValueChangeCommand(_propertyIdentifier, before, after, _selectionState.SelectedClips);
-        if (command is not null)
+        if (_allowMultiClipApply)
         {
+            var command = TimelineInteractor.CreateFontParamValueChangeCommand(_propertyIdentifier, before, after, _selectionState.SelectedClips);
+            if (command is not null)
+            {
+                _editCommandManager.Execute(command);
+            }
+        }
+        else
+        {
+            var owner = _owner ?? _selectionState.CurrentSelectedClip ?? _selectionState.SelectedClips.FirstOrDefault();
+            if (owner is null) return;
+            var command = new FontParamValueChangeCommand([new FontParamValueChangeCommand.FontParamValueChangeInfo(owner, _propertyIdentifier, before, after)]);
             _editCommandManager.Execute(command);
         }
         _propertyValue = after;

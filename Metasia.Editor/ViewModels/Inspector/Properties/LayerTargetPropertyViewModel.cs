@@ -6,6 +6,7 @@ using System.Linq;
 using System.Timers;
 using Avalonia.Threading;
 using Metasia.Core.Objects;
+using Metasia.Core.Objects;
 using Metasia.Core.Objects.Parameters;
 using Metasia.Editor.Models;
 using Metasia.Editor.Abstractions.EditCommands;
@@ -92,6 +93,8 @@ public class LayerTargetPropertyViewModel : ViewModelBase, IDisposable
     private ISelectionState _selectionState;
     private IEditCommandManager _editCommandManager;
     private IProjectState _projectState;
+    private bool _allowMultiClipApply;
+    private IMetasiaObject? _owner;
     private const double _valueEnterThreshold = 0.2;
 
     private Timer? _valueEnterTimer;
@@ -104,7 +107,9 @@ public class LayerTargetPropertyViewModel : ViewModelBase, IDisposable
         string propertyIdentifier,
         IEditCommandManager editCommandManager,
         IProjectState projectState,
-        LayerTarget target)
+        LayerTarget target,
+        bool allowMultiClipApply = true,
+        IMetasiaObject? owner = null)
     {
         _propertyDisplayName = propertyIdentifier;
         _propertyIdentifier = propertyIdentifier;
@@ -113,6 +118,8 @@ public class LayerTargetPropertyViewModel : ViewModelBase, IDisposable
         _selectionState = selectionState;
         _editCommandManager = editCommandManager;
         _projectState = projectState;
+        _allowMultiClipApply = allowMultiClipApply;
+        _owner = owner;
 
         // プロジェクトの変更を検知してプロパティ値を更新
         _projectState.TimelineChanged += OnTimelineChanged;
@@ -224,11 +231,20 @@ public class LayerTargetPropertyViewModel : ViewModelBase, IDisposable
 
     private IEditCommand? CreateLayerTargetValueChangeCommand(LayerTarget beforeValue, LayerTarget value)
     {
-        return TimelineInteractor.CreateLayerTargetValueChangeCommand(
-            _propertyIdentifier,
-            beforeValue,
-            value,
-            _selectionState.SelectedClips);
+        if (_allowMultiClipApply)
+        {
+            return TimelineInteractor.CreateLayerTargetValueChangeCommand(
+                _propertyIdentifier,
+                beforeValue,
+                value,
+                _selectionState.SelectedClips);
+        }
+
+        var owner = _owner ?? _selectionState.CurrentSelectedClip ?? _selectionState.SelectedClips.FirstOrDefault();
+        if (owner is null) return null;
+
+        return new LayerTargetValueChangeCommand([new LayerTargetValueChangeCommand.LayerTargetValueChangeInfo(
+            owner, _propertyIdentifier, beforeValue.Clone(), value.Clone())]);
     }
 
     public void Dispose()

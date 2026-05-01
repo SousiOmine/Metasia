@@ -4,8 +4,10 @@ using Metasia.Editor.Models.EditCommands;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using Metasia.Core.Objects;
 using Metasia.Core.Render;
 using Metasia.Editor.Abstractions.EditCommands;
+using Metasia.Editor.Models.EditCommands.Commands;
 using Metasia.Editor.Models.Interactor;
 using Metasia.Editor.Abstractions.States;
 using ReactiveUI;
@@ -55,6 +57,8 @@ public class BlendModeParamPropertyViewModel : ViewModelBase
     private readonly ISelectionState _selectionState;
     private readonly IEditCommandManager _editCommandManager;
     private readonly IProjectState _projectState;
+    private readonly bool _allowMultiClipApply;
+    private readonly IMetasiaObject? _owner;
     private bool _optionsInitialized = false;
     private bool _disposed = false;
 
@@ -63,7 +67,9 @@ public class BlendModeParamPropertyViewModel : ViewModelBase
         string propertyIdentifier,
         IEditCommandManager editCommandManager,
         IProjectState projectState,
-        BlendModeParam target)
+        BlendModeParam target,
+        bool allowMultiClipApply = true,
+        IMetasiaObject? owner = null)
     {
         _propertyDisplayName = propertyIdentifier;
         _propertyIdentifier = propertyIdentifier;
@@ -71,6 +77,8 @@ public class BlendModeParamPropertyViewModel : ViewModelBase
         _selectionState = selectionState;
         _editCommandManager = editCommandManager;
         _projectState = projectState;
+        _allowMultiClipApply = allowMultiClipApply;
+        _owner = owner;
         _projectState.TimelineChanged += OnTimelineChanged;
 
         InitializeOptions();
@@ -96,11 +104,22 @@ public class BlendModeParamPropertyViewModel : ViewModelBase
         {
             var oldValue = BlendModeParam.AllOptions[oldIndex];
             var newValue = BlendModeParam.AllOptions[newIndex];
-            var command = TimelineInteractor.CreateBlendModeValueChangeCommand(
-                _propertyIdentifier,
-                oldValue,
-                newValue,
-                _selectionState.SelectedClips);
+            IEditCommand? command;
+            if (_allowMultiClipApply)
+            {
+                command = TimelineInteractor.CreateBlendModeValueChangeCommand(
+                    _propertyIdentifier,
+                    oldValue,
+                    newValue,
+                    _selectionState.SelectedClips);
+            }
+            else
+            {
+                var owner = _owner ?? _selectionState.CurrentSelectedClip ?? _selectionState.SelectedClips.FirstOrDefault();
+                if (owner is null) return;
+                command = new BlendModeValueChangeCommand([new BlendModeValueChangeCommand.BlendModeValueChangeInfo(
+                    owner, _propertyIdentifier, oldValue, newValue)]);
+            }
             if (command is not null)
             {
                 _editCommandManager.Execute(command);

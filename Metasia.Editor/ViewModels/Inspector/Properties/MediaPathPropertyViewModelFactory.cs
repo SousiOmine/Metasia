@@ -3,6 +3,7 @@ using Metasia.Editor.Models.States;
 using Metasia.Editor.Models.EditCommands;
 using System;
 using Metasia.Core.Media;
+using Metasia.Core.Objects;
 using Metasia.Editor.Abstractions.EditCommands;
 using Metasia.Editor.Services;
 using Metasia.Editor.Abstractions.States;
@@ -32,9 +33,9 @@ public class MediaPathPropertyViewModelFactory : IMediaPathPropertyViewModelFact
         _settingsService = settingsService;
     }
 
-    public MediaPathPropertyViewModel Create(string propertyIdentifier, MediaPath target)
+    public MediaPathPropertyViewModel Create(string propertyIdentifier, MediaPath target, bool allowMultiClipApply = true, IMetasiaObject? owner = null)
     {
         ArgumentNullException.ThrowIfNull(target);
-        return new MediaPathPropertyViewModel(propertyIdentifier, target, _editCommandManager, _fileDialogService, _projectState, _settingsService);
+        return new MediaPathPropertyViewModel(propertyIdentifier, target, _editCommandManager, _fileDialogService, _projectState, _settingsService, allowMultiClipApply, owner);
     }
 }

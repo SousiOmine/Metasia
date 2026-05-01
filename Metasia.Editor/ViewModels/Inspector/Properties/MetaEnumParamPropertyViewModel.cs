@@ -4,6 +4,7 @@ using Metasia.Editor.Models.EditCommands;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using Metasia.Core.Objects;
 using Metasia.Core.Objects.Parameters;
 using Metasia.Editor.Models;
 using Metasia.Editor.Abstractions.EditCommands;
@@ -57,13 +58,17 @@ public class MetaEnumParamPropertyViewModel : ViewModelBase
     private ISelectionState _selectionState;
     private IEditCommandManager _editCommandManager;
     private IProjectState _projectState;
+    private bool _allowMultiClipApply;
+    private IMetasiaObject? _owner;
 
     public MetaEnumParamPropertyViewModel(
         ISelectionState selectionState,
         string propertyIdentifier,
         IEditCommandManager editCommandManager,
         IProjectState projectState,
-        MetaEnumParam target)
+        MetaEnumParam target,
+        bool allowMultiClipApply = true,
+        IMetasiaObject? owner = null)
     {
         _propertyDisplayName = propertyIdentifier;
         _propertyIdentifier = propertyIdentifier;
@@ -71,6 +76,8 @@ public class MetaEnumParamPropertyViewModel : ViewModelBase
         _selectionState = selectionState;
         _editCommandManager = editCommandManager;
         _projectState = projectState;
+        _allowMultiClipApply = allowMultiClipApply;
+        _owner = owner;
 
         RefreshOptions();
     }

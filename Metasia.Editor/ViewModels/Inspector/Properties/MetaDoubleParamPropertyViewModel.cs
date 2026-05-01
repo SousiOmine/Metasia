@@ -5,6 +5,7 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Windows.Input;
+using Metasia.Core.Objects;
 using Metasia.Core.Objects.Parameters;
 using Metasia.Editor.Models;
 using Metasia.Editor.Abstractions.EditCommands;
@@ -139,6 +140,8 @@ public class MetaDoubleParamPropertyViewModel : ViewModelBase, IDisposable
     private ISelectionState _selectionState;
     private IEditCommandManager _editCommandManager;
     private IProjectState _projectState;
+    private bool _allowMultiClipApply;
+    private IMetasiaObject? _owner;
 
     private bool _isInteracting = false;
     private double _beforeValue = 0;
@@ -153,7 +156,9 @@ public class MetaDoubleParamPropertyViewModel : ViewModelBase, IDisposable
         double min = double.MinValue,
         double max = double.MaxValue,
         double recommendMin = double.MinValue,
-        double recommendMax = double.MaxValue)
+        double recommendMax = double.MaxValue,
+        bool allowMultiClipApply = true,
+        IMetasiaObject? owner = null)
     {
         _propertyDisplayName = propertyIdentifier;
         _targetParam = target;
@@ -168,6 +173,8 @@ public class MetaDoubleParamPropertyViewModel : ViewModelBase, IDisposable
         _selectionState = selectionState;
         _editCommandManager = editCommandManager;
         _projectState = projectState;
+        _allowMultiClipApply = allowMultiClipApply;
+        _owner = owner;
 
         _projectState.TimelineChanged += OnTimelineChanged;
 
@@ -289,11 +296,20 @@ public class MetaDoubleParamPropertyViewModel : ViewModelBase, IDisposable
 
     private IEditCommand? CreateDoubleValueChangeCommand(double beforeValue, double value)
     {
-        return TimelineInteractor.CreateDoubleValueChangeCommand(
-            _propertyIdentifier,
-            beforeValue,
-            value,
-            _selectionState.SelectedClips);
+        if (_allowMultiClipApply)
+        {
+            return TimelineInteractor.CreateDoubleValueChangeCommand(
+                _propertyIdentifier,
+                beforeValue,
+                value,
+                _selectionState.SelectedClips);
+        }
+
+        var owner = _owner ?? _selectionState.CurrentSelectedClip ?? _selectionState.SelectedClips.FirstOrDefault();
+        if (owner is null) return null;
+
+        var valueDifference = value - beforeValue;
+        return new DoubleValueChangeCommand([new DoubleValueChangeCommand.DoubleValueChangeInfo(owner, _propertyIdentifier, valueDifference)]);
     }
 
     public void Dispose()

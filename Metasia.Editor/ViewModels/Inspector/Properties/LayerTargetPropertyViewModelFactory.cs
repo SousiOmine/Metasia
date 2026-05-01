@@ -25,13 +25,15 @@ public class LayerTargetPropertyViewModelFactory : ILayerTargetPropertyViewModel
         _projectState = projectState;
     }
 
-    public LayerTargetPropertyViewModel Create(string propertyIdentifier, LayerTarget target)
+    public LayerTargetPropertyViewModel Create(string propertyIdentifier, LayerTarget target, bool allowMultiClipApply = true, IMetasiaObject? owner = null)
     {
         return new LayerTargetPropertyViewModel(
             _selectionState,
             propertyIdentifier,
             _editCommandManager,
             _projectState,
-            target);
+            target,
+            allowMultiClipApply,
+            owner);
     }
 }

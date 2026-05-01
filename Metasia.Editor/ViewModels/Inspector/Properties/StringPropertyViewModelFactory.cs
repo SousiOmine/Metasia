@@ -2,6 +2,7 @@ using Metasia.Editor.Services.Notification;
 using Metasia.Editor.Models.States;
 using Metasia.Editor.Models.EditCommands;
 using System;
+using Metasia.Core.Objects;
 using Metasia.Editor.Abstractions.EditCommands;
 using Metasia.Editor.Abstractions.States;
 
@@ -23,10 +24,10 @@ public class StringPropertyViewModelFactory : IStringPropertyViewModelFactory
         this.projectState = projectState;
     }
 
-    public StringPropertyViewModel Create(string propertyIdentifier, string target)
+    public StringPropertyViewModel Create(string propertyIdentifier, string target, bool allowMultiClipApply = true, IMetasiaObject? owner = null)
     {
         ArgumentNullException.ThrowIfNull(propertyIdentifier);
         ArgumentNullException.ThrowIfNull(target);
-        return new StringPropertyViewModel(selectionState, propertyIdentifier, editCommandManager, projectState, target);
+        return new StringPropertyViewModel(selectionState, propertyIdentifier, editCommandManager, projectState, target, allowMultiClipApply, owner);
     }
 }

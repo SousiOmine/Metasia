@@ -1,6 +1,7 @@
 using Metasia.Editor.Services.Notification;
 using Metasia.Editor.Models.States;
 using Metasia.Editor.Models.EditCommands;
+using Metasia.Core.Objects;
 using System;
 using Metasia.Editor.Abstractions.EditCommands;
 using Metasia.Editor.Abstractions.States;
@@ -20,9 +21,9 @@ public class BoolPropertyViewModelFactory : IBoolPropertyViewModelFactory
         this.editCommandManager = editCommandManager;
     }
 
-    public BoolPropertyViewModel Create(string propertyIdentifier, bool target)
+    public BoolPropertyViewModel Create(string propertyIdentifier, bool target, bool allowMultiClipApply = true, IMetasiaObject? owner = null)
     {
         ArgumentNullException.ThrowIfNull(propertyIdentifier);
-        return new BoolPropertyViewModel(selectionState, propertyIdentifier, editCommandManager, target);
+        return new BoolPropertyViewModel(selectionState, propertyIdentifier, editCommandManager, target, allowMultiClipApply, owner);
     }
 }

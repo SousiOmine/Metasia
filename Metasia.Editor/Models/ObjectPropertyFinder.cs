@@ -4,6 +4,7 @@ using Metasia.Editor.Models.EditCommands;
 using System;
 using System.Collections.Generic;
 using Metasia.Core.Attributes;
+using Metasia.Core.Objects;
 
 namespace Metasia.Editor.Models;
 
@@ -19,7 +20,8 @@ public class ObjectPropertyFinder
         double? Min,
         double? Max,
         double? RecommendedMin,
-        double? RecommendedMax
+        double? RecommendedMax,
+        IMetasiaObject? OwnerObject = null
     );
 
     public static List<EditablePropertyInfo> FindEditableProperties(object target)
@@ -28,6 +30,7 @@ public class ObjectPropertyFinder
         var properties = new List<EditablePropertyInfo>();
 
         var type = target.GetType();
+        var ownerObject = target as IMetasiaObject;
 
         foreach (var prop in type.GetProperties())
         {
@@ -51,7 +54,8 @@ public class ObjectPropertyFinder
                 min,
                 max,
                 recommendedMin,
-                recommendedMax
+                recommendedMax,
+                ownerObject
             ));
         }
 

@@ -2,12 +2,15 @@ using Metasia.Editor.Services.Notification;
 using Metasia.Editor.Models.States;
 using Metasia.Editor.Models.EditCommands;
 using System;
+using System.Linq;
 using System.Timers;
 using Avalonia.Media;
 using Avalonia.Threading;
+using Metasia.Core.Objects;
 using Metasia.Core.Objects.Parameters.Color;
 using Metasia.Editor.Models;
 using Metasia.Editor.Abstractions.EditCommands;
+using Metasia.Editor.Models.EditCommands.Commands;
 using Metasia.Editor.Models.Interactor;
 using Metasia.Editor.Abstractions.States;
 using ReactiveUI;
@@ -53,6 +56,8 @@ public class ColorPropertyViewModel : ViewModelBase
     private readonly ISelectionState _selectionState;
     private readonly IEditCommandManager _editCommandManager;
     private readonly IProjectState _projectState;
+    private readonly bool _allowMultiClipApply;
+    private readonly IMetasiaObject? _owner;
     private const double _valueEnterThreshold = 0.2;
 
     private Timer? _valueEnterTimer;
@@ -65,7 +70,9 @@ public class ColorPropertyViewModel : ViewModelBase
         string propertyIdentifier,
         IEditCommandManager editCommandManager,
         IProjectState projectState,
-        ColorRgb8 target)
+        ColorRgb8 target,
+        bool allowMultiClipApply = true,
+        IMetasiaObject? owner = null)
     {
         _propertyDisplayName = propertyIdentifier;
         _propertyIdentifier = propertyIdentifier;
@@ -74,6 +81,8 @@ public class ColorPropertyViewModel : ViewModelBase
         _selectionState = selectionState;
         _editCommandManager = editCommandManager;
         _projectState = projectState;
+        _allowMultiClipApply = allowMultiClipApply;
+        _owner = owner;
     }
 
     private void TryValueEnter(Color previousValue)
@@ -162,11 +171,19 @@ public class ColorPropertyViewModel : ViewModelBase
 
     private IEditCommand? CreateColorValueChangeCommand(ColorRgb8 beforeValue, ColorRgb8 value)
     {
-        return TimelineInteractor.CreateColorValueChangeCommand(
-            _propertyIdentifier,
-            beforeValue,
-            value,
-            _selectionState.SelectedClips);
+        if (_allowMultiClipApply)
+        {
+            return TimelineInteractor.CreateColorValueChangeCommand(
+                _propertyIdentifier,
+                beforeValue,
+                value,
+                _selectionState.SelectedClips);
+        }
+
+        var owner = _owner ?? _selectionState.CurrentSelectedClip ?? _selectionState.SelectedClips.FirstOrDefault();
+        if (owner is null) return null;
+
+        return new ColorValueChangeCommand([new ColorValueChangeCommand.ColorValueChangeInfo(owner, _propertyIdentifier, beforeValue.Clone(), value.Clone())]);
     }
 
     private static Color ToAvaloniaColor(ColorRgb8 value)

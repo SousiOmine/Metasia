@@ -59,9 +59,9 @@ public class PropertyRouterViewModelFactory : IPropertyRouterViewModelFactory
         _projectState = projectState;
     }
 
-    public PropertyRouterViewModel Create(ObjectPropertyFinder.EditablePropertyInfo propertyInfo)
+    public PropertyRouterViewModel Create(ObjectPropertyFinder.EditablePropertyInfo propertyInfo, bool allowMultiClipApply = true)
     {
         ArgumentNullException.ThrowIfNull(propertyInfo);
-        return new PropertyRouterViewModel(propertyInfo, _metaNumberParamPropertyViewModelFactory, _mediaPathPropertyViewModelFactory, _stringPropertyViewModelFactory, _metaDoubleParamPropertyViewModelFactory, _metaEnumParamPropertyViewModelFactory, _metaFontParamPropertyViewModelFactory, _colorPropertyViewModelFactory, _layerTargetPropertyViewModelFactory, _blendModeParamPropertyViewModelFactory, _boolPropertyViewModelFactory, _projectState);
+        return new PropertyRouterViewModel(propertyInfo, allowMultiClipApply, _metaNumberParamPropertyViewModelFactory, _mediaPathPropertyViewModelFactory, _stringPropertyViewModelFactory, _metaDoubleParamPropertyViewModelFactory, _metaEnumParamPropertyViewModelFactory, _metaFontParamPropertyViewModelFactory, _colorPropertyViewModelFactory, _layerTargetPropertyViewModelFactory, _blendModeParamPropertyViewModelFactory, _boolPropertyViewModelFactory, _projectState);
     }
 }

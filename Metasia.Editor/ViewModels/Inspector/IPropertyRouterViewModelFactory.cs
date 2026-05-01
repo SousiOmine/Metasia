@@ -8,5 +8,5 @@ namespace Metasia.Editor.ViewModels.Inspector;
 
 public interface IPropertyRouterViewModelFactory
 {
-    PropertyRouterViewModel Create(ObjectPropertyFinder.EditablePropertyInfo propertyInfo);
+    PropertyRouterViewModel Create(ObjectPropertyFinder.EditablePropertyInfo propertyInfo, bool allowMultiClipApply = true);
 }

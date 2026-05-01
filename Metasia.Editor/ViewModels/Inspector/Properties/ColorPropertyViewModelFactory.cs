@@ -2,6 +2,7 @@ using Metasia.Editor.Services.Notification;
 using Metasia.Editor.Models.States;
 using Metasia.Editor.Models.EditCommands;
 using System;
+using Metasia.Core.Objects;
 using Metasia.Core.Objects.Parameters.Color;
 using Metasia.Editor.Abstractions.EditCommands;
 using Metasia.Editor.Abstractions.States;
@@ -24,10 +25,10 @@ public class ColorPropertyViewModelFactory : IColorPropertyViewModelFactory
         _projectState = projectState;
     }
 
-    public ColorPropertyViewModel Create(string propertyIdentifier, ColorRgb8 target)
+    public ColorPropertyViewModel Create(string propertyIdentifier, ColorRgb8 target, bool allowMultiClipApply = true, IMetasiaObject? owner = null)
     {
         ArgumentNullException.ThrowIfNull(propertyIdentifier);
         ArgumentNullException.ThrowIfNull(target);
-        return new ColorPropertyViewModel(_selectionState, propertyIdentifier, _editCommandManager, _projectState, target);
+        return new ColorPropertyViewModel(_selectionState, propertyIdentifier, _editCommandManager, _projectState, target, allowMultiClipApply, owner);
     }
 }

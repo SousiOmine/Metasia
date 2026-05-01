@@ -2,7 +2,9 @@ using Metasia.Editor.Services.Notification;
 using Metasia.Editor.Models.States;
 using Metasia.Editor.Models.EditCommands;
 using System;
+using System.Linq;
 using System.Timers;
+using Metasia.Core.Objects;
 using Metasia.Editor.Models;
 using Metasia.Editor.Abstractions.EditCommands;
 using Metasia.Editor.Models.EditCommands.Commands;
@@ -50,6 +52,8 @@ public class StringPropertyViewModel : ViewModelBase
     private ISelectionState _selectionState;
     private IEditCommandManager _editCommandManager;
     private IProjectState _projectState;
+    private bool _allowMultiClipApply;
+    private IMetasiaObject? _owner;
     private const double _valueEnterThreshold = 0.2;
 
     private Timer? _valueEnterTimer;
@@ -62,7 +66,9 @@ public class StringPropertyViewModel : ViewModelBase
         string propertyIdentifier,
         IEditCommandManager editCommandManager,
         IProjectState projectState,
-        string target)
+        string target,
+        bool allowMultiClipApply = true,
+        IMetasiaObject? owner = null)
     {
         _propertyDisplayName = propertyIdentifier;
         _propertyValue = target;
@@ -70,6 +76,8 @@ public class StringPropertyViewModel : ViewModelBase
         _selectionState = selectionState;
         _editCommandManager = editCommandManager;
         _projectState = projectState;
+        _allowMultiClipApply = allowMultiClipApply;
+        _owner = owner;
     }
 
     private void TryValueEnter(string previousValue)
@@ -148,10 +156,18 @@ public class StringPropertyViewModel : ViewModelBase
 
     private IEditCommand? CreateStringValueChangeCommand(string beforeValue, string value)
     {
-        return TimelineInteractor.CreateStringValueChangeCommand(
-            _propertyIdentifier,
-            beforeValue,
-            value,
-            _selectionState.SelectedClips);
+        if (_allowMultiClipApply)
+        {
+            return TimelineInteractor.CreateStringValueChangeCommand(
+                _propertyIdentifier,
+                beforeValue,
+                value,
+                _selectionState.SelectedClips);
+        }
+
+        var owner = _owner ?? _selectionState.CurrentSelectedClip ?? _selectionState.SelectedClips.FirstOrDefault();
+        if (owner is null) return null;
+
+        return new StringValueChangeCommand([new StringValueChangeCommand.StringValueChangeInfo(owner, _propertyIdentifier, beforeValue, value)]);
     }
 }

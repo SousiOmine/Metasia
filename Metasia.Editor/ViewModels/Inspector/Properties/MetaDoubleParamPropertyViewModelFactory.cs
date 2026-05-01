@@ -2,6 +2,7 @@ using Metasia.Editor.Services.Notification;
 using Metasia.Editor.Models.States;
 using Metasia.Editor.Models.EditCommands;
 using System;
+using Metasia.Core.Objects;
 using Metasia.Core.Objects.Parameters;
 using Metasia.Editor.Abstractions.EditCommands;
 using Metasia.Editor.Abstractions.States;
@@ -27,7 +28,7 @@ public class MetaDoubleParamPropertyViewModelFactory : IMetaDoubleParamPropertyV
         _projectState = projectState;
     }
 
-    public MetaDoubleParamPropertyViewModel Create(string propertyIdentifier, MetaDoubleParam target, double min = double.MinValue, double max = double.MaxValue, double recommendMin = double.MinValue, double recommendMax = double.MaxValue)
+    public MetaDoubleParamPropertyViewModel Create(string propertyIdentifier, MetaDoubleParam target, double min = double.MinValue, double max = double.MaxValue, double recommendMin = double.MinValue, double recommendMax = double.MaxValue, bool allowMultiClipApply = true, IMetasiaObject? owner = null)
     {
         return new MetaDoubleParamPropertyViewModel(
             _selectionState,
@@ -38,6 +39,8 @@ public class MetaDoubleParamPropertyViewModelFactory : IMetaDoubleParamPropertyV
             min,
             max,
             recommendMin,
-            recommendMax);
+            recommendMax,
+            allowMultiClipApply,
+            owner);
     }
 }

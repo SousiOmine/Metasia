@@ -1,6 +1,7 @@
 using Metasia.Editor.Services.Notification;
 using Metasia.Editor.Models.States;
 using Metasia.Editor.Models.EditCommands;
+using Metasia.Core.Objects;
 using Metasia.Core.Render;
 using Metasia.Editor.Abstractions.EditCommands;
 using Metasia.Editor.Abstractions.States;
@@ -23,13 +24,15 @@ public class BlendModeParamPropertyViewModelFactory : IBlendModeParamPropertyVie
         _projectState = projectState;
     }
 
-    public BlendModeParamPropertyViewModel Create(string propertyIdentifier, BlendModeParam target)
+    public BlendModeParamPropertyViewModel Create(string propertyIdentifier, BlendModeParam target, bool allowMultiClipApply = true, IMetasiaObject? owner = null)
     {
         return new BlendModeParamPropertyViewModel(
             _selectionState,
             propertyIdentifier,
             _editCommandManager,
             _projectState,
-            target);
+            target,
+            allowMultiClipApply,
+            owner);
     }
 }

@@ -2,6 +2,7 @@ using Metasia.Editor.Services.Notification;
 using Metasia.Editor.Models.States;
 using Metasia.Editor.Models.EditCommands;
 using System;
+using Metasia.Core.Objects;
 using Metasia.Core.Objects.Parameters;
 using Metasia.Editor.Abstractions.EditCommands;
 using Metasia.Editor.Abstractions.States;
@@ -33,7 +34,7 @@ public class MetaFontParamPropertyViewModelFactory : IMetaFontParamPropertyViewM
         _fontCatalogService = fontCatalogService;
     }
 
-    public MetaFontParamPropertyViewModel Create(string propertyIdentifier, MetaFontParam target)
+    public MetaFontParamPropertyViewModel Create(string propertyIdentifier, MetaFontParam target, bool allowMultiClipApply = true, IMetasiaObject? owner = null)
     {
         ArgumentNullException.ThrowIfNull(propertyIdentifier);
         ArgumentNullException.ThrowIfNull(target);
@@ -44,6 +45,8 @@ public class MetaFontParamPropertyViewModelFactory : IMetaFontParamPropertyViewM
             _projectState,
             propertyIdentifier,
             target,
-            fonts);
+            fonts,
+            allowMultiClipApply,
+            owner);
     }
 }

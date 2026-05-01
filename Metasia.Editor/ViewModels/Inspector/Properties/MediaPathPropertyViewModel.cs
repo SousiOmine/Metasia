@@ -7,6 +7,7 @@ using System.IO;
 using System.Windows.Input;
 using Metasia.Core.Attributes;
 using Metasia.Core.Media;
+using Metasia.Core.Objects;
 using Metasia.Editor.Abstractions.EditCommands;
 using Metasia.Editor.Models.EditCommands.Commands;
 using Metasia.Editor.Models.Settings;
@@ -40,6 +41,8 @@ public class MediaPathPropertyViewModel : ViewModelBase
     private readonly IFileDialogService _fileDialogService;
     private readonly IProjectState _projectState;
     private readonly ISettingsService _settingsService;
+    private readonly bool _allowMultiClipApply;
+    private readonly IMetasiaObject? _owner;
 
     public MediaPathPropertyViewModel(
         string propertyIdentifier,
@@ -47,7 +50,9 @@ public class MediaPathPropertyViewModel : ViewModelBase
         IEditCommandManager editCommandManager,
         IFileDialogService fileDialogService,
         IProjectState projectState,
-        ISettingsService settingsService
+        ISettingsService settingsService,
+        bool allowMultiClipApply = true,
+        IMetasiaObject? owner = null
     )
     {
         ArgumentNullException.ThrowIfNull(target);
@@ -62,6 +67,8 @@ public class MediaPathPropertyViewModel : ViewModelBase
         _fileDialogService = fileDialogService;
         _projectState = projectState;
         _settingsService = settingsService;
+        _allowMultiClipApply = allowMultiClipApply;
+        _owner = owner;
         _fileName = target?.FileName ?? "";
         OpenFileCommand = ReactiveCommand.Create(OpenFileCommandExecute);
 
