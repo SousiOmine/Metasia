@@ -182,16 +182,15 @@ namespace Metasia.Editor.ViewModels
             _timelineViewState.Frame_Per_DIP_Changed += OnFramePerDIPChanged;
             _timelineViewState.LastPreviewFrame_Changed += OnCurrentFrameChanged;
             _timelineViewState.HorizontalScrollPosition_Changed += OnHorizontalScrollPositionChanged;
+            playbackState.PlaybackFrameChanged += OnPlaybackFrameChanged;
             Frame_Per_DIP = _timelineViewState.Frame_Per_DIP;
             _horizontalScrollPosition = _timelineViewState.HorizontalScrollPosition;
-            Frame = _timelineViewState.LastPreviewFrame;
+            Frame = playbackState.CurrentFrame;
             CursorLeft = Frame * _timelineViewState.Frame_Per_DIP;
             if (_projectState.CurrentProjectInfo != null)
             {
                 FrameRate = _projectState.CurrentProjectInfo.Framerate;
             }
-
-            playbackState.PlaybackFrameChanged += OnPlaybackFrameChanged;
 
             foreach (var layer in Timeline.Layers)
             {
@@ -438,7 +437,7 @@ namespace Metasia.Editor.ViewModels
 
         private void OnCurrentFrameChanged()
         {
-            Frame = _timelineViewState.LastPreviewFrame;
+            Frame = playbackState.CurrentFrame;
             CursorLeft = Frame * _timelineViewState.Frame_Per_DIP;
         }
 

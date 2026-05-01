@@ -18,6 +18,12 @@ namespace Metasia.Core.Media
         {
         }
 
+        public override string ToString()
+        {
+            var dir = Directory.Replace('/', Path.DirectorySeparatorChar);
+            return string.IsNullOrEmpty(dir) ? FileName : $"{dir}{Path.DirectorySeparatorChar}{FileName}";
+        }
+
         public MediaPath(MediaType[] types)
         {
             ArgumentNullException.ThrowIfNull(types);

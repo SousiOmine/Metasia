@@ -71,8 +71,10 @@ public class ImageObject : ClipObject, IRenderable
                     image = imageFileAccessorResult.Image;
                     context?.ImageCache?.Set(imageHashCode, imageFileAccessorResult.Image);
                 }
-
-                Debug.WriteLine($"Failed to load image: {ImagePath}");
+                else
+                {
+                    Debug.WriteLine($"Failed to load image: {ImagePath}");
+                }
             }
             catch (Exception ex)
             {

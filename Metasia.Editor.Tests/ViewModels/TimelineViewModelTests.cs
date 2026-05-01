@@ -43,7 +43,7 @@ public class TimelineViewModelTests
     }
 
     [Test]
-    public void Constructor_RestoresFrameFromTimelineViewState()
+    public void Constructor_RestoresFrameFromPlaybackState()
     {
         var timeline = new TimelineObject("RootTimeline");
         var projectState = new ProjectState();
@@ -51,16 +51,18 @@ public class TimelineViewModelTests
 
         var viewState = new TimelineViewState
         {
-            LastPreviewFrame = 42,
             Frame_Per_DIP = 3.5
         };
+
+        var playbackState = new FakePlaybackState();
+        playbackState.Seek(42);
 
         using var viewModel = new TimelineViewModel(
             timeline,
             new DummyLayerButtonViewModelFactory(),
             new DummyLayerCanvasViewModelFactory(),
             new SelectionState(),
-            new FakePlaybackState(),
+            playbackState,
             projectState,
             new EditCommandManager(projectState),
             viewState,

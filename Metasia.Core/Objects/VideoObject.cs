@@ -94,7 +94,8 @@ public class VideoObject : ClipObject, IRenderable, IAudible
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Failed to load video: {ex.Message}");
+                Debug.WriteLine($"Failed to load video: {VideoPath}. {ex.Message}");
+                return new NormalRenderNode();
             }
         }
         Debug.WriteLine($"Failed to load video: {VideoPath}");
