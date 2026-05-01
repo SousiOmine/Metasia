@@ -153,7 +153,7 @@ public class MenuViewModelTests
     {
         public NewProjectViewModel Create()
         {
-            return new NewProjectViewModel(new FakeFileDialogService());
+            return new NewProjectViewModel();
         }
     }
 

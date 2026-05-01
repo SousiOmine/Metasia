@@ -68,19 +68,19 @@ namespace Metasia.Editor.Views
                     };
                     if (TopLevel.GetTopLevel(this) is Window window)
                     {
-                        var result = await dialog.ShowDialog<(bool, string, Metasia.Core.Project.ProjectInfo, Metasia.Core.Project.MetasiaProject?)>(window);
+                        var result = await dialog.ShowDialog<(bool, Metasia.Core.Project.ProjectInfo, Metasia.Core.Project.MetasiaProject?)>(window);
                         interaction.SetOutput(result);
                     }
                     else
                     {
-                        interaction.SetOutput((false, "Window not available", null, null));
+                        interaction.SetOutput((false, null, null));
                     }
                 }
                 catch (Exception ex)
                 {
                     System.Diagnostics.Debug.WriteLine($"Error in NewProjectInteraction handler: {ex.Message}");
                     NotifyError("新規プロジェクトダイアログ失敗", $"新規プロジェクトダイアログの表示に失敗しました。\n{ex.Message}");
-                    interaction.SetOutput((false, ex.Message, null, null));
+                    interaction.SetOutput((false, null, null));
                 }
             });
 

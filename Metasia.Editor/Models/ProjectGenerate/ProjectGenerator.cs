@@ -64,4 +64,36 @@ public class ProjectGenerator
 
         return editorProject;
     }
+
+    public static MetasiaEditorProject CreateInMemoryProject(ProjectInfo projectInfo, MetasiaProject? templateProject = null)
+    {
+        MetasiaProject project;
+        if (templateProject is not null)
+        {
+            project = templateProject;
+        }
+        else
+        {
+            project = new EmptyProjectTemplate(projectInfo).Template;
+        }
+
+        MetasiaProjectFile projectFile = new()
+        {
+            Framerate = projectInfo.Framerate,
+            Resolution = new VideoResolution() { Width = projectInfo.Size.Width, Height = projectInfo.Size.Height },
+        };
+
+        DirectoryEntity projectDirectory = new(Directory.GetCurrentDirectory());
+        MetasiaEditorProject editorProject = new(projectDirectory, projectFile)
+        {
+            ProjectFilePath = null
+        };
+
+        foreach (var timeline in project.Timelines)
+        {
+            editorProject.Timelines.Add(timeline);
+        }
+
+        return editorProject;
+    }
 }

@@ -12,10 +12,12 @@ using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using Metasia.Editor.Models.Settings;
 using Metasia.Editor.Models;
+using Metasia.Editor.Models.FileSystem;
 using Metasia.Editor.Services;
 using Metasia.Editor.Abstractions.Notification;
 using Metasia.Editor.ViewModels;
 using Metasia.Editor.Views.Dialogs;
+using System.IO;
 
 namespace Metasia.Editor.Views
 {
@@ -172,6 +174,8 @@ namespace Metasia.Editor.Views
                 if (string.IsNullOrEmpty(projectState.CurrentProject.ProjectFilePath))
                 {
                     projectState.CurrentProject.ProjectFilePath = targetFilePath;
+                    projectState.CurrentProject.ProjectPath = new DirectoryEntity(
+                        Path.GetDirectoryName(targetFilePath)!);
                 }
 
                 projectState.IsDirty = false;

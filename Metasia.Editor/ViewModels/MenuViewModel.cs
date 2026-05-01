@@ -4,6 +4,7 @@ using Metasia.Editor.Models.EditCommands;
 using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Windows.Input;
 using ReactiveUI;
@@ -11,9 +12,9 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Metasia.Editor.Models;
-using Metasia.Editor.Models.Projects;
 using Metasia.Editor.Models.FileSystem;
 using Metasia.Editor.Models.ProjectGenerate;
+using Metasia.Editor.Models.Projects;
 using Metasia.Editor.Abstractions.States;
 using Metasia.Editor.ViewModels.Dialogs;
 using Metasia.Editor.Services;
@@ -53,7 +54,7 @@ namespace Metasia.Editor.ViewModels
 
         public ObservableCollection<object> SettingsMenuItems { get; }
 
-        public Interaction<NewProjectViewModel, (bool Result, string ProjectPath, Metasia.Core.Project.ProjectInfo ProjectInfo, Metasia.Core.Project.MetasiaProject? SelectedTemplate)> NewProjectInteraction { get; } = new();
+        public Interaction<NewProjectViewModel, (bool Result, Metasia.Core.Project.ProjectInfo ProjectInfo, Metasia.Core.Project.MetasiaProject? SelectedTemplate)> NewProjectInteraction { get; } = new();
         public Interaction<OutputViewModel, object> OutputInteraction { get; } = new();
         public Interaction<Unit, Unit> OpenSettingsInteraction { get; } = new();
         public Interaction<PluginListViewModel, Unit> PluginListInteraction { get; } = new();
@@ -183,7 +184,7 @@ namespace Metasia.Editor.ViewModels
 
                 if (result.Result)
                 {
-                    MetasiaEditorProject editorProject = ProjectGenerator.CreateProject(result.ProjectPath, result.ProjectInfo, result.SelectedTemplate);
+                    MetasiaEditorProject editorProject = ProjectGenerator.CreateInMemoryProject(result.ProjectInfo, result.SelectedTemplate);
                     await _projectState.LoadProjectAsync(editorProject);
                 }
             }
@@ -226,6 +227,8 @@ namespace Metasia.Editor.ViewModels
                     if (string.IsNullOrEmpty(_projectState.CurrentProject.ProjectFilePath))
                     {
                         _projectState.CurrentProject.ProjectFilePath = targetFilePath;
+                        _projectState.CurrentProject.ProjectPath = new DirectoryEntity(
+                            Path.GetDirectoryName(targetFilePath)!);
                     }
 
                     _projectState.IsDirty = false;

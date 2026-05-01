@@ -1,24 +1,20 @@
-using Metasia.Editor.Services.Notification;
-using Metasia.Editor.Models.States;
-using Metasia.Editor.Models.EditCommands;
-using System;
-using System.IO;
-using System.Linq;
 using Avalonia.Input;
 using Avalonia.Platform.Storage;
 using Metasia.Core.Media;
 using Metasia.Core.Objects;
 using Metasia.Editor.Abstractions.EditCommands;
+using Metasia.Editor.Abstractions.Notification;
+using Metasia.Editor.Models.EditCommands;
 using Metasia.Editor.Models.EditCommands.Commands;
 using Metasia.Editor.Models.Settings;
-using Metasia.Editor.Abstractions.States;
+using Metasia.Editor.Models.States;
 using Metasia.Editor.Services;
+using System;
+using System.IO;
+using System.Linq;
 
 namespace Metasia.Editor.Models.DragDrop.Handlers;
 
-/// <summary>
-/// 外部ファイルのドラッグアンドドロップを処理するハンドラ
-/// </summary>
 public class ExternalFileDropHandler : IDropHandler
 {
     private const int DefaultClipLength = 150;
@@ -29,13 +25,18 @@ public class ExternalFileDropHandler : IDropHandler
 
     private readonly IProjectState _projectState;
     private readonly ISettingsService _settingsService;
+    private readonly INotificationService _notificationService;
 
     public int Priority => 50;
 
-    public ExternalFileDropHandler(IProjectState projectState, ISettingsService settingsService)
+    public ExternalFileDropHandler(
+        IProjectState projectState,
+        ISettingsService settingsService,
+        INotificationService notificationService)
     {
         _projectState = projectState;
         _settingsService = settingsService;
+        _notificationService = notificationService;
     }
 
     public bool CanHandle(IDataTransfer data, DropTargetContext context)
@@ -147,7 +148,16 @@ public class ExternalFileDropHandler : IDropHandler
     private MediaPath CreateMediaPath(string filePath, string fileName, string projectDir, MediaType mediaType)
     {
         var directory = Path.GetDirectoryName(filePath) ?? string.Empty;
+
         bool saveAsRelative = _settingsService.CurrentSettings.General.MediaPathStyle == MediaPathStyle.Relative;
+        if (saveAsRelative && _projectState.CurrentProject?.ProjectFilePath == null)
+        {
+            _notificationService.ShowWarning(
+                "プロジェクト未保存",
+                "プロジェクトが保存されていないため、メディアパスを絶対パスで保存しました。保存後にもう一度ドロップすると相対パスで保存されます。");
+            saveAsRelative = false;
+        }
+
         return MediaPath.CreateFromPath(directory, fileName, projectDir, saveAsRelative);
     }
 }

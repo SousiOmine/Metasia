@@ -1,19 +1,16 @@
-using Metasia.Editor.Services.Notification;
+using Metasia.Core.Media;
+using Metasia.Core.Objects;
+using Metasia.Editor.Abstractions.EditCommands;
+using Metasia.Editor.Models;
+using Metasia.Editor.Models.EditCommands.Commands;
+using Metasia.Editor.Models.Settings;
 using Metasia.Editor.Models.States;
-using Metasia.Editor.Models.EditCommands;
+using Metasia.Editor.Services;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Windows.Input;
-using Metasia.Core.Attributes;
-using Metasia.Core.Media;
-using Metasia.Core.Objects;
-using Metasia.Editor.Abstractions.EditCommands;
-using Metasia.Editor.Models.EditCommands.Commands;
-using Metasia.Editor.Models.Settings;
-using Metasia.Editor.Abstractions.States;
-using Metasia.Editor.Services;
-using ReactiveUI;
 
 namespace Metasia.Editor.ViewModels.Inspector.Properties;
 
@@ -89,13 +86,18 @@ public class MediaPathPropertyViewModel : ViewModelBase
 
         var directory = Path.GetDirectoryName(file.Path?.LocalPath ?? "") ?? "";
         var fileName = Path.GetFileName(file.Path?.LocalPath ?? "");
-        var projectDir = _projectState.CurrentProject?.ProjectPath.Path;
-        bool saveAsRelative = _settingsService.CurrentSettings.General.MediaPathStyle == MediaPathStyle.Relative;
 
+        bool saveAsRelative = _settingsService.CurrentSettings.General.MediaPathStyle == MediaPathStyle.Relative;
+        if (saveAsRelative && _projectState.CurrentProject?.ProjectFilePath == null)
+        {
+            var saved = await ProjectSaveHelper.EnsureProjectSavedAsync(_projectState, _fileDialogService);
+            if (!saved) return;
+        }
+
+        var projectDir = _projectState.CurrentProject?.ProjectPath.Path;
         var mediaPath = MediaPath.CreateFromPath(directory, fileName, projectDir, saveAsRelative);
 
         _editCommandManager.Execute(new MediaPathChangeCommand(_target, mediaPath));
-
     }
 
     private string[] GetFilePatterns()
