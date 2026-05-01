@@ -113,10 +113,20 @@ public class PropertyRouterViewModel : ViewModelBase
         get => _isBoolProperty;
         set => this.RaiseAndSetIfChanged(ref _isBoolProperty, value);
     }
+    public bool IsIntParamProperty
+    {
+        get => _isIntParamProperty;
+        set => this.RaiseAndSetIfChanged(ref _isIntParamProperty, value);
+    }
     public BoolPropertyViewModel? BoolPropertyVm
     {
         get => _boolPropertyVm;
         set => this.RaiseAndSetIfChanged(ref _boolPropertyVm, value);
+    }
+    public IntParamPropertyViewModel? IntParamPropertyVm
+    {
+        get => _intParamPropertyVm;
+        set => this.RaiseAndSetIfChanged(ref _intParamPropertyVm, value);
     }
     public string PlaceholderText
     {
@@ -141,6 +151,7 @@ public class PropertyRouterViewModel : ViewModelBase
     private LayerTargetPropertyViewModel? _layerTargetPropertyVm;
     private BlendModeParamPropertyViewModel? _blendModeParamPropertyVm;
     private BoolPropertyViewModel? _boolPropertyVm;
+    private IntParamPropertyViewModel? _intParamPropertyVm;
     private bool _isMetaNumberParamProperty = false;
     private bool _isMediaPathProperty = false;
     private bool _isStringProperty = false;
@@ -151,6 +162,7 @@ public class PropertyRouterViewModel : ViewModelBase
     private bool _isLayerTargetProperty = false;
     private bool _isBlendModeParamProperty = false;
     private bool _isBoolProperty = false;
+    private bool _isIntParamProperty = false;
     private bool _usePlaceholder;
     private ObjectPropertyFinder.EditablePropertyInfo _propertyInfo;
     private readonly bool _allowMultiClipApply;
@@ -164,6 +176,7 @@ public class PropertyRouterViewModel : ViewModelBase
     private readonly ILayerTargetPropertyViewModelFactory _layerTargetPropertyViewModelFactory;
     private readonly IBlendModeParamPropertyViewModelFactory _blendModeParamPropertyViewModelFactory;
     private readonly IBoolPropertyViewModelFactory _boolPropertyViewModelFactory;
+    private readonly IIntParamPropertyViewModelFactory _intParamPropertyViewModelFactory;
     private readonly IProjectState _projectState;
     public PropertyRouterViewModel(
         ObjectPropertyFinder.EditablePropertyInfo propertyInfo,
@@ -178,6 +191,7 @@ public class PropertyRouterViewModel : ViewModelBase
         ILayerTargetPropertyViewModelFactory layerTargetPropertyViewModelFactory,
         IBlendModeParamPropertyViewModelFactory blendModeParamPropertyViewModelFactory,
         IBoolPropertyViewModelFactory boolPropertyViewModelFactory,
+        IIntParamPropertyViewModelFactory intParamPropertyViewModelFactory,
         IProjectState projectState)
     {
         ArgumentNullException.ThrowIfNull(propertyInfo);
@@ -202,6 +216,7 @@ public class PropertyRouterViewModel : ViewModelBase
         _layerTargetPropertyViewModelFactory = layerTargetPropertyViewModelFactory;
         _blendModeParamPropertyViewModelFactory = blendModeParamPropertyViewModelFactory;
         _boolPropertyViewModelFactory = boolPropertyViewModelFactory;
+        _intParamPropertyViewModelFactory = intParamPropertyViewModelFactory;
         _projectState = projectState;
         _propertyInfo = propertyInfo;
         _allowMultiClipApply = allowMultiClipApply;
@@ -326,6 +341,21 @@ public class PropertyRouterViewModel : ViewModelBase
                 BoolPropertyVm = _boolPropertyViewModelFactory.Create(_propertyInfo.Identifier, (bool)_propertyInfo.PropertyValue!, _allowMultiClipApply, owner);
                 BoolPropertyVm.PropertyDisplayName = displayName;
                 IsBoolProperty = true;
+                UsePlaceholder = false;
+            }
+        }
+        else if (_propertyInfo.Type == typeof(MetaIntParam))
+        {
+            if (IntParamPropertyVm is null)
+            {
+                var min = _propertyInfo.Min.HasValue ? (int)_propertyInfo.Min.Value : int.MinValue;
+                var max = _propertyInfo.Max.HasValue ? (int)_propertyInfo.Max.Value : int.MaxValue;
+                var recommendMin = _propertyInfo.RecommendedMin.HasValue ? (int)_propertyInfo.RecommendedMin.Value : min;
+                var recommendMax = _propertyInfo.RecommendedMax.HasValue ? (int)_propertyInfo.RecommendedMax.Value : max;
+                var intParam = (MetaIntParam)_propertyInfo.PropertyValue!;
+                IntParamPropertyVm = _intParamPropertyViewModelFactory.Create(_propertyInfo.Identifier, intParam, min, max, recommendMin, recommendMax, _allowMultiClipApply, owner);
+                IntParamPropertyVm.PropertyDisplayName = displayName;
+                IsIntParamProperty = true;
                 UsePlaceholder = false;
             }
         }

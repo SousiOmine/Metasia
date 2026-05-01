@@ -42,5 +42,8 @@
         <Border IsVisible="{Binding IsBoolProperty}">
             <views_properties:BoolPropertyView DataContext="{Binding BoolPropertyVm}"/>
         </Border>
+        <Border IsVisible="{Binding IsIntParamProperty}">
+            <views_properties:IntParamPropertyView DataContext="{Binding IntParamPropertyVm}"/>
+        </Border>
     </StackPanel>
 </UserControl>

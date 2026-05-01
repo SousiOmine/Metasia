@@ -1,0 +1,36 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:Metasia.Editor.ViewModels.Inspector.Properties"
+             xmlns:controls="using:Metasia.Editor.Controls"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="50"
+             x:Class="Metasia.Editor.Views.Inspector.Properties.IntParamPropertyView"
+             x:DataType="vm:IntParamPropertyViewModel">
+    <StackPanel Orientation="Horizontal" Margin="1" Spacing="4">
+        <TextBlock Text="{Binding PropertyDisplayName}"
+                   VerticalAlignment="Center"
+                   HorizontalAlignment="Center"
+                   Width="100"
+                   Margin="1"/>
+        <controls:InspectorNumericUpDown Value="{Binding PropertyValue}"
+                                         Minimum="{Binding Min}"
+                                         Maximum="{Binding Max}"
+                                         InteractionStartedCommand="{Binding InteractionStartedCommand}"
+                                         InteractionCompletedCommand="{Binding InteractionCompletedCommand}"
+                                         Width="130"
+                                         VerticalAlignment="Center"
+                                         Increment="1"
+                                         SnapToIncrement="True"
+                                         DragValuePerPixel="1"
+                                         FormatString="F0"/>
+        <controls:InspectorSlider Minimum="{Binding RecommendMin}"
+                                 Maximum="{Binding RecommendMax}"
+                                 Value="{Binding SliderValue}"
+                                 InteractionStartedCommand="{Binding InteractionStartedCommand}"
+                                 InteractionCompletedCommand="{Binding InteractionCompletedCommand}"
+                                 Width="100"
+                                 Margin="4,0,6,0"
+                                 VerticalAlignment="Center"/>
+    </StackPanel>
+</UserControl>

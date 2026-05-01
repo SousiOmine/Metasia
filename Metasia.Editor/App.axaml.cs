@@ -157,6 +157,7 @@ namespace Metasia.Editor
             services.AddTransient<ILayerTargetPropertyViewModelFactory, LayerTargetPropertyViewModelFactory>();
             services.AddTransient<IBlendModeParamPropertyViewModelFactory, BlendModeParamPropertyViewModelFactory>();
             services.AddTransient<IBoolPropertyViewModelFactory, BoolPropertyViewModelFactory>();
+            services.AddTransient<IIntParamPropertyViewModelFactory, IntParamPropertyViewModelFactory>();
             services.AddTransient<INewProjectViewModelFactory, NewProjectViewModelFactory>();
             services.AddTransient<IOutputViewModelFactory, OutputViewModelFactory>();
             services.AddTransient<INewObjectSelectViewModelFactory, NewObjectSelectViewModelFactory>();

@@ -21,6 +21,7 @@ public class PropertyRouterViewModelFactory : IPropertyRouterViewModelFactory
     private readonly ILayerTargetPropertyViewModelFactory _layerTargetPropertyViewModelFactory;
     private readonly IBlendModeParamPropertyViewModelFactory _blendModeParamPropertyViewModelFactory;
     private readonly IBoolPropertyViewModelFactory _boolPropertyViewModelFactory;
+    private readonly IIntParamPropertyViewModelFactory _intParamPropertyViewModelFactory;
 
     public PropertyRouterViewModelFactory(
         IMetaNumberParamPropertyViewModelFactory metaNumberParamPropertyViewModelFactory,
@@ -33,6 +34,7 @@ public class PropertyRouterViewModelFactory : IPropertyRouterViewModelFactory
         ILayerTargetPropertyViewModelFactory layerTargetPropertyViewModelFactory,
         IBlendModeParamPropertyViewModelFactory blendModeParamPropertyViewModelFactory,
         IBoolPropertyViewModelFactory boolPropertyViewModelFactory,
+        IIntParamPropertyViewModelFactory intParamPropertyViewModelFactory,
         IProjectState projectState)
     {
         ArgumentNullException.ThrowIfNull(metaNumberParamPropertyViewModelFactory);
@@ -45,6 +47,7 @@ public class PropertyRouterViewModelFactory : IPropertyRouterViewModelFactory
         ArgumentNullException.ThrowIfNull(layerTargetPropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(blendModeParamPropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(boolPropertyViewModelFactory);
+        ArgumentNullException.ThrowIfNull(intParamPropertyViewModelFactory);
         ArgumentNullException.ThrowIfNull(projectState);
         _metaNumberParamPropertyViewModelFactory = metaNumberParamPropertyViewModelFactory;
         _mediaPathPropertyViewModelFactory = mediaPathPropertyViewModelFactory;
@@ -56,12 +59,13 @@ public class PropertyRouterViewModelFactory : IPropertyRouterViewModelFactory
         _layerTargetPropertyViewModelFactory = layerTargetPropertyViewModelFactory;
         _blendModeParamPropertyViewModelFactory = blendModeParamPropertyViewModelFactory;
         _boolPropertyViewModelFactory = boolPropertyViewModelFactory;
+        _intParamPropertyViewModelFactory = intParamPropertyViewModelFactory;
         _projectState = projectState;
     }
 
     public PropertyRouterViewModel Create(ObjectPropertyFinder.EditablePropertyInfo propertyInfo, bool allowMultiClipApply = true)
     {
         ArgumentNullException.ThrowIfNull(propertyInfo);
-        return new PropertyRouterViewModel(propertyInfo, allowMultiClipApply, _metaNumberParamPropertyViewModelFactory, _mediaPathPropertyViewModelFactory, _stringPropertyViewModelFactory, _metaDoubleParamPropertyViewModelFactory, _metaEnumParamPropertyViewModelFactory, _metaFontParamPropertyViewModelFactory, _colorPropertyViewModelFactory, _layerTargetPropertyViewModelFactory, _blendModeParamPropertyViewModelFactory, _boolPropertyViewModelFactory, _projectState);
+        return new PropertyRouterViewModel(propertyInfo, allowMultiClipApply, _metaNumberParamPropertyViewModelFactory, _mediaPathPropertyViewModelFactory, _stringPropertyViewModelFactory, _metaDoubleParamPropertyViewModelFactory, _metaEnumParamPropertyViewModelFactory, _metaFontParamPropertyViewModelFactory, _colorPropertyViewModelFactory, _layerTargetPropertyViewModelFactory, _blendModeParamPropertyViewModelFactory, _boolPropertyViewModelFactory, _intParamPropertyViewModelFactory, _projectState);
     }
 }

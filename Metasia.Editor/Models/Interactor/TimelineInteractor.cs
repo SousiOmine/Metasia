@@ -220,6 +220,22 @@ namespace Metasia.Editor.Models.Interactor
             return changeInfos.Count > 0 ? new BlendModeValueChangeCommand(changeInfos) : null;
         }
 
+        public static IEditCommand? CreateIntValueChangeCommand(string propertyIdentifier, int beforeValue, int afterValue, IEnumerable<ClipObject> selectedClips)
+        {
+            List<IntValueChangeCommand.IntValueChangeInfo> changeInfos = new();
+            foreach (var clip in selectedClips)
+            {
+                if (!TryFindEditableProperty<MetaIntParam>(clip, propertyIdentifier, out var owner, out _))
+                {
+                    continue;
+                }
+
+                var valueDifference = afterValue - beforeValue;
+                changeInfos.Add(new IntValueChangeCommand.IntValueChangeInfo(owner, propertyIdentifier, valueDifference));
+            }
+            return changeInfos.Count > 0 ? new IntValueChangeCommand(changeInfos) : null;
+        }
+
         public static IEditCommand? CreateBoolValueChangeCommand(string propertyIdentifier, bool beforeValue, bool afterValue, IEnumerable<ClipObject> selectedClips)
         {
             List<BoolValueChangeCommand.BoolValueChangeInfo> changeInfos = new();
