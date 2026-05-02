@@ -11,12 +11,8 @@
         <MenuItem Header="ファイル">
             <MenuItem Header="新規プロジェクト作成" Command="{Binding CreateNewProject}"/>
             <Separator/>
-            <MenuItem Header="開く"/>
-            <MenuItem Header="閉じる"/>
-            <Separator/>
             <MenuItem Header="編集プロジェクトを開く" Command="{Binding LoadEditingProject}"/>
-            <MenuItem Header="編集プロジェクトの保存"/>
-            <MenuItem Header="編集プロジェクトの上書き" Command="{Binding OverrideSaveEditingProject}"/>
+            <MenuItem Header="編集プロジェクトの保存" Command="{Binding SaveEditingProject}"/>
             <Separator/>
             <MenuItem Header="出力" Command="{Binding OpenOutput}"/>
             <Separator/>

@@ -33,7 +33,7 @@ namespace Metasia.Editor.ViewModels
     {
         public ICommand LoadEditingProject { get; }
         public ICommand CreateNewProject { get; }
-        public ICommand OverrideSaveEditingProject { get; }
+        public ICommand SaveEditingProject { get; }
         public ICommand OpenSettings { get; }
 
         public ICommand Undo { get; }
@@ -104,7 +104,7 @@ namespace Metasia.Editor.ViewModels
 
             LoadEditingProject = ReactiveCommand.CreateFromTask(LoadEditingProjectExecuteAsync);
             CreateNewProject = ReactiveCommand.CreateFromTask(CreateNewProjectExecuteAsync);
-            OverrideSaveEditingProject = ReactiveCommand.CreateFromTask(OverrideSaveEditingProjectExecuteAsync);
+            SaveEditingProject = ReactiveCommand.CreateFromTask(SaveEditingProjectExecuteAsync);
             OpenSettings = ReactiveCommand.CreateFromTask(OpenSettingsExecuteAsync);
             SetTimelineSelectionStart = ReactiveCommand.Create(SetTimelineSelectionStartMethod);
             SetTimelineSelectionEnd = ReactiveCommand.Create(SetTimelineSelectionEndMethod);
@@ -170,7 +170,7 @@ namespace Metasia.Editor.ViewModels
                 keyBindingService.RegisterCommand("Redo", Redo);
                 keyBindingService.RegisterCommand("LoadEditingProject", LoadEditingProject);
                 keyBindingService.RegisterCommand("CreateNewProject", CreateNewProject);
-                keyBindingService.RegisterCommand("OverrideSaveEditingProject", OverrideSaveEditingProject);
+                keyBindingService.RegisterCommand("SaveEditingProject", SaveEditingProject);
                 keyBindingService.RegisterCommand("OpenSettings", OpenSettings);
                 keyBindingService.RegisterCommand("Copy", Copy);
                 keyBindingService.RegisterCommand("Paste", Paste);
@@ -205,7 +205,7 @@ namespace Metasia.Editor.ViewModels
             await OpenSettingsInteraction.Handle(Unit.Default);
         }
 
-        private async Task OverrideSaveEditingProjectExecuteAsync()
+        private async Task SaveEditingProjectExecuteAsync()
         {
             try
             {

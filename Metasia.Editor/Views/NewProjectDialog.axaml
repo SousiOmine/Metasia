@@ -33,9 +33,9 @@
                   SelectedIndex="{Binding SelectedResolutionIndex}"
                   Margin="0,0,0,15"/>
         
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button Content="キャンセル" Margin="0,0,10,0" Width="80" Command="{Binding CancelCommand}"/>
-            <Button Content="作成" Width="80" Command="{Binding OkCommand}"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+            <Button Content="作成" Width="80" Command="{Binding OkCommand}" IsDefault="True"/>
+            <Button Content="キャンセル" Width="80" Command="{Binding CancelCommand}" IsCancel="True"/>
         </StackPanel>
     </StackPanel>
 </Window> 

@@ -22,7 +22,7 @@ namespace Metasia.Editor.Services.KeyBinding
             {
                 new KeyBindingDefinition
                 {
-                    CommandId = "OverrideSaveEditingProject",
+                    CommandId = "SaveEditingProject",
                     Gesture = GetSaveGesture()
                 },
                 new KeyBindingDefinition
