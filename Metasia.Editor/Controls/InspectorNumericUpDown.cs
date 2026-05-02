@@ -385,7 +385,9 @@ public class InspectorNumericUpDown : TemplatedControl
             return;
         }
 
+        ExecuteInteractionStarted();
         Value = CoerceValue(Value + Increment);
+        ExecuteInteractionCompleted();
     }
 
     private void DownButtonOnClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -395,7 +397,9 @@ public class InspectorNumericUpDown : TemplatedControl
             return;
         }
 
+        ExecuteInteractionStarted();
         Value = CoerceValue(Value - Increment);
+        ExecuteInteractionCompleted();
     }
 
     private void UpDownButtonOnPointerPressed(object? sender, PointerPressedEventArgs e)
