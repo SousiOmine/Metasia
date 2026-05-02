@@ -8,7 +8,6 @@ using Metasia.Core.Encode;
 using Metasia.Core.Media;
 using Metasia.Core.Objects;
 using Metasia.Core.Project;
-
 namespace Metasia.Editor.Models.Media.Output;
 
 public class SequentialImagesEncoder : EncoderBase, IEditorEncoder

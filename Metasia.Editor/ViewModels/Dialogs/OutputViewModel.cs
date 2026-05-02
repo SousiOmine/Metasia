@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using Metasia.Core.Encode;
 using Metasia.Core.Media;
+using Metasia.Core.Render;
 using Metasia.Editor.Models.Media;
 using Metasia.Editor.Models.Media.Output;
 using Metasia.Editor.Models.Projects;
@@ -73,6 +74,7 @@ public class OutputViewModel : ViewModelBase
     private readonly IFileDialogService _fileDialogService;
     private readonly IPluginService _pluginService;
     private readonly IEncodeService _encodeService;
+    private readonly IRenderSurfaceFactory _renderSurfaceFactory;
     private readonly INotificationService _notificationService;
     private IMediaOutputSession? _selectedOutputSession;
 
@@ -92,7 +94,8 @@ public class OutputViewModel : ViewModelBase
         IFileDialogService fileDialogService,
         IPluginService pluginService,
         IEncodeService encodeService,
-        INotificationService notificationService
+        INotificationService notificationService,
+        IRenderSurfaceFactory renderSurfaceFactory
     )
     {
         _projectState = projectState;
@@ -101,6 +104,7 @@ public class OutputViewModel : ViewModelBase
         _pluginService = pluginService;
         _encodeService = encodeService;
         _notificationService = notificationService;
+        _renderSurfaceFactory = renderSurfaceFactory;
 
         CancelCommand = ReactiveCommand.Create(Cancel);
         SelectOutputPathCommand = ReactiveCommand.CreateFromTask(SelectOutputPathExecuteAsync);
@@ -256,6 +260,7 @@ public class OutputViewModel : ViewModelBase
         try
         {
             var encoder = encoderInfo.CreateEncoder(SelectedOutputSession);
+            encoder.SurfaceFactory = _renderSurfaceFactory;
             var timeline = project.Timelines[SelectedTimelineIndex];
             var imageFileAccessor = _mediaAccessorRouter;
             var videoFileAccessor = _mediaAccessorRouter;
@@ -364,6 +369,12 @@ internal sealed class SessionPluginEncoder : IEditorEncoder, IDisposable
     public double ProgressRate { get; private set; }
     public IEncoder.EncoderState Status { get; private set; }
     public string OutputPath { get; private set; } = string.Empty;
+
+    public IRenderSurfaceFactory? SurfaceFactory
+    {
+        get => _encoder.SurfaceFactory;
+        set => _encoder.SurfaceFactory = value;
+    }
 
     public event EventHandler<EventArgs> StatusChanged = delegate { };
     public event EventHandler<EventArgs> EncodeStarted = delegate { };

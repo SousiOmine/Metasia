@@ -6,6 +6,7 @@ using Metasia.Editor.Abstractions.States;
 using Metasia.Editor.Services;
 using Metasia.Editor.Abstractions.Notification;
 using Metasia.Editor.Services.PluginService;
+using Metasia.Core.Render;
 
 namespace Metasia.Editor.ViewModels.Dialogs;
 
@@ -17,6 +18,7 @@ public class OutputViewModelFactory : IOutputViewModelFactory
     private readonly IEncodeService _encodeService;
     private readonly INotificationService _notificationService;
     private readonly MediaAccessorRouter _mediaAccessorRouter;
+    private readonly IRenderSurfaceFactory _renderSurfaceFactory;
 
     public OutputViewModelFactory(
         IProjectState projectState,
@@ -24,7 +26,8 @@ public class OutputViewModelFactory : IOutputViewModelFactory
         IFileDialogService fileDialogService,
         IPluginService pluginService,
         IEncodeService encodeService,
-        INotificationService notificationService)
+        INotificationService notificationService,
+        IRenderSurfaceFactory renderSurfaceFactory)
     {
         _projectState = projectState;
         _mediaAccessorRouter = mediaAccessorRouter;
@@ -32,9 +35,10 @@ public class OutputViewModelFactory : IOutputViewModelFactory
         _pluginService = pluginService;
         _encodeService = encodeService;
         _notificationService = notificationService;
+        _renderSurfaceFactory = renderSurfaceFactory;
     }
     public OutputViewModel Create()
     {
-        return new OutputViewModel(_projectState, _mediaAccessorRouter, _fileDialogService, _pluginService, _encodeService, _notificationService);
+        return new OutputViewModel(_projectState, _mediaAccessorRouter, _fileDialogService, _pluginService, _encodeService, _notificationService, _renderSurfaceFactory);
     }
 }

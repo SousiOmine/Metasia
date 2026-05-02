@@ -26,6 +26,9 @@ public abstract class EncoderBase : IEncoder, IDisposable
     public virtual event EventHandler<EventArgs> EncodeFailed = delegate { };
 
     protected int FrameCount => _endFrame - _startFrame + 1;
+
+    public IRenderSurfaceFactory? SurfaceFactory { get; set; }
+
     private MetasiaProject? _project;
     private TimelineObject? _targetTimeline;
     private IImageFileAccessor? _imageFileAccessor;
@@ -108,6 +111,7 @@ public abstract class EncoderBase : IEncoder, IDisposable
                 _videoFileAccessor,
                 _project.Info,
                 _projectPath,
+                surfaceFactory: SurfaceFactory,
                 availableTimelines: CreateTimelineLookup(_project.Timelines),
                 cancellationToken: ct);
 
