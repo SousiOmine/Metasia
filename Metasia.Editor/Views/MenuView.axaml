@@ -43,6 +43,9 @@
             <MenuItem Header="通知" Command="{Binding OpenNotifications}"/>
         </MenuItem>
         <MenuItem Header="設定" ItemsSource="{Binding SettingsMenuItems}"/>
+        <MenuItem Header="ヘルプ">
+            <MenuItem Header="バージョン情報" Command="{Binding OpenAbout}"/>
+        </MenuItem>
         <MenuItem Header="その他" IsEnabled="False">
 
         </MenuItem>

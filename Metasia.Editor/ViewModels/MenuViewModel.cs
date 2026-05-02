@@ -50,6 +50,7 @@ namespace Metasia.Editor.ViewModels
         public ICommand OpenPluginList { get; }
         public ICommand OpenPluginFolder { get; }
         public ICommand OpenNotifications { get; }
+        public ICommand OpenAbout { get; }
         public ICommand Exit { get; }
 
         public ObservableCollection<object> SettingsMenuItems { get; }
@@ -60,6 +61,7 @@ namespace Metasia.Editor.ViewModels
         public Interaction<PluginListViewModel, Unit> PluginListInteraction { get; } = new();
         public Interaction<IPluginSettingsProvider, Unit> OpenPluginSettingsInteraction { get; } = new();
         public Interaction<NotificationCenterViewModel, Unit> OpenNotificationsInteraction { get; } = new();
+        public Interaction<Unit, Unit> AboutInteraction { get; } = new();
         public Interaction<Unit, Unit> ExitInteraction { get; } = new();
 
         private readonly IFileDialogService _fileDialogService;
@@ -111,6 +113,7 @@ namespace Metasia.Editor.ViewModels
             OpenPluginList = ReactiveCommand.CreateFromTask(OpenPluginListExecuteAsync);
             OpenPluginFolder = ReactiveCommand.Create(OpenPluginFolderExecute);
             OpenNotifications = ReactiveCommand.CreateFromTask(OpenNotificationsExecuteAsync);
+            OpenAbout = ReactiveCommand.CreateFromTask(OpenAboutExecuteAsync);
             Exit = ReactiveCommand.CreateFromTask(ExitExecuteAsync);
 
             Undo = ReactiveCommand.Create(UndoExecute);
@@ -371,6 +374,21 @@ namespace Metasia.Editor.ViewModels
                 _notificationService.ShowError(
                     "通知履歴表示失敗",
                     $"通知履歴を開けませんでした。\n{ex.Message}");
+            }
+        }
+
+        private async Task OpenAboutExecuteAsync()
+        {
+            try
+            {
+                await AboutInteraction.Handle(Unit.Default);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"バージョン情報ウィンドウオープンエラー: {ex.Message}");
+                _notificationService.ShowError(
+                    "バージョン情報表示失敗",
+                    $"バージョン情報を開けませんでした。\n{ex.Message}");
             }
         }
 

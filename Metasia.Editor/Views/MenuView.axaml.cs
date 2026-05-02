@@ -27,6 +27,7 @@ namespace Metasia.Editor.Views
         private IDisposable? _pluginListHandlerDisposable;
         private IDisposable? _openPluginSettingsHandlerDisposable;
         private IDisposable? _openNotificationsHandlerDisposable;
+        private IDisposable? _aboutHandlerDisposable;
 
         public MenuView()
         {
@@ -41,6 +42,7 @@ namespace Metasia.Editor.Views
             _outputHandlerDisposable?.Dispose();
             _pluginListHandlerDisposable?.Dispose();
             _openPluginSettingsHandlerDisposable?.Dispose();
+            _aboutHandlerDisposable?.Dispose();
             _openNotificationsHandlerDisposable?.Dispose();
             _newProjectHandlerDisposable = null;
             _outputHandlerDisposable = null;
@@ -51,6 +53,7 @@ namespace Metasia.Editor.Views
             _openSettingsHandlerDisposable = null;
             _pluginListHandlerDisposable = null;
             _openPluginSettingsHandlerDisposable = null;
+            _aboutHandlerDisposable = null;
             _openNotificationsHandlerDisposable = null;
 
             if (_viewModel is not { } viewModel)
@@ -188,6 +191,28 @@ namespace Metasia.Editor.Views
                 }
             });
 
+            _aboutHandlerDisposable = viewModel.AboutInteraction.RegisterHandler(async interaction =>
+            {
+                try
+                {
+                    if (TopLevel.GetTopLevel(this) is Window window)
+                    {
+                        var aboutWindow = new AboutWindow()
+                        {
+                            DataContext = new AboutViewModel()
+                        };
+                        await aboutWindow.ShowDialog(window);
+                    }
+                    interaction.SetOutput(Unit.Default);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Error in AboutInteraction handler: {ex.Message}");
+                    NotifyError("バージョン情報失敗", $"バージョン情報の表示に失敗しました。\n{ex.Message}");
+                    interaction.SetOutput(Unit.Default);
+                }
+            });
+
             _openNotificationsHandlerDisposable = viewModel.OpenNotificationsInteraction.RegisterHandler(interaction =>
             {
                 try
@@ -240,6 +265,7 @@ namespace Metasia.Editor.Views
             _pluginListHandlerDisposable?.Dispose();
             _openPluginSettingsHandlerDisposable?.Dispose();
             _openNotificationsHandlerDisposable?.Dispose();
+            _aboutHandlerDisposable?.Dispose();
             _newProjectHandlerDisposable = null;
             _outputHandlerDisposable = null;
             _outputWindow?.Close();
@@ -250,6 +276,7 @@ namespace Metasia.Editor.Views
             _pluginListHandlerDisposable = null;
             _openPluginSettingsHandlerDisposable = null;
             _openNotificationsHandlerDisposable = null;
+            _aboutHandlerDisposable = null;
 
             DataContextChanged -= OnDataContextChanged;
 

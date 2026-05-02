@@ -7,6 +7,7 @@ using Metasia.Core.Encode;
 using Metasia.Core.Media;
 using Metasia.Core.Objects;
 using Metasia.Core.Project;
+using Metasia.Core.Render;
 using Metasia.Editor.Models.Media;
 using Metasia.Editor.Models.Projects;
 using Metasia.Editor.Models.FileSystem;
@@ -110,7 +111,8 @@ public class OutputViewModelTests
             new FakeFileDialogService(),
             pluginService,
             new FakeEncodeService(),
-            notificationService);
+            notificationService,
+            new NullRenderSurfaceFactory());
     }
 
     private static MetasiaEditorProject CreateProject(params TimelineObject[] timelines)
