@@ -10,7 +10,6 @@
 	<Grid RowDefinitions="*">
 		<Grid Grid.Row="0" ColumnDefinitions="100,1,*">
 			<Grid Grid.Column="0" RowDefinitions="50,1,*">
-				<GridSplitter Grid.Row="1" Background="Transparent"/>
 				<ScrollViewer x:Name="LayerButtonScroll"
 				              Grid.Row="2" AllowAutoHide="True" VerticalScrollBarVisibility="Hidden">
 					<ItemsControl ItemsSource="{Binding LayerButtons}"/>
@@ -39,7 +38,6 @@
 					</Canvas>
 					
 				</ScrollViewer>
-				<GridSplitter Grid.Row="1" Background="Transparent"/>
 				<ScrollViewer x:Name="LinesScroll"
 				              VerticalScrollBarVisibility="Hidden"
 				              HorizontalScrollBarVisibility="Hidden"
