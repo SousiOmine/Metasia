@@ -129,9 +129,19 @@ public class ProjectState : IProjectState
         CurrentTimelineChanged?.Invoke();
     }
 
+    /// <summary>
+    /// プロジェクトが保存されたことを通知します。
+    /// IsDirtyが変化していなくても常にIsDirtyChangedを発火します。
+    /// </summary>
+    public void MarkProjectSaved()
+    {
+        _isDirty = false;
+        IsDirtyChanged?.Invoke();
+    }
+
     public void Dispose()
     {
-
+        
     }
 
     public void NotifyTimelineChanged()

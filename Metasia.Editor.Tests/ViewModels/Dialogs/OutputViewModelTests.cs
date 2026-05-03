@@ -312,6 +312,11 @@ public class OutputViewModelTests
         {
         }
 
+        public void MarkProjectSaved()
+        {
+            IsDirty = false;
+        }
+
         public void Dispose()
         {
         }

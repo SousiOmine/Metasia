@@ -234,7 +234,7 @@ namespace Metasia.Editor.ViewModels
                             Path.GetDirectoryName(targetFilePath)!);
                     }
 
-                    _projectState.IsDirty = false;
+                    _projectState.MarkProjectSaved();
                 }
             }
             catch (Exception ex)

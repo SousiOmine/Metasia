@@ -33,7 +33,7 @@ public static class ProjectSaveHelper
         ProjectSaveLoadManager.Save(project, file.Path.LocalPath);
         project.ProjectFilePath = file.Path.LocalPath;
         project.ProjectPath = new DirectoryEntity(Path.GetDirectoryName(file.Path.LocalPath)!);
-        projectState.IsDirty = false;
+        projectState.MarkProjectSaved();
         return true;
     }
 }

@@ -76,4 +76,10 @@ public interface IProjectState : IDisposable
     /// IsDirtyが変更された時に発生するイベント
     /// </summary>
     event Action? IsDirtyChanged;
+
+    /// <summary>
+    /// プロジェクトが保存されたことを通知します。
+    /// IsDirtyが変化していなくても常にIsDirtyChangedを発火します。
+    /// </summary>
+    void MarkProjectSaved();
 }

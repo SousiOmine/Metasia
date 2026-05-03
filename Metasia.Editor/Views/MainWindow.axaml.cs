@@ -178,7 +178,7 @@ namespace Metasia.Editor.Views
                         Path.GetDirectoryName(targetFilePath)!);
                 }
 
-                projectState.IsDirty = false;
+                projectState.MarkProjectSaved();
                 return true;
             }
             catch (Exception ex)
