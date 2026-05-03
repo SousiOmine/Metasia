@@ -1,7 +1,9 @@
+using Metasia.Editor.Abstractions.States;
 using Metasia.Editor.Services.Notification;
 using Metasia.Editor.Models.States;
 using Metasia.Editor.Models.EditCommands;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Avalonia;
@@ -126,7 +128,16 @@ namespace Metasia.Editor.Views.Behaviors
                 var properties = e.GetCurrentPoint(AssociatedObject).Properties;
                 if (properties.IsRightButtonPressed)
                 {
-                    TryClipSelect(e.KeyModifiers, e);
+                    var vm = AssociatedObject?.DataContext as ClipViewModel;
+                    if (vm is not null)
+                    {
+                        // 右クリック時は選択中の場合に選択解除は行わない
+                        var selState = App.Current?.Services?.GetService<ISelectionState>();
+                        if (selState is null || !selState.SelectedClips.Any(c => c.Id == vm.TargetObject.Id))
+                        {
+                            TryClipSelect(e.KeyModifiers, e);
+                        }
+                    }
                 }
             }
         }
