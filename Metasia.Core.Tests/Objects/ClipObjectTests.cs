@@ -82,8 +82,11 @@ namespace Metasia.Core.Tests.Objects
             // Assert
             Assert.That(firstClip, Is.Not.Null);
             Assert.That(secondClip, Is.Not.Null);
-            Assert.That(firstClip.Id, Is.EqualTo("test_copy"));
-            Assert.That(secondClip.Id, Is.EqualTo("test_copy"));
+            Assert.That(firstClip.Id, Is.Not.Null.And.Not.Empty);
+            Assert.That(secondClip.Id, Is.Not.Null.And.Not.Empty);
+            Assert.That(firstClip.Id, Is.Not.EqualTo(secondClip.Id));
+            Assert.That(Guid.TryParse(firstClip.Id, out _), Is.True);
+            Assert.That(Guid.TryParse(secondClip.Id, out _), Is.True);
             Assert.That(firstClip.StartFrame, Is.EqualTo(10));
             Assert.That(firstClip.EndFrame, Is.EqualTo(49));
             Assert.That(secondClip.StartFrame, Is.EqualTo(50));

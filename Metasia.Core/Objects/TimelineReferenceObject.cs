@@ -65,9 +65,6 @@ public class TimelineReferenceObject : ClipObject, IRenderable, IAudible
         var firstReference = (TimelineReferenceObject)firstClip;
         var secondReference = (TimelineReferenceObject)secondClip;
 
-        firstReference.Id = Id + "_part1";
-        secondReference.Id = Id + "_part2";
-
         int relativeSplitFrame = splitFrame - StartFrame;
         int clipLength = EndFrame - StartFrame + 1;
 

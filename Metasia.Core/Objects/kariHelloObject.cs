@@ -147,9 +147,6 @@ namespace Metasia.Core.Objects
             var firstHello = (kariHelloObject)result.firstClip;
             var secondHello = (kariHelloObject)result.secondClip;
 
-            firstHello.Id = Id + "_part1";
-            secondHello.Id = Id + "_part2";
-
             // MetaNumberParamプロパティの分割
             // 相対フレーム位置で分割するため、オブジェクトの開始フレームを基準とした相対位置で分割
             int relativeSplitFrame = splitFrame - StartFrame;

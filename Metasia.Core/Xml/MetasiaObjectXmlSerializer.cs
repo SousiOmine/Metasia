@@ -54,6 +54,12 @@ namespace Metasia.Core.Xml
 
         public static T Deserialize<T>(string xml) where T : class, IMetasiaObject
         {
+            return (T)Deserialize(typeof(T), xml);
+        }
+
+        public static IMetasiaObject Deserialize(Type type, string xml)
+        {
+            ArgumentNullException.ThrowIfNull(type);
             ArgumentNullException.ThrowIfNull(xml);
             if (string.IsNullOrWhiteSpace(xml))
             {
@@ -63,12 +69,12 @@ namespace Metasia.Core.Xml
             var doc = XDocument.Parse(xml);
             doc = new XDocument(PreProcessDeserialized(doc.Root!));
 
-            XmlSerializer serializer = GetSerializer(typeof(T));
+            XmlSerializer serializer = GetSerializer(type);
             using (var reader = new StringReader(doc.ToString()))
             {
-                var result = serializer.Deserialize(reader) as T;
+                var result = serializer.Deserialize(reader) as IMetasiaObject;
                 if (result is null)
-                    throw new InvalidOperationException($"デシリアライズに失敗しました。型: {typeof(T).Name}");
+                    throw new InvalidOperationException($"デシリアライズに失敗しました。型: {type.Name}");
                 return result;
             }
         }

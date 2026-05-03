@@ -105,13 +105,7 @@ namespace Metasia.Core.Xml
                     throw new InvalidOperationException($"Could not find clip type: {entry.ClipTypeName}");
                 }
 
-                var deserializeMethod = typeof(MetasiaObjectXmlSerializer).GetMethod("Deserialize");
-                if (deserializeMethod == null)
-                {
-                    throw new InvalidOperationException($"Could not find Deserialize method for clip type: {entry.ClipTypeName}");
-                }
-                var genericMethod = deserializeMethod.MakeGenericMethod(clipType);
-                var clip = genericMethod.Invoke(null, new object[] { entry.ClipXml }) as ClipObject;
+                var clip = MetasiaObjectXmlSerializer.Deserialize(clipType, entry.ClipXml) as ClipObject;
 
                 if (clip == null)
                 {

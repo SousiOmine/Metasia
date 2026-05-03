@@ -112,8 +112,11 @@ namespace Metasia.Core.Tests.Objects
             // Assert
             Assert.That(firstHello, Is.Not.Null);
             Assert.That(secondHello, Is.Not.Null);
-            Assert.That(firstHello.Id, Is.EqualTo("kari-id_part1"));
-            Assert.That(secondHello.Id, Is.EqualTo("kari-id_part2"));
+            Assert.That(firstHello.Id, Is.Not.Null.And.Not.Empty);
+            Assert.That(secondHello.Id, Is.Not.Null.And.Not.Empty);
+            Assert.That(firstHello.Id, Is.Not.EqualTo(secondHello.Id));
+            Assert.That(Guid.TryParse(firstHello.Id, out _), Is.True);
+            Assert.That(Guid.TryParse(secondHello.Id, out _), Is.True);
             Assert.That(firstHello.StartFrame, Is.EqualTo(10));
             Assert.That(firstHello.EndFrame, Is.EqualTo(49));
             Assert.That(secondHello.StartFrame, Is.EqualTo(50));

@@ -69,10 +69,12 @@ namespace Metasia.Core.Objects
             }
 
             var firstClip = CreateCopy();
+            firstClip.Id = Guid.NewGuid().ToString();
             firstClip.StartFrame = StartFrame;
             firstClip.EndFrame = splitFrame - 1;
 
             var secondClip = CreateCopy();
+            secondClip.Id = Guid.NewGuid().ToString();
             secondClip.StartFrame = splitFrame;
             secondClip.EndFrame = EndFrame;
 
@@ -86,7 +88,7 @@ namespace Metasia.Core.Objects
         protected virtual ClipObject CreateCopy()
         {
             var xml = MetasiaObjectXmlSerializer.Serialize(this);
-            var copy = MetasiaObjectXmlSerializer.Deserialize<ClipObject>(xml);
+            var copy = (ClipObject)MetasiaObjectXmlSerializer.Deserialize(GetType(), xml);
             copy.Id = Id + "_copy";
             return copy;
         }

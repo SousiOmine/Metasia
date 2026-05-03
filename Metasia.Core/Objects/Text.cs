@@ -366,9 +366,6 @@ namespace Metasia.Core.Objects
             var firstText = (Text)result.firstClip;
             var secondText = (Text)result.secondClip;
 
-            firstText.Id = Id + "_part1";
-            secondText.Id = Id + "_part2";
-
             int clipLength = EndFrame - StartFrame + 1;
 
             // MetaNumberParamプロパティの分割

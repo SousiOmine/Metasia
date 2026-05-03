@@ -99,8 +99,11 @@ public class ShapeObjectTests
         Assert.That(firstObject.Shape.SelectedValue, Is.EqualTo("Star"));
         Assert.That(secondObject.Shape.SelectedValue, Is.EqualTo("Star"));
 
-        Assert.That(firstObject.Id, Is.EqualTo("test-obj_part1"));
-        Assert.That(secondObject.Id, Is.EqualTo("test-obj_part2"));
+        Assert.That(firstObject.Id, Is.Not.Null.And.Not.Empty);
+        Assert.That(secondObject.Id, Is.Not.Null.And.Not.Empty);
+        Assert.That(firstObject.Id, Is.Not.EqualTo(secondObject.Id));
+        Assert.That(Guid.TryParse(firstObject.Id, out _), Is.True);
+        Assert.That(Guid.TryParse(secondObject.Id, out _), Is.True);
     }
 
     [Test]

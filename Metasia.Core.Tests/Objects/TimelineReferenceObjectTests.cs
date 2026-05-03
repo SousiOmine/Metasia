@@ -111,8 +111,11 @@ public class TimelineReferenceObjectTests
         var firstReference = (TimelineReferenceObject)firstClip;
         var secondReference = (TimelineReferenceObject)secondClip;
 
-        Assert.That(firstReference.Id, Is.EqualTo("ref_part1"));
-        Assert.That(secondReference.Id, Is.EqualTo("ref_part2"));
+        Assert.That(firstReference.Id, Is.Not.Null.And.Not.Empty);
+        Assert.That(secondReference.Id, Is.Not.Null.And.Not.Empty);
+        Assert.That(firstReference.Id, Is.Not.EqualTo(secondReference.Id));
+        Assert.That(Guid.TryParse(firstReference.Id, out _), Is.True);
+        Assert.That(Guid.TryParse(secondReference.Id, out _), Is.True);
         Assert.That(firstReference.SourceStartFrame.Value, Is.EqualTo(24).Within(0.001));
         Assert.That(secondReference.SourceStartFrame.Value, Is.EqualTo(32).Within(0.001));
         Assert.That(firstReference.StartFrame, Is.EqualTo(10));

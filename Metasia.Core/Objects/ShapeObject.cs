@@ -226,9 +226,6 @@ namespace Metasia.Core.Objects
             var firstObject = (ShapeObject)firstClip;
             var secondObject = (ShapeObject)secondClip;
 
-            firstObject.Id = Id + "_part1";
-            secondObject.Id = Id + "_part2";
-
             // MetaNumberParamプロパティの分割
             int relativeSplitFrame = splitFrame - StartFrame;
 
