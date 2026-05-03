@@ -202,7 +202,7 @@ public class MetaNumberParamPropertyViewModel : ViewModelBase
             var afterPoint = points[index];
 
             newPoint.Frame = beforePoint.Frame + (afterPoint.Frame - beforePoint.Frame) / 2;
-            newPoint.Value = beforePoint.Value + (afterPoint.Value - beforePoint.Value) / 2;
+            newPoint.Value = beforePoint.Value;
         }
         else
         {
@@ -210,7 +210,7 @@ public class MetaNumberParamPropertyViewModel : ViewModelBase
             var afterPoint = points[index + 1];
 
             newPoint.Frame = beforePoint.Frame + (afterPoint.Frame - beforePoint.Frame) / 2;
-            newPoint.Value = beforePoint.Value + (afterPoint.Value - beforePoint.Value) / 2;
+            newPoint.Value = beforePoint.Value;
         }
 
         var command = new AddCoordPointCommand(_propertyValue, newPoint);
