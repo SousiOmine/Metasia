@@ -5,6 +5,7 @@ using Metasia.Editor.Models.EditCommands;
 
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -52,6 +53,7 @@ namespace Metasia.Editor
         private MainWindow? _mainWindow;
         private Window? _splashScreen;
         private ISettingsService? _settingsService;
+        private string? _startupFilePath;
 
         public override void Initialize()
         {
@@ -68,6 +70,17 @@ namespace Metasia.Editor
 
                 // アプリケーション終了時の処理を登録
                 desktop.ShutdownRequested += OnShutdownRequested;
+
+                // コマンドライン引数から .mtpj ファイルパスを取得
+                if (desktop.Args is { Length: > 0 })
+                {
+                    var filePath = desktop.Args[0];
+                    if (File.Exists(filePath) &&
+                        Path.GetExtension(filePath).Equals(".mtpj", StringComparison.OrdinalIgnoreCase))
+                    {
+                        _startupFilePath = filePath;
+                    }
+                }
 
                 LoadBeforeApplicationStartAsync().ContinueWith(_ =>
                 {
@@ -216,6 +229,20 @@ namespace Metasia.Editor
             _mainWindow!.Show();
 
             _splashScreen!.Close();
+
+            if (_startupFilePath is not null)
+            {
+                try
+                {
+                    var project = ProjectSaveLoadManager.Load(_startupFilePath);
+                    project.ProjectFilePath = _startupFilePath;
+                    Services.GetRequiredService<IProjectState>().LoadProjectAsync(project);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"ファイルからのプロジェクト読み込みに失敗: {ex.Message}");
+                }
+            }
         }
 
         private void OnSettingsChanged()
