@@ -140,9 +140,9 @@ namespace Metasia.Core.Objects
         /// </summary>
         /// <param name="splitFrame">分割フレーム</param>
         /// <returns>分割後の2つのHelloオブジェクト（前半と後半）</returns>
-        public override (ClipObject firstClip, ClipObject secondClip) SplitAtFrame(int splitFrame)
+        public override (ClipObject firstClip, ClipObject secondClip) SplitAtFrame(int splitFrame, SplitContext? context = null)
         {
-            var result = base.SplitAtFrame(splitFrame);
+            var result = base.SplitAtFrame(splitFrame, context);
 
             var firstHello = (kariHelloObject)result.firstClip;
             var secondHello = (kariHelloObject)result.secondClip;

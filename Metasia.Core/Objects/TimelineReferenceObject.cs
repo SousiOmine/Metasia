@@ -58,9 +58,9 @@ public class TimelineReferenceObject : ClipObject, IRenderable, IAudible
     {
     }
 
-    public override (ClipObject firstClip, ClipObject secondClip) SplitAtFrame(int splitFrame)
+    public override (ClipObject firstClip, ClipObject secondClip) SplitAtFrame(int splitFrame, SplitContext? context = null)
     {
-        var (firstClip, secondClip) = base.SplitAtFrame(splitFrame);
+        var (firstClip, secondClip) = base.SplitAtFrame(splitFrame, context);
 
         var firstReference = (TimelineReferenceObject)firstClip;
         var secondReference = (TimelineReferenceObject)secondClip;

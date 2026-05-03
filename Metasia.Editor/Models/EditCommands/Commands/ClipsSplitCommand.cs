@@ -16,11 +16,12 @@ namespace Metasia.Editor.Models.EditCommands.Commands
         private readonly List<ClipObject> _targetClips;
         private readonly List<LayerObject> _ownerLayers;
         private readonly int _splitFrame;
+        private readonly SplitContext? _splitContext;
         private readonly List<ClipObject> _firstClips = new();
         private readonly List<ClipObject> _secondClips = new();
         private readonly List<int> _objectIndices = new();
 
-        public ClipsSplitCommand(IEnumerable<ClipObject> targetClips, IEnumerable<LayerObject> ownerLayers, int splitFrame)
+        public ClipsSplitCommand(IEnumerable<ClipObject> targetClips, IEnumerable<LayerObject> ownerLayers, int splitFrame, SplitContext? splitContext = null)
         {
             // nullチェック
             if (targetClips == null)
@@ -60,6 +61,7 @@ namespace Metasia.Editor.Models.EditCommands.Commands
             }
 
             _splitFrame = splitFrame;
+            _splitContext = splitContext;
 
             // 各クリップの元のインデックスを保存
             for (int i = 0; i < _targetClips.Count; i++)
@@ -87,7 +89,7 @@ namespace Metasia.Editor.Models.EditCommands.Commands
                 var ownerLayer = _ownerLayers[i];
 
                 // クリップを分割
-                var splitResult = targetClip.SplitAtFrame(_splitFrame);
+                var splitResult = targetClip.SplitAtFrame(_splitFrame, _splitContext);
 
                 // 分割結果の各要素がnullかチェック
                 if (splitResult.Item1 is null || splitResult.Item2 is null)

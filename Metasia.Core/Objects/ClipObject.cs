@@ -60,8 +60,9 @@ namespace Metasia.Core.Objects
         /// 指定したフレームでクリップを分割する
         /// </summary>
         /// <param name="splitFrame">分割フレーム</param>
+        /// <param name="context">分割コンテキスト（フレームレート等）。nullの場合はメディア開始位置調整なし</param>
         /// <returns>分割後の2つのクリップ（前半と後半）</returns>
-        public virtual (ClipObject firstClip, ClipObject secondClip) SplitAtFrame(int splitFrame)
+        public virtual (ClipObject firstClip, ClipObject secondClip) SplitAtFrame(int splitFrame, SplitContext? context = null)
         {
             if (splitFrame <= StartFrame || splitFrame >= EndFrame)
             {

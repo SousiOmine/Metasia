@@ -58,6 +58,61 @@ public class VideoObject : ClipObject, IRenderable, IAudible
         VideoPath = new MediaPath([MediaType.Video]);
     }
 
+    public override (ClipObject firstClip, ClipObject secondClip) SplitAtFrame(int splitFrame, SplitContext? context = null)
+    {
+        var result = base.SplitAtFrame(splitFrame, context);
+
+        if (context is null) return result;
+
+        var first = (VideoObject)result.firstClip;
+        var second = (VideoObject)result.secondClip;
+        int relativeSplitFrame = splitFrame - StartFrame;
+        int oldClipLength = EndFrame - StartFrame + 1;
+        var (firstVideoStartSeconds, secondVideoStartSeconds) = VideoStartSeconds.Split(relativeSplitFrame, oldClipLength);
+        double timeOffset = (splitFrame - StartFrame) / context.FrameRate;
+        first.VideoStartSeconds = firstVideoStartSeconds;
+        second.VideoStartSeconds = ShiftMetaNumberParamSeconds(secondVideoStartSeconds, timeOffset);
+
+        return result;
+    }
+
+    private static MetaNumberParam<double> ShiftMetaNumberParamSeconds(MetaNumberParam<double> param, double offsetSeconds)
+    {
+        var shifted = new MetaNumberParam<double>();
+        shifted.IsMovable = param.IsMovable;
+
+        if (!param.IsMovable)
+        {
+            shifted.SetSinglePoint(param.StartPoint.Value + offsetSeconds);
+            return shifted;
+        }
+
+        shifted.StartPoint = new CoordPoint
+        {
+            Frame = param.StartPoint.Frame,
+            Value = param.StartPoint.Value + offsetSeconds,
+            InterpolationLogic = param.StartPoint.InterpolationLogic.HardCopy()
+        };
+        shifted.EndPoint = new CoordPoint
+        {
+            Frame = param.EndPoint.Frame,
+            Value = param.EndPoint.Value + offsetSeconds,
+            InterpolationLogic = param.EndPoint.InterpolationLogic.HardCopy()
+        };
+
+        foreach (var pt in param.Params)
+        {
+            shifted.AddPoint(new CoordPoint
+            {
+                Frame = pt.Frame,
+                Value = pt.Value + offsetSeconds,
+                InterpolationLogic = pt.InterpolationLogic.HardCopy()
+            });
+        }
+
+        return shifted;
+    }
+
     public async Task<IRenderNode> RenderAsync(RenderContext context, CancellationToken cancellationToken = default)
     {
         int relativeFrame = context.Frame - StartFrame;

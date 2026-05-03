@@ -288,7 +288,12 @@ namespace Metasia.Editor.ViewModels
             if (ownerLayers.Any(layer => layer is null))
                 return;
 
-            IEditCommand command = new ClipsSplitCommand(selectedClips, ownerLayers!, splitFrame);
+            var splitContext = new SplitContext
+            {
+                FrameRate = FrameRate
+            };
+
+            IEditCommand command = new ClipsSplitCommand(selectedClips, ownerLayers!, splitFrame, splitContext);
             editCommandManager.Execute(command);
         }
 
