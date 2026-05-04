@@ -329,6 +329,16 @@ public class PluginServiceTests
         {
             return Task.FromResult(new AudioSampleResult { IsSuccessful = false, Chunk = null });
         }
+
+        public Task<VideoMediaInfoResult?> GetVideoMediaInfoAsync(string path)
+        {
+            return Task.FromResult<VideoMediaInfoResult?>(null);
+        }
+
+        public Task<AudioMediaInfoResult?> GetAudioMediaInfoAsync(string path)
+        {
+            return Task.FromResult<AudioMediaInfoResult?>(null);
+        }
     }
 
     private sealed class ConflictingClipPlugin : FakeEditorPlugin, IClipTypeProvider

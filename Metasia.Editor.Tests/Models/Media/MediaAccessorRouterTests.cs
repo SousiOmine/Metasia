@@ -225,6 +225,10 @@ namespace Metasia.Editor.Tests.Models.Media
                 AudioCallCount++;
                 return Task.FromResult(new AudioSampleResult { IsSuccessful = _audioSuccessful, Chunk = _audioSuccessful ? new AudioChunk(new AudioFormat(sampleRate, 2), 0) : null });
             }
+
+            public Task<VideoMediaInfoResult?> GetVideoMediaInfoAsync(string path) => Task.FromResult<VideoMediaInfoResult?>(null);
+
+            public Task<AudioMediaInfoResult?> GetAudioMediaInfoAsync(string path) => Task.FromResult<AudioMediaInfoResult?>(null);
         }
 
         private sealed class FakeSettingsService : ISettingsService
@@ -282,6 +286,8 @@ namespace Metasia.Editor.Tests.Models.Media
                 LastPath = path;
                 return Task.FromResult(new AudioSampleResult { IsSuccessful = true, Chunk = new AudioChunk(new AudioFormat(sampleRate, 2), 0) });
             }
+
+            public Task<AudioMediaInfoResult?> GetAudioMediaInfoAsync(string path) => Task.FromResult<AudioMediaInfoResult?>(null);
         }
     }
 }

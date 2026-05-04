@@ -3,6 +3,7 @@ using Metasia.Editor.Models.States;
 using Metasia.Editor.Models.EditCommands;
 using Metasia.Core.Objects;
 using ReactiveUI;
+using System.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -95,8 +96,8 @@ namespace Metasia.Editor.ViewModels.Timeline
             this._dropHandlerRegistry = dropHandlerRegistry;
             this._newObjectSelectViewModelFactory = newObjectSelectViewModelFactory;
 
-            HandleDropCommand = ReactiveCommand.Create<DropEventData>(
-                execute: ExecuteHandleDrop,
+            HandleDropCommand = ReactiveCommand.CreateFromTask<DropEventData>(
+                execute: ExecuteHandleDropAsync,
                 canExecute: this.WhenAnyValue(x => x.TargetLayer).Select(layer => layer != null)
             );
             HandleDragOverCommand = ReactiveCommand.Create<DropEventData>(
@@ -171,7 +172,7 @@ namespace Metasia.Editor.ViewModels.Timeline
             RelocateClips();
         }
 
-        private void ExecuteHandleDrop(DropEventData dropEventData)
+        private async Task ExecuteHandleDropAsync(DropEventData dropEventData)
         {
             editCommandManager.CancelPreview();
 
@@ -185,7 +186,7 @@ namespace Metasia.Editor.ViewModels.Timeline
             var handler = _dropHandlerRegistry.FindHandler(dropEventData.Data, context);
             if (handler is null) return;
 
-            var command = handler.HandleDrop(dropEventData.Data, context);
+            var command = await handler.HandleDropAsync(dropEventData.Data, context);
             if (command is not null)
             {
                 editCommandManager.Execute(command);

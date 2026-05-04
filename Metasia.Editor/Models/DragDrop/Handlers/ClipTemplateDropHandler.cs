@@ -4,6 +4,7 @@ using Metasia.Editor.Models.EditCommands;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Avalonia.Input;
 using Avalonia.Platform.Storage;
 using Metasia.Core.Objects;
@@ -41,19 +42,19 @@ namespace Metasia.Editor.Models.DragDrop.Handlers
             return DropPreviewResult.Copy(null);
         }
 
-        public IEditCommand? HandleDrop(IDataTransfer data, DropTargetContext context)
+        public Task<IEditCommand?> HandleDropAsync(IDataTransfer data, DropTargetContext context)
         {
             var files = data.TryGetFiles();
-            if (files == null || !files.Any()) return null;
+            if (files == null || !files.Any()) return Task.FromResult<IEditCommand?>(null);
 
             var file = files.First() as IStorageFile;
-            if (file == null) return null;
+            if (file == null) return Task.FromResult<IEditCommand?>(null);
 
             var ext = Path.GetExtension(file.Name)?.ToLowerInvariant();
-            if (ext != ".mtmp") return null;
+            if (ext != ".mtmp") return Task.FromResult<IEditCommand?>(null);
 
             string filePath = file.Path.LocalPath;
-            if (!File.Exists(filePath)) return null;
+            if (!File.Exists(filePath)) return Task.FromResult<IEditCommand?>(null);
 
             ClipTemplate template;
             try
@@ -63,7 +64,7 @@ namespace Metasia.Editor.Models.DragDrop.Handlers
             catch (System.Exception ex)
             {
                 Debug.WriteLine($"Failed to load clip template: {ex.Message}");
-                return null;
+                return Task.FromResult<IEditCommand?>(null);
             }
 
             int baseLayerIndex = context.Timeline.Layers.IndexOf(context.TargetLayer);
@@ -76,7 +77,7 @@ namespace Metasia.Editor.Models.DragDrop.Handlers
                 context.Timeline
             );
 
-            return new AddClipsFromTemplateCommand(context.Timeline, clipsToAdd);
+            return Task.FromResult<IEditCommand?>(new AddClipsFromTemplateCommand(context.Timeline, clipsToAdd));
         }
     }
 }

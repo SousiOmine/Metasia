@@ -6,12 +6,15 @@ using Metasia.Editor.Abstractions.EditCommands;
 using Metasia.Editor.Abstractions.Notification;
 using Metasia.Editor.Models.EditCommands;
 using Metasia.Editor.Models.EditCommands.Commands;
+using Metasia.Editor.Models.Media;
 using Metasia.Editor.Models.Settings;
 using Metasia.Editor.Models.States;
 using Metasia.Editor.Services;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Metasia.Editor.Models.DragDrop.Handlers;
 
@@ -26,17 +29,20 @@ public class ExternalFileDropHandler : IDropHandler
     private readonly IProjectState _projectState;
     private readonly ISettingsService _settingsService;
     private readonly INotificationService _notificationService;
+    private readonly MediaAccessorRouter _mediaAccessorRouter;
 
     public int Priority => 50;
 
     public ExternalFileDropHandler(
         IProjectState projectState,
         ISettingsService settingsService,
-        INotificationService notificationService)
+        INotificationService notificationService,
+        MediaAccessorRouter mediaAccessorRouter)
     {
         _projectState = projectState;
         _settingsService = settingsService;
         _notificationService = notificationService;
+        _mediaAccessorRouter = mediaAccessorRouter;
     }
 
     public bool CanHandle(IDataTransfer data, DropTargetContext context)
@@ -57,7 +63,7 @@ public class ExternalFileDropHandler : IDropHandler
         return DropPreviewResult.Copy();
     }
 
-    public IEditCommand? HandleDrop(IDataTransfer data, DropTargetContext context)
+    public async Task<IEditCommand?> HandleDropAsync(IDataTransfer data, DropTargetContext context)
     {
         var files = data.TryGetFiles();
         if (files == null) return null;
@@ -68,11 +74,17 @@ public class ExternalFileDropHandler : IDropHandler
         var projectDir = _projectState.CurrentProject?.ProjectPath.Path;
         if (string.IsNullOrEmpty(projectDir)) return null;
 
-        var commands = supportedFiles
-            .Select((file, index) => CreateClipFromFile(file, context, projectDir, index))
-            .Where(cmd => cmd != null)
-            .Cast<IEditCommand>()
-            .ToList();
+        var commands = new List<IEditCommand>();
+        int currentStartFrame = context.TargetFrame;
+        foreach (var file in supportedFiles)
+        {
+            var clip = await CreateClipFromFileAsync(file, currentStartFrame, projectDir);
+            if (clip != null)
+            {
+                commands.Add(new AddClipCommand(context.TargetLayer, clip));
+                currentStartFrame = clip.EndFrame + 1;
+            }
+        }
 
         if (commands.Count == 0) return null;
         if (commands.Count == 1) return commands[0];
@@ -87,7 +99,7 @@ public class ExternalFileDropHandler : IDropHandler
         return VideoExtensions.Contains(ext) || AudioExtensions.Contains(ext) || ImageExtensions.Contains(ext);
     }
 
-    private AddClipCommand? CreateClipFromFile(IStorageItem item, DropTargetContext context, string projectDir, int index)
+    private async Task<ClipObject?> CreateClipFromFileAsync(IStorageItem item, int startFrame, string projectDir)
     {
         if (item is not IStorageFile file) return null;
 
@@ -112,10 +124,29 @@ public class ExternalFileDropHandler : IDropHandler
 
         if (clip == null) return null;
 
-        clip.StartFrame = context.TargetFrame + (index * DefaultClipLength);
-        clip.EndFrame = clip.StartFrame + DefaultClipLength - 1;
+        clip.StartFrame = startFrame;
 
-        return new AddClipCommand(context.TargetLayer, clip);
+        if (clip is VideoObject or AudioObject)
+        {
+            var mediaInfo = await _mediaAccessorRouter.GetMediaInfoAsync(filePath);
+            if (mediaInfo?.IsSuccessful == true)
+            {
+                int projectFps = _projectState.CurrentProjectInfo?.Framerate ?? 60;
+                int frameCount = (int)Math.Ceiling(mediaInfo.Duration.TotalSeconds * projectFps);
+                frameCount = Math.Max(1, frameCount);
+                clip.EndFrame = clip.StartFrame + frameCount - 1;
+            }
+            else
+            {
+                clip.EndFrame = clip.StartFrame + DefaultClipLength - 1;
+            }
+        }
+        else
+        {
+            clip.EndFrame = clip.StartFrame + DefaultClipLength - 1;
+        }
+
+        return clip;
     }
 
     private VideoObject? CreateVideoObject(string filePath, string fileName, string projectDir)

@@ -171,5 +171,10 @@ public class MediaAudioObjectTests
             LastSampleCount = sampleCount;
             return Task.FromResult(_result);
         }
+
+        public Task<AudioMediaInfoResult?> GetAudioMediaInfoAsync(string path)
+        {
+            return Task.FromResult<AudioMediaInfoResult?>(null);
+        }
     }
 }

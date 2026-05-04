@@ -134,6 +134,29 @@ public class MediaAccessorRouter : IImageFileAccessor, IVideoFileAccessor, IAudi
         return new AudioSampleResult { IsSuccessful = false, Chunk = null };
     }
 
+    public async Task<MediaInfoResult?> GetMediaInfoAsync(string path)
+    {
+        foreach (var entry in _orderedAccessors)
+        {
+            if (entry.Accessor is IVideoFileAccessor videoAccessor)
+            {
+                var result = await videoAccessor.GetVideoMediaInfoAsync(path);
+                if (result?.IsSuccessful == true) return result;
+            }
+
+            if (entry.Accessor is IAudioFileAccessor audioAccessor)
+            {
+                var result = await audioAccessor.GetAudioMediaInfoAsync(path);
+                if (result?.IsSuccessful == true) return result;
+            }
+        }
+        return null;
+    }
+
+    Task<VideoMediaInfoResult?> IVideoFileAccessor.GetVideoMediaInfoAsync(string path) => Task.FromResult<VideoMediaInfoResult?>(null);
+
+    Task<AudioMediaInfoResult?> IAudioFileAccessor.GetAudioMediaInfoAsync(string path) => Task.FromResult<AudioMediaInfoResult?>(null);
+
     public void RegisterAccessor(string id, string displayName, IMediaAccessor accessor)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(id);

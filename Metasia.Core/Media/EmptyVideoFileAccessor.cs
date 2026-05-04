@@ -13,4 +13,9 @@ public class EmptyVideoFileAccessor : IVideoFileAccessor
     {
         return Task.FromResult(new VideoFileAccessorResult { IsSuccessful = false, Image = null });
     }
+
+    public Task<VideoMediaInfoResult?> GetVideoMediaInfoAsync(string path)
+    {
+        return Task.FromResult<VideoMediaInfoResult?>(null);
+    }
 }

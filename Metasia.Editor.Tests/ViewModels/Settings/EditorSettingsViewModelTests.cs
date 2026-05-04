@@ -107,6 +107,8 @@ namespace Metasia.Editor.Tests.ViewModels.Settings
             {
                 return Task.FromResult(new VideoFileAccessorResult { IsSuccessful = false });
             }
+
+            public Task<VideoMediaInfoResult?> GetVideoMediaInfoAsync(string path) => Task.FromResult<VideoMediaInfoResult?>(null);
         }
 
         private sealed class FakeSettingsService : ISettingsService

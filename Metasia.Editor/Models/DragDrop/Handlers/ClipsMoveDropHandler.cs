@@ -3,6 +3,7 @@ using Metasia.Editor.Models.States;
 using Metasia.Editor.Models.EditCommands;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Avalonia.Input;
 using Metasia.Editor.Models.DragDropData;
 using Metasia.Editor.Abstractions.EditCommands;
@@ -82,13 +83,13 @@ public class ClipsMoveDropHandler : IDropHandler
         return DropPreviewResult.Move(command);
     }
 
-    public IEditCommand? HandleDrop(IDataTransfer data, DropTargetContext context)
+    public Task<IEditCommand?> HandleDropAsync(IDataTransfer data, DropTargetContext context)
     {
         var id = data.TryGetValue(DragDropFormats.ClipsMove);
         var dragData = DragDropFormats.RetrieveData<ClipsMoveDragData>(id);
         if (dragData is null || _selectionState.SelectedClips.Count() == 0)
         {
-            return null;
+            return Task.FromResult<IEditCommand?>(null);
         }
 
         _editCommandManager.CancelPreview();
@@ -96,7 +97,7 @@ public class ClipsMoveDropHandler : IDropHandler
         var dropInfo = CreateDropTargetContext(dragData, context);
         if (!dropInfo.CanDrop)
         {
-            return null;
+            return Task.FromResult<IEditCommand?>(null);
         }
 
         var viewState = _timelineViewStateStore.GetViewState(context.Timeline.Id);
@@ -107,11 +108,11 @@ public class ClipsMoveDropHandler : IDropHandler
             context.Timeline,
             viewState.Frame_Per_DIP);
 
-        return ClipInteractor.CreateMoveClipsCommand(
+        return Task.FromResult<IEditCommand?>(ClipInteractor.CreateMoveClipsCommand(
             dropInfo,
             context.Timeline,
             context.TargetLayer,
-            _selectionState.SelectedClips);
+            _selectionState.SelectedClips));
     }
 
     private ClipsDropTargetContext CreateDropTargetContext(ClipsMoveDragData dragData, DropTargetContext context)

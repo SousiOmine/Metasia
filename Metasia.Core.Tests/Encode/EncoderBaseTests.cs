@@ -87,5 +87,11 @@ public class EncoderBaseTests
 
         public Task<AudioSampleResult> GetAudioBySampleAsync(string path, long startSample, long sampleCount, int sampleRate)
             => Task.FromResult(new AudioSampleResult { IsSuccessful = false, Chunk = null });
+
+        public Task<VideoMediaInfoResult?> GetVideoMediaInfoAsync(string path)
+            => Task.FromResult<VideoMediaInfoResult?>(null);
+
+        public Task<AudioMediaInfoResult?> GetAudioMediaInfoAsync(string path)
+            => Task.FromResult<AudioMediaInfoResult?>(null);
     }
 }

@@ -3,6 +3,7 @@ using Metasia.Editor.Models.States;
 using Metasia.Editor.Models.EditCommands;
 using Avalonia.Input;
 using Metasia.Editor.Abstractions.EditCommands;
+using System.Threading.Tasks;
 
 namespace Metasia.Editor.Models.DragDrop;
 
@@ -38,5 +39,5 @@ public interface IDropHandler
     /// <param name="data">ドロップデータ</param>
     /// <param name="context">ドロップ対象のコンテキスト</param>
     /// <returns>実行するコマンド（nullの場合は何もしない）</returns>
-    IEditCommand? HandleDrop(IDataTransfer data, DropTargetContext context);
+    Task<IEditCommand?> HandleDropAsync(IDataTransfer data, DropTargetContext context);
 }
