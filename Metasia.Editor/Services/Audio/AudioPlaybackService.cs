@@ -16,9 +16,9 @@ namespace Metasia.Editor.Services.Audio
 {
     public class AudioPlaybackService : IAudioPlaybackService
     {
-        private const double PrefillSeconds = 2.0;
-        private const double RefillLowWatermarkSeconds = 1.0;
-        private const double RequestChunkSeconds = 1.0;
+        private const double PrefillSeconds = 0.2;
+        private const double RefillLowWatermarkSeconds = 0.1;
+        private const double RequestChunkSeconds = 0.05;
 
         public bool IsPlaying { get; private set; }
 
@@ -110,7 +110,7 @@ namespace Metasia.Editor.Services.Audio
                     }
                     else
                     {
-                        await Task.Delay(10, cancelToken);
+                        await Task.Delay(1, cancelToken);
                     }
                 }
             }

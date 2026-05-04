@@ -23,7 +23,7 @@ public sealed class MiniaudioService : IAudioService
     {
     }
 
-    public MiniaudioService(uint sampleRate, uint channels, uint bufferCapacityInFrames = 131072)
+    public MiniaudioService(uint sampleRate, uint channels, uint bufferCapacityInFrames = 8192)
     {
         if (sampleRate == 0) throw new ArgumentOutOfRangeException(nameof(sampleRate));
         if (channels == 0) throw new ArgumentOutOfRangeException(nameof(channels));
@@ -89,7 +89,7 @@ public sealed class MiniaudioService : IAudioService
 
                 if (availableFrames == 0)
                 {
-                    Thread.Sleep(1);
+                    Thread.Yield();
                     continue;
                 }
 
@@ -104,7 +104,7 @@ public sealed class MiniaudioService : IAudioService
 
                 if (writtenFrames == 0)
                 {
-                    Thread.Sleep(1);
+                    Thread.Yield();
                     continue;
                 }
 
