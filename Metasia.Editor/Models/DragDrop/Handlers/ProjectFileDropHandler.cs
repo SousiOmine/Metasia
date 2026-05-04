@@ -64,11 +64,8 @@ public class ProjectFileDropHandler : IDropHandler
         {
             string fullPath = MediaPath.GetFullPath(dropData.MediaPath, _projectState.CurrentProject?.ProjectPath.Path);
             var mediaInfo = await _mediaAccessorRouter.GetMediaInfoAsync(fullPath);
-            if (mediaInfo?.IsSuccessful == true)
+            if (TryCalculateMediaFrameCount(mediaInfo, out int frameCount))
             {
-                int projectFps = _projectState.CurrentProjectInfo?.Framerate ?? 60;
-                int frameCount = (int)Math.Ceiling(mediaInfo.Duration.TotalSeconds * projectFps);
-                frameCount = Math.Max(1, frameCount);
                 clip.EndFrame = clip.StartFrame + frameCount - 1;
             }
             else
@@ -82,6 +79,19 @@ public class ProjectFileDropHandler : IDropHandler
         }
 
         return new AddClipCommand(context.TargetLayer, clip);
+    }
+
+    private bool TryCalculateMediaFrameCount(MediaInfoResult? mediaInfo, out int frameCount)
+    {
+        frameCount = 0;
+        if (mediaInfo?.IsSuccessful != true || mediaInfo.Duration <= TimeSpan.Zero)
+        {
+            return false;
+        }
+
+        int projectFps = _projectState.CurrentProjectInfo?.Framerate ?? 60;
+        frameCount = (int)Math.Ceiling(mediaInfo.Duration.TotalSeconds * projectFps);
+        return frameCount > 0;
     }
 
     private bool IsMediaPathValid(MediaPath? mediaPath)

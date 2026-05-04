@@ -129,11 +129,8 @@ public class ExternalFileDropHandler : IDropHandler
         if (clip is VideoObject or AudioObject)
         {
             var mediaInfo = await _mediaAccessorRouter.GetMediaInfoAsync(filePath);
-            if (mediaInfo?.IsSuccessful == true)
+            if (TryCalculateMediaFrameCount(mediaInfo, out int frameCount))
             {
-                int projectFps = _projectState.CurrentProjectInfo?.Framerate ?? 60;
-                int frameCount = (int)Math.Ceiling(mediaInfo.Duration.TotalSeconds * projectFps);
-                frameCount = Math.Max(1, frameCount);
                 clip.EndFrame = clip.StartFrame + frameCount - 1;
             }
             else
@@ -147,6 +144,19 @@ public class ExternalFileDropHandler : IDropHandler
         }
 
         return clip;
+    }
+
+    private bool TryCalculateMediaFrameCount(MediaInfoResult? mediaInfo, out int frameCount)
+    {
+        frameCount = 0;
+        if (mediaInfo?.IsSuccessful != true || mediaInfo.Duration <= TimeSpan.Zero)
+        {
+            return false;
+        }
+
+        int projectFps = _projectState.CurrentProjectInfo?.Framerate ?? 60;
+        frameCount = (int)Math.Ceiling(mediaInfo.Duration.TotalSeconds * projectFps);
+        return frameCount > 0;
     }
 
     private VideoObject? CreateVideoObject(string filePath, string fileName, string projectDir)
