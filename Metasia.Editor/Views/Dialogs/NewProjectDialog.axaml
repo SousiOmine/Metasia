@@ -1,0 +1,61 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:Metasia.Editor.ViewModels.Dialogs"
+        xmlns:models="using:Metasia.Editor.Models"
+        mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="350"
+        x:Class="Metasia.Editor.Views.Dialogs.NewProjectDialog"
+        Icon="/Assets/metasia-icon.ico"
+        Title="新規プロジェクト作成"
+        Width="450" Height="350"
+        WindowStartupLocation="CenterOwner"
+        x:DataType="vm:NewProjectViewModel">
+    <StackPanel Margin="20">
+
+        <TextBlock Text="テンプレート:" Margin="0,0,0,5"/>
+        <ComboBox ItemsSource="{Binding AvailableTemplates}" 
+                  SelectedItem="{Binding SelectedTemplate}"
+                  Margin="0,0,0,15">
+            <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="vm:ProjectTemplateInfo">
+                    <TextBlock Text="{Binding Name}"/>
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+
+        <TextBlock Text="ビデオ設定" FontWeight="Bold" Margin="0,0,0,15"/>
+
+        <TextBlock Text="プリセット:" Margin="0,0,0,5"/>
+        <ComboBox ItemsSource="{Binding Presets}"
+                  SelectedItem="{Binding SelectedPreset}"
+                  Margin="0,0,0,15">
+            <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="models:VideoPreset">
+                    <TextBlock Text="{Binding Name}"/>
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+
+        <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="10">
+            <TextBlock Text="幅:" VerticalAlignment="Center" Grid.Row="0" Grid.Column="0"/>
+            <TextBox Text="{Binding Width}"
+                     Grid.Row="0" Grid.Column="1" Width="120" HorizontalAlignment="Left"/>
+            <TextBlock Text="高さ:" VerticalAlignment="Center" Grid.Row="0" Grid.Column="2" Margin="10,0,0,0"/>
+            <TextBox Text="{Binding Height}"
+                     Grid.Row="0" Grid.Column="3" Width="120" HorizontalAlignment="Left"/>
+
+            <TextBlock Text="フレームレート:" VerticalAlignment="Center" Grid.Row="1" Grid.Column="0"/>
+            <Grid Grid.Row="1" Grid.Column="1" ColumnDefinitions="Auto,Auto" ColumnSpacing="4">
+                <TextBox Text="{Binding FrameRate}" Width="80" HorizontalAlignment="Left"
+                         Grid.Column="0"/>
+                <TextBlock Text="fps" VerticalAlignment="Center" Grid.Column="1"/>
+            </Grid>
+        </Grid>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,20,0,0">
+            <Button Content="作成" Width="80" Command="{Binding OkCommand}" IsDefault="True"/>
+            <Button Content="キャンセル" Width="80" Command="{Binding CancelCommand}" IsCancel="True"/>
+        </StackPanel>
+    </StackPanel>
+</Window> 

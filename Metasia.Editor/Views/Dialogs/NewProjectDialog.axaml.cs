@@ -9,7 +9,7 @@ using Avalonia.Markup.Xaml;
 using Metasia.Editor.Services;
 using Metasia.Editor.ViewModels.Dialogs;
 
-namespace Metasia.Editor.Views
+namespace Metasia.Editor.Views.Dialogs
 {
     public partial class NewProjectDialog : Window
     {
@@ -25,7 +25,6 @@ namespace Metasia.Editor.Views
 
         private void OnDataContextChanged(object? sender, EventArgs args)
         {
-            // Dispose of any existing subscriptions
             _okCommandSubscription?.Dispose();
             _cancelCommandSubscription?.Dispose();
             _okCommandSubscription = null;
@@ -35,7 +34,6 @@ namespace Metasia.Editor.Views
             {
                 _viewModel = vm;
 
-                // Subscribe to the commands
                 _okCommandSubscription = _viewModel.OkCommand
                     .Subscribe(result => Close(result));
 
@@ -66,5 +64,3 @@ namespace Metasia.Editor.Views
         }
     }
 }
-
-

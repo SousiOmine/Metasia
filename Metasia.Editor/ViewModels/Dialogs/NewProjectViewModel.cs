@@ -1,4 +1,5 @@
 using Metasia.Core.Project;
+using Metasia.Editor.Models;
 using Metasia.Editor.Models.ProjectGenerate;
 using ReactiveUI;
 using SkiaSharp;
@@ -6,7 +7,6 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
-using System.Threading.Tasks;
 
 namespace Metasia.Editor.ViewModels.Dialogs;
 
@@ -22,8 +22,7 @@ public class NewProjectViewModel : ViewModelBase
     public ReactiveCommand<Unit, (bool, ProjectInfo, MetasiaProject?)> CancelCommand { get; }
 
     public ObservableCollection<ProjectTemplateInfo> AvailableTemplates { get; } = new();
-    public ObservableCollection<string> FramerateOptions { get; } = new();
-    public ObservableCollection<string> ResolutionOptions { get; } = new();
+    public ObservableCollection<VideoPreset> Presets { get; } = new(VideoPreset.DefaultPresets);
 
     private ProjectTemplateInfo? _selectedTemplate;
     public ProjectTemplateInfo? SelectedTemplate
@@ -32,29 +31,71 @@ public class NewProjectViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _selectedTemplate, value);
     }
 
-    private int _selectedFramerateIndex = 1;
-    public int SelectedFramerateIndex
+    private VideoPreset? _selectedPreset;
+    public VideoPreset? SelectedPreset
     {
-        get => _selectedFramerateIndex;
-        set => this.RaiseAndSetIfChanged(ref _selectedFramerateIndex, value);
+        get => _selectedPreset;
+        set
+        {
+            this.RaiseAndSetIfChanged(ref _selectedPreset, value);
+            if (value is not null && !value.IsCustom)
+            {
+                _width = value.Width;
+                _height = value.Height;
+                _frameRate = value.FrameRate;
+                this.RaisePropertyChanged(nameof(Width));
+                this.RaisePropertyChanged(nameof(Height));
+                this.RaisePropertyChanged(nameof(FrameRate));
+            }
+        }
     }
 
-    private int _selectedResolutionIndex = 1;
-    public int SelectedResolutionIndex
+    private int _width = 1920;
+    public int Width
     {
-        get => _selectedResolutionIndex;
-        set => this.RaiseAndSetIfChanged(ref _selectedResolutionIndex, value);
+        get => _width;
+        set
+        {
+            var clamped = Math.Max(1, value);
+            this.RaiseAndSetIfChanged(ref _width, clamped);
+            UpdateSelectedPresetFromValues();
+        }
+    }
+
+    private int _height = 1080;
+    public int Height
+    {
+        get => _height;
+        set
+        {
+            var clamped = Math.Max(1, value);
+            this.RaiseAndSetIfChanged(ref _height, clamped);
+            UpdateSelectedPresetFromValues();
+        }
+    }
+
+    private int _frameRate = 30;
+    public int FrameRate
+    {
+        get => _frameRate;
+        set
+        {
+            var clamped = Math.Max(1, value);
+            this.RaiseAndSetIfChanged(ref _frameRate, clamped);
+            UpdateSelectedPresetFromValues();
+        }
     }
 
     public NewProjectViewModel()
     {
         LoadTemplates();
-        LoadOptions();
+
+        SelectedPreset = VideoPreset.FindMatch(Width, Height, FrameRate) ?? VideoPreset.Custom;
 
         OkCommand = ReactiveCommand.Create(() =>
         {
-            var framerate = GetFramerateFromIndex(SelectedFramerateIndex);
-            var size = GetResolutionFromIndex(SelectedResolutionIndex);
+            var framerate = FrameRate;
+            var size = new SKSize(Width, Height);
             var projectInfo = new ProjectInfo(framerate, size, 44100, 2);
 
             MetasiaProject? selectedTemplate = SelectedTemplate?.TemplateFactory(projectInfo);
@@ -64,6 +105,17 @@ public class NewProjectViewModel : ViewModelBase
 
         CancelCommand = ReactiveCommand.Create(() =>
             (Result: false, ProjectInfo: new ProjectInfo(30, new SKSize(1920, 1080), 44100, 2), SelectedTemplate: (MetasiaProject?)null));
+    }
+
+    private void UpdateSelectedPresetFromValues()
+    {
+        var match = VideoPreset.FindMatch(_width, _height, _frameRate);
+        var newPreset = match ?? VideoPreset.Custom;
+        if (!ReferenceEquals(_selectedPreset, newPreset))
+        {
+            _selectedPreset = newPreset;
+            this.RaisePropertyChanged(nameof(SelectedPreset));
+        }
     }
 
     private void LoadTemplates()
@@ -76,48 +128,6 @@ public class NewProjectViewModel : ViewModelBase
             TemplateFactory = info => new EmptyProjectTemplate(info).Template
         });
 
-        var kariTemplate = new KariProjectTemplate();
-        AvailableTemplates.Add(new ProjectTemplateInfo
-        {
-            Name = kariTemplate.Name,
-            TemplateFactory = _ => new KariProjectTemplate().Template
-        });
-
         SelectedTemplate = AvailableTemplates.FirstOrDefault();
-    }
-
-    private void LoadOptions()
-    {
-        FramerateOptions.Clear();
-        FramerateOptions.Add("24 fps");
-        FramerateOptions.Add("30 fps");
-        FramerateOptions.Add("60 fps");
-
-        ResolutionOptions.Clear();
-        ResolutionOptions.Add("HD (1280×720)");
-        ResolutionOptions.Add("Full HD (1920×1080)");
-        ResolutionOptions.Add("4K (3840×2160)");
-    }
-
-    private int GetFramerateFromIndex(int index)
-    {
-        return index switch
-        {
-            0 => 24,
-            1 => 30,
-            2 => 60,
-            _ => 30
-        };
-    }
-
-    private SKSize GetResolutionFromIndex(int index)
-    {
-        return index switch
-        {
-            0 => new SKSize(1280, 720),
-            1 => new SKSize(1920, 1080),
-            2 => new SKSize(3840, 2160),
-            _ => new SKSize(1920, 1080)
-        };
     }
 }
