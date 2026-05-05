@@ -152,10 +152,11 @@ public class SKMatrix44Effect : VisualEffectBase
 
         var result = context.SurfaceFactory.Snapshot(surface, context.PreferRasterOutput);
 
-        float logicalScaleX = context.LogicalSize.Width / width;
-        float logicalScaleY = context.LogicalSize.Height / height;
-
-        var newLogicalSize = new SKSize(newWidth / logicalScaleX, newHeight / logicalScaleY);
+        float scaleX = (float)newWidth / width;
+        float scaleY = (float)newHeight / height;
+        var newLogicalSize = new SKSize(
+            context.LogicalSize.Width * scaleX,
+            context.LogicalSize.Height * scaleY);
 
         return new VisualEffectResult(result, IRenderImageCache.NO_CACHE_KEY, newLogicalSize);
     }
