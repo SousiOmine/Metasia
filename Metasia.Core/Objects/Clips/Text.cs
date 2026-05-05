@@ -175,7 +175,7 @@ namespace Metasia.Core.Objects.Clips
             totalHeight += effectMarginY * 2;
 
             int bitmapWidth = (int)Math.Ceiling(totalWidth);
-            int bitmapHeight = (int)Math.Ceiling(totalHeight);
+            int bitmapHeight = (int)Math.Ceiling(totalHeight) + 1;
 
             if (bitmapWidth <= 0 || bitmapHeight <= 0)
             {
