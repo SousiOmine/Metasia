@@ -168,6 +168,10 @@ public class MetaNumberCoordPointViewModel : ViewModelBase
         InterpolationMenuItems.Add(_interpolationLogicMenuItemFactory.Create(target, typeof(EaseInLogic)));
         InterpolationMenuItems.Add(_interpolationLogicMenuItemFactory.Create(target, typeof(EaseOutLogic)));
         InterpolationMenuItems.Add(_interpolationLogicMenuItemFactory.Create(target, typeof(EaseInOutLogic)));
+        InterpolationMenuItems.Add(_interpolationLogicMenuItemFactory.Create(target, typeof(EaseInStrongLogic)));
+        InterpolationMenuItems.Add(_interpolationLogicMenuItemFactory.Create(target, typeof(EaseOutStrongLogic)));
+        InterpolationMenuItems.Add(_interpolationLogicMenuItemFactory.Create(target, typeof(EaseInOutStrongLogic)));
+        InterpolationMenuItems.Add(_interpolationLogicMenuItemFactory.Create(target, typeof(TeleportLogic)));
     }
 
     public ICommand InteractionStartedCommand { get; }

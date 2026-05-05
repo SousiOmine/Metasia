@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using Metasia.Core.Coordinate;
 using Metasia.Core.Coordinate.InterpolationLogic;
@@ -43,7 +44,7 @@ public class InterpolationLogicMenuItemViewModel : ViewModelBase
         _projectState = projectState;
         _editCommandManager = editCommandManager;
 
-        Header = interpolationLogicType.Name;
+        Header = GetHeader(interpolationLogicType);
 
         Command = ReactiveCommand.Create(OnSelected);
 
@@ -77,11 +78,27 @@ public class InterpolationLogicMenuItemViewModel : ViewModelBase
     {
         if (_targetCoordPoint.InterpolationLogic?.GetType() == _interpolationLogicType)
         {
-            Header = " ・ " + _interpolationLogicType.Name;
+            Header = " ・ " + GetHeader(_interpolationLogicType);
         }
         else
         {
-            Header = "   " + _interpolationLogicType.Name;
+            Header = "   " + GetHeader(_interpolationLogicType);
         }
+    }
+
+    private string GetHeader(Type type)
+    {
+        return type.Name switch
+        {
+            nameof(LinearLogic) => "線形移動",
+            nameof(EaseInLogic) => "EaseIn",
+            nameof(EaseOutLogic) => "EaseOut",
+            nameof(EaseInOutLogic) => "EaseInOut",
+            nameof(EaseInStrongLogic) => "EaseIn(強)",
+            nameof(EaseOutStrongLogic) => "EaseOut(強)",
+            nameof(EaseInOutStrongLogic) => "EaseInOut(強)",
+            nameof(TeleportLogic) => "瞬間移動",
+            _ => type.Name
+        };
     }
 }
