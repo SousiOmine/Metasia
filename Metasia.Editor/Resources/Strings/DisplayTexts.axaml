@@ -23,6 +23,7 @@
   <x:String x:Key="property.common.color">色</x:String>
   <x:String x:Key="property.common.font">フォント</x:String>
   <x:String x:Key="property.common.rotation">回転</x:String>
+  <x:String x:Key="property.common.speed">再生速度</x:String>
   <x:String x:Key="property.common.scale">拡大率</x:String>
   <x:String x:Key="property.common.target_layers">対象レイヤー</x:String>
   <x:String x:Key="property.common.x">X</x:String>

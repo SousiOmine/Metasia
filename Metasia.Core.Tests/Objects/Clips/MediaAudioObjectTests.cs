@@ -127,6 +127,68 @@ public class MediaAudioObjectTests
     }
 
     [Test]
+    public async Task AudioObject_GetAudioChunk_Speed200_AdjustsSourcePositionAndLength()
+    {
+        var accessor = new FakeAudioFileAccessor(
+            new AudioSampleResult
+            {
+                IsSuccessful = true,
+                Chunk = new AudioChunk(new AudioFormat(44100, 2), new double[44100 * 2]),
+            });
+
+        var obj = new AudioObject("audio")
+        {
+            AudioPath = MediaPath.CreateFromPath(Path.GetTempPath(), "audio.wav"),
+            Speed = 200,
+        };
+
+        var context = new GetAudioContext(
+            new AudioFormat(44100, 2),
+            44100,
+            4,
+            60,
+            1,
+            accessor,
+            null);
+
+        var chunk = await obj.GetAudioChunkAsync(context);
+
+        Assert.That(accessor.LastStartSample, Is.EqualTo(44100 * 2));
+        Assert.That(accessor.LastSampleCount, Is.EqualTo(8));
+    }
+
+    [Test]
+    public async Task AudioObject_GetAudioChunk_Speed050_AdjustsSourcePositionAndLength()
+    {
+        var accessor = new FakeAudioFileAccessor(
+            new AudioSampleResult
+            {
+                IsSuccessful = true,
+                Chunk = new AudioChunk(new AudioFormat(44100, 2), new double[44100]),
+            });
+
+        var obj = new AudioObject("audio")
+        {
+            AudioPath = MediaPath.CreateFromPath(Path.GetTempPath(), "audio.wav"),
+            Speed = 50,
+        };
+
+        var context = new GetAudioContext(
+            new AudioFormat(44100, 2),
+            44100,
+            4,
+            60,
+            1,
+            accessor,
+            null);
+
+        var chunk = await obj.GetAudioChunkAsync(context);
+
+        Assert.That(accessor.LastStartSample, Is.EqualTo(44100 * 0.5));
+        Assert.That(accessor.LastSampleCount, Is.EqualTo(2));
+    }
+
+    [Test]
     public async Task AudioObject_GetAudioChunk_AppliesOnlyActiveAudioEffects()
     {
         var obj = new AudioObject("audio");

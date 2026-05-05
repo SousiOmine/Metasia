@@ -40,6 +40,10 @@ public class VideoObject : ClipObject, IRenderable, IAudible
     [ValueRange(0, 99999, 0, 3600)]
     public MetaNumberParam<double> VideoStartSeconds { get; set; } = new MetaNumberParam<double>(0);
 
+    [EditableProperty("Speed", DisplayKey = "property.common.speed", FallbackText = "再生速度")]
+    [ValueRange(1, 99999, 10, 1000)]
+    public MetaDoubleParam Speed { get; set; } = new MetaDoubleParam(100);
+
     [EditableProperty("AudioVolume", DisplayKey = "property.common.audio_volume", FallbackText = "音量")]
     [ValueRange(0, 99999, 0, 200)]
     public MetaDoubleParam Volume { get; set; } = new MetaDoubleParam(100);
@@ -69,7 +73,7 @@ public class VideoObject : ClipObject, IRenderable, IAudible
         int relativeSplitFrame = splitFrame - StartFrame;
         int oldClipLength = EndFrame - StartFrame + 1;
         var (firstVideoStartSeconds, secondVideoStartSeconds) = VideoStartSeconds.Split(relativeSplitFrame, oldClipLength);
-        double timeOffset = (splitFrame - StartFrame) / context.FrameRate;
+        double timeOffset = ((splitFrame - StartFrame) / context.FrameRate) * (Speed.Value / 100.0);
         first.VideoStartSeconds = firstVideoStartSeconds;
         second.VideoStartSeconds = ShiftMetaNumberParamSeconds(secondVideoStartSeconds, timeOffset);
 
@@ -121,7 +125,8 @@ public class VideoObject : ClipObject, IRenderable, IAudible
         {
             try
             {
-                TimeSpan time = TimeSpan.FromSeconds((double)(relativeFrame) / context.ProjectInfo.Framerate + VideoStartSeconds.Get(relativeFrame, clipLength));
+                double speed = Speed.Value / 100.0;
+                TimeSpan time = TimeSpan.FromSeconds((double)(relativeFrame * speed) / context.ProjectInfo.Framerate + VideoStartSeconds.Get(relativeFrame, clipLength));
                 var imageFileAccessorResult = await context.VideoFileAccessor.GetImageAsync(MediaPath.GetFullPath(VideoPath, context.ProjectPath), time);
                 if (imageFileAccessorResult.IsSuccessful && imageFileAccessorResult.Image is not null)
                 {
@@ -178,21 +183,33 @@ public class VideoObject : ClipObject, IRenderable, IAudible
             int relativeFrame = (int)((context.StartSamplePosition / (double)context.Format.SampleRate) * context.ProjectFrameRate);
             double videoStartSecondsValue = VideoStartSeconds.Get(relativeFrame, clipLength);
             long videoStartSample = (long)(videoStartSecondsValue * context.Format.SampleRate);
-            long mediaStartSample = videoStartSample + context.StartSamplePosition;
+            double speed = Speed.Value / 100.0;
+            long mediaStartSample = videoStartSample + (long)(context.StartSamplePosition * speed);
             if (mediaStartSample < 0)
             {
                 mediaStartSample = 0;
             }
 
+            long sourceLength = (long)(context.RequiredLength * speed);
             var accessorResult = await context.AudioFileAccessor
-                .GetAudioBySampleAsync(fullPath, mediaStartSample, context.RequiredLength, context.Format.SampleRate);
+                .GetAudioBySampleAsync(fullPath, mediaStartSample, sourceLength, context.Format.SampleRate);
 
             if (!accessorResult.IsSuccessful || accessorResult.Chunk is null)
             {
                 return ApplyEffects(result, context);
             }
 
-            result = AudioChunkConverter.ConvertToFormat(accessorResult.Chunk, context.Format, context.RequiredLength);
+            if (Math.Abs(speed - 1.0) > 0.001)
+            {
+                var sourceFormat = new AudioFormat((int)(context.Format.SampleRate * speed), context.Format.ChannelCount);
+                var sourceChunk = new AudioChunk(sourceFormat, accessorResult.Chunk.Samples);
+                result = AudioChunkConverter.ConvertToFormat(sourceChunk, context.Format, context.RequiredLength);
+            }
+            else
+            {
+                result = AudioChunkConverter.ConvertToFormat(accessorResult.Chunk, context.Format, context.RequiredLength);
+            }
+
             double gain = Volume.Value / 100.0;
             for (long i = 0; i < result.Samples.Length; i++)
             {

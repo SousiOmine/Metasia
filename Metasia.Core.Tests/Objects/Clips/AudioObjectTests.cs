@@ -89,4 +89,48 @@ public class AudioObjectTests
         double expectedOffset = (50.0 - 10.0) / 30.0;
         Assert.That(second.AudioStartSeconds.Get(0, 51), Is.EqualTo(6.0 + expectedOffset).Within(0.001));
     }
+
+    [Test]
+    public void SplitAtFrame_WithSpeed_AdjustsAudioStartSecondsBySourceTime()
+    {
+        var audio = new AudioObject("test-audio")
+        {
+            StartFrame = 10,
+            EndFrame = 100,
+            AudioStartSeconds = new(3.0),
+            Speed = 200
+        };
+
+        var context = new SplitContext { FrameRate = 30 };
+        var (_, secondClip) = audio.SplitAtFrame(40, context);
+
+        var second = (AudioObject)secondClip;
+        double expectedOffset = ((40.0 - 10.0) / 30.0) * 2.0;
+        Assert.That(second.AudioStartSeconds.Get(0, 1), Is.EqualTo(3.0 + expectedOffset).Within(0.001));
+    }
+
+    [Test]
+    public void Speed_DefaultValue_Is100()
+    {
+        var audio = new AudioObject("test-audio");
+        Assert.That(audio.Speed.Value, Is.EqualTo(100));
+    }
+
+    [Test]
+    public void SplitAtFrame_PreservesSpeedValue()
+    {
+        var audio = new AudioObject("test-audio")
+        {
+            StartFrame = 10,
+            EndFrame = 100,
+            Speed = 50
+        };
+
+        var (firstClip, secondClip) = audio.SplitAtFrame(50);
+        var first = (AudioObject)firstClip;
+        var second = (AudioObject)secondClip;
+
+        Assert.That(first.Speed.Value, Is.EqualTo(50));
+        Assert.That(second.Speed.Value, Is.EqualTo(50));
+    }
 }
