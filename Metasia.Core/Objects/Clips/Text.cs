@@ -153,14 +153,15 @@ namespace Metasia.Core.Objects.Clips
                 SKRect bounds = new();
                 if (!string.IsNullOrEmpty(lines[i]))
                 {
-                    skFont.MeasureText(lines[i], out bounds, skPaint);
+                    float lineWidth = skFont.MeasureText(lines[i], out bounds, skPaint);
                     if (letterSpacing > 0)
                     {
-                        bounds = new SKRect(bounds.Left, bounds.Top, bounds.Left + bounds.Width + letterSpacing * (lines[i].Length - 1), bounds.Bottom);
+                        lineWidth += letterSpacing * (lines[i].Length - 1);
                     }
-                    if (bounds.Width > totalWidth)
+                    bounds = new SKRect(0, bounds.Top, lineWidth, bounds.Bottom);
+                    if (lineWidth > totalWidth)
                     {
-                        totalWidth = bounds.Width;
+                        totalWidth = lineWidth;
                     }
                 }
                 lineBounds[i] = bounds;
