@@ -14,6 +14,7 @@
   <x:String x:Key="effect.visual.clipping.name">クリッピング</x:String>
   <x:String x:Key="effect.visual.flip.name">反転</x:String>
   <x:String x:Key="effect.visual.motion_blur.name">モーションブラー</x:String>
+  <x:String x:Key="effect.visual.scale.name">拡大率</x:String>
 
   <x:String x:Key="property.common.alpha">透明度</x:String>
   <x:String x:Key="property.common.audio_start_seconds">音声開始秒</x:String>
@@ -46,6 +47,8 @@
   <x:String x:Key="property.effect.flip.vertical">上下反転</x:String>
   <x:String x:Key="property.effect.motion_blur.angle">角度</x:String>
   <x:String x:Key="property.effect.motion_blur.strength">強度</x:String>
+  <x:String x:Key="property.effect.scale.x">X方向</x:String>
+  <x:String x:Key="property.effect.scale.y">Y方向</x:String>
   <x:String x:Key="property.effect.volume_fade.in_seconds">フェードイン(s)</x:String>
   <x:String x:Key="property.effect.volume_fade.out_seconds">フェードアウト(s)</x:String>
 </ResourceDictionary>
