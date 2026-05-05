@@ -21,8 +21,7 @@ namespace Metasia.Editor.ViewModels.Settings
 
         public IReadOnlyList<SettingOption> LanguageOptions { get; } =
         [
-            new SettingOption("ja", "Japanese"),
-            new SettingOption("en", "English")
+            new SettingOption("ja", "Japanese")
         ];
 
         public IReadOnlyList<SettingOption> ThemeOptions { get; } =
