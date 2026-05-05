@@ -82,9 +82,12 @@ public class SequentialImagesEncoder : EncoderBase, IEditorEncoder
             int index = 0;
             await foreach (var frame in GetFramesAsync(0, FrameCount - 1, ct))
             {
-                using var data = frame.Encode(GetSKEncodedImageFormat(_outputFileExtension), 90);
-                using var stream = System.IO.File.Create(System.IO.Path.Combine(_outputFileFolder, $"{_outputFileName}_{index}{_outputFileExtension}"));
-                data.SaveTo(stream);
+                using (frame)
+                using (var data = frame.Encode(GetSKEncodedImageFormat(_outputFileExtension), 90))
+                using (var stream = System.IO.File.Create(System.IO.Path.Combine(_outputFileFolder, $"{_outputFileName}_{index}{_outputFileExtension}")))
+                {
+                    data.SaveTo(stream);
+                }
                 index++;
 
                 ProgressRate = (double)index / FrameCount;

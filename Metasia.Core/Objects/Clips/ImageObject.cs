@@ -69,7 +69,6 @@ public class ImageObject : ClipObject, IRenderable
                 if (imageFileAccessorResult.IsSuccessful && imageFileAccessorResult.Image is not null)
                 {
                     image = imageFileAccessorResult.Image;
-                    context?.ImageCache?.Set(imageHashCode, imageFileAccessorResult.Image);
                 }
                 else
                 {

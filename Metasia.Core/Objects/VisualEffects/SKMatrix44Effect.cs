@@ -80,6 +80,11 @@ public class SKMatrix44Effect : VisualEffectBase
         int newWidth = Math.Max(1, (int)Math.Ceiling(maxDistX * 2));
         int newHeight = Math.Max(1, (int)Math.Ceiling(maxDistY * 2));
 
+        int maxW = Math.Max(1, (int)(context.RenderResolution.Width * 4));
+        int maxH = Math.Max(1, (int)(context.RenderResolution.Height * 4));
+        newWidth = Math.Min(newWidth, maxW);
+        newHeight = Math.Min(newHeight, maxH);
+
         // 投影中心が出力キャンバスの中心に来るようオフセット
         float offsetX = newWidth * 0.5f - centerProj.X;
         float offsetY = newHeight * 0.5f - centerProj.Y;
@@ -154,6 +159,8 @@ public class SKMatrix44Effect : VisualEffectBase
 
         float scaleX = (float)newWidth / width;
         float scaleY = (float)newHeight / height;
+        if (float.IsNaN(scaleX) || float.IsInfinity(scaleX) || scaleX <= 0f) scaleX = 1f;
+        if (float.IsNaN(scaleY) || float.IsInfinity(scaleY) || scaleY <= 0f) scaleY = 1f;
         var newLogicalSize = new SKSize(
             context.LogicalSize.Width * scaleX,
             context.LogicalSize.Height * scaleY);
@@ -164,7 +171,7 @@ public class SKMatrix44Effect : VisualEffectBase
     static SKPoint ProjectPoint(SKPoint3 p, float cx, float cy, float cameraZ, float focalLength)
     {
         float z = p.Z + cameraZ;
-        z = Math.Max(z, 1f);
+        z = Math.Max(z, Math.Max(1f, cameraZ * 0.1f));
 
         float scale = focalLength / z;
         return new SKPoint(cx + p.X * scale, cy + p.Y * scale);
