@@ -481,7 +481,7 @@ namespace Metasia.Editor.ViewModels
         {
             if (_timeline == null) return;
             var maxEndFrame = Timeline.GetLastFrameOfClips();
-            double calculatedWidth = maxEndFrame * _frame_per_DIP;
+            double calculatedWidth = Math.Max(maxEndFrame, Math.Min(Timeline.SelectionEnd, maxEndFrame + 3840)) * _frame_per_DIP;
             TimelineWidth = Math.Max(5000, calculatedWidth);
             foreach (var layerCanvas in LayerCanvas)
             {
