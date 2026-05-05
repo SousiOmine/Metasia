@@ -118,15 +118,35 @@ public sealed class VulkanRenderSurfaceFactory : IRenderSurfaceFactory
             return image;
         }
 
-        _grContext?.Flush(submit: true, synchronous: true);
-        SKImage? rasterImage = image.ToRasterImage();
-        if (rasterImage is null)
+        if (_disposed)
         {
             return image;
         }
 
-        image.Dispose();
-        return rasterImage;
+        try
+        {
+            _grContext?.Flush(submit: true, synchronous: true);
+        }
+        catch
+        {
+            return image;
+        }
+
+        try
+        {
+            SKImage? rasterImage = image.ToRasterImage();
+            if (rasterImage is not null)
+            {
+                image.Dispose();
+                return rasterImage;
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"VulkanRenderSurfaceFactory.Snapshot: ToRasterImage failed ({ex.Message}), returning texture-backed image.");
+        }
+
+        return image;
     }
 
     public void Dispose()

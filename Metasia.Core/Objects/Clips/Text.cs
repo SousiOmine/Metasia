@@ -360,6 +360,8 @@ namespace Metasia.Core.Objects.Clips
             float charX = position.X;
             float baseY = y + position.Y;
 
+            var textElements = System.Globalization.StringInfo.GetTextElementEnumerator(line);
+
             switch (effectType)
             {
                 case "Stroke":
@@ -374,9 +376,9 @@ namespace Metasia.Core.Objects.Clips
                             StrokeCap = SKStrokeCap.Round,
                             StrokeJoin = SKStrokeJoin.Round,
                         };
-                        foreach (char c in line)
+                        while (textElements.MoveNext())
                         {
-                            string charStr = c.ToString();
+                            string charStr = textElements.GetTextElement();
                             float charWidth = skFont.MeasureText(charStr, skPaint);
                             canvas.DrawText(charStr, charX, baseY, skFont, strokePaint);
                             canvas.DrawText(charStr, charX, baseY, skFont, skPaint);
@@ -396,9 +398,9 @@ namespace Metasia.Core.Objects.Clips
                             StrokeCap = SKStrokeCap.Round,
                             StrokeJoin = SKStrokeJoin.Round,
                         };
-                        foreach (char c in line)
+                        while (textElements.MoveNext())
                         {
-                            string charStr = c.ToString();
+                            string charStr = textElements.GetTextElement();
                             float charWidth = skFont.MeasureText(charStr, skPaint);
                             canvas.DrawText(charStr, charX, baseY, skFont, strokePaint);
                             canvas.DrawText(charStr, charX, baseY, skFont, skPaint);
@@ -413,9 +415,9 @@ namespace Metasia.Core.Objects.Clips
                             IsAntialias = true,
                             Color = effectSkColor,
                         };
-                        foreach (char c in line)
+                        while (textElements.MoveNext())
                         {
-                            string charStr = c.ToString();
+                            string charStr = textElements.GetTextElement();
                             float charWidth = skFont.MeasureText(charStr, skPaint);
                             canvas.DrawText(charStr, charX + effectOffsetX, baseY + effectOffsetY, skFont, shadowPaint);
                             canvas.DrawText(charStr, charX, baseY, skFont, skPaint);
@@ -424,9 +426,9 @@ namespace Metasia.Core.Objects.Clips
                     }
                     break;
                 default:
-                    foreach (char c in line)
+                    while (textElements.MoveNext())
                     {
-                        string charStr = c.ToString();
+                        string charStr = textElements.GetTextElement();
                         float charWidth = skFont.MeasureText(charStr, skPaint);
                         canvas.DrawText(charStr, charX, baseY, skFont, skPaint);
                         charX += charWidth + letterSpacing;
