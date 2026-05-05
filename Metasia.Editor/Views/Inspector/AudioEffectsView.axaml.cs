@@ -55,7 +55,5 @@ public partial class AudioEffectsView : UserControl
     protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
     {
         base.OnDetachedFromVisualTree(e);
-        _newObjectSelectHandlerDisposable?.Dispose();
-        _newObjectSelectHandlerDisposable = null;
     }
 }
