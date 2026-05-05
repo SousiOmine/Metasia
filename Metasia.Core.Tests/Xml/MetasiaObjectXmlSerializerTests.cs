@@ -2,6 +2,7 @@ using System;
 using NUnit.Framework;
 using Metasia.Core.Xml;
 using Metasia.Core.Objects;
+using Metasia.Core.Objects.Clips;
 using Metasia.Core.Coordinate;
 using System.Xml;
 using Metasia.Core.Objects.Parameters;

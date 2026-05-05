@@ -1,5 +1,6 @@
 using Metasia.Core.Media;
 using Metasia.Core.Objects;
+using Metasia.Core.Objects.Clips;
 using Metasia.Core.Objects.Parameters;
 using Metasia.Core.Project;
 using Metasia.Core.Render;
@@ -7,7 +8,7 @@ using Metasia.Core.Sounds;
 using NUnit.Framework;
 using SkiaSharp;
 
-namespace Metasia.Core.Tests.Objects;
+namespace Metasia.Core.Tests.Objects.Clips;
 
 [TestFixture]
 public class TimelineReferenceObjectTests

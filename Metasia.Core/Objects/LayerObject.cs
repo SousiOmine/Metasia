@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Text.Json.Serialization;
 using Metasia.Core.Objects.AudioEffects;
+using Metasia.Core.Objects.Clips;
 using Metasia.Core.Objects.VisualEffects;
 using Metasia.Core.Attributes;
 using Metasia.Core.Objects.Parameters;

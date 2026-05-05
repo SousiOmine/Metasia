@@ -4,6 +4,7 @@ using Metasia.Editor.Models.EditCommands;
 using Metasia.Core.Attributes;
 using Metasia.Core.Coordinate;
 using Metasia.Core.Objects;
+using Metasia.Core.Objects.Clips;
 using Metasia.Core.Objects.AudioEffects;
 using Metasia.Core.Objects.Parameters;
 using Metasia.Core.Objects.VisualEffects;

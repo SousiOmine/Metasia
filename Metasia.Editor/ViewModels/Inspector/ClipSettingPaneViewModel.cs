@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
 using Metasia.Core.Objects;
+using Metasia.Core.Objects.Clips;
 using Metasia.Editor.Models;
 using Metasia.Editor.Abstractions.EditCommands;
 using Metasia.Editor.Models.EditCommands.Commands;

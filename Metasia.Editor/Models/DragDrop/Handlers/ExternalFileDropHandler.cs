@@ -2,6 +2,7 @@ using Avalonia.Input;
 using Avalonia.Platform.Storage;
 using Metasia.Core.Media;
 using Metasia.Core.Objects;
+using Metasia.Core.Objects.Clips;
 using Metasia.Editor.Abstractions.EditCommands;
 using Metasia.Editor.Abstractions.Notification;
 using Metasia.Editor.Models.EditCommands;

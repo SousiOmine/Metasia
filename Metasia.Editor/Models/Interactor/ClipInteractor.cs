@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Metasia.Core.Objects;
+using Metasia.Core.Objects.Clips;
 using Metasia.Editor.Models.DragDropData;
 using Metasia.Editor.Abstractions.EditCommands;
 using Metasia.Editor.Models.EditCommands.Commands;

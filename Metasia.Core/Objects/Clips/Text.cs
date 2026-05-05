@@ -8,7 +8,7 @@ using Metasia.Core.Xml;
 using SkiaSharp;
 using System;
 using System.Threading.Tasks;
-namespace Metasia.Core.Objects
+namespace Metasia.Core.Objects.Clips
 {
     [Serializable]
     [ClipTypeIdentifier("Text", DisplayKey = "clip.text.name", FallbackText = "テキスト")]

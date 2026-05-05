@@ -10,6 +10,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Text;
 using Metasia.Core.Objects;
+using Metasia.Core.Objects.Clips;
 using Metasia.Core.Xml;
 
 namespace Metasia.Editor.Tests.Models.Projects

@@ -1,4 +1,5 @@
 using Metasia.Core.Objects;
+using Metasia.Core.Objects.Clips;
 using Metasia.Core.Objects.VisualEffects;
 
 namespace Metasia.Core.Tests.Objects.VisualEffects

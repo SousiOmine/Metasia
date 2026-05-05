@@ -5,6 +5,7 @@ using Metasia.Core.Project;
 using Metasia.Editor.Models.Projects;
 using SkiaSharp;
 using Metasia.Core.Objects;
+using Metasia.Core.Objects.Clips;
 using Metasia.Core.Coordinate;
 using Metasia.Core.Objects.AudioEffects;
 using Metasia.Core.Coordinate.InterpolationLogic;

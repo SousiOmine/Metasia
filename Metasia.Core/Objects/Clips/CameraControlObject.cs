@@ -1,16 +1,14 @@
 using Metasia.Core.Attributes;
-using Metasia.Core.Objects.AudioEffects;
 using Metasia.Core.Objects.Parameters;
 using Metasia.Core.Objects.VisualEffects;
 using Metasia.Core.Render;
-using Metasia.Core.Sounds;
 using SkiaSharp;
 
-namespace Metasia.Core.Objects;
+namespace Metasia.Core.Objects.Clips;
 
 [Serializable]
-[ClipTypeIdentifier("GroupControlObject", DisplayKey = "clip.group_control.name", FallbackText = "グループ制御")]
-public class GroupControlObject : ClipObject, IRenderable, IAudible, ILayerIntervener, IDisposable
+[ClipTypeIdentifier("CameraControlObject", DisplayKey = "clip.camera_control.name", FallbackText = "カメラ制御")]
+public class CameraControlObject : ClipObject, IRenderable, ILayerIntervener, IDisposable
 {
     [EditableProperty("X", DisplayKey = "property.common.x", FallbackText = "X")]
     [ValueRange(-99999, 99999, -2000, 2000)]
@@ -28,36 +26,26 @@ public class GroupControlObject : ClipObject, IRenderable, IAudible, ILayerInter
     [ValueRange(-99999, 99999, 0, 360)]
     public MetaNumberParam<double> Rotation { get; set; } = new MetaNumberParam<double>(0);
 
-    [EditableProperty("AudioVolume", DisplayKey = "property.common.audio_volume", FallbackText = "音量")]
-    [ValueRange(0, 99999, 0, 200)]
-    public MetaDoubleParam Volume { get; set; } = new MetaDoubleParam(100);
-
     [EditableProperty("TargetLayers", DisplayKey = "property.common.target_layers", FallbackText = "対象レイヤー")]
     public LayerTarget TargetLayers { get; set; } = new LayerTarget(5);
-
-    public List<AudioEffectBase> AudioEffects { get; set; } = new();
 
     public List<VisualEffectBase> VisualEffects { get; set; } = new();
 
     private bool disposed;
 
-    public GroupControlObject()
+    public CameraControlObject()
     {
 
     }
 
-    public GroupControlObject(string id) : base(id)
+    public CameraControlObject(string id) : base(id)
     {
 
     }
 
-    ~GroupControlObject()
-    {
-        Dispose(false);
-    }
+
     public Task<IRenderNode> RenderAsync(RenderContext context, CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(context);
         cancellationToken.ThrowIfCancellationRequested();
         //このオブジェクトのStartFrameを基準としたフレーム
         int relativeFrame = context.Frame - StartFrame;
@@ -70,7 +58,7 @@ public class GroupControlObject : ClipObject, IRenderable, IAudible, ILayerInter
             Rotation = (float)Rotation.Get(relativeFrame, clipLength),
             Alpha = (100.0f - (float)Alpha.Get(relativeFrame, clipLength)) / 100,
         };
-        return Task.FromResult<IRenderNode>(new GroupControlRenderNode()
+        return Task.FromResult<IRenderNode>(new CameraControlRenderNode()
         {
             Transform = transform,
             ScopeLayerTarget = TargetLayers,
@@ -79,14 +67,7 @@ public class GroupControlObject : ClipObject, IRenderable, IAudible, ILayerInter
         });
     }
 
-    public Task<IAudioChunk> GetAudioChunkAsync(GetAudioContext context)
-    {
-        // GroupControlObject自体は音声を生成しないが、IAudibleインターフェースを実装するため空のチャンクを返す
-        IAudioChunk chunk = new AudioChunk(context.Format, context.RequiredLength);
 
-        // 音量とエフェクトはTimelineObjectで対象レイヤーの音声に適用される
-        return Task.FromResult(chunk);
-    }
 
 
 

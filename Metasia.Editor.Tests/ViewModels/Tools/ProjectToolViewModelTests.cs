@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Metasia.Core.Objects;
+using Metasia.Core.Objects.Clips;
 using Metasia.Core.Project;
 using Metasia.Core.Render.Cache;
 using Metasia.Editor.Abstractions.EditCommands;

@@ -2,6 +2,7 @@ using Metasia.Editor.Services.Notification;
 using Metasia.Editor.Models.States;
 using Metasia.Editor.Models.EditCommands;
 using Metasia.Core.Objects;
+using Metasia.Core.Objects.Clips;
 using Metasia.Editor.Models;
 using Metasia.Editor.Abstractions.EditCommands;
 using Metasia.Editor.Abstractions.States;

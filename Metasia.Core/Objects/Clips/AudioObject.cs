@@ -6,7 +6,7 @@ using Metasia.Core.Objects.AudioEffects;
 using Metasia.Core.Objects.Parameters;
 using Metasia.Core.Sounds;
 
-namespace Metasia.Core.Objects;
+namespace Metasia.Core.Objects.Clips;
 
 [ClipTypeIdentifier("AudioObject", DisplayKey = "clip.audio.name", FallbackText = "音声")]
 public class AudioObject : ClipObject, IAudible

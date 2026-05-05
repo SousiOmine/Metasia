@@ -1,7 +1,7 @@
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace Metasia.Core.Objects;
+namespace Metasia.Core.Objects.Clips;
 
 public class UnknownClipObject : ClipObject, IUnknownMetasiaObject
 {

@@ -9,6 +9,7 @@ using System.Windows.Input;
 using DynamicData;
 using Metasia.Core.Coordinate;
 using Metasia.Core.Objects;
+using Metasia.Core.Objects.Clips;
 using Metasia.Core.Project;
 using Metasia.Editor.Abstractions.EditCommands;
 using Metasia.Editor.Models.EditCommands.Commands;

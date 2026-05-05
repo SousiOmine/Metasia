@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Avalonia.Controls;
 using Metasia.Core.Attributes;
 using Metasia.Core.Objects;
+using Metasia.Core.Objects.Clips;
 using Metasia.Core.Objects.AudioEffects;
 using Metasia.Core.Objects.VisualEffects;
 using Metasia.Core.Render;

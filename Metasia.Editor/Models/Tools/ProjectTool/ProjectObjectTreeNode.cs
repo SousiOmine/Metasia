@@ -3,6 +3,7 @@ using Metasia.Editor.Models.States;
 using Metasia.Editor.Models.EditCommands;
 using System.Collections.ObjectModel;
 using Metasia.Core.Objects;
+using Metasia.Core.Objects.Clips;
 using Metasia.Editor.Models;
 
 namespace Metasia.Editor.Models.Tools.ProjectTool

@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Metasia.Core.Attributes;
 using Metasia.Core.Media;
 using Metasia.Core.Objects;
+using Metasia.Core.Objects.Clips;
 using Metasia.Core.Render.Cache;
 using Metasia.Core.Xml;
 using Metasia.Editor.Abstractions.EditCommands;
@@ -98,7 +99,7 @@ public class PluginServiceTests
         var settingsService = new FakeSettingsService();
         var router = new MediaAccessorRouter(settingsService);
         var registry = new TypeRegistry();
-        registry.Register("metasia/core", nameof(Metasia.Core.Objects.Text), typeof(Metasia.Core.Objects.Text));
+        registry.Register("metasia/core", nameof(Metasia.Core.Objects.Clips.Text), typeof(Metasia.Core.Objects.Clips.Text));
         var service = CreateService(router, registry);
 
         service.EditorPlugins.Add(new ConflictingClipPlugin());
@@ -106,8 +107,8 @@ public class PluginServiceTests
         InvokePrivateRegisterPluginTypes(service);
 
         Assert.That(service.PluginClipTypes, Is.Empty);
-        Assert.That(registry.GetTypeId(typeof(Metasia.Core.Objects.Text)), Is.EqualTo("metasia/core:Text"));
-        Assert.That(registry.GetTypeIdByTypeName(nameof(Metasia.Core.Objects.Text)), Is.EqualTo("metasia/core:Text"));
+        Assert.That(registry.GetTypeId(typeof(Metasia.Core.Objects.Clips.Text)), Is.EqualTo("metasia/core:Text"));
+        Assert.That(registry.GetTypeIdByTypeName(nameof(Metasia.Core.Objects.Clips.Text)), Is.EqualTo("metasia/core:Text"));
     }
 
     [Test]

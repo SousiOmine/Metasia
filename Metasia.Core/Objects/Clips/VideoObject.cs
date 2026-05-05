@@ -9,7 +9,7 @@ using Metasia.Core.Render;
 using Metasia.Core.Sounds;
 using SkiaSharp;
 
-namespace Metasia.Core.Objects;
+namespace Metasia.Core.Objects.Clips;
 
 [ClipTypeIdentifier("VideoObject", DisplayKey = "clip.video.name", FallbackText = "動画")]
 public class VideoObject : ClipObject, IRenderable, IAudible

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using Metasia.Core.Objects;
+using Metasia.Core.Objects.Clips;
 using ReactiveUI;
 using System.Collections.ObjectModel;
 using System.Reflection;

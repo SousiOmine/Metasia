@@ -7,7 +7,7 @@ using Metasia.Core.Render;
 using Metasia.Core.Sounds;
 using SkiaSharp;
 
-namespace Metasia.Core.Objects;
+namespace Metasia.Core.Objects.Clips;
 
 [ClipTypeIdentifier("TimelineReferenceObject", DisplayKey = "clip.timeline_reference.name", FallbackText = "タイムライン参照")]
 public class TimelineReferenceObject : ClipObject, IRenderable, IAudible

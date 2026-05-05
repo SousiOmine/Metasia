@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using Metasia.Core.Objects;
+using Metasia.Core.Objects.Clips;
 using System.Collections.ObjectModel;
 using System.Linq;
 

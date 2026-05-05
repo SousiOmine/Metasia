@@ -7,7 +7,7 @@ using Metasia.Core.Objects.VisualEffects;
 using Metasia.Core.Render;
 using SkiaSharp;
 
-namespace Metasia.Core.Objects;
+namespace Metasia.Core.Objects.Clips;
 
 [ClipTypeIdentifier("ImageObject", DisplayKey = "clip.image.name", FallbackText = "画像")]
 public class ImageObject : ClipObject, IRenderable

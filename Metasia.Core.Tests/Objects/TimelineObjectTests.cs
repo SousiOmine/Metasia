@@ -1,5 +1,6 @@
 using Metasia.Core.Media;
 using Metasia.Core.Objects;
+using Metasia.Core.Objects.Clips;
 using Metasia.Core.Objects.VisualEffects;
 using Metasia.Core.Project;
 using Metasia.Core.Render;

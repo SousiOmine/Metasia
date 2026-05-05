@@ -3,6 +3,7 @@ using Metasia.Editor.Models.States;
 using Metasia.Editor.Models.EditCommands;
 using Metasia.Editor.Abstractions.EditCommands;
 using Metasia.Core.Objects;
+using Metasia.Core.Objects.Clips;
 using System.Collections.Generic;
 
 namespace Metasia.Editor.Models.EditCommands.Commands

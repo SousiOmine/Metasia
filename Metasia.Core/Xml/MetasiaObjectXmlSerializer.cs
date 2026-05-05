@@ -6,6 +6,7 @@ using Metasia.Core.Objects;
 using Metasia.Core.Coordinate.InterpolationLogic;
 using System.Xml.Linq;
 using Metasia.Core.Objects.AudioEffects;
+using Metasia.Core.Objects.Clips;
 using Metasia.Core.Objects.VisualEffects;
 
 namespace Metasia.Core.Xml

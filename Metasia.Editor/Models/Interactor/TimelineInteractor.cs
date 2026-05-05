@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using Metasia.Core.Coordinate;
 using Metasia.Core.Objects;
+using Metasia.Core.Objects.Clips;
 using Metasia.Core.Objects.Parameters;
 using Metasia.Core.Objects.Parameters.Color;
 using Metasia.Core.Render;

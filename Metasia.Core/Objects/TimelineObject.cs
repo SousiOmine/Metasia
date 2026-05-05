@@ -1,6 +1,7 @@
 using Metasia.Core.Render;
 using Metasia.Core.Sounds;
 using Metasia.Core.Objects.AudioEffects;
+using Metasia.Core.Objects.Clips;
 using Metasia.Core.Objects.VisualEffects;
 using Metasia.Core.Attributes;
 using Metasia.Core.Objects.Parameters;

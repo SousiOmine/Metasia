@@ -1,9 +1,10 @@
 using Metasia.Core.Coordinate;
 using Metasia.Core.Objects;
+using Metasia.Core.Objects.Clips;
 using Metasia.Core.Objects.Parameters;
 using NUnit.Framework;
 
-namespace Metasia.Core.Tests.Objects;
+namespace Metasia.Core.Tests.Objects.Clips;
 
 [TestFixture]
 public class VideoObjectTests

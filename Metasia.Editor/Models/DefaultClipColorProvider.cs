@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Avalonia.Media;
 using Metasia.Core.Attributes;
 using Metasia.Core.Objects;
+using Metasia.Core.Objects.Clips;
 
 namespace Metasia.Editor.Models;
 

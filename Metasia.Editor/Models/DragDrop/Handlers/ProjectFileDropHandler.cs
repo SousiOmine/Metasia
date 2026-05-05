@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Avalonia.Input;
 using Metasia.Core.Media;
 using Metasia.Core.Objects;
+using Metasia.Core.Objects.Clips;
 using Metasia.Editor.Abstractions.EditCommands;
 using Metasia.Editor.Models.DragDropData;
 using Metasia.Editor.Models.EditCommands.Commands;

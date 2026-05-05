@@ -16,7 +16,7 @@ using System.Xml.Serialization;
 using Metasia.Core.Objects.AudioEffects;
 using Metasia.Core.Attributes;
 
-namespace Metasia.Core.Objects
+namespace Metasia.Core.Objects.Clips
 {
     [Serializable]
     [ClipTypeIdentifier("HelloObject", DisplayKey = "clip.hello.name", FallbackText = "kariHelloオブジェクト")]

@@ -14,7 +14,7 @@ using Metasia.Core.Attributes;
 using Metasia.Core.Objects.Parameters.Color;
 using System.Reflection.Metadata;
 
-namespace Metasia.Core.Objects
+namespace Metasia.Core.Objects.Clips
 {
     [Serializable]
     [ClipTypeIdentifier("Shape", DisplayKey = "clip.shape.name", FallbackText = "図形")]

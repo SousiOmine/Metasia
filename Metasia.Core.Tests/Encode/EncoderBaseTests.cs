@@ -1,6 +1,7 @@
 using Metasia.Core.Encode;
 using Metasia.Core.Media;
 using Metasia.Core.Objects;
+using Metasia.Core.Objects.Clips;
 using Metasia.Core.Project;
 using Metasia.Core.Sounds;
 using SkiaSharp;

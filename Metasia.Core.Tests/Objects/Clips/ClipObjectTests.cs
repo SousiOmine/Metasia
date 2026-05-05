@@ -1,7 +1,8 @@
 using NUnit.Framework;
 using Metasia.Core.Objects;
+using Metasia.Core.Objects.Clips;
 
-namespace Metasia.Core.Tests.Objects
+namespace Metasia.Core.Tests.Objects.Clips
 {
     [TestFixture]
     public class ClipObjectTests

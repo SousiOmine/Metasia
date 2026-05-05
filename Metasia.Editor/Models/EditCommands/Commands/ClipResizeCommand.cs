@@ -4,6 +4,7 @@ using Metasia.Editor.Models.EditCommands;
 using Metasia.Editor.Abstractions.EditCommands;
 // Metasia.Editor/Models/EditCommands/Commands/ClipResizeCommand.cs
 using Metasia.Core.Objects;
+using Metasia.Core.Objects.Clips;
 using System;
 
 namespace Metasia.Editor.Models.EditCommands.Commands

@@ -1,10 +1,11 @@
 using Metasia.Core.Media;
 using Metasia.Core.Objects;
+using Metasia.Core.Objects.Clips;
 using Metasia.Core.Tests.Objects.AudioEffects;
 using Metasia.Core.Sounds;
 using NUnit.Framework;
 
-namespace Metasia.Core.Tests.Objects;
+namespace Metasia.Core.Tests.Objects.Clips;
 
 [TestFixture]
 public class MediaAudioObjectTests

@@ -2,7 +2,7 @@ using Metasia.Core.Attributes;
 using Metasia.Core.Render;
 using Metasia.Core.Xml;
 
-namespace Metasia.Core.Objects
+namespace Metasia.Core.Objects.Clips
 {
     [Serializable]
     public class ClipObject : IMetasiaObject

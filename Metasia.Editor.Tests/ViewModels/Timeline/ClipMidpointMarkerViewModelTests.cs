@@ -4,6 +4,7 @@ using Metasia.Editor.Models.EditCommands;
 using Avalonia.Media;
 using Metasia.Core.Coordinate;
 using Metasia.Core.Objects;
+using Metasia.Core.Objects.Clips;
 using Metasia.Core.Project;
 using Metasia.Editor.Models;
 using Metasia.Editor.Abstractions.EditCommands;

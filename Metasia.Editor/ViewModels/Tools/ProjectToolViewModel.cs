@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Windows.Input;
 using Metasia.Core.Objects;
+using Metasia.Core.Objects.Clips;
 using Metasia.Editor.Abstractions.EditCommands;
 using Metasia.Editor.Models.EditCommands.Commands;
 using Metasia.Editor.Abstractions.States;
