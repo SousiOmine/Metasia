@@ -32,6 +32,8 @@ namespace Metasia.Core.Tests.Objects.Clips
             Assert.That(text.Alpha, Is.Not.Null);
             Assert.That(text.Rotation, Is.Not.Null);
             Assert.That(text.TextSize, Is.Not.Null);
+            Assert.That(text.LetterSpacing, Is.Not.Null);
+            Assert.That(text.LineSpacing, Is.Not.Null);
         }
 
         [Test]
@@ -44,6 +46,8 @@ namespace Metasia.Core.Tests.Objects.Clips
             Assert.That(_textObject.Alpha.Get(0, 100), Is.EqualTo(0));
             Assert.That(_textObject.Rotation.Get(0, 100), Is.EqualTo(0));
             Assert.That(_textObject.TextSize.Get(0, 0), Is.EqualTo(100));
+            Assert.That(_textObject.LetterSpacing.Get(0, 100), Is.EqualTo(0));
+            Assert.That(_textObject.LineSpacing.Get(0, 100), Is.EqualTo(100));
         }
 
         [Test]
@@ -256,6 +260,29 @@ namespace Metasia.Core.Tests.Objects.Clips
             Assert.That(secondText.EffectColor.R, Is.EqualTo(100));
             Assert.That(secondText.EffectColor.G, Is.EqualTo(150));
             Assert.That(secondText.EffectColor.B, Is.EqualTo(200));
+        }
+
+        /// <summary>
+        /// 分割時に字間・行間プロパティが正しくコピーされることを確認するテスト
+        /// 意図: SplitAtFrameでLetterSpacingとLineSpacingが正しくコピーされることを検証
+        /// 想定結果: 分割された両方のオブジェクトが元の字間・行間プロパティを維持
+        /// </summary>
+        [Test]
+        public void SplitAtFrame_PreservesLetterSpacingAndLineSpacing()
+        {
+            _textObject.StartFrame = 10;
+            _textObject.EndFrame = 100;
+            _textObject.LetterSpacing = new MetaNumberParam<double>(5);
+            _textObject.LineSpacing = new MetaNumberParam<double>(150);
+
+            var (firstClip, secondClip) = _textObject.SplitAtFrame(50);
+            var firstText = firstClip as Text;
+            var secondText = secondClip as Text;
+
+            Assert.That(firstText.LetterSpacing.Get(0, 100), Is.EqualTo(5));
+            Assert.That(firstText.LineSpacing.Get(0, 100), Is.EqualTo(150));
+            Assert.That(secondText.LetterSpacing.Get(0, 100), Is.EqualTo(5));
+            Assert.That(secondText.LineSpacing.Get(0, 100), Is.EqualTo(150));
         }
     }
 }

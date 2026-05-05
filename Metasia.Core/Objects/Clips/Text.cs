@@ -61,6 +61,14 @@ namespace Metasia.Core.Objects.Clips
         [EditableProperty("Color", DisplayKey = "property.common.color", FallbackText = "色")]
         public ColorRgb8 Color { get; set; } = new ColorRgb8(255, 255, 255);
 
+        [EditableProperty("LetterSpacing", DisplayKey = "property.text.letter_spacing", FallbackText = "字間")]
+        [ValueRange(0, 1000, 0, 200)]
+        public MetaNumberParam<double> LetterSpacing { get; set; } = new MetaNumberParam<double>(0);
+
+        [EditableProperty("LineSpacing", DisplayKey = "property.text.line_spacing", FallbackText = "行間")]
+        [ValueRange(0, 1000, 50, 200)]
+        public MetaNumberParam<double> LineSpacing { get; set; } = new MetaNumberParam<double>(100);
+
         [EditableProperty("TextEffectType", DisplayKey = "property.text.effect_type", FallbackText = "テキスト効果")]
         public MetaEnumParam EffectType { get; set; } = new MetaEnumParam("None", "Stroke", "StrokeThin", "Shadow");
 
@@ -107,7 +115,8 @@ namespace Metasia.Core.Objects.Clips
 
             // 改行で行を分割
             var lines = Contents.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None);
-            float lineSpacing = skFont.Spacing;
+            float letterSpacing = (float)LetterSpacing.Get(relativeFrame, clipLength);
+            float lineSpacing = skFont.Spacing * ((float)LineSpacing.Get(relativeFrame, clipLength) / 100.0f);
 
             // 効果に応じたマージンを計算
             float effectMarginX = 0;
@@ -145,6 +154,10 @@ namespace Metasia.Core.Objects.Clips
                 if (!string.IsNullOrEmpty(lines[i]))
                 {
                     skFont.MeasureText(lines[i], out bounds, skPaint);
+                    if (letterSpacing > 0)
+                    {
+                        bounds = new SKRect(bounds.Left, bounds.Top, bounds.Left + bounds.Width + letterSpacing * (lines[i].Length - 1), bounds.Bottom);
+                    }
                     if (bounds.Width > totalWidth)
                     {
                         totalWidth = bounds.Width;
@@ -192,7 +205,7 @@ namespace Metasia.Core.Objects.Clips
                     using var surface = context.SurfaceFactory.CreateSurface(info);
                     using var canvas = surface.Canvas;
                     canvas.Clear(SKColors.Transparent);
-                    DrawMultilineText(canvas, lines, lineBounds, skFont, skPaint, lineSpacing, effectType, EffectColor, effectMarginX, effectMarginY, effectOffsetX, effectOffsetY, TextAlign.SelectedValue, maxLineWidth);
+                    DrawMultilineText(canvas, lines, lineBounds, skFont, skPaint, lineSpacing, effectType, EffectColor, effectMarginX, effectMarginY, effectOffsetX, effectOffsetY, TextAlign.SelectedValue, maxLineWidth, letterSpacing);
                     cancellationToken.ThrowIfCancellationRequested();
                     image = context.SurfaceFactory.Snapshot(surface, context.PreferRasterOutput);
                 }
@@ -203,7 +216,7 @@ namespace Metasia.Core.Objects.Clips
                     using var canvas = surface.Canvas;
                     canvas.Clear(SKColors.Transparent);
                     canvas.Scale(renderScaleWidth, renderScaleHeight);
-                    DrawMultilineText(canvas, lines, lineBounds, skFont, skPaint, lineSpacing, effectType, EffectColor, effectMarginX, effectMarginY, effectOffsetX, effectOffsetY, TextAlign.SelectedValue, maxLineWidth);
+                    DrawMultilineText(canvas, lines, lineBounds, skFont, skPaint, lineSpacing, effectType, EffectColor, effectMarginX, effectMarginY, effectOffsetX, effectOffsetY, TextAlign.SelectedValue, maxLineWidth, letterSpacing);
                     cancellationToken.ThrowIfCancellationRequested();
                     image = context.SurfaceFactory.Snapshot(surface, context.PreferRasterOutput);
                 }
@@ -250,7 +263,8 @@ namespace Metasia.Core.Objects.Clips
             float effectOffsetX,
             float effectOffsetY,
             string textAlign,
-            float maxLineWidth)
+            float maxLineWidth,
+            float letterSpacing)
         {
             SKColor effectSkColor = new SKColor(effectColor.R, effectColor.G, effectColor.B);
             float fontSize = skFont.Size;
@@ -268,56 +282,155 @@ namespace Metasia.Core.Objects.Clips
                     var position = new SKPoint(-lineBounds[i].Left + effectMarginX + alignOffset, -lineBounds[i].Top + effectMarginY);
                     float y = i * lineSpacing;
 
-                    switch (effectType)
+                    if (letterSpacing > 0)
                     {
-                        case "Stroke":
-                            {
-                                float strokeWidth = fontSize * 0.10f;
-                                using var strokePaint = new SKPaint()
+                        DrawMultilineTextWithLetterSpacing(canvas, lines[i], skFont, skPaint, position, y, effectType, effectSkColor, effectOffsetX, effectOffsetY, fontSize, letterSpacing);
+                    }
+                    else
+                    {
+                        switch (effectType)
+                        {
+                            case "Stroke":
                                 {
-                                    IsAntialias = true,
-                                    Color = effectSkColor,
-                                    Style = SKPaintStyle.Stroke,
-                                    StrokeWidth = strokeWidth,
-                                    StrokeCap = SKStrokeCap.Round,
-                                    StrokeJoin = SKStrokeJoin.Round,
-                                };
-                                canvas.DrawText(lines[i], new SKPoint(position.X, y + position.Y), skFont, strokePaint);
-                                canvas.DrawText(lines[i], new SKPoint(position.X, y + position.Y), skFont, skPaint);
-                            }
-                            break;
-                        case "StrokeThin":
-                            {
-                                float strokeWidth = fontSize * 0.04f;
-                                using var strokePaint = new SKPaint()
+                                    float strokeWidth = fontSize * 0.10f;
+                                    using var strokePaint = new SKPaint()
+                                    {
+                                        IsAntialias = true,
+                                        Color = effectSkColor,
+                                        Style = SKPaintStyle.Stroke,
+                                        StrokeWidth = strokeWidth,
+                                        StrokeCap = SKStrokeCap.Round,
+                                        StrokeJoin = SKStrokeJoin.Round,
+                                    };
+                                    canvas.DrawText(lines[i], new SKPoint(position.X, y + position.Y), skFont, strokePaint);
+                                    canvas.DrawText(lines[i], new SKPoint(position.X, y + position.Y), skFont, skPaint);
+                                }
+                                break;
+                            case "StrokeThin":
                                 {
-                                    IsAntialias = true,
-                                    Color = effectSkColor,
-                                    Style = SKPaintStyle.Stroke,
-                                    StrokeWidth = strokeWidth,
-                                    StrokeCap = SKStrokeCap.Round,
-                                    StrokeJoin = SKStrokeJoin.Round,
-                                };
-                                canvas.DrawText(lines[i], new SKPoint(position.X, y + position.Y), skFont, strokePaint);
-                                canvas.DrawText(lines[i], new SKPoint(position.X, y + position.Y), skFont, skPaint);
-                            }
-                            break;
-                        case "Shadow":
-                            {
-                                using var shadowPaint = new SKPaint()
+                                    float strokeWidth = fontSize * 0.04f;
+                                    using var strokePaint = new SKPaint()
+                                    {
+                                        IsAntialias = true,
+                                        Color = effectSkColor,
+                                        Style = SKPaintStyle.Stroke,
+                                        StrokeWidth = strokeWidth,
+                                        StrokeCap = SKStrokeCap.Round,
+                                        StrokeJoin = SKStrokeJoin.Round,
+                                    };
+                                    canvas.DrawText(lines[i], new SKPoint(position.X, y + position.Y), skFont, strokePaint);
+                                    canvas.DrawText(lines[i], new SKPoint(position.X, y + position.Y), skFont, skPaint);
+                                }
+                                break;
+                            case "Shadow":
                                 {
-                                    IsAntialias = true,
-                                    Color = effectSkColor,
-                                };
-                                canvas.DrawText(lines[i], new SKPoint(position.X + effectOffsetX, y + position.Y + effectOffsetY), skFont, shadowPaint);
+                                    using var shadowPaint = new SKPaint()
+                                    {
+                                        IsAntialias = true,
+                                        Color = effectSkColor,
+                                    };
+                                    canvas.DrawText(lines[i], new SKPoint(position.X + effectOffsetX, y + position.Y + effectOffsetY), skFont, shadowPaint);
+                                    canvas.DrawText(lines[i], new SKPoint(position.X, y + position.Y), skFont, skPaint);
+                                }
+                                break;
+                            default:
                                 canvas.DrawText(lines[i], new SKPoint(position.X, y + position.Y), skFont, skPaint);
-                            }
-                            break;
-                        default:
-                            canvas.DrawText(lines[i], new SKPoint(position.X, y + position.Y), skFont, skPaint);
-                            break;
+                                break;
+                        }
                     }
                 }
+            }
+        }
+
+        private static void DrawMultilineTextWithLetterSpacing(
+            SKCanvas canvas,
+            string line,
+            SKFont skFont,
+            SKPaint skPaint,
+            SKPoint position,
+            float y,
+            string effectType,
+            SKColor effectSkColor,
+            float effectOffsetX,
+            float effectOffsetY,
+            float fontSize,
+            float letterSpacing)
+        {
+            float charX = position.X;
+            float baseY = y + position.Y;
+
+            switch (effectType)
+            {
+                case "Stroke":
+                    {
+                        float strokeWidth = fontSize * 0.10f;
+                        using var strokePaint = new SKPaint()
+                        {
+                            IsAntialias = true,
+                            Color = effectSkColor,
+                            Style = SKPaintStyle.Stroke,
+                            StrokeWidth = strokeWidth,
+                            StrokeCap = SKStrokeCap.Round,
+                            StrokeJoin = SKStrokeJoin.Round,
+                        };
+                        foreach (char c in line)
+                        {
+                            string charStr = c.ToString();
+                            float charWidth = skFont.MeasureText(charStr, skPaint);
+                            canvas.DrawText(charStr, charX, baseY, skFont, strokePaint);
+                            canvas.DrawText(charStr, charX, baseY, skFont, skPaint);
+                            charX += charWidth + letterSpacing;
+                        }
+                    }
+                    break;
+                case "StrokeThin":
+                    {
+                        float strokeWidth = fontSize * 0.04f;
+                        using var strokePaint = new SKPaint()
+                        {
+                            IsAntialias = true,
+                            Color = effectSkColor,
+                            Style = SKPaintStyle.Stroke,
+                            StrokeWidth = strokeWidth,
+                            StrokeCap = SKStrokeCap.Round,
+                            StrokeJoin = SKStrokeJoin.Round,
+                        };
+                        foreach (char c in line)
+                        {
+                            string charStr = c.ToString();
+                            float charWidth = skFont.MeasureText(charStr, skPaint);
+                            canvas.DrawText(charStr, charX, baseY, skFont, strokePaint);
+                            canvas.DrawText(charStr, charX, baseY, skFont, skPaint);
+                            charX += charWidth + letterSpacing;
+                        }
+                    }
+                    break;
+                case "Shadow":
+                    {
+                        using var shadowPaint = new SKPaint()
+                        {
+                            IsAntialias = true,
+                            Color = effectSkColor,
+                        };
+                        foreach (char c in line)
+                        {
+                            string charStr = c.ToString();
+                            float charWidth = skFont.MeasureText(charStr, skPaint);
+                            canvas.DrawText(charStr, charX + effectOffsetX, baseY + effectOffsetY, skFont, shadowPaint);
+                            canvas.DrawText(charStr, charX, baseY, skFont, skPaint);
+                            charX += charWidth + letterSpacing;
+                        }
+                    }
+                    break;
+                default:
+                    foreach (char c in line)
+                    {
+                        string charStr = c.ToString();
+                        float charWidth = skFont.MeasureText(charStr, skPaint);
+                        canvas.DrawText(charStr, charX, baseY, skFont, skPaint);
+                        charX += charWidth + letterSpacing;
+                    }
+                    break;
             }
         }
 
@@ -419,6 +532,14 @@ namespace Metasia.Core.Objects.Clips
             firstText.Font = Font.Clone();
             secondText.Font = Font.Clone();
 
+            var (firstLetterSpacing, secondLetterSpacing) = LetterSpacing.Split(relativeSplitFrame, clipLength);
+            firstText.LetterSpacing = firstLetterSpacing;
+            secondText.LetterSpacing = secondLetterSpacing;
+
+            var (firstLineSpacing, secondLineSpacing) = LineSpacing.Split(relativeSplitFrame, clipLength);
+            firstText.LineSpacing = firstLineSpacing;
+            secondText.LineSpacing = secondLineSpacing;
+
             var (firstBlendMode, secondBlendMode) = BlendMode.Split();
             firstText.BlendMode = firstBlendMode;
             secondText.BlendMode = secondBlendMode;
@@ -451,6 +572,8 @@ namespace Metasia.Core.Objects.Clips
             hash.Add(EffectType.SelectedIndex);
             hash.Add(EffectColor);
             hash.Add(TextAlign.SelectedIndex);
+            hash.Add(LetterSpacing.Get(relativeFrame, EndFrame - StartFrame + 1));
+            hash.Add(LineSpacing.Get(relativeFrame, EndFrame - StartFrame + 1));
             hash.Add(renderScaleWidth);
             hash.Add(renderScaleHeight);
             return hash.ToHashCode();
