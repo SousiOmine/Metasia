@@ -12,6 +12,7 @@
   <x:String x:Key="effect.audio.volume_fade.name">音量フェード</x:String>
   <x:String x:Key="effect.visual.border.name">縁取り</x:String>
   <x:String x:Key="effect.visual.clipping.name">クリッピング</x:String>
+  <x:String x:Key="effect.visual.chroma_key.name">クロマキー</x:String>
   <x:String x:Key="effect.visual.flip.name">反転</x:String>
   <x:String x:Key="effect.visual.motion_blur.name">モーションブラー</x:String>
   <x:String x:Key="effect.visual.scale.name">拡大率</x:String>
@@ -44,6 +45,9 @@
   <x:String x:Key="property.effect.clip.left">左</x:String>
   <x:String x:Key="property.effect.clip.right">右</x:String>
   <x:String x:Key="property.effect.clip.top">上</x:String>
+  <x:String x:Key="property.effect.chroma_key.key_color">キー色</x:String>
+  <x:String x:Key="property.effect.chroma_key.similarity">類似度</x:String>
+  <x:String x:Key="property.effect.chroma_key.smoothness">滑らかさ</x:String>
   <x:String x:Key="property.effect.flip.horizontal">左右反転</x:String>
   <x:String x:Key="property.effect.flip.vertical">上下反転</x:String>
   <x:String x:Key="property.effect.motion_blur.angle">角度</x:String>
