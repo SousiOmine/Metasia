@@ -20,14 +20,14 @@
 				<ScrollViewer x:Name="TimescaleScroll"
 				              HorizontalScrollBarVisibility="Hidden"
 				              Grid.Row="0">
-					<Canvas x:Name="TimecodeCanvas" Width="5000"
-							PointerPressed="TimecodeCanvas_PointerPressed"
-							PointerMoved="TimecodeCanvas_PointerMoved"
-							PointerReleased="TimecodeCanvas_PointerReleased">
-						<controls:TimeRulerControl Width="50000" Height="50"
+					<Canvas x:Name="TimecodeCanvas" Width="{Binding TimelineWidth}"
+						PointerPressed="TimecodeCanvas_PointerPressed"
+						PointerMoved="TimecodeCanvas_PointerMoved"
+						PointerReleased="TimecodeCanvas_PointerReleased">
+					<controls:TimeRulerControl Width="{Binding TimelineWidth}" Height="50"
 												   MinTextInterval="50"
-						                           FramePerDIP="{Binding Frame_Per_DIP}"
-						                           FrameRate="{Binding FrameRate}"/>
+					                           FramePerDIP="{Binding Frame_Per_DIP}"
+					                           FrameRate="{Binding FrameRate}"/>
 						<Rectangle Canvas.Left="0" Width="{Binding InvalidStartWidth}" Height="500"
 								   Fill="#50808080" IsHitTestVisible="False"
 								   IsVisible="{Binding HasInvalidStart}"/>

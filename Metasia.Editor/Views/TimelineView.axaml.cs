@@ -215,6 +215,7 @@ public partial class TimelineView : UserControl
     private void OnHorizontalScrollPositionChanged()
     {
         if (_isUpdatingScrollFromView) return;
+        if (_isUpdatingScrollFromViewModel) return;
         if (_subscribedVM is null) return;
 
         RestoreScrollPosition();
@@ -252,18 +253,23 @@ public partial class TimelineView : UserControl
         // 最小値・最大値の制限（スライダーと同じ範囲）
         newFramePerDIP = Math.Max(0.1, Math.Min(30.0, newFramePerDIP));
 
-        // 新しい値を設定
-        VM.Frame_Per_DIP = newFramePerDIP;
-
         // ズーム後のスクロール位置を計算（マウスカーソル位置を基準に）
         double newScrollOffset = (mouseFramePosition * newFramePerDIP) - relativeMouseX;
+        int scrollFrame = (int)(newScrollOffset / newFramePerDIP);
+
+        // スクロール位置の再計算を抑制
+        _isUpdatingScrollFromViewModel = true;
+
+        // 新しい値を設定
+        VM.Frame_Per_DIP = newFramePerDIP;
 
         // スクロール位置を設定
         TimescaleScroll.Offset = new Vector(newScrollOffset, TimescaleScroll.Offset.Y);
         LinesScroll.Offset = new Vector(newScrollOffset, LinesScroll.Offset.Y);
 
         // スクロール位置をViewModelに反映
-        int scrollFrame = (int)(newScrollOffset / newFramePerDIP);
         VM.HorizontalScrollPosition = scrollFrame;
+
+        _isUpdatingScrollFromViewModel = false;
     }
 }
