@@ -72,8 +72,6 @@ namespace Metasia.Core.Render
                             : accumulatedTransformOffset.Add(result.TransformOffset);
                     }
 
-                    if (!ReferenceEquals(current, input) && !ReferenceEquals(current, result.Image))
-                        current.Dispose();
                     current = result.Image;
                     currentCacheKey = result.ImageCacheKey;
                     currentLogicalSize = result.LogicalSize;

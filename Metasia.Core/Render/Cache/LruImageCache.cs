@@ -38,7 +38,6 @@ public class LruImageCache : IRenderImageCache
         {
             if (cacheMap.TryGetValue(key, out var existingNode))
             {
-                existingNode.Value.image.Dispose();
                 cacheList.Remove(existingNode);
                 cacheMap.Remove(key);
             }
@@ -51,7 +50,6 @@ public class LruImageCache : IRenderImageCache
                 if (last is not null)
                 {
                     cacheMap.Remove(last.Value.key);
-                    last.Value.image.Dispose();
                     cacheList.RemoveLast();
                 }
             }
@@ -63,10 +61,6 @@ public class LruImageCache : IRenderImageCache
     {
         lock (lockObj)
         {
-            foreach (var node in cacheList)
-            {
-                node.image.Dispose();
-            }
             cacheList.Clear();
             cacheMap.Clear();
         }
