@@ -54,7 +54,7 @@
             <TextBlock Text="バックアップ先のパス"/>
             <Grid ColumnDefinitions="*,Auto">
                 <TextBox Text="{Binding AutoBackupPath}"
-                         Watermark="バックアップ先のパスを指定..."
+                         PlaceholderText="バックアップ先のパスを指定..."
                          Grid.Column="0"/>
                 <Button Content="..."
                         Command="{Binding SelectBackupPathCommand}"

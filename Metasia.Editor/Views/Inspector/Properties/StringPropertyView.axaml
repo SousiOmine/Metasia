@@ -16,6 +16,6 @@
                  HorizontalAlignment="Stretch"
                  VerticalAlignment="Center"
                  MinHeight="32"
-                 Watermark="テキストを入力"/>
+                 PlaceholderText="テキストを入力"/>
     </StackPanel>
 </UserControl>

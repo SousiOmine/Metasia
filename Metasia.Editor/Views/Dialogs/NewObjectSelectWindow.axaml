@@ -12,7 +12,7 @@
     <Grid RowDefinitions="Auto, *, Auto">
         <TextBox Grid.Row="0"
                  Text="{Binding SearchText}"
-                 Watermark="検索..."
+                 PlaceholderText="検索..."
                  Margin="10,5,10,5"
                  Height="30"/>
 
