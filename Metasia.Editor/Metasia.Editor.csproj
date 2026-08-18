@@ -31,8 +31,8 @@
     <PackageReference Include="Xaml.Behaviors.Interactivity" Version="12.0.5" />
     <PackageReference Include="Miniaudio.Net" Version="0.2.0" />
     <PackageReference Include="SharpVk" Version="0.4.2" />
-    <PackageReference Include="SkiaSharp.Direct3D.Vortice" Version="3.119.2" />
-    <PackageReference Include="SkiaSharp.Vulkan.SharpVk" Version="3.119.2" />
+    <PackageReference Include="SkiaSharp.Direct3D.Vortice" Version="4.151.1" />
+    <PackageReference Include="SkiaSharp.Vulkan.SharpVk" Version="4.151.1" />
     <PackageReference Include="Svg.Controls.Skia.Avalonia" Version="12.0.0.6" />
   </ItemGroup>
 
