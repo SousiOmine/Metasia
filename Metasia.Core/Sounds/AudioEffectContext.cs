@@ -22,7 +22,8 @@ namespace Metasia.Core.Sounds
         public double ObjectDurationInSeconds { get; }
 
         /// <summary>
-        /// 現在処理中のチャンクが、音源のどの位置から開始しているか
+        /// 現在処理中のチャンクが、音源（エフェクト適用対象オブジェクト）の開始位置から
+        /// どのサンプル位置にあるか（オブジェクト開始位置基準）
         /// </summary>
         public long CurrentSamplePosition { get; }
 

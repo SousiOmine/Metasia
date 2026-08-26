@@ -38,23 +38,27 @@ namespace Metasia.Editor.Services.Audio
 
             IsPlaying = true;
             audioService.ClearQueue();
-            cancellationTokenSource = new CancellationTokenSource();
-            Task.Run(() => AudioGenerationLoopAsync(timeline, projectInfo, startSample, speed, samplingRate, audioChannels, audioFileAccessor, projectPath, availableTimelines, cancellationTokenSource.Token));
+            var cts = new CancellationTokenSource();
+            cancellationTokenSource = cts;
+            Task.Run(() => AudioGenerationLoopAsync(timeline, projectInfo, startSample, speed, samplingRate, audioChannels, audioFileAccessor, projectPath, availableTimelines, cts));
         }
+
         public void Pause()
         {
-            if (!IsPlaying) return;
+            var cts = cancellationTokenSource;
+            cancellationTokenSource = null;
+            if (cts is null) return;
 
             IsPlaying = false;
-            cancellationTokenSource?.Cancel();
-            cancellationTokenSource?.Dispose();
-            //cancellationTokenSource = null;
+            cts.Cancel();
+            cts.Dispose();
 
             audioService.ClearQueue();
         }
 
-        private async Task AudioGenerationLoopAsync(TimelineObject timeline, ProjectInfo projectInfo, long startSample, double speed, int samplingRate, int audioChannels, IAudioFileAccessor audioFileAccessor, string projectPath, IReadOnlyDictionary<string, TimelineObject> availableTimelines, CancellationToken cancelToken)
+        private async Task AudioGenerationLoopAsync(TimelineObject timeline, ProjectInfo projectInfo, long startSample, double speed, int samplingRate, int audioChannels, IAudioFileAccessor audioFileAccessor, string projectPath, IReadOnlyDictionary<string, TimelineObject> availableTimelines, CancellationTokenSource cts)
         {
+            var cancelToken = cts.Token;
             try
             {
                 var audioFormat = new AudioFormat(samplingRate, audioChannels);
@@ -125,7 +129,18 @@ namespace Metasia.Editor.Services.Audio
             }
             finally
             {
-                IsPlaying = false;
+                // 自分が現在の再生タスクである場合のみIsPlayingを解除する。
+                // Pause()直後にPlay()が呼ばれた場合、古いタスクの終了処理が新しい再生の状態を上書きしないようにする。
+                if (ReferenceEquals(this.cancellationTokenSource, cts))
+                {
+                    IsPlaying = false;
+                }
+
+                // キャンセルによる停止はPause()側でDispose済みのため、ここでは自然終了時のみ破棄する
+                if (!cancelToken.IsCancellationRequested)
+                {
+                    cts.Dispose();
+                }
             }
         }
 

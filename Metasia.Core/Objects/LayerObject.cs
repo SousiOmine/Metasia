@@ -165,14 +165,14 @@ namespace Metasia.Core.Objects
                 // 子オブジェクトの長さを計算
                 double childDuration = (clipObject.EndFrame - clipObject.StartFrame) / framerate;
                 var chunk = await obj.GetAudioChunkAsync(context.CreateChildContext(childStartPosition, overlapLength, childDuration));
-                double layerGain = obj.Volume?.Value / 100 ?? 1.0;
+                // クリップ音量は各クリップ内で適用済みのため、ここでは加算のみ行う
                 for (int i = 0; i < overlapLength; i++)
                 {
                     for (int ch = 0; ch < context.Format.ChannelCount; ch++)
                     {
                         long sourceIndex = i * context.Format.ChannelCount + ch;
                         long resultIndex = (overlapStartSample - requestStartSample + i) * context.Format.ChannelCount + ch;
-                        resultChunk.Samples[resultIndex] += chunk.Samples[sourceIndex] * layerGain;
+                        resultChunk.Samples[resultIndex] += chunk.Samples[sourceIndex];
                         resultChunk.Samples[resultIndex] = Math.Max(-1.0, Math.Min(1.0, resultChunk.Samples[resultIndex]));
                     }
                 }
@@ -183,7 +183,20 @@ namespace Metasia.Core.Objects
             int layerEndFrame = Objects.Count > 0 ? Objects.Max(o => o.EndFrame) : 0;
             double layerDuration = (layerEndFrame - layerStartFrame) / framerate;
 
-            GetAudioContext layerContext = context.CreateChildContext(context.StartSamplePosition, context.RequiredLength, layerDuration);
+            // レイヤー音量を適用（クリップ音量は各クリップ内で適用済みのため、レイヤー音量はミックス結果に1回だけ適用する）
+            double layerGain = (Volume?.Value ?? 100) / 100.0;
+            if (layerGain != 1.0)
+            {
+                for (long i = 0; i < resultChunk.Samples.Length; i++)
+                {
+                    resultChunk.Samples[i] = Math.Max(-1.0, Math.Min(1.0, resultChunk.Samples[i] * layerGain));
+                }
+            }
+
+            // レイヤーエフェクトはレイヤー先頭（最初のクリップの開始位置）を基準に適用する
+            long layerStartSample = (long)(layerStartFrame * (context.Format.SampleRate / framerate));
+            long layerRelativePosition = Math.Max(0, context.StartSamplePosition - layerStartSample);
+            GetAudioContext layerContext = context.CreateChildContext(layerRelativePosition, context.RequiredLength, layerDuration);
             AudioEffectContext effectContext = new(this, layerContext);
 
             foreach (var effect in AudioEffects)

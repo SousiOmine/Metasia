@@ -126,7 +126,10 @@ namespace Metasia.Core.Objects
                         {
                             // グループ制御の長さを計算（制御オブジェクトの期間）
                             double controlDuration = (control.EndFrame - control.StartFrame) / framerate;
-                            var controlContext = context.CreateChildContext(context.StartSamplePosition, context.RequiredLength, controlDuration);
+                            // エフェクトの時間基準を制御オブジェクトの開始位置に揃える（クリップと同じ挙動）
+                            long controlStartSample = (long)(control.StartFrame * (context.Format.SampleRate / framerate));
+                            long controlRelativePosition = Math.Max(0, context.StartSamplePosition - controlStartSample);
+                            var controlContext = context.CreateChildContext(controlRelativePosition, context.RequiredLength, controlDuration);
                             AudioEffectContext effectContext = new AudioEffectContext(control, controlContext);
 
                             foreach (var effect in control.AudioEffects)
@@ -148,6 +151,16 @@ namespace Metasia.Core.Objects
                         resultChunk.Samples[resultIndex] += processedChunk.Samples[sourceIndex];
                         resultChunk.Samples[resultIndex] = Math.Max(-1.0, Math.Min(1.0, resultChunk.Samples[resultIndex]));
                     }
+                }
+            }
+
+            // タイムライン音量を適用（クリップ音量・レイヤー音量はそれぞれの階層で適用済みのため、ミックス結果に1回だけ適用する）
+            double timelineGain = (Volume?.Value ?? 100) / 100.0;
+            if (timelineGain != 1.0)
+            {
+                for (long i = 0; i < resultChunk.Samples.Length; i++)
+                {
+                    resultChunk.Samples[i] = Math.Max(-1.0, Math.Min(1.0, resultChunk.Samples[i] * timelineGain));
                 }
             }
 
