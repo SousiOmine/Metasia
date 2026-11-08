@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reactive;
 using System.Threading.Tasks;
 using ReactiveUI;
+using RxVoid = ReactiveUI.Primitives.RxVoid;
 using Metasia.Editor.Models.Settings;
 using Metasia.Editor.Services;
 
@@ -209,7 +209,7 @@ namespace Metasia.Editor.ViewModels.Settings
             }
         }
 
-        public ReactiveCommand<Unit, Unit> SelectBackupPathCommand { get; }
+        public ReactiveCommand<RxVoid, RxVoid> SelectBackupPathCommand { get; }
 
         public GeneralSettingsViewModel(EditorSettings settings) : base(settings)
         {

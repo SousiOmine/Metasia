@@ -3,11 +3,11 @@ using Metasia.Editor.Models.States;
 using Metasia.Editor.Models.EditCommands;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Reactive;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Metasia.Editor.Models.Media;
 using ReactiveUI;
+using RxVoid = ReactiveUI.Primitives.RxVoid;
 using Metasia.Editor.Models.Settings;
 using Metasia.Editor.ViewModels.Settings;
 using Metasia.Editor.Services;
@@ -38,9 +38,9 @@ namespace Metasia.Editor.ViewModels
             private set => this.RaiseAndSetIfChanged(ref _hasChanges, value);
         }
 
-        public ReactiveCommand<Unit, Unit> ApplyCommand { get; }
-        public ReactiveCommand<Unit, Unit> CancelCommand { get; }
-        public ReactiveCommand<Unit, Unit> ResetToDefaultsCommand { get; }
+        public ReactiveCommand<RxVoid, RxVoid> ApplyCommand { get; }
+        public ReactiveCommand<RxVoid, RxVoid> CancelCommand { get; }
+        public ReactiveCommand<RxVoid, RxVoid> ResetToDefaultsCommand { get; }
 
         public SettingsWindowViewModel(ISettingsService settingsService, MediaAccessorRouter mediaAccessorRouter, IFileDialogService fileDialogService)
         {

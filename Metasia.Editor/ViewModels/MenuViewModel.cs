@@ -183,7 +183,7 @@ namespace Metasia.Editor.ViewModels
             try
             {
                 var vm = _newProjectViewModelFactory.Create();
-                var result = await NewProjectInteraction.Handle(vm).FirstAsync();
+                var result = await NewProjectInteraction.Handle(vm);
 
                 if (result.Result)
                 {
@@ -315,7 +315,7 @@ namespace Metasia.Editor.ViewModels
             try
             {
                 var vm = _outputViewModelFactory.Create();
-                await OutputInteraction.Handle(vm).FirstAsync();
+                await OutputInteraction.Handle(vm);
             }
             catch (Exception ex)
             {
@@ -331,7 +331,7 @@ namespace Metasia.Editor.ViewModels
             try
             {
                 var vm = new PluginListViewModel(_pluginService);
-                await PluginListInteraction.Handle(vm).FirstAsync();
+                await PluginListInteraction.Handle(vm);
             }
             catch (Exception ex)
             {

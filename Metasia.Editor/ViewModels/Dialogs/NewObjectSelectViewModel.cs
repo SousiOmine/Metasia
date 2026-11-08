@@ -3,11 +3,12 @@ using Metasia.Editor.Models.States;
 using Metasia.Editor.Models.EditCommands;
 using System;
 using System.Linq;
-using System.Reactive;
 using System.Reactive.Linq;
 using Metasia.Core.Objects;
 using Metasia.Core.Objects.Clips;
 using ReactiveUI;
+using ReactiveUI.Binding;
+using RxVoid = ReactiveUI.Primitives.RxVoid;
 using System.Collections.ObjectModel;
 using System.Reflection;
 using Metasia.Core.Attributes;
@@ -31,8 +32,8 @@ public class ObjectTypeInfo
 
 public class NewObjectSelectViewModel : ViewModelBase
 {
-    public ReactiveCommand<Unit, IMetasiaObject?> OkCommand { get; }
-    public ReactiveCommand<Unit, IMetasiaObject?> CancelCommand { get; }
+    public ReactiveCommand<RxVoid, IMetasiaObject?> OkCommand { get; }
+    public ReactiveCommand<RxVoid, IMetasiaObject?> CancelCommand { get; }
 
     public ObservableCollection<ObjectTypeInfo> AvailableObjectTypes { get; } = new();
     public ObservableCollection<ObjectTypeInfo> FilteredObjectTypes { get; } = new();
@@ -95,9 +96,9 @@ public class NewObjectSelectViewModel : ViewModelBase
 
         CancelCommand = ReactiveCommand.Create(() => (IMetasiaObject?)null);
 
-        this.WhenAnyValue(x => x.SearchText)
-            .Throttle(TimeSpan.FromMilliseconds(300))
-            .ObserveOn(RxSchedulers.MainThreadScheduler)
+        var searchTextChanged = this.WhenAnyValue(x => x.SearchText)
+            .Throttle(TimeSpan.FromMilliseconds(300));
+        BindingSchedulers.ObserveOnSequencer(searchTextChanged, RxSchedulers.MainThreadScheduler)
             .Subscribe(_ => FilterObjectTypes());
     }
 

@@ -2,15 +2,15 @@ using Metasia.Editor.Services.Notification;
 using Metasia.Editor.Models.States;
 using Metasia.Editor.Models.EditCommands;
 using System;
-using System.Reactive;
 using ReactiveUI;
+using RxVoid = ReactiveUI.Primitives.RxVoid;
 
 namespace Metasia.Editor.ViewModels.Dialogs;
 
 public class ChangeClipLengthViewModel : ViewModelBase
 {
-    public ReactiveCommand<Unit, bool> OkCommand { get; }
-    public ReactiveCommand<Unit, bool> CancelCommand { get; }
+    public ReactiveCommand<RxVoid, bool> OkCommand { get; }
+    public ReactiveCommand<RxVoid, bool> CancelCommand { get; }
 
     private double _lengthSeconds;
     public double LengthSeconds

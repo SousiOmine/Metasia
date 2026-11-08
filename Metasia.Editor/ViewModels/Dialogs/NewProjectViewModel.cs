@@ -2,11 +2,11 @@ using Metasia.Core.Project;
 using Metasia.Editor.Models;
 using Metasia.Editor.Models.ProjectGenerate;
 using ReactiveUI;
+using RxVoid = ReactiveUI.Primitives.RxVoid;
 using SkiaSharp;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Reactive;
 
 namespace Metasia.Editor.ViewModels.Dialogs;
 
@@ -18,8 +18,8 @@ public class ProjectTemplateInfo
 
 public class NewProjectViewModel : ViewModelBase
 {
-    public ReactiveCommand<Unit, (bool, ProjectInfo, MetasiaProject?)> OkCommand { get; }
-    public ReactiveCommand<Unit, (bool, ProjectInfo, MetasiaProject?)> CancelCommand { get; }
+    public ReactiveCommand<RxVoid, (bool, ProjectInfo, MetasiaProject?)> OkCommand { get; }
+    public ReactiveCommand<RxVoid, (bool, ProjectInfo, MetasiaProject?)> CancelCommand { get; }
 
     public ObservableCollection<ProjectTemplateInfo> AvailableTemplates { get; } = new();
     public ObservableCollection<VideoPreset> Presets { get; } = new(VideoPreset.DefaultPresets);

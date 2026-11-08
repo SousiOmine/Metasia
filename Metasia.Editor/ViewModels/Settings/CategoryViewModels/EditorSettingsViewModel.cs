@@ -6,10 +6,10 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
-using System.Reactive;
 using System.Reactive.Linq;
 using Metasia.Editor.Models.Media;
 using ReactiveUI;
+using RxVoid = ReactiveUI.Primitives.RxVoid;
 using Metasia.Editor.Models.Settings;
 
 namespace Metasia.Editor.ViewModels.Settings
@@ -29,8 +29,8 @@ namespace Metasia.Editor.ViewModels.Settings
             set => this.RaiseAndSetIfChanged(ref _selectedMediaAccessorPriority, value);
         }
 
-        public ReactiveCommand<Unit, Unit> MovePriorityUpCommand { get; }
-        public ReactiveCommand<Unit, Unit> MovePriorityDownCommand { get; }
+        public ReactiveCommand<RxVoid, RxVoid> MovePriorityUpCommand { get; }
+        public ReactiveCommand<RxVoid, RxVoid> MovePriorityDownCommand { get; }
 
         public bool SnapToGrid
         {
