@@ -10,8 +10,8 @@ on:
     workflow_dispatch:
         inputs:
             version:
-                description: 'Publish version (e.g. 0.6.0). Leave empty to use the pushed tag.'
-                required: false
+                description: 'Publish only the NuGet packages for this version (e.g. 0.6.0). OS builds are skipped.'
+                required: true
                 type: string
 
 jobs:
@@ -40,6 +40,7 @@ jobs:
 
     build:
         needs: test
+        if: startsWith(github.ref, 'refs/tags/')
         name: Build (${{ matrix.rid }})
         runs-on: ${{ matrix.os }}
         permissions:
@@ -122,6 +123,7 @@ jobs:
 
     release:
         needs: build
+        if: startsWith(github.ref, 'refs/tags/')
         name: Create GitHub Release
         runs-on: ubuntu-latest
         permissions:
@@ -146,6 +148,7 @@ jobs:
 
     publish_packages:
         needs: [test, build]
+        if: ${{ !cancelled() && needs.test.result == 'success' && (needs.build.result == 'success' || needs.build.result == 'skipped') }}
         name: Publish NuGet Packages
         runs-on: ubuntu-latest
         permissions:
