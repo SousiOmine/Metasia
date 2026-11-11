@@ -7,6 +7,12 @@ env:
 on:
     push:
         tags: ['v*.*.*']
+    workflow_dispatch:
+        inputs:
+            version:
+                description: 'Publish version (e.g. 0.6.0). Leave empty to use the pushed tag.'
+                required: false
+                type: string
 
 jobs:
     test:
@@ -145,6 +151,7 @@ jobs:
         permissions:
             contents: write
             packages: write
+            id-token: write
 
         steps:
             - name: Checkout repository
@@ -157,9 +164,13 @@ jobs:
               with:
                 dotnet-version: ${{ env.DOTNET_VERSION }}
 
-            - name: Extract version from tag
+            - name: Determine version
               run: |
-                VERSION=${GITHUB_REF#refs/tags/v}
+                if [ -n "${{ inputs.version }}" ]; then
+                  VERSION="${{ inputs.version }}"
+                else
+                  VERSION=${GITHUB_REF#refs/tags/v}
+                fi
                 echo "VERSION=$VERSION" >> $GITHUB_ENV
                 # Directory.Build.propsのバージョンを更新
                 perl -i -pe "s|<Version>.*</Version>|<Version>$VERSION</Version>|" Directory.Build.props
@@ -170,13 +181,18 @@ jobs:
             - name: Restore & build packages
               run: dotnet build -c Release
 
+            - name: NuGet login (OIDC to temporary API key)
+              uses: NuGet/login@v1
+              id: nuget-login
+              with:
+                  user: ${{ secrets.NUGET_USER }}
+
             - name: Push to NuGet
               run: |
-                VERSION=${GITHUB_REF#refs/tags/v}
                 dotnet pack Metasia.Core/Metasia.Core.csproj -c Release -o artifacts/packages -p:Version=$VERSION
                 dotnet pack Metasia.Editor.Abstractions/Metasia.Editor.Abstractions.csproj -c Release -o artifacts/packages -p:Version=$VERSION
                 dotnet pack Metasia.Editor.Plugin/Metasia.Editor.Plugin.csproj -c Release -o artifacts/packages -p:Version=$VERSION
-                dotnet nuget push ./artifacts/packages/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate
+                dotnet nuget push ./artifacts/packages/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ steps.nuget-login.outputs.NUGET_API_KEY }} --skip-duplicate
 
             - name: Upload packages
               uses: actions/upload-artifact@v4
