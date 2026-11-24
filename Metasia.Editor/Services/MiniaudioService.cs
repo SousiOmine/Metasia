@@ -3,6 +3,7 @@ using Metasia.Editor.Models.States;
 using Metasia.Editor.Models.EditCommands;
 using System;
 using System.Buffers;
+using System.Diagnostics;
 using System.Threading;
 using Metasia.Core.Sounds;
 using Miniaudio.Net;
@@ -11,11 +12,12 @@ namespace Metasia.Editor.Services;
 
 public sealed class MiniaudioService : IAudioService
 {
-    private readonly MiniaudioEngine _engine;
-    private readonly MiniaudioStreamingSound _stream;
-    private readonly uint _sampleRate;
-    private readonly uint _channels;
-    private readonly AudioFormat _format;
+    private MiniaudioEngine _engine;
+    private MiniaudioStreamingSound _stream;
+    private uint _sampleRate;
+    private uint _channels;
+    private AudioFormat _format;
+    private readonly uint _bufferCapacityInFrames;
     private readonly object _gate = new();
     private bool _disposed;
 
@@ -33,19 +35,139 @@ public sealed class MiniaudioService : IAudioService
         _sampleRate = sampleRate;
         _channels = channels;
         _format = new AudioFormat((int)sampleRate, (int)channels);
+        _bufferCapacityInFrames = bufferCapacityInFrames;
 
-        _engine = MiniaudioEngine.Create(new MiniaudioEngineOptions
-        {
-            SampleRate = sampleRate,
-            Channels = channels,
-        });
-        _engine.Start();
-
-        _stream = _engine.CreateStreamingSound(channels, sampleRate, bufferCapacityInFrames);
-        _stream.Start();
+        (_engine, _stream) = CreateResources(sampleRate, channels, bufferCapacityInFrames);
     }
 
     public IAudioFormat Format => _format;
+
+    /// <inheritdoc />
+    public bool EnsureFormat(int sampleRate, int channelCount)
+    {
+        if (sampleRate <= 0 || channelCount <= 0)
+        {
+            return false;
+        }
+
+        lock (_gate)
+        {
+            ThrowIfDisposed();
+
+            if (_sampleRate == (uint)sampleRate && _channels == (uint)channelCount)
+            {
+                return true;
+            }
+
+            try
+            {
+                ReplaceResources((uint)sampleRate, (uint)channelCount);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"MiniaudioService の出力フォーマット切り替えに失敗: {ex.Message}");
+            }
+
+            if (channelCount == 2)
+            {
+                return false;
+            }
+
+            // マルチチャンネルを受け付けない環境ではステレオへ戻して再生を継続する
+            try
+            {
+                ReplaceResources((uint)sampleRate, 2);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"MiniaudioService のステレオへの復帰に失敗: {ex.Message}");
+            }
+
+            return false;
+        }
+    }
+
+    private void ReplaceResources(uint sampleRate, uint channels)
+    {
+        (MiniaudioEngine engine, MiniaudioStreamingSound stream) = CreateResources(sampleRate, channels, _bufferCapacityInFrames);
+
+        MiniaudioEngine oldEngine = _engine;
+        MiniaudioStreamingSound oldStream = _stream;
+
+        _engine = engine;
+        _stream = stream;
+        _sampleRate = sampleRate;
+        _channels = channels;
+        _format = new AudioFormat((int)sampleRate, (int)channels);
+
+        DisposeResources(oldStream, oldEngine);
+    }
+
+    private static (MiniaudioEngine Engine, MiniaudioStreamingSound Stream) CreateResources(
+        uint sampleRate,
+        uint channels,
+        uint bufferCapacityInFrames)
+    {
+        MiniaudioEngine? engine = null;
+        try
+        {
+            engine = MiniaudioEngine.Create(new MiniaudioEngineOptions
+            {
+                SampleRate = sampleRate,
+                Channels = channels,
+            });
+            engine.Start();
+
+            MiniaudioStreamingSound stream = engine.CreateStreamingSound(channels, sampleRate, bufferCapacityInFrames);
+            stream.Start();
+
+            return (engine, stream);
+        }
+        catch
+        {
+            if (engine is not null)
+            {
+                try
+                {
+                    engine.Stop();
+                }
+                catch
+                {
+                    // ignore
+                }
+
+                engine.Dispose();
+            }
+
+            throw;
+        }
+    }
+
+    private static void DisposeResources(MiniaudioStreamingSound stream, MiniaudioEngine engine)
+    {
+        try
+        {
+            stream.Stop();
+        }
+        catch
+        {
+            // ignore
+        }
+
+        stream.Dispose();
+
+        try
+        {
+            engine.Stop();
+        }
+        catch
+        {
+            // ignore
+        }
+
+        engine.Dispose();
+    }
 
     public void InsertQueue(IAudioChunk chunk)
     {
@@ -152,27 +274,7 @@ public sealed class MiniaudioService : IAudioService
         _disposed = true;
         lock (_gate)
         {
-            try
-            {
-                _stream.Stop();
-            }
-            catch
-            {
-                // ignore
-            }
-
-            _stream.Dispose();
-
-            try
-            {
-                _engine.Stop();
-            }
-            catch
-            {
-                // ignore
-            }
-
-            _engine.Dispose();
+            DisposeResources(_stream, _engine);
         }
     }
 

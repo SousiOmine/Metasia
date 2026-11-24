@@ -129,7 +129,8 @@ public class AudioObject : ClipObject, IAudible
 
             if (Math.Abs(speed - 1.0) > 0.001)
             {
-                var sourceFormat = new AudioFormat((int)(context.Format.SampleRate * speed), context.Format.ChannelCount);
+                var decodedFormat = accessorResult.Chunk.Format;
+                var sourceFormat = new AudioFormat((int)Math.Max(1, decodedFormat.SampleRate * speed), decodedFormat.ChannelCount);
                 var sourceChunk = new AudioChunk(sourceFormat, accessorResult.Chunk.Samples);
                 result = AudioChunkConverter.ConvertToFormat(sourceChunk, context.Format, context.RequiredLength);
             }

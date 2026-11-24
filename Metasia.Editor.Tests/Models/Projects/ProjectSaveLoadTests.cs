@@ -11,6 +11,7 @@ using System.IO.Compression;
 using System.Text;
 using Metasia.Core.Objects;
 using Metasia.Core.Objects.Clips;
+using Metasia.Core.Sounds;
 using Metasia.Core.Xml;
 
 namespace Metasia.Editor.Tests.Models.Projects
@@ -236,6 +237,68 @@ namespace Metasia.Editor.Tests.Models.Projects
             var loadedReference = (TimelineReferenceObject)loadedClip;
             Assert.That(loadedReference.TargetTimelineId, Is.EqualTo(referencedTimeline.Id));
             Assert.That(loadedReference.SourceStartFrame.Value, Is.EqualTo(24).Within(0.001));
+        }
+
+        [Test]
+        public void Save_Load_PreservesAudioChannelLayout()
+        {
+            var projectFile = new MetasiaProjectFile
+            {
+                AudioSamplingRate = 48000,
+                AudioChannels = 6,
+                AudioChannelLayout = "Surround5_1"
+            };
+
+            var editorProject = new MetasiaEditorProject(
+                new DirectoryEntity(_testDirectory),
+                projectFile);
+
+            ProjectSaveLoadManager.Save(editorProject, _projectFilePath);
+            var loadedProject = ProjectSaveLoadManager.Load(_projectFilePath);
+
+            Assert.That(loadedProject.ProjectFile.AudioSamplingRate, Is.EqualTo(48000));
+            Assert.That(loadedProject.ProjectFile.AudioChannels, Is.EqualTo(6));
+            Assert.That(loadedProject.ProjectFile.AudioChannelLayout, Is.EqualTo("Surround5_1"));
+
+            var projectInfo = loadedProject.CreateMetasiaProject().Info;
+            Assert.That(projectInfo.AudioChannels, Is.EqualTo(6));
+            Assert.That(projectInfo.AudioChannelLayout, Is.EqualTo(AudioChannelLayout.Surround5_1));
+        }
+
+        [Test]
+        public void CreateMetasiaProject_DerivesLayoutFromChannelCountWhenNameIsMissing()
+        {
+            var projectFile = new MetasiaProjectFile
+            {
+                AudioChannels = 6
+            };
+
+            var editorProject = new MetasiaEditorProject(
+                new DirectoryEntity(_testDirectory),
+                projectFile);
+
+            var projectInfo = editorProject.CreateMetasiaProject().Info;
+
+            Assert.That(projectInfo.AudioChannels, Is.EqualTo(6));
+            Assert.That(projectInfo.AudioChannelLayout, Is.EqualTo(AudioChannelLayout.Surround5_1));
+        }
+
+        [Test]
+        public void CreateMetasiaProject_FallsBackToStereoWhenChannelCountIsUnsupported()
+        {
+            var projectFile = new MetasiaProjectFile
+            {
+                AudioChannels = 4
+            };
+
+            var editorProject = new MetasiaEditorProject(
+                new DirectoryEntity(_testDirectory),
+                projectFile);
+
+            var projectInfo = editorProject.CreateMetasiaProject().Info;
+
+            Assert.That(projectInfo.AudioChannels, Is.EqualTo(2));
+            Assert.That(projectInfo.AudioChannelLayout, Is.EqualTo(AudioChannelLayout.Stereo));
         }
     }
 }

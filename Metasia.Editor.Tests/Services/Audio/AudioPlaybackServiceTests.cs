@@ -119,6 +119,8 @@ public class AudioPlaybackServiceTests
     {
         public IAudioFormat Format { get; } = new AudioFormat(44100, 2);
 
+        public bool EnsureFormat(int sampleRate, int channelCount) => true;
+
         public void InsertQueue(IAudioChunk chunk)
         {
         }
@@ -143,6 +145,8 @@ public class AudioPlaybackServiceTests
         private readonly ManualResetEventSlim _gate = new(false);
 
         public IAudioFormat Format { get; } = new AudioFormat(44100, 2);
+
+        public bool EnsureFormat(int sampleRate, int channelCount) => true;
 
         public volatile bool Blocking;
 
@@ -183,6 +187,8 @@ public class AudioPlaybackServiceTests
         private readonly List<IAudioFormat> _formats = [];
 
         public IAudioFormat Format { get; } = new AudioFormat(44100, 2);
+
+        public bool EnsureFormat(int sampleRate, int channelCount) => true;
 
         public IReadOnlyList<IAudioFormat> InsertedFormats
         {

@@ -17,6 +17,13 @@ public interface IAudioService : IDisposable
     IAudioFormat Format { get; }
 
     /// <summary>
+    /// 出力フォーマットを指定のものへ切り替える。
+    /// 切り替えられない場合はfalseを返し、Formatは変更しないか、出力可能なフォーマットへ戻す。
+    /// </summary>
+    /// <returns>指定どおりに切り替えられた場合はtrue</returns>
+    public bool EnsureFormat(int sampleRate, int channelCount);
+
+    /// <summary>
     /// 波形を格納した配列とチャンネル数を再生キューにぶち込む
     /// </summary>
     /// <param name="pulse"></param>

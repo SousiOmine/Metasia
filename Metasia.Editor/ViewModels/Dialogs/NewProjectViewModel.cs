@@ -1,4 +1,5 @@
 using Metasia.Core.Project;
+using Metasia.Core.Sounds;
 using Metasia.Editor.Models;
 using Metasia.Editor.Models.ProjectGenerate;
 using ReactiveUI;
@@ -16,6 +17,22 @@ public class ProjectTemplateInfo
     public Func<ProjectInfo, MetasiaProject?> TemplateFactory { get; set; } = _ => null;
 }
 
+/// <summary>
+/// 新規プロジェクトで選べる音声チャンネルの選択肢
+/// </summary>
+public class AudioChannelOption
+{
+    public string Name { get; }
+    public AudioChannelLayout Layout { get; }
+    public int ChannelCount => (int)Layout;
+
+    public AudioChannelOption(string name, AudioChannelLayout layout)
+    {
+        Name = name;
+        Layout = layout;
+    }
+}
+
 public class NewProjectViewModel : ViewModelBase
 {
     public ReactiveCommand<RxVoid, (bool, ProjectInfo, MetasiaProject?)> OkCommand { get; }
@@ -23,6 +40,23 @@ public class NewProjectViewModel : ViewModelBase
 
     public ObservableCollection<ProjectTemplateInfo> AvailableTemplates { get; } = new();
     public ObservableCollection<VideoPreset> Presets { get; } = new(VideoPreset.DefaultPresets);
+
+    /// <summary>
+    /// 音声チャンネルの選択肢。プロジェクトファイルの並び順が決まっているため1、2、6chに限定する
+    /// </summary>
+    public ObservableCollection<AudioChannelOption> AudioChannelOptions { get; } = new(new[]
+    {
+        new AudioChannelOption("モノラル 1ch", AudioChannelLayout.Mono),
+        new AudioChannelOption("ステレオ 2ch", AudioChannelLayout.Stereo),
+        new AudioChannelOption("5.1サラウンド 6ch", AudioChannelLayout.Surround5_1),
+    });
+
+    private AudioChannelOption? _selectedAudioChannelOption;
+    public AudioChannelOption? SelectedAudioChannelOption
+    {
+        get => _selectedAudioChannelOption;
+        set => this.RaiseAndSetIfChanged(ref _selectedAudioChannelOption, value);
+    }
 
     private ProjectTemplateInfo? _selectedTemplate;
     public ProjectTemplateInfo? SelectedTemplate
@@ -91,12 +125,14 @@ public class NewProjectViewModel : ViewModelBase
         LoadTemplates();
 
         SelectedPreset = VideoPreset.FindMatch(Width, Height, FrameRate) ?? VideoPreset.Custom;
+        SelectedAudioChannelOption = AudioChannelOptions.First(option => option.Layout == AudioChannelLayout.Stereo);
 
         OkCommand = ReactiveCommand.Create(() =>
         {
             var framerate = FrameRate;
             var size = new SKSize(Width, Height);
-            var projectInfo = new ProjectInfo(framerate, size, 44100, 2);
+            var audioChannelLayout = SelectedAudioChannelOption?.Layout ?? AudioChannelLayout.Stereo;
+            var projectInfo = new ProjectInfo(framerate, size, 44100, (int)audioChannelLayout);
 
             MetasiaProject? selectedTemplate = SelectedTemplate?.TemplateFactory(projectInfo);
 

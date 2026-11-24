@@ -1,4 +1,5 @@
-﻿using SkiaSharp;
+using Metasia.Core.Sounds;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +16,7 @@ namespace Metasia.Core.Project
         private int _framerate;
         private SKSize _size;
         private int _audioSamplingRate;
-        private int _audioChannels;
+        private AudioChannelLayout _audioChannelLayout = AudioChannelLayout.Stereo;
 
 
         /// <summary>
@@ -46,12 +47,29 @@ namespace Metasia.Core.Project
         }
 
         /// <summary>
-        /// 音声のチャンネル数
+        /// 音声のチャンネル数。対応しているのは1、2、6のいずれか
         /// </summary>
         public int AudioChannels
         {
-            get => _audioChannels;
-            set => _audioChannels = value;
+            get => (int)_audioChannelLayout;
+            set => _audioChannelLayout = AudioChannelLayouts.FromChannelCount(value);
+        }
+
+        /// <summary>
+        /// 音声のチャンネルレイアウト。チャンネル数と連動する
+        /// </summary>
+        public AudioChannelLayout AudioChannelLayout
+        {
+            get => _audioChannelLayout;
+            set
+            {
+                if (!Enum.IsDefined(value))
+                {
+                    throw new ArgumentOutOfRangeException(nameof(value), value, "未定義のチャンネルレイアウトです。");
+                }
+
+                _audioChannelLayout = value;
+            }
         }
 
         /// <summary>

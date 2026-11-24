@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using Metasia.Core.Project;
+using Metasia.Core.Sounds;
 using SkiaSharp;
 
 namespace Metasia.Core.Tests.Project
@@ -45,6 +46,46 @@ namespace Metasia.Core.Tests.Project
             Assert.That(projectInfo.Size.Height, Is.EqualTo(720));
             Assert.That(projectInfo.AudioSamplingRate, Is.EqualTo(48000));
             Assert.That(projectInfo.AudioChannels, Is.EqualTo(1));
+            Assert.That(projectInfo.AudioChannelLayout, Is.EqualTo(AudioChannelLayout.Mono));
+        }
+
+        [TestCase(1, AudioChannelLayout.Mono)]
+        [TestCase(2, AudioChannelLayout.Stereo)]
+        [TestCase(6, AudioChannelLayout.Surround5_1)]
+        public void Constructor_SetsLayoutFromChannelCount(int channelCount, AudioChannelLayout expected)
+        {
+            var projectInfo = new ProjectInfo(30, new SKSize(1920, 1080), 44100, channelCount);
+
+            Assert.That(projectInfo.AudioChannelLayout, Is.EqualTo(expected));
+            Assert.That(projectInfo.AudioChannels, Is.EqualTo(channelCount));
+        }
+
+        [Test]
+        public void AudioChannelLayout_UpdatesChannelCount()
+        {
+            var projectInfo = new ProjectInfo(30, new SKSize(1920, 1080), 44100, 2);
+
+            projectInfo.AudioChannelLayout = AudioChannelLayout.Surround5_1;
+
+            Assert.That(projectInfo.AudioChannels, Is.EqualTo(6));
+        }
+
+        [TestCase(0)]
+        [TestCase(4)]
+        [TestCase(8)]
+        public void AudioChannels_ThrowsForUnsupportedCount(int channelCount)
+        {
+            var projectInfo = new ProjectInfo(30, new SKSize(1920, 1080), 44100, 2);
+
+            Assert.Throws<ArgumentOutOfRangeException>(() => projectInfo.AudioChannels = channelCount);
+        }
+
+        [Test]
+        public void AudioChannelLayout_ThrowsForUndefinedValue()
+        {
+            var projectInfo = new ProjectInfo(30, new SKSize(1920, 1080), 44100, 2);
+
+            Assert.Throws<ArgumentOutOfRangeException>(() => projectInfo.AudioChannelLayout = (AudioChannelLayout)4);
         }
     }
 }

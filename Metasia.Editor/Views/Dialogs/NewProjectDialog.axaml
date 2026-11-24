@@ -4,11 +4,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="using:Metasia.Editor.ViewModels.Dialogs"
         xmlns:models="using:Metasia.Editor.Models"
-        mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="350"
+        mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="500"
         x:Class="Metasia.Editor.Views.Dialogs.NewProjectDialog"
         Icon="/Assets/metasia-icon.ico"
         Title="新規プロジェクト作成"
-        Width="450" Height="350"
+        Width="450" Height="500"
         WindowStartupLocation="CenterOwner"
         x:DataType="vm:NewProjectViewModel">
     <StackPanel Margin="20">
@@ -52,6 +52,20 @@
                 <TextBlock Text="fps" VerticalAlignment="Center" Grid.Column="1"/>
             </Grid>
         </Grid>
+
+        <TextBlock Text="音声設定" FontWeight="Bold" Margin="0,20,0,15"/>
+
+        <TextBlock Text="チャンネル数:" Margin="0,0,0,5"/>
+        <ComboBox ItemsSource="{Binding AudioChannelOptions}"
+                  SelectedItem="{Binding SelectedAudioChannelOption}"
+                  Width="220" HorizontalAlignment="Left"
+                  Margin="0,0,0,15">
+            <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="vm:AudioChannelOption">
+                    <TextBlock Text="{Binding Name}"/>
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
 
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,20,0,0">
             <Button Content="作成" Width="80" Command="{Binding OkCommand}" IsDefault="True"/>

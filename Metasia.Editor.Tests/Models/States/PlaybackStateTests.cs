@@ -51,12 +51,11 @@ public class PlaybackStateTests
     }
 
     [Test]
-    public void AudioChannels_ReturnsDefaultWhenProjectValueIsNotPositive()
+    public void AudioChannels_ReturnsDefaultWhenSamplingRateIsNotPositive()
     {
-        var state = CreatePlaybackState(new ProjectInfo(60, new SKSize(1920, 1080), 0, 0));
+        var state = CreatePlaybackState(new ProjectInfo(60, new SKSize(1920, 1080), 0, 2));
 
         Assert.That(state.SamplingRate, Is.EqualTo(PlaybackState.DefaultSamplingRate));
-        Assert.That(state.AudioChannels, Is.EqualTo(PlaybackState.DefaultAudioChannels));
     }
 
     private sealed class FakeAudioPlaybackService : IAudioPlaybackService

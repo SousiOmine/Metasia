@@ -34,6 +34,11 @@ public class MetasiaProjectFile
     /// 音声のチャンネル数
     /// </summary>
     public int AudioChannels { get; set; } = 2;
+
+    /// <summary>
+    /// 音声のチャンネルレイアウト名。未設定の場合はAudioChannelsから決定する
+    /// </summary>
+    public string? AudioChannelLayout { get; set; }
 }
 
 public class VideoResolution

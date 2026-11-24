@@ -61,6 +61,14 @@ public class SoundIOService : IAudioService
 
     public IAudioFormat Format => new AudioFormat((int)outStream.SampleRate, outStream.Layout.ChannelCount);
 
+    /// <summary>
+    /// SoundIOの出力ストリームは生成時にフォーマットが確定するため切り替えない
+    /// </summary>
+    public bool EnsureFormat(int sampleRate, int channelCount)
+    {
+        return Format.SampleRate == sampleRate && Format.ChannelCount == channelCount;
+    }
+
     public void InsertQueue(IAudioChunk chunk)
     {
         if (chunk.Format.SampleRate != outStream.SampleRate || chunk.Format.ChannelCount != outStream.Layout.ChannelCount)

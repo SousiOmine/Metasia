@@ -37,6 +37,7 @@ namespace Metasia.Editor.Services.Audio
             if (IsPlaying) return;
 
             IsPlaying = true;
+            audioService.EnsureFormat(samplingRate, audioChannels);
             audioService.ClearQueue();
             var cts = new CancellationTokenSource();
             cancellationTokenSource = cts;

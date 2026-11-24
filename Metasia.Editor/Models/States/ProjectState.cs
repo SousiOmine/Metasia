@@ -87,7 +87,7 @@ public class ProjectState : IProjectState
     public async Task LoadProjectAsync(MetasiaEditorProject project)
     {
         _currentProject = project;
-        _currentProjectInfo = new ProjectInfo(project.ProjectFile.Framerate, new SKSize(project.ProjectFile.Resolution.Width, project.ProjectFile.Resolution.Height), 44100, 2);
+        _currentProjectInfo = project.CreateMetasiaProject().Info;
 
         await Task.Delay(100);
 

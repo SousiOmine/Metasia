@@ -4,6 +4,7 @@ using Metasia.Editor.Models.EditCommands;
 using System.Collections.Generic;
 using Metasia.Core.Objects;
 using Metasia.Core.Project;
+using Metasia.Core.Sounds;
 using Metasia.Editor.Models.FileSystem;
 using SkiaSharp;
 
@@ -33,7 +34,8 @@ public class MetasiaEditorProject
 
     public MetasiaProject CreateMetasiaProject()
     {
-        ProjectInfo projectInfo = new ProjectInfo(ProjectFile.Framerate, new SKSize(ProjectFile.Resolution.Width, ProjectFile.Resolution.Height), ProjectFile.AudioSamplingRate, ProjectFile.AudioChannels);
+        AudioChannelLayout audioChannelLayout = ResolveAudioChannelLayout(ProjectFile);
+        ProjectInfo projectInfo = new ProjectInfo(ProjectFile.Framerate, new SKSize(ProjectFile.Resolution.Width, ProjectFile.Resolution.Height), ProjectFile.AudioSamplingRate, (int)audioChannelLayout);
 
         MetasiaProject project = new MetasiaProject(projectInfo);
 
@@ -43,6 +45,26 @@ public class MetasiaEditorProject
         }
 
         return project;
+    }
+
+    /// <summary>
+    /// プロジェクトファイルの音声チャンネルレイアウトを決める。
+    /// レイアウト名とチャンネル数が食い違う場合はチャンネル数を優先し、それも対応外ならステレオにする。
+    /// </summary>
+    private static AudioChannelLayout ResolveAudioChannelLayout(MetasiaProjectFile projectFile)
+    {
+        if (AudioChannelLayouts.TryParse(projectFile.AudioChannelLayout, out AudioChannelLayout namedLayout)
+            && (int)namedLayout == projectFile.AudioChannels)
+        {
+            return namedLayout;
+        }
+
+        if (AudioChannelLayouts.TryFromChannelCount(projectFile.AudioChannels, out AudioChannelLayout layoutFromChannelCount))
+        {
+            return layoutFromChannelCount;
+        }
+
+        return AudioChannelLayout.Stereo;
     }
 }
 

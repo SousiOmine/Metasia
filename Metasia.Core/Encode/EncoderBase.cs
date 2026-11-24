@@ -119,6 +119,20 @@ public abstract class EncoderBase : IEncoder, IDisposable
         }
     }
 
+    /// <summary>
+    /// プロジェクトの音声チャンネル数
+    /// </summary>
+    protected int ProjectAudioChannels => _project?.Info.AudioChannels ?? 2;
+
+    /// <summary>
+    /// プロジェクトの音声チャンネルレイアウト。
+    /// GetAudioChunkAsyncでチャンネル数6を指定した場合の並び順はこのレイアウトに従う
+    /// </summary>
+    protected AudioChannelLayout ProjectAudioChannelLayout => _project?.Info.AudioChannelLayout ?? AudioChannelLayout.Stereo;
+
+    /// <summary>
+    /// 指定範囲の音声を取得する。channelCountが6のときの並び順はFL,FR,FC,LFE,BL,BR
+    /// </summary>
     protected async Task<IAudioChunk> GetAudioChunkAsync(long startSample, long sampleCount, int sampleRate, int channelCount, CancellationToken ct)
     {
         if (_project is null || _targetTimeline is null || _audioFileAccessor is null || _projectPath is null)

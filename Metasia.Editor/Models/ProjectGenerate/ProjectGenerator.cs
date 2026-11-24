@@ -6,6 +6,7 @@ using System.IO;
 using System.Text.Json;
 using Metasia.Core.Objects;
 using Metasia.Core.Project;
+using Metasia.Core.Sounds;
 using Metasia.Editor.Models.FileSystem;
 using Metasia.Editor.Models.Projects;
 
@@ -46,6 +47,9 @@ public class ProjectGenerator
         {
             Framerate = projectInfo.Framerate,
             Resolution = new VideoResolution() { Width = projectInfo.Size.Width, Height = projectInfo.Size.Height },
+            AudioSamplingRate = projectInfo.AudioSamplingRate,
+            AudioChannels = projectInfo.AudioChannels,
+            AudioChannelLayout = AudioChannelLayouts.ToName(projectInfo.AudioChannelLayout),
         };
 
         DirectoryEntity projectDirectory = new(resolvedDirectory);
@@ -81,6 +85,9 @@ public class ProjectGenerator
         {
             Framerate = projectInfo.Framerate,
             Resolution = new VideoResolution() { Width = projectInfo.Size.Width, Height = projectInfo.Size.Height },
+            AudioSamplingRate = projectInfo.AudioSamplingRate,
+            AudioChannels = projectInfo.AudioChannels,
+            AudioChannelLayout = AudioChannelLayouts.ToName(projectInfo.AudioChannelLayout),
         };
 
         DirectoryEntity projectDirectory = new(Directory.GetCurrentDirectory());
