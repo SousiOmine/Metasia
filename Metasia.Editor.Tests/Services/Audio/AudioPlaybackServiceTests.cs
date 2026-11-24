@@ -97,8 +97,28 @@ public class AudioPlaybackServiceTests
         Assert.That(service.IsPlaying, Is.False);
     }
 
+    [Test]
+    public void Play_ConvertsChunkToOutputFormatWhenProjectFormatDiffers()
+    {
+        var audio = new RecordingAudioService();
+        var service = new AudioPlaybackService(audio);
+        var projectInfo = new ProjectInfo(60, new SKSize(1920, 1080), 48000, 6);
+
+        service.Play(CreateTimeline(), projectInfo, 0, 1.0, projectInfo.AudioSamplingRate, projectInfo.AudioChannels, new FakeAudioFileAccessor(), ".", new Dictionary<string, TimelineObject>());
+
+        Assert.That(SpinWait.SpinUntil(() => audio.InsertedFormats.Count > 0, 5000), Is.True, "チャンクが再生キューに挿入されませんでした");
+
+        var insertedFormat = audio.InsertedFormats[0];
+        Assert.That(insertedFormat.SampleRate, Is.EqualTo(44100));
+        Assert.That(insertedFormat.ChannelCount, Is.EqualTo(2));
+
+        service.Pause();
+    }
+
     private sealed class FakeAudioService : IAudioService
     {
+        public IAudioFormat Format { get; } = new AudioFormat(44100, 2);
+
         public void InsertQueue(IAudioChunk chunk)
         {
         }
@@ -121,6 +141,8 @@ public class AudioPlaybackServiceTests
     private sealed class BlockableAudioService : IAudioService
     {
         private readonly ManualResetEventSlim _gate = new(false);
+
+        public IAudioFormat Format { get; } = new AudioFormat(44100, 2);
 
         public volatile bool Blocking;
 
@@ -146,6 +168,53 @@ public class AudioPlaybackServiceTests
         }
 
         public long GetQueuedSamplesCount() => 0;
+
+        public void Dispose()
+        {
+        }
+    }
+
+    /// <summary>
+    /// 挿入されたチャンクのフォーマットを記録するテスト用のIAudioService。
+    /// 出力先のフォーマットと異なるチャンクが渡された場合は例外にする。
+    /// </summary>
+    private sealed class RecordingAudioService : IAudioService
+    {
+        private readonly List<IAudioFormat> _formats = [];
+
+        public IAudioFormat Format { get; } = new AudioFormat(44100, 2);
+
+        public IReadOnlyList<IAudioFormat> InsertedFormats
+        {
+            get
+            {
+                lock (_formats)
+                {
+                    return _formats.ToList();
+                }
+            }
+        }
+
+        public void InsertQueue(IAudioChunk chunk)
+        {
+            lock (_formats)
+            {
+                _formats.Add(chunk.Format);
+            }
+        }
+
+        public void ClearQueue()
+        {
+        }
+
+        public long GetQueuedSamplesCount()
+        {
+            lock (_formats)
+            {
+                // 1件でも挿入されたら十分に埋まっている扱いにして、生成ループの空回りを止める
+                return _formats.Count > 0 ? 1_000_000 : 0;
+            }
+        }
 
         public void Dispose()
         {

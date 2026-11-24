@@ -31,9 +31,39 @@ public class PlaybackState : IPlaybackState
 
     public bool IsPlaying { get; private set; }
 
-    public int SamplingRate { get; } = 44100;
+    /// <summary>
+    /// プロジェクト情報が無い場合に使用する既定のサンプリングレート（Hz）
+    /// </summary>
+    public const int DefaultSamplingRate = 44100;
 
-    public int AudioChannels { get; } = 2;
+    /// <summary>
+    /// プロジェクト情報が無い場合に使用する既定の音声チャンネル数
+    /// </summary>
+    public const int DefaultAudioChannels = 2;
+
+    /// <summary>
+    /// プレビュー再生時のサンプリングレート（Hz）。プロジェクトの設定に従う
+    /// </summary>
+    public int SamplingRate
+    {
+        get
+        {
+            var samplingRate = _projectState.CurrentProjectInfo?.AudioSamplingRate ?? 0;
+            return samplingRate > 0 ? samplingRate : DefaultSamplingRate;
+        }
+    }
+
+    /// <summary>
+    /// プレビュー再生時の音声チャンネル数。プロジェクトの設定に従う
+    /// </summary>
+    public int AudioChannels
+    {
+        get
+        {
+            var audioChannels = _projectState.CurrentProjectInfo?.AudioChannels ?? 0;
+            return audioChannels > 0 ? audioChannels : DefaultAudioChannels;
+        }
+    }
 
     public IRenderImageCache? ImageCache { get; private set; }
 
@@ -98,8 +128,10 @@ public class PlaybackState : IPlaybackState
             IsPlaying = true;
             PlaybackStarted?.Invoke();
 
-            long startSample = (long)(CurrentFrame / (double)_projectState.CurrentProjectInfo.Framerate * SamplingRate);
-            _audioPlaybackService.Play(_projectState.CurrentTimeline, _projectState.CurrentProjectInfo, startSample, 1.0, SamplingRate, AudioChannels, _mediaAccessorRouter, ResolveProjectPath(), CreateTimelineLookup());
+            int samplingRate = SamplingRate;
+            int audioChannels = AudioChannels;
+            long startSample = (long)(CurrentFrame / (double)_projectState.CurrentProjectInfo.Framerate * samplingRate);
+            _audioPlaybackService.Play(_projectState.CurrentTimeline, _projectState.CurrentProjectInfo, startSample, 1.0, samplingRate, audioChannels, _mediaAccessorRouter, ResolveProjectPath(), CreateTimelineLookup());
         }
         catch (Exception ex)
         {

@@ -12,6 +12,11 @@ namespace Metasia.Editor.Services;
 public interface IAudioService : IDisposable
 {
     /// <summary>
+    /// この出力先が受け付ける音声フォーマット。これと異なるフォーマットのチャンクはInsertQueueの前に変換する必要がある
+    /// </summary>
+    IAudioFormat Format { get; }
+
+    /// <summary>
     /// 波形を格納した配列とチャンネル数を再生キューにぶち込む
     /// </summary>
     /// <param name="pulse"></param>

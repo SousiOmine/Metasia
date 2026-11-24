@@ -15,6 +15,7 @@ public sealed class MiniaudioService : IAudioService
     private readonly MiniaudioStreamingSound _stream;
     private readonly uint _sampleRate;
     private readonly uint _channels;
+    private readonly AudioFormat _format;
     private readonly object _gate = new();
     private bool _disposed;
 
@@ -31,6 +32,7 @@ public sealed class MiniaudioService : IAudioService
 
         _sampleRate = sampleRate;
         _channels = channels;
+        _format = new AudioFormat((int)sampleRate, (int)channels);
 
         _engine = MiniaudioEngine.Create(new MiniaudioEngineOptions
         {
@@ -42,6 +44,8 @@ public sealed class MiniaudioService : IAudioService
         _stream = _engine.CreateStreamingSound(channels, sampleRate, bufferCapacityInFrames);
         _stream.Start();
     }
+
+    public IAudioFormat Format => _format;
 
     public void InsertQueue(IAudioChunk chunk)
     {

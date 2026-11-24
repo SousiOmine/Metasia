@@ -86,7 +86,7 @@ namespace Metasia.Editor.Services.Audio
                         projectPath,
                         availableTimelines,
                         string.IsNullOrWhiteSpace(timeline.Id) ? Array.Empty<string>() : [timeline.Id]));
-                    audioService.InsertQueue(chunk);
+                    EnqueueChunk(chunk);
                     currentSamplePosition += requestChunkSize;
                     CurrentSample = currentSamplePosition;
                 }
@@ -107,7 +107,7 @@ namespace Metasia.Editor.Services.Audio
                                 projectPath,
                                 availableTimelines,
                                 string.IsNullOrWhiteSpace(timeline.Id) ? Array.Empty<string>() : [timeline.Id]));
-                            audioService.InsertQueue(chunk);
+                            EnqueueChunk(chunk);
                             currentSamplePosition += requestChunkSize;
                             CurrentSample = currentSamplePosition;
                         }
@@ -142,6 +142,22 @@ namespace Metasia.Editor.Services.Audio
                     cts.Dispose();
                 }
             }
+        }
+
+        /// <summary>
+        /// 出力先のフォーマットに合わせてチャンクを変換し、再生キューに追加する。
+        /// プロジェクトのチャンネル数やサンプリングレートが出力デバイスの形式と異なる場合は変換する。
+        /// </summary>
+        private void EnqueueChunk(IAudioChunk chunk)
+        {
+            var outputFormat = audioService.Format;
+            if (chunk.Format.SampleRate != outputFormat.SampleRate
+                || chunk.Format.ChannelCount != outputFormat.ChannelCount)
+            {
+                chunk = AudioChunkConverter.ConvertToFormat(chunk, outputFormat, chunk.Length);
+            }
+
+            audioService.InsertQueue(chunk);
         }
 
         private static long SecondsToSamples(int sampleRate, double seconds)

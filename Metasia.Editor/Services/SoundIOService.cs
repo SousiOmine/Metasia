@@ -59,6 +59,8 @@ public class SoundIOService : IAudioService
         outStream.Start();
     }
 
+    public IAudioFormat Format => new AudioFormat((int)outStream.SampleRate, outStream.Layout.ChannelCount);
+
     public void InsertQueue(IAudioChunk chunk)
     {
         if (chunk.Format.SampleRate != outStream.SampleRate || chunk.Format.ChannelCount != outStream.Layout.ChannelCount)
